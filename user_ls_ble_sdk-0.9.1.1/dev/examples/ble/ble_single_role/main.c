@@ -12,10 +12,9 @@
 #include "io_config.h"
 
 #define SLAVE_SERVER_ROLE 1
-#define MASTER_CLIENT_ROLE 1
+#define MASTER_CLIENT_ROLE 0
 
-#define UART_SVC_ADV_NAME NAME  "LS_UART"
-
+#define UART_SVC_ADV_NAME "LS Single Role"
 #define UART_SERVER_MAX_MTU  517
 #define UART_SERVER_MTU_DFT  23
 #define UART_SVC_RX_MAX_LEN (UART_SERVER_MAX_MTU - 3)
@@ -142,7 +141,7 @@ static uint8_t con_idx_server;
 static uint16_t cccd_config;
 
 static uint8_t adv_obj_hdl;
-static uint8_t advertising_data[28]={0,0,0,0,0,0,0,0,0,0x05,0x09,'a','b','c','d','e'};
+static uint8_t advertising_data[28];
 static uint8_t scan_response_data[31];
 
 static void ls_uart_server_init(void);
@@ -303,21 +302,12 @@ static void create_adv_obj()
     };
     dev_manager_create_legacy_adv_object(&adv_param);
 }
-
-
-uint8_t data[]={'o','k'};
-
 static void start_adv(void)
 {
     LS_ASSERT(adv_obj_hdl != 0xff);
-    uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 2, 
-															GAP_ADV_TYPE_SHORTENED_NAME, UART_SVC_ADV_NAME, sizeof(UART_SVC_ADV_NAME),
-															GAP_ADV_TYPE_MANU_SPECIFIC_DATA,data,sizeof(data));
-		
-	dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
+    uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 1, GAP_ADV_TYPE_SHORTENED_NAME, UART_SVC_ADV_NAME, sizeof(UART_SVC_ADV_NAME));
+    dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
 }
-
-
 #endif
 #if MASTER_CLIENT_ROLE == 1
 static void ls_uart_client_init(void)
@@ -348,7 +338,7 @@ static void ls_uart_client_recv_ntf_ind(uint8_t handle, uint8_t con_idx, uint16_
             HAL_UART_Transmit_IT(&UART_Config, &uart_client_tx_buf[0], length + UART_HEADER_LEN);
         } 
         exit_critical(cpu_stat);
-    }
+    }    
 }
 static void ls_uart_client_send_write_req(void)
 {
@@ -855,18 +845,13 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
     break;
     case ADV_REPORT:
-        #if 1
+        #if 0
         LOG_I("adv received, addr: %2x:%2x:%2x:%2x:%2x:%2x", evt->adv_report.adv_addr->addr[5],
                                                        evt->adv_report.adv_addr->addr[4],
                                                        evt->adv_report.adv_addr->addr[3],
                                                        evt->adv_report.adv_addr->addr[2],
                                                        evt->adv_report.adv_addr->addr[1],
                                                        evt->adv_report.adv_addr->addr[0]);
-		
-
-		LOG_HEX(evt->adv_report.data,evt->adv_report.length);
-		
-		
         #endif
         if (!memcmp(peer_slave_addr0, evt->adv_report.adv_addr->addr, BLE_ADDR_LEN))
         {

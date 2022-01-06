@@ -11,8 +11,12 @@
 #include "co_math.h"
 #include "io_config.h"
 #include "SEGGER_RTT.h"
+#include "user_function.h"
+#include "stdio.h"
+#include "sleep.h"
+#include "lsadc.h"
 
-#define UART_SVC_ADV_NAME "LS UART Server"
+#define UART_SVC_ADV_NAME "LS UART"
 #define UART_SERVER_MAX_MTU  247
 #define UART_SERVER_MTU_DFT  23
 #define UART_SERVER_MAX_DATA_LEN (uart_server_mtu - 3)
@@ -21,6 +25,16 @@
 #define UART_SVC_BUFFER_SIZE (1024)
 
 #define UART_SERVER_TIMEOUT 50 // timer units: ms
+//////////////////////////////////
+
+char global_flag=0;
+char global_count=0;
+
+ADC_HandleTypeDef hadc;
+
+//////////////////////////////
+
+
 static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
 static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
 static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
@@ -77,7 +91,7 @@ static const struct att_decl ls_uart_server_att_decl[UART_SVC_ATT_NUM] =
     },
 };
 static const struct svc_decl ls_uart_server_svc =
-{
+{	
     .uuid = ls_uart_svc_uuid_128,
     .att = (struct att_decl*)ls_uart_server_att_decl,
     .nb_att = UART_SVC_ATT_NUM,
@@ -89,7 +103,9 @@ static uint8_t uart_server_rx_byte;
 static uint8_t uart_server_buf[UART_SVC_BUFFER_SIZE];
 static uint8_t uart_server_tx_buf[UART_SVC_BUFFER_SIZE];
 static uint16_t uart_server_rx_index = 0;
-static UART_HandleTypeDef UART_Server_Config; 
+
+UART_HandleTypeDef UART_Server_Config; 
+
 static bool uart_server_tx_busy;
 static bool uart_server_ntf_done = true;
 static uint16_t uart_server_mtu = UART_SERVER_MTU_DFT;
@@ -97,9 +113,17 @@ static struct builtin_timer *uart_server_timer_inst = NULL;
 static bool update_adv_intv_flag = false;
 static uint16_t cccd_config = 0;
 
+
+enum adv_status
+{
+    ADV_IDLE,
+    ADV_BUSY,
+};
 static uint8_t adv_obj_hdl;
 static uint8_t advertising_data[28] = {0x05, 0x09, 'u', 'a', 'r', 't'};
 static uint8_t scan_response_data[31];
+static uint8_t adv_status = ADV_IDLE;
+
 
 static void ls_uart_server_init(void);
 static void ls_uart_server_timer_cb(void *param);
@@ -109,6 +133,164 @@ static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint1
 static void ls_uart_server_send_notification(void);
 static void start_adv(void);
 static void ls_uart_server_data_length_update(uint8_t con_idx);
+
+void stop_adv(void)
+{
+    if(adv_status == ADV_BUSY)
+		{
+        dev_manager_stop_adv(adv_obj_hdl);
+				adv_status = ADV_IDLE;
+		}
+}
+
+void start_adv(void)
+{
+    uint8_t adv_data_length = 0;
+
+    LS_ASSERT(adv_obj_hdl != 0xff);
+    adv_data_length = ADV_DATA_PACK(advertising_data, 2, GAP_ADV_TYPE_SHORTENED_NAME, UART_SVC_ADV_NAME, strlen((const char *)UART_SVC_ADV_NAME),
+                                                         GAP_ADV_TYPE_MANU_SPECIFIC_DATA, sent_buf, sizeof(sent_buf));
+		
+    if(adv_status != ADV_IDLE)
+    {
+        dev_manager_update_adv_data(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
+    }
+    else
+    {
+        dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
+    } 
+    adv_status = ADV_BUSY;
+}
+
+
+#define USER_EVENT_PERIOD_0 5			 //按键扫描
+#define USER_EVENT_PERIOD_1 25     //按键处理
+#define USER_EVENT_PERIOD_2 200		 //更新广播
+
+static void ls_user_event_timer_init(void);
+
+static void ls_user_event_timer_cb_0(void *param);
+static void ls_user_event_timer_cb_1(void *param);
+static void ls_user_event_timer_cb_2(void *param);
+
+static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
+static struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
+static struct builtin_timer_2 *user_event_timer_inst_2 = NULL;
+
+static void ls_user_event_timer_init(void)
+{
+	user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+	
+	user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+
+	user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
+	builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
+}
+
+//5ms   做按键扫描
+static void ls_user_event_timer_cb_0(void *param)
+{
+/**
+user_code	
+*/	
+	scan_touch_key();
+	scan_key();
+	globle_count++;
+	no_act_count++;
+	
+	if(led_open_flag){
+		led_open_count++;
+	}	
+	//////////////////////////////////////////
+	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+}
+
+//20ms
+static void ls_user_event_timer_cb_1(void *param)
+{
+/**
+user_code	
+*/
+	if(adv_status == ADV_BUSY){
+		io_toggle_pin(PA01);
+	}
+	 if(led_open_flag){
+			io_write_pin(PA09,1);	
+	 }
+	 else{
+			io_write_pin(PA09,0);	
+	 }
+
+	if(touch_key_staus==SHORT && touch_key_busy){
+		LOG_I("touch_key_staus=%x",touch_key_staus);
+		led_open_count=0;
+		//sprintf((char*)buf,"KEY=%d",touch_key_staus);
+		//HAL_UART_Transmit_IT(&UART_Server_Config, (uint8_t*)buf, sizeof(buf));
+		touch_key_busy=0;
+	}
+	if(touch_key_staus==DOUBLE && touch_key_busy){
+		LOG_I("touch_key_staus=%x",touch_key_staus);
+		led_open_flag=!led_open_flag;
+		led_open_count=0;
+		//sprintf((char*)buf,"KEY=%d",touch_key_staus);
+		//HAL_UART_Transmit_IT(&UART_Server_Config, (uint8_t*)buf, sizeof(buf));
+		touch_key_busy=0;
+	}
+	if(touch_key_staus==LONG && touch_key_busy){
+		LOG_I("touch_key_staus=%x",touch_key_staus);
+		//sprintf((char*)buf,"KEY=%d",touch_key_staus);
+		//HAL_UART_Transmit_IT(&UART_Server_Config, (uint8_t*)buf, sizeof(buf));
+		touch_key_busy=0;
+	}
+	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+}
+//200ms
+static void ls_user_event_timer_cb_2(void *param)
+{
+	static uint32_t temp_time;
+/**
+user_code	
+*/
+	if((no_act_count>100 && led_open_flag==0) ||
+		  (no_act_count>100 && led_open_count>=12000)){
+				ls_sleep_enter_LP3();
+		}
+	
+	//memcpy ( &sent_buf[0], &id_num[0], sizeof(id_num) );
+	
+	//LOG_HEX(sent_buf,sizeof(sent_buf));
+		
+	if(key_busy && adv_status == ADV_IDLE){
+		serial_num++; 
+		sent_buf[8]=(serial_num<<4) + (uint8_t)adc_value_num;
+		if(key_status==1){
+			sent_buf[9]=0xBF;
+		}
+		else if(key_status==2 || key_status==4){
+			sent_buf[9]=0xAF;
+		}
+		LOG_I("key_staus=%x",key_status);
+		LOG_I("adc_value_num=%d",adc_value_num);
+		uint16_t crc_val=crc16_check(sent_buf,sizeof(sent_buf)-2);
+		sent_buf[10]=(uint8_t)((crc_val>>8)&0x00ff);
+		sent_buf[11]=(uint8_t)(crc_val&0x00ff);
+		
+		LOG_HEX(sent_buf,sizeof(sent_buf));
+		
+		start_adv();   //更新adv 和开始adv，包含判断不用停止adv
+		key_busy=0;
+		temp_time=globle_count;
+	}
+	 if(globle_count-temp_time>100){
+			stop_adv();
+		}
+	 
+	Get_vbat_val();   //电池电量更新
+	
+	builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
+}
 
 static void ls_uart_server_init(void)
 {
@@ -162,7 +344,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 }
 static void ls_uart_init(void)
 {
-    uart1_io_init(PB00, PB01);
+    uart1_io_init(PA13, PA14);
     UART_Server_Config.UARTX = UART1;
     UART_Server_Config.Init.BaudRate = UART_BAUDRATE_115200;
     UART_Server_Config.Init.MSBEN = 0;
@@ -288,7 +470,7 @@ static void create_adv_obj()
         .ch_map = 0x7,
         .disc_mode = ADV_MODE_GEN_DISC,
         .prop = {
-            .connectable = 1,
+						.connectable = 0,   //0不可连接 ，1可连接
             .scannable = 1,
             .directed = 0,
             .high_duty_cycle = 0,
@@ -296,13 +478,7 @@ static void create_adv_obj()
     };
     dev_manager_create_legacy_adv_object(&adv_param);
 }
-static void start_adv(void)
-{
-    LS_ASSERT(adv_obj_hdl != 0xff);
-    uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 1, GAP_ADV_TYPE_SHORTENED_NAME, UART_SVC_ADV_NAME, sizeof(UART_SVC_ADV_NAME));
-    dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
-    LOG_I("adv start");
-}
+
 /*
 static void create_highduty_adv_obj(void)
 {
@@ -348,7 +524,9 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         dev_manager_add_service((struct svc_decl *)&ls_uart_server_svc);
         ls_uart_init(); 
         HAL_UART_Receive_IT(&UART_Server_Config, &uart_server_rx_byte, 1); 
-        ls_uart_server_init();      
+        ls_uart_server_init();   
+			
+				ls_user_event_timer_init();// 定时器初始化
     }
     break;
     case SERVICE_ADDED:
@@ -358,14 +536,15 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
     case ADV_OBJ_CREATED:
         LS_ASSERT(evt->obj_created.status == 0);
         adv_obj_hdl = evt->obj_created.handle;
-        start_adv();
-    break;
+
+				//start_adv();
+		break;
     case ADV_STOPPED:
         if (update_adv_intv_flag)
         {
             update_adv_intv_flag = false;
-            start_adv();
-        }    
+            //start_adv();
+        }
     break;
     case SCAN_STOPPED:
     
@@ -376,14 +555,21 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
     }
     
 }
-
+const uint8_t dev_addr[6]={0x75,0x67,0x79,0x76,0x75,0x80};  //设置MAC地址固定
 
 int main()
 {
     sys_init_app();
     ble_init();
+		user_init(); 
+		dev_manager_set_mac_addr((uint8_t*)dev_addr);
+	
     dev_manager_init(dev_manager_callback);
     gap_manager_init(gap_manager_callback);
     gatt_manager_init(gatt_manager_callback);
     ble_loop();
 }
+
+
+
+

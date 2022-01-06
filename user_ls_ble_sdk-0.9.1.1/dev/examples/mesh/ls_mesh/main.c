@@ -196,7 +196,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 static void ls_uart_init(void)
 {
-    uart1_io_init(PB00, PB01);
+    uart1_io_init(PA13, PA14);
     UART_Server_Config.UARTX = UART1;
     UART_Server_Config.Init.BaudRate = UART_BAUDRATE_9600;
     UART_Server_Config.Init.MSBEN = 0;
@@ -467,7 +467,9 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         LS_ASSERT(evt->obj_created.status == 0);
         adv_obj_hdl = evt->obj_created.handle;
         start_adv();
+				LOG_I("adv_start");
         ls_mesh_start();
+				LOG_I("adv_start");
     break;
     case ADV_STOPPED:
       LOG_I("adv_stopped");
