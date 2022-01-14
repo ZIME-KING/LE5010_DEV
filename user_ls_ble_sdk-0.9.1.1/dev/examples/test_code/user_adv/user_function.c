@@ -51,7 +51,21 @@ void gpio_init(void)
 	  io_pull_write(PA00, IO_PULL_UP);    //PB11 config pullup
 }
 
+const uint16_t adv_int_arr[7] = {80, 160, 320, 800, 1600, 3200 ,40};
+//广播间隔50MS  100ms   200ms 500ms  1000ms   2000ms 25ms
 
+static uint8_t adv_obj_hdl;
+void update_adv_intv(uint32_t new_adv_intv)
+{
+    LOG_I("adv_intv:%d",new_adv_intv);
+    dev_manager_update_adv_interval(adv_obj_hdl,new_adv_intv,new_adv_intv);
+//    if(adv_status)
+//    {
+//        dev_manager_stop_adv(adv_obj_hdl);
+//        update_adv_intv_flag = true;
+//    }
+}
+  
 
 void user_init(void){
 		gpio_init();
@@ -62,7 +76,8 @@ void user_init(void){
 		while(recv_flag==0);
 		Get_vbat_val();
 		LOG_I("Vbat_vol: %d mv",(3*1400*adc_value/4095));  //By default, 1/8 of the power supply is used to collect
-}
+		update_adv_intv(adv_int_arr[6]);
+} 
 /////////////////////////////////////adc_value_num////////////////////////////////////////////////////
 void Get_vbat_val(){
 		if(recv_flag == 1){

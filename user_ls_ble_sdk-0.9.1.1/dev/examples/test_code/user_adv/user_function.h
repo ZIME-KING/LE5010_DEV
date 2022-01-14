@@ -33,7 +33,7 @@ extern uint8_t  led_open_flag;
 
 
 extern uint16_t adc_value;
-extern volatile uint8_t recv_flag ;
+extern volatile uint8_t recv_flag ; //adc中断处理标记
 
 extern UART_HandleTypeDef UART_Server_Config; 
 extern ADC_HandleTypeDef hadc;
