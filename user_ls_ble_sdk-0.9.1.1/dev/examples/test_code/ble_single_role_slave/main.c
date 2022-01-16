@@ -51,6 +51,8 @@
 #define DISCONNECTED_MSG_PATTERN 0xdead
 #define DISCONNECTED_MSG_PATTERN_LEN 2
 
+static uint8_t uart_server_rx_byte;
+
 enum uart_rx_status
 {
     UART_IDLE,
@@ -59,20 +61,20 @@ enum uart_rx_status
     UART_LINK_ID,
     UART_RECEIVING, 
 };
-static uint8_t uart_state = UART_IDLE;
+//static uint8_t uart_state = UART_IDLE;
 static bool uart_tx_busy;
 static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
 static UART_HandleTypeDef UART_Config; 
 static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 
-//static const uint8_t ls_uart_svc_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
-//static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFB,0x00,0x00};
-//static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFC,0x00,0x00};
+static const uint8_t ls_uart_svc_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
+static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFB,0x00,0x00};
+static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFC,0x00,0x00};
 
 
-static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
-static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
-static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
+//static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
+//static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
+//static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
 
 static const uint8_t att_desc_client_char_cfg_array[] = {0x02,0x29};
 
@@ -139,7 +141,7 @@ static const struct svc_decl ls_uart_server_svc =
 
 static struct gatt_svc_env ls_uart_server_svc_env;
 static uint8_t uart_server_tx_buf[UART_SVC_BUFFER_SIZE];
-static uint8_t uart_server_ble_buf[UART_SVC_BUFFER_SIZE];
+//static uint8_t uart_server_ble_buf[UART_SVC_BUFFER_SIZE];
 static uint16_t uart_server_recv_data_length;
 static bool uart_server_ntf_done;
 static uint16_t uart_server_mtu;
@@ -224,7 +226,7 @@ static void ls_single_role_timer_cb(void *param)
 }
 static void ls_uart_init(void)
 {
-    uart1_io_init(PB00, PA01);
+    uart1_io_init(PB00, PB01);
     UART_Config.UARTX = UART1;
     UART_Config.Init.BaudRate = UART_BAUDRATE_115200;
     UART_Config.Init.MSBEN = 0;
@@ -275,8 +277,12 @@ static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint1
         memcpy(&cccd_config, value, length);
     }
 }
+#ifdef USER
 static void ls_uart_server_send_notification(void)
 {
+//	LOG_I("con_idx_server:%d",con_idx_server);
+//	LOG_I("uart_server_recv_data_length:%d",uart_server_recv_data_length);
+//	LOG_I("uart_server_ntf_done:%d",uart_server_ntf_done);
     uint32_t cpu_stat = enter_critical();
     if(con_idx_server != CON_IDX_INVALID_VAL && uart_server_recv_data_length != 0 && uart_server_ntf_done)
     {
@@ -290,6 +296,25 @@ static void ls_uart_server_send_notification(void)
     }
     exit_critical(cpu_stat);
 }
+#endif
+static void ls_uart_server_send_notification(void)
+{
+	uint32_t cpu_stat = enter_critical();
+    if(uart_server_recv_data_length > 0  && uart_server_ntf_done)
+    {
+				//LOG_I("handle");
+        uart_server_ntf_done = false;
+        uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);
+        uint16_t tx_len = uart_server_recv_data_length > co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) ? co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length;
+        uart_server_recv_data_length -= tx_len;
+        gatt_manager_server_send_notification(con_idx_server, handle, &uart_rx_buf[0], tx_len, NULL);
+        memcpy((void*)&uart_rx_buf[0], (void*)&uart_rx_buf[tx_len], uart_server_recv_data_length);
+    }
+		 exit_critical(cpu_stat);
+}
+
+
+
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
@@ -440,7 +465,9 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     }
 #endif    
 }
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//#define USER   
+#ifdef USER
+void HAL_UART_RxCpltCallback_old(UART_HandleTypeDef *huart)
 {
     uint16_t len;
     uint8_t con_idx;
@@ -508,15 +535,32 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         uart_state = UART_IDLE;
         HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[0], UART_SYNC_BYTE_LEN);
     }
+		 //LOG_HEX(uart_rx_buf,sizeof(uart_rx_buf));
 }
+#endif
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+    if(uart_server_recv_data_length < UART_SVC_BUFFER_SIZE)
+    {
+        uart_rx_buf[uart_server_recv_data_length++] = uart_server_rx_byte;
+			// memcpy((void*)&uart_server_ble_buf[0], (void*)&uart_rx_buf[UART_HEADER_LEN], len);
+    }
+    else
+    {   
+        LOG_I("uart server rx buffer overflow!");
+    }
+		//uart_rx_buf
+    HAL_UART_Receive_IT(&UART_Config, &uart_server_rx_byte, 1);
+ }
 static void ls_uart_server_client_uart_tx(void)
 {
 #if SLAVE_SERVER_ROLE == 1    
     if (uart_server_tx_buf[0] == UART_SYNC_BYTE)
     {
+		//	LOG_I("SEND_1");
         uint32_t cpu_stat = enter_critical();
         if (!uart_tx_busy)
         {
+					  LOG_I("SEND");
             uint16_t length = (uart_server_tx_buf[2] << 8) | uart_server_tx_buf[1];
             uart_tx_busy = true;
             current_uart_tx_idx = (0 << 7);
@@ -816,7 +860,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 #endif       
         ls_uart_init(); 
         ls_app_timer_init();
-        HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[0], UART_SYNC_BYTE_LEN);            
+        HAL_UART_Receive_IT(&UART_Config, &uart_server_rx_byte, UART_SYNC_BYTE_LEN);            
     }
     break;
 #if SLAVE_SERVER_ROLE == 1    
