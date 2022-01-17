@@ -21,10 +21,10 @@ void scan_key(){
   static unsigned char edge_status;
 	
 	if(io_read_pin(PA07)){
-		io_write_pin(PA08,0) ;
+		//io_write_pin(PB09,0) ;
 	}
 	else{
-		io_write_pin(PA08,1) ;
+		//io_write_pin(PB09,1) ;
 		no_act_count=0;
 	}
 		  edge_flag=edge_flag<<1;
@@ -35,9 +35,11 @@ void scan_key(){
 				edge_status=1;				//上升延
 				release_count_double=release_count;
 				release_count=0;
+				io_write_pin(PB09,0) ;
 			}
 			else if(edge_flag == 0xF0){
 				edge_status=0;				//下降延
+				io_write_pin(PB09,1) ;
 			}
 			if(edge_status){
 					release_count++;

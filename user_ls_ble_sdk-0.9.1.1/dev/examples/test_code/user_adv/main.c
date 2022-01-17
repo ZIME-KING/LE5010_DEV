@@ -33,8 +33,6 @@ char global_count=0;
 ADC_HandleTypeDef hadc;
 
 //////////////////////////////
-
-
 static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
 static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
 static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
@@ -158,13 +156,13 @@ void start_adv(void)
     else
     {
         dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
-    } 
+    }
     adv_status = ADV_BUSY;
 }
 
 
 #define USER_EVENT_PERIOD_0 5			 //按键扫描
-#define USER_EVENT_PERIOD_1 25     //按键处理
+#define USER_EVENT_PERIOD_1 50     //按键处理
 #define USER_EVENT_PERIOD_2 200		 //更新广播
 
 static void ls_user_event_timer_init(void);
@@ -203,6 +201,16 @@ user_code
 	if(led_open_flag){
 		led_open_count++;
 	}	
+	//LOG_I("no_act_count_5ms:%d",no_act_count);		
+	if(adv_status == ADV_IDLE){
+				if((no_act_count>100 && led_open_flag==0) ||
+				(no_act_count>100 && led_open_count>=12000)){
+						
+				LOG_I("no_act_count%d",no_act_count);		
+				LOG_I("ls_sleep_enter_LP3");	
+					ls_sleep_enter_LP3();
+		}
+	}
 	//////////////////////////////////////////
 	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
@@ -214,15 +222,18 @@ static void ls_user_event_timer_cb_1(void *param)
 user_code	
 */
 	if(adv_status == ADV_BUSY){
-		io_toggle_pin(PA01);
+		io_toggle_pin(PB09);
+	
 	}
 	 if(led_open_flag){
-			io_write_pin(PA09,1);	
+			io_write_pin(PB08,1);	
 	 }
 	 else{
-			io_write_pin(PA09,0);	
+			io_write_pin(PB08,0);	
+		  led_open_count=0;
 	 }
-
+	
+	
 	if(touch_key_staus==SHORT && touch_key_busy){
 		LOG_I("touch_key_staus=%x",touch_key_staus);
 		led_open_count=0;
@@ -253,10 +264,6 @@ static void ls_user_event_timer_cb_2(void *param)
 /**
 user_code	
 */
-	if((no_act_count>100 && led_open_flag==0) ||
-		  (no_act_count>100 && led_open_count>=12000)){
-				ls_sleep_enter_LP3();
-		}
 	
 	//memcpy ( &sent_buf[0], &id_num[0], sizeof(id_num) );
 	
@@ -266,10 +273,10 @@ user_code
 		serial_num++; 
 		sent_buf[8]=(serial_num<<4) + (uint8_t)adc_value_num;
 		if(key_status==1){
-			sent_buf[9]=0xBF;
+			sent_buf[9]=0xAF;
 		}
 		else if(key_status==2 || key_status==4){
-			sent_buf[9]=0xAF;
+			sent_buf[9]=0xBF;
 		}
 		LOG_I("key_staus=%x",key_status);
 		LOG_I("adc_value_num=%d",adc_value_num);
@@ -283,8 +290,10 @@ user_code
 		key_busy=0;
 		temp_time=globle_count;
 	}
-	 if(globle_count-temp_time>100){
+	 // 5ms globle_count++ 发送1s 关闭 极端下 800ms到1200ms发送时间
+	 if(globle_count-temp_time>200){
 			stop_adv();
+		 	io_write_pin(PB09,0);	
 		}
 	 
 	Get_vbat_val();   //电池电量更新

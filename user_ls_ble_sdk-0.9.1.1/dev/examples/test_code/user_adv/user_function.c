@@ -40,10 +40,10 @@ void gpio_init(void)
 {
     io_cfg_output(PA01);   //PB09 config output
     io_write_pin(PA01,0);  //PB09 write low power
-    io_cfg_output(PA08);   //PB09 config output
-    io_write_pin(PA08,0);  //PB09 write low power
-	  io_cfg_output(PA09);   //PB09 config output
-    io_write_pin(PA09,0);  //PB09 write low power
+    io_cfg_output(PB08);   //PB09 config output
+    io_write_pin(PB08,0);  //PB09 write low power
+	  io_cfg_output(PB09);   //PB09 config output
+    io_write_pin(PB09,0);  //PB09 write low power
 	
 	  io_cfg_input(PA07);
 		io_cfg_input(PA00);
