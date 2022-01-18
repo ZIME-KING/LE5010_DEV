@@ -11,11 +11,11 @@
 #define LOG_BACKEND (UART_LOG)
 #endif
 
-#define LOG_UART_TXD (PB00)
-#define LOG_UART_RXD (PB01)
+//#define LOG_UART_TXD (PB00)
+//#define LOG_UART_RXD (PB01)
 
-//#define LOG_UART_TXD (PA13)
-//#define LOG_UART_RXD (PA14)
+#define LOG_UART_TXD (PA13)
+#define LOG_UART_RXD (PA14)
 
 
 const uint8_t hex_num_tab[] = "0123456789ABCDEF";
