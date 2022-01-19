@@ -6,9 +6,9 @@ unsigned char key_busy=0; 		//按键事件忙标记，
 unsigned char touch_key_busy=0;
 unsigned char touch_key_staus=0;
   
-#define SHORT_TIME 50/5
+#define SHORT_TIME 25/5
 #define LONG_TIME  800/5
-#define DOUBLE_RELEASE_TIME_MAX 300/5
+#define DOUBLE_RELEASE_TIME_MAX 200/5
 #define DOUBLE_RELEASE_TIME_MIN 20/5	
 
 //5MS进一次中断，检测按键

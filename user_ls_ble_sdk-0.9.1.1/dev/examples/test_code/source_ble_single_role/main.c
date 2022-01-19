@@ -81,8 +81,8 @@ static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 //  static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFC,0x01,0x01};
 
   static const uint8_t ls_uart_svc_uuid_128[] =     {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
-  static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFB,0x00,0x00};
-  static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFC,0x00,0x00};
+  static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFB,0x01,0x01};
+  static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFC,0x01,0x01};
 
 
 
@@ -182,8 +182,8 @@ enum scan_status
     SCAN_IDLE,
     SCAN_BUSY,
 };
-
-static const uint8_t peer_slave_addr0[BLE_ADDR_LEN] = {0xc0,0x62,0x87,0x4c,0xE0,0x00};
+//{0x79,0x45,0x6b,0xa5,0xee,0x68};
+static uint8_t peer_slave_addr0[BLE_ADDR_LEN] = {0x68,0xee,0xa5,0x6b,0x45,0x79};
 static uint8_t con_idx_client;
 static bool uart_client_wr_cmd_done;
 static uint16_t uart_client_mtu;
@@ -800,6 +800,8 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
         LOG_I("receive gatt msg when disconnected!");
     } 
 }
+static const uint8_t user_name[]={ 0x58,0x70 ,0x65,0x72 ,0x69 ,0x61 ,0x20 ,0x58 ,0x5A ,0x32 ,0x20 ,0x50 ,0x72 ,0x65 ,0x6D ,0x69 ,0x75 ,0x6D};
+
 static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 {
     switch(type)
@@ -869,15 +871,20 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
     break;
     case ADV_REPORT:
-        #if 1
-        LOG_I("adv received, addr: %2x:%2x:%2x:%2x:%2x:%2x", evt->adv_report.adv_addr->addr[5],
+        #if 1		
+		if(!memcmp(evt->adv_report.data+5,&user_name[0],sizeof(user_name))){
+						LOG_HEX(evt->adv_report.data,32);
+		        LOG_I("adv received, addr: %2x:%2x:%2x:%2x:%2x:%2x", evt->adv_report.adv_addr->addr[5],
                                                        evt->adv_report.adv_addr->addr[4],
                                                        evt->adv_report.adv_addr->addr[3],
                                                        evt->adv_report.adv_addr->addr[2],
                                                        evt->adv_report.adv_addr->addr[1],
                                                        evt->adv_report.adv_addr->addr[0]);
-		
-				LOG_HEX(evt->adv_report.data,32);
+			for(uint8_t i=0;i<6;i++){
+										peer_slave_addr0[i]=evt->adv_report.adv_addr->addr[i];
+			}
+		}
+				
         #endif
         if (!memcmp(peer_slave_addr0, evt->adv_report.adv_addr->addr, BLE_ADDR_LEN))
         {

@@ -173,7 +173,7 @@ enum scan_status
     SCAN_BUSY,
 };
 
-static const uint8_t peer_slave_addr0[BLE_ADDR_LEN] = {0x01,0xcc,0xcc,0xcc,0xcc,0xcc};
+static const uint8_t peer_slave_addr0[BLE_ADDR_LEN] = {0xcb,0xed,0x8b,0x1f,0x5a,0x43};
 static uint8_t con_idx_client;
 static bool uart_client_wr_cmd_done;
 static uint16_t uart_client_mtu;

@@ -29,7 +29,7 @@ uint32_t globle_count=0;
 uint16_t adc_value_num;
 uint8_t key_status_num;
 uint8_t serial_num;
-uint8_t id_num[8]={0x01,0x02,0x3,0x04,0x05,0x06,0x07,0x08};
+uint8_t id_num[8]={0x0B,0xA4,0x01,0x00,0x7C,0xA0,0x1F,0x14};
 uint8_t sent_buf[12];
 
 uint32_t no_act_count=0;
@@ -172,9 +172,12 @@ static void exitpa07_iowkup_init(void)
 #define ID_VAL_0 0xA0
 #define ID_VAL_1 0xA1
 #define RECORD_KEY1 1
+//#define ID_SET
 tinyfs_dir_t ID_dir;
 
+
 void set_id_num(){
+#ifdef ID_SET
 static uint32_t count;
 uint8_t tmp[8];
 	tinyfs_mkdir(&ID_dir,ROOT_DIR,5);  //创建目录
@@ -201,6 +204,7 @@ uint8_t tmp[8];
 		memcpy ( &id_num[0], &tmp[0], sizeof(tmp) );
 		LOG_I("NO_wirt_OK");
 	}
+	#endif
 	memcpy ( &sent_buf[0], &id_num[0], sizeof(id_num) );
 }
 //////////////////////// CRC ////////////////////////////////////////////

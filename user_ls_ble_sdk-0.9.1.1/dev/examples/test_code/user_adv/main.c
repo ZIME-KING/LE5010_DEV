@@ -146,8 +146,10 @@ void start_adv(void)
     uint8_t adv_data_length = 0;
 
     LS_ASSERT(adv_obj_hdl != 0xff);
-    adv_data_length = ADV_DATA_PACK(advertising_data, 2, GAP_ADV_TYPE_SHORTENED_NAME, UART_SVC_ADV_NAME, strlen((const char *)UART_SVC_ADV_NAME),
-                                                         GAP_ADV_TYPE_MANU_SPECIFIC_DATA, sent_buf, sizeof(sent_buf));
+//    adv_data_length = ADV_DATA_PACK(advertising_data, 2, GAP_ADV_TYPE_SHORTENED_NAME, UART_SVC_ADV_NAME, strlen((const char *)UART_SVC_ADV_NAME),
+//                                                         GAP_ADV_TYPE_MANU_SPECIFIC_DATA, sent_buf, sizeof(sent_buf));
+	
+	    adv_data_length = ADV_DATA_PACK(advertising_data, 1,GAP_ADV_TYPE_MANU_SPECIFIC_DATA, sent_buf, sizeof(sent_buf));
 		
     if(adv_status != ADV_IDLE)
     {
@@ -281,8 +283,10 @@ user_code
 		LOG_I("key_staus=%x",key_status);
 		LOG_I("adc_value_num=%d",adc_value_num);
 		uint16_t crc_val=crc16_check(sent_buf,sizeof(sent_buf)-2);
-		sent_buf[10]=(uint8_t)((crc_val>>8)&0x00ff);
-		sent_buf[11]=(uint8_t)(crc_val&0x00ff);
+//		sent_buf[10]=(uint8_t)((crc_val>>8)&0x00ff);
+//		sent_buf[11]=(uint8_t)(crc_val&0x00ff);
+		sent_buf[10]=0xB7;
+		sent_buf[11]=0x8E;
 		
 		LOG_HEX(sent_buf,sizeof(sent_buf));
 		
@@ -479,7 +483,7 @@ static void create_adv_obj()
         .ch_map = 0x7,
         .disc_mode = ADV_MODE_GEN_DISC,
         .prop = {
-						.connectable = 0,   //0不可连接 ，1可连接
+						.connectable = 1,   //0不可连接 ，1可连接
             .scannable = 1,
             .directed = 0,
             .high_duty_cycle = 0,
