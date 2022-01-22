@@ -69,7 +69,7 @@ static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 //static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
 //static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
 
-static const uint8_t ls_uart_svc_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
+static const uint8_t ls_uart_svc_uuid_128[] = 		{0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
 static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFB,0x00,0x00};
 static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFC,0x00,0x00};
 
@@ -173,7 +173,7 @@ enum scan_status
     SCAN_BUSY,
 };
 
-static const uint8_t peer_slave_addr0[BLE_ADDR_LEN] = {0xcb,0xed,0x8b,0x1f,0x5a,0x43};
+static uint8_t peer_slave_addr0[BLE_ADDR_LEN] = {0xcb,0xed,0x8b,0x1f,0x5a,0x43};
 static uint8_t con_idx_client;
 static bool uart_client_wr_cmd_done;
 static uint16_t uart_client_mtu;
@@ -226,7 +226,7 @@ static void ls_single_role_timer_cb(void *param)
 }
 static void ls_uart_init(void)
 {
-    uart1_io_init(PA13, PA14);
+    uart1_io_init(PB00, PB01);
     UART_Config.UARTX = UART1;
     UART_Config.Init.BaudRate = UART_BAUDRATE_115200;
     UART_Config.Init.MSBEN = 0;
@@ -331,7 +331,7 @@ static void ls_uart_client_recv_ntf_ind(uint8_t handle, uint8_t con_idx, uint16_
 {
     LOG_I("ls_uart_client_recv_ntf_ind");
     if(uart_client_tx_buf[0] != UART_SYNC_BYTE)
-    { 
+    {
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
         uart_client_tx_buf[0] = UART_SYNC_BYTE;
         uart_client_tx_buf[1] = length & 0xff;
@@ -344,9 +344,9 @@ static void ls_uart_client_recv_ntf_ind(uint8_t handle, uint8_t con_idx, uint16_
             uart_tx_busy = true;
             current_uart_tx_idx = (1 << 7);
             HAL_UART_Transmit_IT(&UART_Config, &uart_client_tx_buf[0], length + UART_HEADER_LEN);
-        } 
+        }
         exit_critical(cpu_stat);
-    }    
+    }
 }
 static void ls_uart_client_send_write_req(void)
 {
@@ -358,6 +358,7 @@ static void ls_uart_client_send_write_req(void)
                         co_min(UART_CLIENT_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) : uart_client_recv_data_length;
         uart_client_recv_data_length -= tx_len;
         LOG_I("ls_uart_client_send_write_req, tx_len = %d", tx_len);
+				LOG_HEX(&uart_client_ble_buf[0], tx_len);
         gatt_manager_client_write_no_rsp(con_idx_client, uart_client_rx_pointer_handle, &uart_client_ble_buf[0], tx_len);         
         memcpy((void*)&uart_client_ble_buf[0], (void*)&uart_client_ble_buf[tx_len], uart_client_recv_data_length);
     }
@@ -614,7 +615,7 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             connect_pattern_send_prepare(con_idx); 
 
             gatt_manager_client_mtu_exch_send(con_idx);
-        }    
+        }
 #endif           
         LOG_I("connected! new con_idx = %d", con_idx);
     break;
@@ -628,12 +629,12 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             uart_server_mtu = UART_SERVER_MTU_DFT;
             start_adv();
 #endif            
-        }      
+        }
         else if (CONNECTION_IS_CLIENT(con_idx))
         {
 #if MASTER_CLIENT_ROLE == 1            
             disconnect_pattern_send_prepare(con_idx, LS_BLE_ROLE_MASTER);
-            con_idx_client = CON_IDX_INVALID_VAL;        
+            con_idx_client = CON_IDX_INVALID_VAL;
             uart_client_mtu = UART_SERVER_MTU_DFT;
             start_scan();
             init_status = INIT_IDLE;   
@@ -665,7 +666,7 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
     if (gap_manager_get_role(con_idx) == LS_BLE_ROLE_MASTER)
     {
         disconnected = con_idx_client == CON_IDX_INVALID_VAL;
-    }   
+    }
 #endif    
     if (!disconnected)
     {
@@ -697,6 +698,8 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
 #if MASTER_CLIENT_ROLE == 1                 
                 uart_client_mtu = evt->mtu_changed_ind.mtu;
                 ls_uart_client_service_dis(con_idx);
+								LOG_I("con_idx= %d", con_idx);
+							 //ls_uart_client_service_dis(0x80);
 #endif                
             }                
             LOG_I("mtu exch ind, mtu = %d", evt->mtu_changed_ind.mtu);
@@ -707,6 +710,7 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
             LOG_I("svc dis notification, length = %d", evt->client_recv_notify_indicate.length);
         break;
         case CLIENT_PRIMARY_SVC_DIS_IND:
+					 //LOG_I("svc dis success, attribute_handle = %d, end_handle = %d", uart_client_svc_attribute_handle, uart_client_svc_end_handle);
             if (!memcmp(evt->client_svc_disc_indicate.uuid, ls_uart_svc_uuid_128, sizeof(ls_uart_svc_uuid_128)))
             {
                 uart_client_svc_attribute_handle = evt->client_svc_disc_indicate.handle_range.begin_handle;
@@ -779,7 +783,7 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
             }    
         break;
 #endif        
-        default:
+        default: 
             LOG_I("Event not handled!");
             break;
         }
@@ -789,6 +793,11 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
         LOG_I("receive gatt msg when disconnected!");
     } 
 }
+
+//static const uint8_t user_name[]={ 0x58,0x70 ,0x65,0x72 ,0x69 ,0x61 ,0x20 ,0x58 ,0x5A ,0x32 ,0x20 ,0x50 ,0x72 ,0x65 ,0x6D ,0x69 ,0x75 ,0x6D};
+static const uint8_t user_name[]={0x49,0x4E,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46};
+
+
 static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 {
     switch(type)
@@ -858,14 +867,25 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
     break;
     case ADV_REPORT:
-        #if 0
-        LOG_I("adv received, addr: %2x:%2x:%2x:%2x:%2x:%2x", evt->adv_report.adv_addr->addr[5],
+      
+			#if 1
+		if(!memcmp(evt->adv_report.data+9,&user_name[0],sizeof(user_name))){
+						LOG_HEX(evt->adv_report.data,32);
+		        LOG_I("adv received, addr: %2x:%2x:%2x:%2x:%2x:%2x", evt->adv_report.adv_addr->addr[5],
                                                        evt->adv_report.adv_addr->addr[4],
                                                        evt->adv_report.adv_addr->addr[3],
                                                        evt->adv_report.adv_addr->addr[2],
                                                        evt->adv_report.adv_addr->addr[1],
                                                        evt->adv_report.adv_addr->addr[0]);
-        #endif
+			for(uint8_t ii=0;ii<6;ii++){ 
+								peer_slave_addr0[ii]=evt->adv_report.adv_addr->addr[ii];
+			}
+					
+			}
+		  #endif
+		
+		
+		
         if (!memcmp(peer_slave_addr0, evt->adv_report.adv_addr->addr, BLE_ADDR_LEN))
         {
             if (init_obj_hdl != 0xff && init_status == INIT_IDLE)
