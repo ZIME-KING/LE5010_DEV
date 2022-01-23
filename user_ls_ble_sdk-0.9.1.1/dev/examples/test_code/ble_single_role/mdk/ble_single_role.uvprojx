@@ -512,6 +512,11 @@
               <FilePath>..\..\..\..\peripheral\src\dmac.c</FilePath>
             </File>
             <File>
+              <FileName>flash_svcall.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\peripheral\src\flash_svcall.c</FilePath>
+            </File>
+            <File>
               <FileName>lsadc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\peripheral\src\lsadc.c</FilePath>
@@ -602,6 +607,11 @@
               <FilePath>..\..\..\..\peripheral\src\spi_flash.c</FilePath>
             </File>
             <File>
+              <FileName>spi_flash_lsqspi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\peripheral\src\spi_flash_lsqspi.c</FilePath>
+            </File>
+            <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\peripheral\src\uart.c</FilePath>
@@ -640,11 +650,6 @@
               <FileName>dmac_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\soc\arm_cm\le501x\integration\dmac_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>flash_svcall.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\soc\flash_svcall.c</FilePath>
             </File>
             <File>
               <FileName>i2c_msp.c</FileName>
