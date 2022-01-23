@@ -31,12 +31,17 @@ extern uint32_t no_act_count;
 extern uint32_t led_open_count;
 extern uint8_t  led_open_flag;
 
+extern uint8_t con_idx_client;
 
 extern uint16_t adc_value;
-extern volatile uint8_t recv_flag ;
+extern volatile uint8_t recv_flag ; //adc中断处理标记
 
 extern UART_HandleTypeDef UART_Server_Config; 
 extern ADC_HandleTypeDef hadc;
+
+
+extern uint16_t uart_client_rx_pointer_handle;
+
 
 uint16_t crc16_check(const uint8_t *buff, uint16_t size);
 void gpio_init(void);
@@ -45,5 +50,10 @@ void ls_sleep_enter_LP3(void);
 void Get_vbat_val(void);
 
 
-
+void user_send_lock_down(void);
+void user_send_lock_up(void);
+void user_send_led_off(void);
+void user_send_led_on(void);
+void user_send_sign_in(void);
+ 
 #endif

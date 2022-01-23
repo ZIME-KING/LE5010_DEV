@@ -21,7 +21,10 @@
 static void set_id_num(void);
 static void lsadc_init(void);
 
+
 uint16_t adc_value;
+ADC_HandleTypeDef hadc;
+
 volatile uint8_t recv_flag = 0;
 
 uint32_t globle_count=0;
@@ -29,8 +32,15 @@ uint32_t globle_count=0;
 uint16_t adc_value_num;
 uint8_t key_status_num;
 uint8_t serial_num;
-uint8_t id_num[8]={0x01,0x02,0x3,0x04,0x05,0x06,0x07,0x08};
+uint8_t id_num[8]={0x0B,0xA4,0x01,0x00,0x7C,0xA0,0x1F,0x14};
 uint8_t sent_buf[12];
+
+uint8_t SIGN_IN_DATA[]={ 0X17, 0X06, 0XBA, 0X1B, 0XC5, 0XF5, 0X8A, 0X8A, 0XBB, 0X23, 0XFC, 0XC4, 0XCB, 0X10, 0X4C, 0X83, 0XC2, 0X41};
+uint8_t LED_ON_DATA[]={ 0x17, 0x04, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x14, 0x00, 0x14, 0x00};
+uint8_t LED_OFF_DATA[]={0x17, 0x04, 0x02};
+uint8_t LOCK_UP_DATA[]={0x17, 0x01, 0x04};
+uint8_t LOCK_DOWN_DATA[]={0x17, 0x01, 0x00, 0x00, 0x73};
+
 
 uint32_t no_act_count=0;
 uint32_t led_open_count=0;
@@ -40,10 +50,10 @@ void gpio_init(void)
 {
     io_cfg_output(PA01);   //PB09 config output
     io_write_pin(PA01,0);  //PB09 write low power
-    io_cfg_output(PA08);   //PB09 config output
-    io_write_pin(PA08,0);  //PB09 write low power
-	  io_cfg_output(PA09);   //PB09 config output
-    io_write_pin(PA09,0);  //PB09 write low power
+    io_cfg_output(PB08);   //PB09 config output
+    io_write_pin(PB08,0);  //PB09 write low power
+	  io_cfg_output(PB09);   //PB09 config output
+    io_write_pin(PB09,0);  //PB09 write low power
 	
 	  io_cfg_input(PA07);
 		io_cfg_input(PA00);
@@ -51,7 +61,21 @@ void gpio_init(void)
 	  io_pull_write(PA00, IO_PULL_UP);    //PB11 config pullup
 }
 
+const uint16_t adv_int_arr[7] = {80, 160, 320, 800, 1600, 3200 ,40};
+//广播间隔50MS  100ms   200ms 500ms  1000ms   2000ms 25ms
 
+static uint8_t adv_obj_hdl;
+void update_adv_intv(uint32_t new_adv_intv)
+{
+    LOG_I("adv_intv:%d",new_adv_intv);
+    dev_manager_update_adv_interval(adv_obj_hdl,new_adv_intv,new_adv_intv);
+//    if(adv_status)
+//    {
+//        dev_manager_stop_adv(adv_obj_hdl);
+//        update_adv_intv_flag = true;
+//    }
+}
+  
 
 void user_init(void){
 		gpio_init();
@@ -62,7 +86,56 @@ void user_init(void){
 		while(recv_flag==0);
 		Get_vbat_val();
 		LOG_I("Vbat_vol: %d mv",(3*1400*adc_value/4095));  //By default, 1/8 of the power supply is used to collect
+		update_adv_intv(adv_int_arr[6]);
 }
+//////////////////////////////
+void user_send_sign_in(){
+		//static uint8_t once_flag=0;
+    uint32_t cpu_stat = enter_critical();
+    if(con_idx_client != 0xff ) 
+    {		//once_flag=1;
+				gatt_manager_client_write_no_rsp(con_idx_client, uart_client_rx_pointer_handle, &SIGN_IN_DATA[0], sizeof(SIGN_IN_DATA));
+    }
+    exit_critical(cpu_stat);
+}
+void user_send_led_on(){
+    uint32_t cpu_stat = enter_critical();
+    if(con_idx_client != 0xff) 
+    {		
+			
+				gatt_manager_client_write_no_rsp(con_idx_client, uart_client_rx_pointer_handle, &LED_ON_DATA[0], sizeof(LED_ON_DATA));
+    }
+    exit_critical(cpu_stat);
+}
+
+void user_send_led_off(){
+    uint32_t cpu_stat = enter_critical();
+    if(con_idx_client != 0xff) 
+    {		
+				gatt_manager_client_write_no_rsp(con_idx_client, uart_client_rx_pointer_handle, &LED_OFF_DATA[0], sizeof(LED_OFF_DATA));
+    }
+    exit_critical(cpu_stat);
+}
+
+void user_send_lock_up(){
+    uint32_t cpu_stat = enter_critical();
+    if(con_idx_client != 0xff) 
+    {		
+				gatt_manager_client_write_no_rsp(con_idx_client, uart_client_rx_pointer_handle, &LOCK_UP_DATA[0], sizeof(LOCK_UP_DATA));
+    }
+    exit_critical(cpu_stat);
+}
+
+void user_send_lock_down(){
+    uint32_t cpu_stat = enter_critical();
+    if(con_idx_client != 0xff) 
+    {		
+				gatt_manager_client_write_no_rsp(con_idx_client, uart_client_rx_pointer_handle, &LOCK_DOWN_DATA[0], sizeof(LOCK_DOWN_DATA));
+    }
+    exit_critical(cpu_stat);
+}
+
+		
 /////////////////////////////////////adc_value_num////////////////////////////////////////////////////
 void Get_vbat_val(){
 		if(recv_flag == 1){
@@ -157,9 +230,12 @@ static void exitpa07_iowkup_init(void)
 #define ID_VAL_0 0xA0
 #define ID_VAL_1 0xA1
 #define RECORD_KEY1 1
+//#define ID_SET
 tinyfs_dir_t ID_dir;
 
+
 void set_id_num(){
+#ifdef ID_SET
 static uint32_t count;
 uint8_t tmp[8];
 	tinyfs_mkdir(&ID_dir,ROOT_DIR,5);  //创建目录
@@ -186,6 +262,7 @@ uint8_t tmp[8];
 		memcpy ( &id_num[0], &tmp[0], sizeof(tmp) );
 		LOG_I("NO_wirt_OK");
 	}
+	#endif
 	memcpy ( &sent_buf[0], &id_num[0], sizeof(id_num) );
 }
 //////////////////////// CRC ////////////////////////////////////////////

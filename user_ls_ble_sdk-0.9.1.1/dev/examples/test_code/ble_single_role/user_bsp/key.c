@@ -1,16 +1,14 @@
 #include "user_function.h"
 #include "key.h"
 
-
 unsigned char key_status=0;	
 unsigned char key_busy=0; 		//按键事件忙标记，	
-
 unsigned char touch_key_busy=0;
 unsigned char touch_key_staus=0;
   
-#define SHORT_TIME 50/5
-#define LONG_TIME  800/5
-#define DOUBLE_RELEASE_TIME_MAX 300/5
+#define SHORT_TIME 20/5
+#define LONG_TIME  400/5
+#define DOUBLE_RELEASE_TIME_MAX 150/5
 #define DOUBLE_RELEASE_TIME_MIN 20/5	
 
 //5MS进一次中断，检测按键
@@ -23,10 +21,10 @@ void scan_key(){
   static unsigned char edge_status;
 	
 	if(io_read_pin(PA07)){
-		io_write_pin(PA08,0) ;
+		io_write_pin(PB09,0) ;
 	}
 	else{
-		io_write_pin(PA08,1) ;
+		io_write_pin(PB09,1) ;
 		no_act_count=0;
 	}
 		  edge_flag=edge_flag<<1;
@@ -37,9 +35,11 @@ void scan_key(){
 				edge_status=1;				//上升延
 				release_count_double=release_count;
 				release_count=0;
+				//io_write_pin(PB09,0) ;
 			}
 			else if(edge_flag == 0xF0){
 				edge_status=0;				//下降延
+				//io_write_pin(PB09,1) ;
 			}
 			if(edge_status){
 					release_count++;

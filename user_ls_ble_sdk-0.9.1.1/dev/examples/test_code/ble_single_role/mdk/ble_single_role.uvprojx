@@ -257,17 +257,17 @@
                 <Size>0x0</Size>
               </XRAM>
               <OCR_RVCT1>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT1>
               <OCR_RVCT2>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT2>
               <OCR_RVCT3>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT3>
@@ -277,7 +277,7 @@
                 <Size>0x40000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT5>
@@ -337,7 +337,7 @@
               <MiscControls>--c99 -O2</MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\module\crc;..\..\..\..\module\debug;..\..\..\..\module\debug\RTT;..\..\..\..\module\static_buffer;..\..\..\..\module\tinyfs;..\..\..\..\module\tinycrypt\lib\include;..\..\..\..\module\ble;..\..\..\..\module\ble\prf;..\..\..\..\module\ble\ll;..\..\..\..\module\common;..\..\..\..\module\adpcm;..\..\..\..\peripheral\ecc;..\..\..\..\peripheral\api;..\..\..\..\peripheral\inc;..\..\..\..\soc\arm_cm;..\..\..\..\soc\arm_cm\cmsis;..\..\..\..\soc\arm_cm\le501x;..\..\..\..\soc\arm_cm\le501x\integration;..\..\..\..\soc;..\..\..\..;..</IncludePath>
+              <IncludePath>..\..\..\..\module\crc;..\..\..\..\module\debug;..\..\..\..\module\debug\RTT;..\..\..\..\module\static_buffer;..\..\..\..\module\tinyfs;..\..\..\..\module\tinycrypt\lib\include;..\..\..\..\module\ble;..\..\..\..\module\ble\prf;..\..\..\..\module\ble\ll;..\..\..\..\module\common;..\..\..\..\module\adpcm;..\..\..\..\peripheral\ecc;..\..\..\..\peripheral\api;..\..\..\..\peripheral\inc;..\..\..\..\soc\arm_cm;..\..\..\..\soc\arm_cm\cmsis;..\..\..\..\soc\arm_cm\le501x;..\..\..\..\soc\arm_cm\le501x\integration;..\..\..\..\soc;..\..\..\..;..\..\ble_single_role;..\mdk;..\user_bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -385,6 +385,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_function.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -775,6 +780,16 @@
               <FileName>uart_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\soc\arm_cm\le501x\integration\uart_msp.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>bsp</GroupName>
+          <Files>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_bsp\key.c</FilePath>
             </File>
           </Files>
         </Group>
