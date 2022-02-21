@@ -53,19 +53,18 @@
 #define DISCONNECTED_MSG_PATTERN 0xdead
 #define DISCONNECTED_MSG_PATTERN_LEN 2
 
-enum uart_rx_status
-{
-    UART_IDLE,
-    UART_SYNC,
-    UART_LEN_REV,
-    UART_LINK_ID,
-    UART_RECEIVING,
-	
-		UART_AT_NAME,
-};
-static uint8_t uart_state = UART_IDLE;
+//enum uart_rx_status
+//{
+//    UART_IDLE,
+//    UART_SYNC,
+//    UART_LEN_REV,
+//    UART_LINK_ID,
+//    UART_RECEIVING,
+//		UART_AT_NAME,
+//};
+//static uint8_t uart_state = UART_IDLE;
 static bool uart_tx_busy;
-static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
+//static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
 UART_HandleTypeDef UART_Config; 
 
 static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
@@ -200,12 +199,31 @@ static void ls_uart_client_send_write_req(void);
 static void start_scan(void);
 #endif
 static void ls_uart_server_client_uart_tx(void);
+
+static void ls_user_event_timer_cb_0(void *param);
+static void ls_user_event_timer_cb_1(void *param);
 static void ls_single_role_timer_cb(void *param);
-static struct builtin_timer *ble_app_timer_inst = NULL;
+
+static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
+static struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
+static struct builtin_timer 	*ble_app_timer_inst 		 = NULL;
+
+
+#define USER_EVENT_PERIOD_0 5			 //按键扫描
+#define USER_EVENT_PERIOD_1 50     //按键处理
+
 static void ls_app_timer_init(void)
 {
+ 		user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+		builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+	
+		user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+		builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+	
     ble_app_timer_inst = builtin_timer_create(ls_single_role_timer_cb);
     builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
+
+		builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
 }
 static void ls_single_role_timer_cb(void *param)
 {
@@ -221,6 +239,43 @@ static void ls_single_role_timer_cb(void *param)
         builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL); 
     }
 }
+
+//5ms   做按键扫描
+static void ls_user_event_timer_cb_0(void *param)
+{
+	Uart_Time_Even();
+/**
+user_code	
+*/	
+	//////////////////////////////////////////
+	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+}
+
+static void ls_user_event_timer_cb_1(void *param)
+{
+/**
+user_code	
+*/
+
+	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static void ls_uart_init(void)
 {
     uart1_io_init(PB00, PB01);
@@ -290,29 +345,6 @@ static void ls_uart_server_send_notification(void)
     }
     exit_critical(cpu_stat);
 }
-
-
-static void User_Uart_Data_Handle(void)
-{
-	LOG_HEX(&uart_rx_buf[UART_HEADER_LEN+1],uart_server_recv_data_length);
-  //LOG_I("buf_data%", con_idx);
-	uart_server_recv_data_length=0;	
-//    uint32_t cpu_stat = enter_critical();
-//    if(con_idx_server != CON_IDX_INVALID_VAL && uart_server_recv_data_length != 0 && uart_server_ntf_done)
-//    {
-//        uart_server_ntf_done = false;
-//        uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);
-//        uint16_t tx_len = uart_server_recv_data_length > co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) ? 
-//                        co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length;
-//        uart_server_recv_data_length -= tx_len;
-//        gatt_manager_server_send_notification(con_idx_server, handle, &uart_server_ble_buf[0], tx_len, NULL);         
-//        memcpy((void*)&uart_server_ble_buf[0], (void*)&uart_server_ble_buf[tx_len], uart_server_recv_data_length);
-//    }
-//    exit_critical(cpu_stat);
-}
-
-
-
 
 static void create_adv_obj()
 {
@@ -447,120 +479,15 @@ static void start_scan(void)
     LOG_I("start scan");
 }
 #endif
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    LOG_I("tx cplt, current_uart_tx_idx = %d", current_uart_tx_idx);
-    uart_tx_busy = false;
-#if SLAVE_SERVER_ROLE == 1  
-    if ((current_uart_tx_idx & (1 << 7)) == 0)
-    {
-        uart_server_tx_buf[0] = 0; // clear server buffer sync byte
-    }
-#endif      
-#if MASTER_CLIENT_ROLE == 1    
-    if ((current_uart_tx_idx & (1 << 7)) != 0)
-    {
-        uart_client_tx_buf[0] = 0; // clear client buffer sync byte
-    }
-#endif    
-}
+//void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//    uart_tx_busy = false;
+//}
 
-uint8_t AT_NAME_BUF[10];
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    uint16_t len=0;
-		//uint8_t  len_length; //接收回来的是char表示的hex  比如 "+NNMI:200,31211"
-		static uint8_t name_len;			 //名称的长度
-		static uint8_t count;
-		uint8_t con_idx;
-		bool restart = true;
-		  switch (uart_state)
-    {
-    case UART_IDLE:
-        if(uart_rx_buf[0] == UART_SYNC_BYTE)
-        {
-            uart_state = UART_AT_NAME;
-            HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[UART_SYNC_BYTE_LEN],  1);  // 接收名称  NNMI:
-            restart = false;
-        }
-        break;
-				//回复命令名称  10个字节内没有':'退出等待下一个开始标记
-		case UART_AT_NAME:
-			if(uart_rx_buf[UART_SYNC_BYTE_LEN+count] == ':')
-					{
-            uart_state = UART_LEN_REV;
-					  name_len=count;
-						memcpy(&AT_NAME_BUF[0], &uart_rx_buf[UART_SYNC_BYTE_LEN], count); 
-						count++;
-						HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[UART_SYNC_BYTE_LEN+count],  1);  // 接收名称  NNMI:
-						restart = false;
-					}
-					else{
-						count++;
-						HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[UART_SYNC_BYTE_LEN+count],  1);  // 接收名称  NNMI:
-						if(count<10)	restart = false;
-					}
-					break;		
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
-					
-    case UART_LEN_REV:
-					if(uart_rx_buf[UART_SYNC_BYTE_LEN+count] == ',')
-					{
-						
-						for(uint8_t ii=0;ii<(count-name_len-1);ii++){
-								len+=(uart_rx_buf[UART_SYNC_BYTE_LEN+count-1-ii]-'0');//* (uint16_t)pow((double)10.0,(double)ii));
-						}
-						
-						if(len > 0 && len <= UART_RX_PAYLOAD_LEN_MAX){
-							  uart_state = UART_RECEIVING;
-                count++;
-								HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[UART_SYNC_BYTE_LEN + count], len*2);
-                restart = false;
-            }
-					}
-					else{
-						count++;
-						HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[UART_SYNC_BYTE_LEN+count],  1);  // 接收名称  NNMI:
-						if(count <= name_len+5)	restart = false;
-					}
-        break;
-					
-    case UART_RECEIVING:
-        //memcpy((void*)&len, (void*)&uart_rx_buf[UART_SYNC_BYTE_LEN], UART_LEN_LEN);
-        con_idx = uart_rx_buf[UART_SYNC_BYTE_LEN + UART_LEN_LEN];     
-        if (CONNECTION_IS_SERVER(con_idx))
-        {
-#if SLAVE_SERVER_ROLE == 1               
-            if(uart_server_recv_data_length == 0)
-            {
-                //memcpy((void*)&uart_server_ble_buf[0], (void*)&uart_rx_buf[UART_HEADER_LEN], len);
-                //uart_server_recv_data_length = len;
-            }
-#endif             
-        }       
-        else if (CONNECTION_IS_CLIENT(con_idx))
-        {
-#if MASTER_CLIENT_ROLE == 1               
-            if (uart_client_recv_data_length == 0)
-            {
-                memcpy((void*)&uart_client_ble_buf[0], (void*)&uart_rx_buf[UART_HEADER_LEN], len); 
-                uart_client_recv_data_length = len;
-            }
-#endif              
+//}
 
-        }              
-        // restart = false;
-        break;
-    default:
-        break;
-    }
-    if(restart)
-    {
-        uart_state = UART_IDLE;
-			  count=0;
-        HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[0], UART_SYNC_BYTE_LEN);
-    }
-}
 static void ls_uart_server_client_uart_tx(void)
 {
 #if SLAVE_SERVER_ROLE == 1    
@@ -870,7 +797,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 #endif       
         ls_uart_init(); 
         ls_app_timer_init();
-        HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[0], UART_SYNC_BYTE_LEN);            
+        HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
+				//HAL_UART_Receive_IT(&UART_Config, &buffer[0], UART_SYNC_BYTE_LEN);            
     }
     break;
 #if SLAVE_SERVER_ROLE == 1    

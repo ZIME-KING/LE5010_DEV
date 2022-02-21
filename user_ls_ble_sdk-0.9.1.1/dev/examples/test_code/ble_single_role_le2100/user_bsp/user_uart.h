@@ -3,11 +3,11 @@
 
 #include "user_main.h"
 
-#define UART_BUFFER_LENTH	20	//帧数据缓存区长度
+#define UART_BUFFER_LENTH	256	//帧数据缓存区长度
 #define FRAME_QUANTITY  	2   //帧缓存数量
 #define FRAME_TIMEOUT   	5   //超时
 #define BUSY            	1
-#define FREE				0
+#define FREE				      0
 
 typedef struct {
 unsigned char buffer[UART_BUFFER_LENTH];	//帧数据缓存区
@@ -21,11 +21,10 @@ unsigned char frame_id;	    	//当前处理的帧id
 unsigned char time_out;	    	//超时计数
 }Uart_Frame_Typedef;
 
-
 extern Uart_Frame_Typedef uart1;
 
 extern unsigned char uart_frame_id;
-extern uint8_t uart_buffer[50];
+extern uint8_t uart_buffer[2];
 void Uart_Data_Processing(void);
 void Uart_Time_Even(void);
 void Receive_Interrupt(void);

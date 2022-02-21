@@ -791,6 +791,11 @@
               <FileType>1</FileType>
               <FilePath>..\user_bsp\user_function.c</FilePath>
             </File>
+            <File>
+              <FileName>user_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_bsp\user_uart.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
