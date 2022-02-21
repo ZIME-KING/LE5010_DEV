@@ -8,11 +8,11 @@
 #define UART_LOG           	2
 #define RAM_LOG             4
 #ifndef LOG_BACKEND
-#define LOG_BACKEND (UART_LOG)
+#define LOG_BACKEND (JLINK_RTT)
 #endif
 
-#define LOG_UART_TXD (PB00)
-#define LOG_UART_RXD (PB01)
+//#define LOG_UART_TXD (PB00)
+//#define LOG_UART_RXD (PB01)
 
 //#define LOG_UART_TXD (PA13)
 //#define LOG_UART_RXD (PA14)
