@@ -784,7 +784,6 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 #if SLAVE_SERVER_ROLE == 1
         dev_manager_add_service((struct svc_decl *)&ls_uart_server_svc);
         ls_uart_server_init();
-				User_Init();
 			
 #endif     
 
@@ -798,6 +797,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         ls_uart_init(); 
         ls_app_timer_init();
         HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
+				
+				User_Init();
 				//HAL_UART_Receive_IT(&UART_Config, &buffer[0], UART_SYNC_BYTE_LEN);            
     }
     break;
