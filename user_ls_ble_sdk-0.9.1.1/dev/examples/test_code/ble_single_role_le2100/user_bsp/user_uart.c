@@ -97,7 +97,6 @@ void Uart_Data_Processing(){
 						break;
 					}
 		}
-		
 		for(int i=0;i<frame[uart_frame_id].length-count;i++){
 					RX_DATA_BUF[i]=(((frame[uart_frame_id].buffer[count+i*2]-'0')<<4)  +
 					(frame[uart_frame_id].buffer[count+1+i*2]-'0'));

@@ -15,6 +15,7 @@
 
 #include "user_function.h"
 #include "user_uart.h"
+#include "crc.h"
 
 extern UART_HandleTypeDef UART_Config; 
 
