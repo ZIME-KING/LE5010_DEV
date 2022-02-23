@@ -10,7 +10,7 @@ uint8_t uart_buffer[2];
 
 unsigned char uart_frame_id;
 
-void Uart_Time_Even(void){             			//串口接收用在定时器上的事件 用来判断超时
+void Uart_Time_Even(void){           //串口接收用在定时器上的事件 用来判断超时
 
 		if(uart1.status !=FREE){
 			uart1.time_out++;
@@ -65,50 +65,50 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);		// 重新使能串口1接收中断
 }
 
-union Data
-{
-   float f;
-   unsigned char  str[4];
-};
+//union Data
+//{
+//   float f;
+//   unsigned char  str[4];
+//};
 
-/********************
- **数据处理, 一帧接受完成 后跑一次
-******************/
-void Uart_Data_Processing(){
-	int length;  
-	int len;			// len 是2 ：和，中间的  收回来的是char表示的hex  比如 "+NNMI:2,31211"
-	int count;
-  uint8_t RX_DATA_BUF[frame[uart_frame_id].length];
-//uint8_t RX_DATA_BUF[10];
+///********************
+// **数据处理, 一帧接受完成 后跑一次
+//******************/
+//void Uart_Data_Processing(){
+//	int length;  
+//	int len;			// len 是2 ：和，中间的  收回来的是char表示的hex  比如 "+NNMI:2,31211"
+//	int count;
+//  uint8_t RX_DATA_BUF[frame[uart_frame_id].length];
+////uint8_t RX_DATA_BUF[10];
+//	if(frame[uart_frame_id].status!=0){    			//接收到数据后status=1;
+////HAL_UART_Transmit(&UART_Config,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,10);
+//	//返回接收到的数据
+//	if(strncmp("OK",(char*)frame[uart_frame_id].buffer,frame[uart_frame_id].length)==0){
+//		HAL_UART_Transmit(&UART_Config,(uint8_t*)"ok /r/n",5,10);
+//		//globle_Result=
+//	}
+//	else if(strncmp("ERROR",(char*)frame[uart_frame_id].buffer,frame[uart_frame_id].length)==0){
+//		HAL_UART_Transmit(&UART_Config,(uint8_t*)"error /r/n",8,10);
+//	}
+//	else if(strncmp("+NNMI",(char*)frame[uart_frame_id].buffer,5)==0){
 
-	if(frame[uart_frame_id].status!=0){    			//接收到数据后status=1;
-//HAL_UART_Transmit(&UART_Config,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,10);
-	//返回接收到的数据
-	if(strncmp("OK",(char*)frame[uart_frame_id].buffer,frame[uart_frame_id].length)==0){
-		HAL_UART_Transmit(&UART_Config,(uint8_t*)"ok /r/n",5,10);
-	}
-	else if(strncmp("ERROR",(char*)frame[uart_frame_id].buffer,frame[uart_frame_id].length)==0){
-		HAL_UART_Transmit(&UART_Config,(uint8_t*)"error /r/n",8,10);
-	}
-	else if(strncmp("+NNMI",(char*)frame[uart_frame_id].buffer,5)==0){
-
-		for(int i=0;i<frame[uart_frame_id].length;i++){
-					if(frame[uart_frame_id].buffer[i]==','){
-						count=i+1;
-						break;
-					}
-		}
-		for(int i=0;i<frame[uart_frame_id].length-count;i++){
-					RX_DATA_BUF[i]=(((frame[uart_frame_id].buffer[count+i*2]-'0')<<4)  +
-					(frame[uart_frame_id].buffer[count+1+i*2]-'0'));
-		}
-		//HAL_UART_Transmit(&UART_Config,&frame[uart_frame_id].buffer[count],frame[uart_frame_id].length-count,10);
-		HAL_UART_Transmit(&UART_Config,&RX_DATA_BUF[0],(frame[uart_frame_id].length-count)/2,10);
-	}
-		
-	frame[uart_frame_id].status=0;					//处理完数据后status 清0;
-	}
-}
+//		for(int i=0;i<frame[uart_frame_id].length;i++){
+//					if(frame[uart_frame_id].buffer[i]==','){
+//						count=i+1;
+//						break;
+//					}
+//		}
+//		for(int i=0;i<frame[uart_frame_id].length-count;i++){
+//					RX_DATA_BUF[i]=(((frame[uart_frame_id].buffer[count+i*2]-'0')<<4)  +
+//					(frame[uart_frame_id].buffer[count+1+i*2]-'0'));
+//		}
+//		//HAL_UART_Transmit(&UART_Config,&frame[uart_frame_id].buffer[count],frame[uart_frame_id].length-count,10);
+//		HAL_UART_Transmit(&UART_Config,&RX_DATA_BUF[0],(frame[uart_frame_id].length-count)/2,10);
+//	}
+//		
+//	frame[uart_frame_id].status=0;					//处理完数据后status 清0;
+//	}
+//}
 
 
 /*

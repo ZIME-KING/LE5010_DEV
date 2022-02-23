@@ -53,6 +53,10 @@
 #define DISCONNECTED_MSG_PATTERN 0xdead
 #define DISCONNECTED_MSG_PATTERN_LEN 2
 
+
+uint8_t globle_Result;  //接受数据处理结果
+
+
 //enum uart_rx_status
 //{
 //    UART_IDLE,
@@ -256,7 +260,7 @@ static void ls_user_event_timer_cb_1(void *param)
 /**
 user_code	
 */
-
+	Uart_Data_Processing();
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 

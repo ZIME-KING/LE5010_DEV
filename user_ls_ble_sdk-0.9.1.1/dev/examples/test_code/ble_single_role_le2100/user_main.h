@@ -18,6 +18,7 @@
 #include "crc.h"
 
 extern UART_HandleTypeDef UART_Config; 
+extern uint8_t globle_Result; 
 
 
 #endif

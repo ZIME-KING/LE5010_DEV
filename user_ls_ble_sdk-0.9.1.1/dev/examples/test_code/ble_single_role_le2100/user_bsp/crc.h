@@ -12,4 +12,4 @@ uint16_t calc_crc16_1(uint8_t const *p_data, int32_t data_len);
 
 void crc_char(char char_data);
 
-#endif
+#endif 

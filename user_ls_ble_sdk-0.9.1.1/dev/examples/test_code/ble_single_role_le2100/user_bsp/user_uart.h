@@ -5,7 +5,7 @@
 
 #define UART_BUFFER_LENTH	256	//帧数据缓存区长度
 #define FRAME_QUANTITY  	2   //帧缓存数量
-#define FRAME_TIMEOUT   	5   //超时
+#define FRAME_TIMEOUT   	2   //超时
 #define BUSY            	1
 #define FREE				      0
 
@@ -22,10 +22,11 @@ unsigned char time_out;	    	//超时计数
 }Uart_Frame_Typedef;
 
 extern Uart_Frame_Typedef uart1;
+extern Frame_Typedef frame[FRAME_QUANTITY];     		//开2个帧缓存
 
 extern unsigned char uart_frame_id;
 extern uint8_t uart_buffer[2];
-void Uart_Data_Processing(void);
+//void Uart_Data_Processing(void);
 void Uart_Time_Even(void);
 void Receive_Interrupt(void);
 
