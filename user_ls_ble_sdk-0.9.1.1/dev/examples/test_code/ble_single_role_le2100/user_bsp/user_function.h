@@ -2,6 +2,18 @@
 #define __USER_FUNCTION_H
 #include "user_main.h"
 
+//接收应答
+typedef enum{
+OK_AT,     //
+ERROE_AT,  //
+OPEN_LOCK, //服务器下发开锁
+OK_ASK,    //服务器有响应
+NO_ASK,		 //服务器无响应
+TIME_OUT,	 //超时未相应
+}NB_RX_STATE;
+
+
+
 //任务列表
 typedef enum {
 START_LOCK_SEND,     		//启动数据上报
@@ -34,6 +46,11 @@ ECPMUCFG,
 
  uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST);
  void  Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state);
+
+uint16_t Start_Lock_Send_Task(void);
+uint16_t Open_Lock_Send_Task(void);
+uint16_t Tick_Lock_Send_Task(void);
+uint16_t Open_Lock_Data_Send_Task(void);
 
 
 #endif

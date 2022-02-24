@@ -55,10 +55,10 @@ void Receive_Interrupt(){     			//进一次串口中断
 }
 
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    //uart_tx_busy = false;
-}
+//void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//    uart_tx_busy = false;
+//}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		Receive_Interrupt();

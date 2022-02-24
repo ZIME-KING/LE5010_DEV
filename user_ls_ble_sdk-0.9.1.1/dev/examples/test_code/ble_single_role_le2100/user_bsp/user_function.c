@@ -6,15 +6,7 @@
 #define START 0x01   
 #define STOP  0x00   
 
-//接收应答
-enum{
-OK_AT,     //
-ERROE_AT,  //
-OPEN_LOCK, //服务器下发开锁
-OK_ASK,    //服务器有响应
-NO_ASK,		 //服务器无响应
-TIME_OUT,	 //超时未相应
-}NB_RX_STATE;
+
 
 uint8_t T0_enable;  //启动数据上报  			Start_Lock_Send_Task
 uint8_t T1_enable;	//开锁数据请求				Open_Lock_Send
@@ -129,7 +121,7 @@ void Start_Lock_Send(){
 
 	hex2string(DATA_BUF,RX_BUF,16);
 	RX_BUF[16]='\0';
-	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s",(char*)RX_BUF);
+	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1",(char*)RX_BUF);
 	HAL_UART_Transmit_IT(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1);
 }
 //10请求开锁   携带数据同启动    请求开锁（如果20秒内没有收到服务器回复，则需要再次发送请求开锁指令，如果超过6次没有收到服务器开锁指令则放弃。）
@@ -170,7 +162,7 @@ void Open_Lock_Send(){
 
 	hex2string(DATA_BUF,RX_BUF,16);
 	RX_BUF[16]='\0';
-	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s",(char*)RX_BUF);
+	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1",(char*)RX_BUF);
 	HAL_UART_Transmit_IT(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1);
 }
 
@@ -211,7 +203,7 @@ void Tick_Lock_Send(){
 	hex2string(DATA_BUF,RX_BUF,16);
 	hex2string(DATA_BUF,RX_BUF,16);
 	RX_BUF[16]='\0';
-	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s",(char*)RX_BUF);
+	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1",(char*)RX_BUF);
 	HAL_UART_Transmit_IT(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1);
 }
 //20信息上报输入 锁ID号，锁更新状态
@@ -253,7 +245,7 @@ void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state){
 
 	hex2string(DATA_BUF,RX_BUF,16+2);
 	RX_BUF[16+2]='\0';
-	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s",(char*)RX_BUF);
+	sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1",(char*)RX_BUF);
 	HAL_UART_Transmit_IT(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1);
 }
 /********************
@@ -319,7 +311,6 @@ void Uart_Data_Processing(){
 	}
 	frame[uart_frame_id].status=0;					//处理完数据后status 清0;
 	}
-
 }
 uint8_t Get_Uart_Data_Processing_Result(){
 		return globle_Result;
@@ -495,6 +486,14 @@ uint16_t Open_Lock_Data_Send_Task(){
 	}
 	return temp;
 }
+
+
+
+
+
+
+
+
 
 
 

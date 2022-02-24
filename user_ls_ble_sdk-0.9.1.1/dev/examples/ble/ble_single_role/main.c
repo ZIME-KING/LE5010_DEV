@@ -247,20 +247,22 @@ static void ls_uart_server_read_req_ind(uint8_t att_idx, uint8_t con_idx)
 static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length, uint8_t const *value)
 {
     if(att_idx == UART_SVC_IDX_RX_VAL && uart_server_tx_buf[0] != UART_SYNC_BYTE)
-    { 
+    {
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
-        uart_server_tx_buf[0] = UART_SYNC_BYTE;
-        uart_server_tx_buf[1] = length & 0xff;
-        uart_server_tx_buf[2] = (length >> 8) & 0xff;
-        uart_server_tx_buf[3] = con_idx; // what uart will receive should be the real connection index. array_idx is internal.
-        memcpy((void*)&uart_server_tx_buf[UART_HEADER_LEN], value, length);
+     //   uart_server_tx_buf[0] = UART_SYNC_BYTE;
+     //   uart_server_tx_buf[1] = length & 0xff;
+     //   uart_server_tx_buf[2] = (length >> 8) & 0xff;
+     //   uart_server_tx_buf[3] = con_idx; // what uart will receive should be the real connection index. array_idx is internal.
+        memcpy((void*)&uart_server_tx_buf[0], value, length);
         uint32_t cpu_stat = enter_critical();
         if(!uart_tx_busy)
         {
             uart_tx_busy = true;
             current_uart_tx_idx = (0 << 7);
-            HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length + UART_HEADER_LEN);
-        } 
+            HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length);
+					HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length);
+					HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length);
+        }
         exit_critical(cpu_stat);
     }
     else if (att_idx == UART_SVC_IDX_TX_NTF_CFG)

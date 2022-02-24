@@ -801,6 +801,11 @@
               <FileType>1</FileType>
               <FilePath>..\user_bsp\crc.c</FilePath>
             </File>
+            <File>
+              <FileName>aes-128.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_bsp\aes-128.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
