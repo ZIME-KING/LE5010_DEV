@@ -332,10 +332,8 @@ void aes_jie_mi(void)
 	#endif
 	//需要进行长度判断，要正好等于十六字节
 }
-
 //   https://blog.csdn.net/Laoynice/article/details/79196993
 //根据获取到的数据进行解析
-
 void DATA_deal(unsigned char temp[])
 {
 	int i,j;

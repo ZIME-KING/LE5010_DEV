@@ -19,6 +19,7 @@
 #include "aes-128.h"
 
 extern UART_HandleTypeDef UART_Config; 
+extern UART_HandleTypeDef UART_Config_AT; 
 extern uint8_t globle_Result; 
 
 

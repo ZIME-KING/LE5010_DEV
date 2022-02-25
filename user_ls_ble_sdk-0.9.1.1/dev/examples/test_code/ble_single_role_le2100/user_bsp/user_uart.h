@@ -30,6 +30,19 @@ extern uint8_t uart_buffer[2];
 void Uart_Time_Even(void);
 void Receive_Interrupt(void);
 
+
+extern Uart_Frame_Typedef uart_2;
+extern Frame_Typedef frame_2[FRAME_QUANTITY];     		//开2个帧缓存
+
+extern unsigned char uart_2_frame_id;
+extern uint8_t uart_2_buffer[2];
+void Uart_2_Data_Processing(void);
+void Uart_2_Time_Even(void);
+void Uart_2_Receive_Interrupt(void);
+
+
+
+
 void UART_Transmit_Str(UART_HandleTypeDef *huart,uint8_t *p);
 
 #endif

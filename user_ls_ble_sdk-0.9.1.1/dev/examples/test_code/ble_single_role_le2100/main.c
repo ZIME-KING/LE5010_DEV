@@ -70,6 +70,7 @@ uint8_t globle_Result;  //接受数据处理结果
 static bool uart_tx_busy;
 //static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
 UART_HandleTypeDef UART_Config; 
+UART_HandleTypeDef UART_Config_AT; 
 
 static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 
@@ -250,6 +251,7 @@ static void ls_single_role_timer_cb(void *param)
 static void ls_user_event_timer_cb_0(void *param)
 {
 	Uart_Time_Even();
+	Uart_2_Time_Even();
 /**
 user_code	
 */	
@@ -264,24 +266,23 @@ static void ls_user_event_timer_cb_1(void *param)
 /**
 user_code	
 */
-//	if(once_flag==0){
-//			 once_flag=1;
-//			 Set_Task_State(START_LOCK_SEND,1);
-//	}
-//	if(aaa[0]==OK_ASK){
-//			if(Get_Task_State(OPEN_LOCK_SEND)==0){
-//					Set_Task_State(OPEN_LOCK_SEND,1);
-//			}
-//	}
-//	
-//	 aaa[0]=Start_Lock_Send_Task();
-//   aaa[1]=Open_Lock_Send_Task();
-//   aaa[2]=Tick_Lock_Send_Task();
-//   aaa[3]=Open_Lock_Data_Send_Task();
-//	
+	if(once_flag==0){
+			 once_flag=1;
+			 Set_Task_State(START_LOCK_SEND,1);
+	}
+	if(aaa[0]==OK_ASK){
+			if(Get_Task_State(OPEN_LOCK_SEND)==0){
+					Set_Task_State(OPEN_LOCK_SEND,1);
+			}
+	}
+	 aaa[0]=Start_Lock_Send_Task();
+   aaa[1]=Open_Lock_Send_Task();
+   aaa[2]=Tick_Lock_Send_Task();
+   aaa[3]=Open_Lock_Data_Send_Task();
 	
+	Uart_Data_Processing();
+	Uart_2_Data_Processing();
 	
-	//Uart_Data_Processing();
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 
@@ -296,6 +297,18 @@ static void ls_uart_init(void)
     UART_Config.Init.WordLength = UART_BYTESIZE8;
     HAL_UART_Init(&UART_Config);
 }
+static void AT_uart_init(void)
+{
+    uart2_io_init(PA13, PA14);
+    UART_Config_AT.UARTX = UART2;
+    UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
+    UART_Config_AT.Init.MSBEN 			= 0;
+    UART_Config_AT.Init.Parity  	  = UART_NOPARITY;
+    UART_Config_AT.Init.StopBits 	= UART_STOPBITS1;
+    UART_Config_AT.Init.WordLength = UART_BYTESIZE8;
+    HAL_UART_Init(&UART_Config_AT);
+}
+
 #if SLAVE_SERVER_ROLE == 1
 static void ls_uart_server_init(void)
 {
@@ -912,8 +925,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
 #endif       
         ls_uart_init(); 
+				AT_uart_init();
+			
         ls_app_timer_init();
         HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
+				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
 				
 				User_Init();
 				//HAL_UART_Receive_IT(&UART_Config, &buffer[0], UART_SYNC_BYTE_LEN);            
