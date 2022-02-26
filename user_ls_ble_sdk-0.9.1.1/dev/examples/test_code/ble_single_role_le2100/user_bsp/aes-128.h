@@ -11,6 +11,12 @@ void User_Encryption(unsigned char *in_data,unsigned char *out_data , unsigned c
 
 #endif 
 
+//void AES_main(void);
+//void AES_ceshi(void);
+
+//void aes_jia_mi(void);
+//void aes_jie_mi(void);
+
 
 
 

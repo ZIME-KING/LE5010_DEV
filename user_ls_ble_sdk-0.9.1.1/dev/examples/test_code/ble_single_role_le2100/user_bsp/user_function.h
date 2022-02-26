@@ -52,5 +52,7 @@ uint16_t Open_Lock_Send_Task(void);
 uint16_t Tick_Lock_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Task(void);
 
+uint8_t Open_Lock_Moto(void);
+uint8_t Close_Lock_Moto(void);
 
 #endif

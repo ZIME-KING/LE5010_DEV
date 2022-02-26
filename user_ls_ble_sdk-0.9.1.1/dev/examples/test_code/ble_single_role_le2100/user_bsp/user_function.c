@@ -19,6 +19,15 @@ const uint8_t	Frame_header[2]= {0x58,0x59};
 
 uint8_t	IMEI_Flag=1;
 uint8_t IMEI[15]= {0};
+
+uint8_t Open_Lock_Moto(){
+	
+}
+uint8_t Close_Lock_Moto(){
+
+}
+
+
 static void test_delay() {
     int i=65535;
     while(i--);
@@ -33,28 +42,37 @@ void  AT_TEST() {
     HAL_UART_Transmit_IT(&UART_Config_AT,(unsigned char*)"AT+CIMI\r\n",sizeof("AT+CIMI\r\n"));
 
     //回复46011316372 8 7 1 9
-
     //HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"OK\r\n",5);
-    // HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"OK\r\n",5);
+    //HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"OK\r\n",5);
 }
 
 void User_Init() {
-    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"USART_OK\r\n",5);
+	
+	//{0xc6,0x53,0x0c,0x1d,0x64,0x30,0xff,0xB8,0x6D,0x17,0x28,0xa5,0x86,0xdd,0x3c,0x1c};
+	static uint8_t user_tmpe[16]={0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10};
+	static uint8_t user_tmpe_2[16]={0xc6,0x53,0x0c,0x1d,0x64,0x30,0xff,0xB8,0x6D,0x17,0x28,0xa5,0x86,0xdd,0x3c,0x1c};
+	
+	User_Encryption(user_tmpe,user_tmpe,16);
+	    test_delay();
+	
+	User_Decoden(user_tmpe_2,user_tmpe_2,16);
+			test_delay();
+//    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"USART_OK\r\n",5);
 
-    Start_Lock_Send();
-    test_delay();
+//    Start_Lock_Send();
+//    test_delay();
 
-    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"\r\nOK\r\n",7);
-    Open_Lock_Send();
-    test_delay();
+//    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"\r\nOK\r\n",7);
+//    Open_Lock_Send();
+//    test_delay();
 
-    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"\r\nOK\r\n",7);
-    Tick_Lock_Send();
-    test_delay();
+//    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"\r\nOK\r\n",7);
+//    Tick_Lock_Send();
+//    test_delay();
 
-    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"\r\nOK\r\n",7);
-    Open_Lock_Data_Send(1,1);
-    test_delay();
+//    HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"\r\nOK\r\n",7);
+//    Open_Lock_Data_Send(1,1);
+//    test_delay();
 }
 //hex 转char输出
 //输出字符长度为输入字符长度2倍
