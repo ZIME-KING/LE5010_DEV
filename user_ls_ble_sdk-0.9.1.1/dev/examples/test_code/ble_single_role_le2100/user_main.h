@@ -17,10 +17,11 @@
 #include "user_uart.h"
 #include "crc.h"
 #include "aes-128.h"
+#include "moto.h"
 
 extern UART_HandleTypeDef UART_Config; 
 extern UART_HandleTypeDef UART_Config_AT; 
 extern uint8_t globle_Result; 
-
+extern uint8_t user_ble_send_flag;
 
 #endif
