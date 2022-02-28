@@ -22,11 +22,14 @@
 #include "moto.h"
 #include "Buzzer.h"
 #include "scan_sw.h"
-
+#include "LPM2100_N.h"
 
 extern UART_HandleTypeDef UART_Config; 
 extern UART_HandleTypeDef UART_Config_AT; 
 extern uint8_t globle_Result; 
 extern uint8_t user_ble_send_flag;
+
+extern uint8_t SHORT_NAME[7];
+extern uint8_t COMPLETE_NAME[7];
 
 #endif

@@ -19,7 +19,10 @@
 #define SLAVE_SERVER_ROLE 1
 #define MASTER_CLIENT_ROLE 0
 
-#define UART_SVC_ADV_NAME "LS Single Role"
+uint8_t SHORT_NAME[7]="0123456";
+uint8_t COMPLETE_NAME[7]="0123456";
+
+//#define UART_SVC_ADV_NAME "LS Single Role"
 #define UART_SERVER_MAX_MTU  517
 #define UART_SERVER_MTU_DFT  23
 #define UART_SVC_RX_MAX_LEN (UART_SERVER_MAX_MTU - 3)
@@ -265,6 +268,9 @@ static void ls_user_event_timer_cb_0(void *param)
 	Uart_2_Time_Even();
 	
   Scan_Key();
+//	Uart_Data_Processing();
+//	Uart_2_Data_Processing();
+	
 /**
 user_code	
 */	
@@ -281,8 +287,10 @@ user_code
 */
 	ls_uart_server_send_notification();  //蓝牙数据发送
   Buzzer_Task();//蜂鸣器任务
-	
 	TX_DATA_BUF[6]=Moto_Task();
+	
+	AT_GET_DATA();
+	
 	
 	if(once_flag==0){
 			 once_flag=1;
@@ -293,10 +301,10 @@ user_code
 					Set_Task_State(OPEN_LOCK_SEND,1);
 			}
 	}
-//	 aaa[0]=Start_Lock_Send_Task();
-//   aaa[1]=Open_Lock_Send_Task();
-//   aaa[2]=Tick_Lock_Send_Task();
-//   aaa[3]=Open_Lock_Data_Send_Task();
+	 aaa[0]=Start_Lock_Send_Task();
+   aaa[1]=Open_Lock_Send_Task();
+   aaa[2]=Tick_Lock_Send_Task();
+   aaa[3]=Open_Lock_Data_Send_Task();
 	
 	Uart_Data_Processing();
 	Uart_2_Data_Processing();
@@ -317,7 +325,9 @@ static void ls_uart_init(void)
 }
 static void AT_uart_init(void)
 {
-    uart2_io_init(PA13, PA14);
+		uart2_io_init(PA13, PA14);
+  
+    //uart2_io_init(PA11, PA10);
     UART_Config_AT.UARTX = UART2;
     UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
     UART_Config_AT.Init.MSBEN 			= 0;
@@ -389,7 +399,7 @@ static void User_BLE_Data_Handle(){
 						TX_DATA_BUF[5]=0x01;    //LEN
 						
 						if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0){
-								TX_DATA_BUF[6]=Open_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
+								//TX_DATA_BUF[6]=Open_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
 						}							
 						else{
 								TX_DATA_BUF[6]=0x01;    		//RET 00为开锁成功，01为密码错误
@@ -567,8 +577,6 @@ static void create_adv_obj()
 }
 static void start_adv(void)
 {
-		uint8_t SHORT_NAME[]={'0','0','0','0'};
-		uint8_t COMPLETE_NAME[]={'0','0','0','0'};
 		uint8_t FF_NAME[]={0xff,0xFF};
     LS_ASSERT(adv_obj_hdl != 0xff);
     uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 3, GAP_ADV_TYPE_SHORTENED_NAME,     &SHORT_NAME[0], sizeof(SHORT_NAME)
@@ -1000,15 +1008,12 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif       
-//        ls_uart_init(); 
-//				AT_uart_init();
-			
+        ls_uart_init(); 
+				AT_uart_init();			
         ls_app_timer_init();
-        //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
-				//HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-				
-				User_Init();
-				//HAL_UART_Receive_IT(&UART_Config, &buffer[0], UART_SYNC_BYTE_LEN);            
+        HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
+				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
+				User_Init();           
     }
     break;
 #if SLAVE_SERVER_ROLE == 1    
