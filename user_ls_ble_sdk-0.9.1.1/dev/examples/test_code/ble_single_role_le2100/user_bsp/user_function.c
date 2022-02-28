@@ -40,7 +40,8 @@ void  AT_TEST() {
 	
     IMEI_Flag=1;
     HAL_UART_Transmit_IT(&UART_Config_AT,(unsigned char*)"AT+CIMI\r\n",sizeof("AT+CIMI\r\n"));
-
+		
+			
     //回复46011316372 8 7 1 9
     //HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"OK\r\n",5);
     //HAL_UART_Transmit_IT(&UART_Config,(unsigned char*)"OK\r\n",5);
@@ -59,7 +60,15 @@ void User_Init() {
 //			test_delay();
 //	
 //	
+		Button_Gpio_Init();
 	  moto_gpio_init();
+		Basic_PWM_Output_Cfg();
+		
+		Buzzer_ON();
+		test_delay();
+		test_delay();
+		Buzzer_OFF();
+		//Basic_PWM_Output_Cfg
 		//moro_task_flag=1;
 	
 //	
@@ -367,9 +376,6 @@ void Uart_2_Data_Processing() {
         frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
-
-
-
 
 uint8_t Get_Uart_Data_Processing_Result() {
     return globle_Result;

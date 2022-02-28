@@ -811,6 +811,16 @@
               <FileType>1</FileType>
               <FilePath>..\user_bsp\Moto.c</FilePath>
             </File>
+            <File>
+              <FileName>Buzzer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_bsp\Buzzer.c</FilePath>
+            </File>
+            <File>
+              <FileName>scan_sw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_bsp\scan_sw.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

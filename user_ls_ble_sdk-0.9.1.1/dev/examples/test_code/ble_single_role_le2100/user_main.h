@@ -7,6 +7,8 @@
 #include "lstimer.h"
 #include "lsuart.h"
 #include "lsdmac.h"
+#include "sleep.h"
+
 
 #include "io_config.h"
 #include "platform.h"
@@ -18,6 +20,9 @@
 #include "crc.h"
 #include "aes-128.h"
 #include "moto.h"
+#include "Buzzer.h"
+#include "scan_sw.h"
+
 
 extern UART_HandleTypeDef UART_Config; 
 extern UART_HandleTypeDef UART_Config_AT; 

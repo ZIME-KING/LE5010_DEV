@@ -27,7 +27,7 @@ void Moto_NULL(){
 
 
 uint8_t Check_SW1(){
-	return 1;
+	return 0;
 } 
 
 uint8_t moro_task_flag;
@@ -52,9 +52,11 @@ uint8_t Moto_Task(){
 					
 			case 1:			
 					Moto_S();
-					if(count>1000/50){
+					if(count>200/50){
 							count=0;
 							step=2;
+							temp=Check_SW1();  		//00 打开成功  0x03 失败
+							user_ble_send_flag=1;	//蓝牙发送数据
 					}
 			break;
 			case 2:			
@@ -66,14 +68,14 @@ uint8_t Moto_Task(){
 			break;
 			case 3:			
 					Moto_S();
-					if(count>1000/50){
+					if(count>200/50){
 							count=0;
 							step=4;
 					}
 			break;
 			case 4:			
 					Moto_P();
-					if(count>2000/50){
+					if(count>500/50){
 							count=0;
 							step=5;
 					}
@@ -81,9 +83,8 @@ uint8_t Moto_Task(){
 			case 5:			
 					Moto_NULL();
 					step=0;
+					count=0;
 					moro_task_flag=0;
-					temp=Check_SW1();  		//00 打开成功  0x03 失败
-					user_ble_send_flag=1;	//蓝牙发送数据
 			break;
 	}
 	}

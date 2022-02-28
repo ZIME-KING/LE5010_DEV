@@ -13,6 +13,9 @@
 
 #include "user_main.h"
 
+//#define SDK_DEEP_SLEEP_ENABLE 1
+//#define DEBUG_MODE 0
+
 #define SLAVE_SERVER_ROLE 1
 #define MASTER_CLIENT_ROLE 0
 
@@ -60,10 +63,8 @@ uint8_t user_ble_send_flag=0;
 uint8_t TX_DATA_BUF[16];
 uint8_t RX_DATA_BUF[16];
 uint8_t DATA_BUF[16];
-
 uint8_t TOKEN[4]={0xf1,0xf2,0xf3,0xf4};
 uint8_t PASSWORD[6]={0x30,0x30,0x30,0x30,0x30,0x30};
-
 
 //enum uart_rx_status
 //{
@@ -262,6 +263,8 @@ static void ls_user_event_timer_cb_0(void *param)
 {
 	Uart_Time_Even();
 	Uart_2_Time_Even();
+	
+  Scan_Key();
 /**
 user_code	
 */	
@@ -277,7 +280,8 @@ static void ls_user_event_timer_cb_1(void *param)
 user_code	
 */
 	ls_uart_server_send_notification();  //蓝牙数据发送
-  
+  Buzzer_Task();//蜂鸣器任务
+	
 	TX_DATA_BUF[6]=Moto_Task();
 	
 	if(once_flag==0){
@@ -377,10 +381,10 @@ static void User_BLE_Data_Handle(){
 				}
 		break;
 
-		case 0x50:
+		case 0x51: //关锁
 				if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0){
 						user_ble_send_flag=1;
-						TX_DATA_BUF[0]=0x50;		// CMD
+						TX_DATA_BUF[0]=0x51;		// CMD
 						TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 						TX_DATA_BUF[5]=0x01;    //LEN
 						
@@ -393,10 +397,10 @@ static void User_BLE_Data_Handle(){
 				}
 		break;
 		
-		case 0x51:
+		case 0x50:  //开锁
 				if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0){
 						//user_ble_send_flag=1;
-						TX_DATA_BUF[0]=0x51;		// CMD
+						TX_DATA_BUF[0]=0x50;		// CMD
 						TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 						TX_DATA_BUF[5]=0x01;    //LEN
 						
