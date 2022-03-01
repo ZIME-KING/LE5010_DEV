@@ -15,7 +15,9 @@ ECPCFG,
 CPSMS,
 ECPMUCFG,
 CSQ,    //ÐÅºÅ
-CGSN		//¿¨ºÅ
+CGSN,		//¿¨ºÅ
+AT_SLEEP,
+AECPMUCFG,
 }Typedef_AT;
 
 

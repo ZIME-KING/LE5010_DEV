@@ -63,7 +63,7 @@ uint8_t COMPLETE_NAME[7]="0123456";
 uint8_t globle_Result;  //接受数据处理结果
 uint8_t user_ble_send_flag=0;
 	
-uint8_t TX_DATA_BUF[16];
+uint8_t TX_DATA_BUF[16]; //BEL
 uint8_t RX_DATA_BUF[16];
 uint8_t DATA_BUF[16];
 uint8_t TOKEN[4]={0xf1,0xf2,0xf3,0xf4};
@@ -266,10 +266,11 @@ static void ls_user_event_timer_cb_0(void *param)
 {
 	Uart_Time_Even();
 	Uart_2_Time_Even();
-	
   Scan_Key();
-//	Uart_Data_Processing();
-//	Uart_2_Data_Processing();
+	Moto_Task();
+	
+//Uart_Data_Processing();
+//Uart_2_Data_Processing();
 	
 /**
 user_code	
@@ -283,38 +284,33 @@ user_code
 //uint8_t aaa[4];
 //uint8_t once_flag=0;
 
-//uint8_t temp_buf[50];
+uint16_t aaa;
+uint8_t temp_buf[50];
 static void ls_user_event_timer_cb_1(void *param)
 {
 /**
 user_code	
 */
- 
-	//Get_Vbat_val();
-	//sprintf((char*)temp_buf,"%d\r\n",(uint16_t)Get_Vbat_val());
-	//HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_buf,7,10);
-
+//	aaa=Get_Vbat_val();
+//	sprintf((char*)temp_buf,"%d\r\n",aaa);	
+//	HAL_UART_Transmit(&UART_Config,(unsigned char*)temp_buf,strlen((char*)&temp_buf[0]),50);
+//   
+	if(	Check_SW1() && Check_SW2()){
+		lock_state[0]=1;
+	}
+	else{
+		lock_state[0]=0;
+	}
+	
+	
 	ls_uart_server_send_notification();  //蓝牙数据发送
   Buzzer_Task();//蜂鸣器任务
-	TX_DATA_BUF[6]=Moto_Task();
 	
 	AT_GET_DATA();
-	
-	
-//	if(once_flag==0){
-//			 once_flag=1;
-//			 Set_Task_State(START_LOCK_SEND,1);
-//	}
-//	if(aaa[0]==OK_ASK){
-//			if(Get_Task_State(OPEN_LOCK_SEND)==0){
-//					Set_Task_State(OPEN_LOCK_SEND,1);
-//			}
-//	}
-	 Start_Lock_Send_Task();
-   //aaa[1]=Open_Lock_Send_Task();
-   //aaa[2]=Tick_Lock_Send_Task();
-   Open_Lock_Data_Send_Task();
-	
+	Start_Lock_Send_Task();			 //启动信息上报
+	Open_Lock_Data_Send_Task();  //信息上报
+	Open_Lock_Send_Task();			 //按键按下，向服务器查询
+
 	Uart_Data_Processing();
 	Uart_2_Data_Processing();
 	
@@ -335,7 +331,6 @@ static void ls_uart_init(void)
 static void AT_uart_init(void)
 {
 		//uart2_io_init(PA13, PA14);
-  
     uart2_io_init(PA11, PA10);
     UART_Config_AT.UARTX = UART2;
     UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
@@ -363,9 +358,6 @@ static void ls_uart_server_read_req_ind(uint8_t att_idx, uint8_t con_idx)
         gatt_manager_server_read_req_reply(con_idx, handle, 0, (void*)&cccd_config, 2);
     }
 }
-
-
-
 
 void Set_TOKEN(uint8_t TOKEN_0,uint8_t TOKEN_1,uint8_t TOKEN_2,uint8_t TOKEN_3){
 		TOKEN[0]=TOKEN_0;
@@ -395,7 +387,7 @@ static void User_BLE_Data_Handle(){
 						TX_DATA_BUF[0]=0x10;		// CMD
 						TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 						TX_DATA_BUF[5]=0x01;    //LEN
-						TX_DATA_BUF[6]=0x20;    //LV 电量
+						TX_DATA_BUF[6]=Get_Vbat_val();    //LV 电量
 						//}
 				}
 		break;
@@ -408,6 +400,7 @@ static void User_BLE_Data_Handle(){
 						TX_DATA_BUF[5]=0x01;    //LEN
 						
 						if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0){
+							
 								//TX_DATA_BUF[6]=Open_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
 						}							
 						else{
@@ -441,12 +434,20 @@ static void User_BLE_Data_Handle(){
 		//查询锁状态
 		case 0x55:
 				if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0){
+				
 						//if(DATA_BUF[5]==0x01 && DATA_BUF[6]==0x01){
 						user_ble_send_flag=1;
+						if(	Check_SW1() && Check_SW2()){
+										lock_state[0]=1;
+								}
+								else{
+										lock_state[0]=0;
+								}
+
 						TX_DATA_BUF[0]=0x55;		// CMD
 						TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 						TX_DATA_BUF[5]=0x03;    //LEN
-						TX_DATA_BUF[6]=0x01;    //锁状态
+						TX_DATA_BUF[6]=lock_state[0];    //锁状态
 						TX_DATA_BUF[7]=0x00;    //ONLINE
 						TX_DATA_BUF[8]=0x00;    //STATUS
 						//}
@@ -550,6 +551,7 @@ static void ls_uart_server_send_notification(void)
 				uart_server_ntf_done = false;
 			  user_ble_send_flag=0;
 				uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);
+				TX_DATA_BUF[6]=lock_state[0];
         //uint16_t tx_len = uart_server_recv_data_length > co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) ? 
         //co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length;
         //uart_server_recv_data_length -= tx_len;
@@ -741,9 +743,8 @@ static void ls_uart_server_client_uart_tx(void)
     }
 #endif    
 }
-
 static void connect_pattern_send_prepare(uint8_t con_idx)
-{   
+{
     if (CONNECTION_IS_SERVER(con_idx))
     {
 #if SLAVE_SERVER_ROLE == 1           
@@ -1018,7 +1019,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
 #endif       
         ls_uart_init(); 
-				AT_uart_init();			
+				AT_uart_init();
         ls_app_timer_init();
         HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
 				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断

@@ -60,8 +60,15 @@ void AT_Command_Send(Typedef_AT AT_COM) {
         break;
     case CGSN:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGSN=1\r\n",sizeof("AT+CGSN=1\r\n"),50);
+        break;
+		case AT_SLEEP:
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",5000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",5000\r\n"),50);
+        break;		
+		case AECPMUCFG:
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPMUCFG=1,4\r\n",sizeof("AT+ECPMUCFG=1,4"),50);
         break;		
     }
+		
 }
 //01启动 锁发送
 void Start_Lock_Send() {
@@ -136,11 +143,12 @@ void Open_Lock_Send() {
     DATA_BUF[15]=(temp & 0xff00) >>8;
     DATA_BUF[16]= temp & 0xff;
 
+
     hex2string(DATA_BUF,RX_BUF,17);
     RX_BUF[34]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit_IT(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1);
-}
+    HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+	}
 
 //02 心跳 RTC定时唤醒发送数据 锁上传和平台回复数据同启动
 void Tick_Lock_Send() {
@@ -178,7 +186,7 @@ void Tick_Lock_Send() {
     hex2string(DATA_BUF,RX_BUF,17);
     RX_BUF[34]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit_IT(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1);
+    HAL_UART_Transmit(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 }
 //20信息上报输入 锁ID号，锁更新状态
 void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {
@@ -190,7 +198,7 @@ void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X11;		//长度17
+    DATA_BUF[2] = 0X13;		//长度17
     DATA_BUF[3] = send_count;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X20;   //功能码  启动
 
@@ -216,8 +224,8 @@ void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {
     DATA_BUF[17]=(temp & 0xff00) >>8;
     DATA_BUF[18]= temp & 0xff;
 
-    hex2string(DATA_BUF,RX_BUF,17);
-    RX_BUF[34+2]='\0';
+    hex2string(DATA_BUF,RX_BUF,19);
+    RX_BUF[38]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 }

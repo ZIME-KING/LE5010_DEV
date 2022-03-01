@@ -12,6 +12,7 @@ NO_ASK,		 //服务器无响应
 TIME_OUT,	 //超时未相应
 CGSN_OK,
 CSQ_OK,
+		
 }NB_RX_STATE;
 
 //任务列表
@@ -19,7 +20,7 @@ typedef enum {
 START_LOCK_SEND,     		//启动数据上报
 OPEN_LOCK_SEND,  				//开锁数据请求
 TICK_LOCK_SEND, 				//心跳包发送
-OPEN_LOCK_DATA_SEND,    //状态变更数据发送
+OPEN_LOCK_DATA_SEND,    // 20信息上报
 SLEEP,		 							//休眠
 GET_DATA,	 							//获取NB模块各项参数
 }Typedef_TASK_LIST;
@@ -43,9 +44,9 @@ uint16_t Open_Lock_Send_Task(void);
 uint16_t Tick_Lock_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Task(void);
 	
-void AT_GET_DATA();
-uint16_t Get_Vbat_val();
-uint8_t Get_dBm();
+void AT_GET_DATA(void);
+uint16_t Get_Vbat_val(void);
+uint8_t Get_dBm(void);
 //uint8_t Open_Lock_Moto(void);
 //uint8_t Close_Lock_Moto(void);
 

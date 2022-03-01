@@ -3,8 +3,8 @@
 
 #include "user_main.h"
 
-#define UART_BUFFER_LENTH	256	//帧数据缓存区长度
-#define FRAME_QUANTITY  	2   //帧缓存数量
+#define UART_BUFFER_LENTH	128	//帧数据缓存区长度
+#define FRAME_QUANTITY  	1   //帧缓存数量
 #define FRAME_TIMEOUT   	5   //超时
 #define BUSY            	1
 #define FREE				      0
@@ -16,7 +16,7 @@ unsigned char length; 						//帧长度
 }Frame_Typedef;
 
 typedef struct {
-unsigned char status;	    	//串口接收帧状态  0闲 1忙
+unsigned char status;	    		//串口接收帧状态  0闲 1忙
 unsigned char frame_id;	    	//当前处理的帧id
 unsigned char time_out;	    	//超时计数
 }Uart_Frame_Typedef;

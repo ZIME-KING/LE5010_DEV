@@ -20,8 +20,8 @@ void Buzzer_Task(){
 	count=count%2;
 	
 	if(count==0){
-		if(lask_state!=buzzer_task_flag){
-			lask_state=buzzer_task_flag;	
+	//	if(lask_state!=buzzer_task_flag){
+	//		lask_state=buzzer_task_flag;	
 		if(buzzer_task_flag==1){
 			buzzer_task_flag=0;
 			Buzzer_ON();
@@ -29,7 +29,7 @@ void Buzzer_Task(){
 		else{
 			Buzzer_OFF();
 		}
-	}
+//	}
 	}
 }
 

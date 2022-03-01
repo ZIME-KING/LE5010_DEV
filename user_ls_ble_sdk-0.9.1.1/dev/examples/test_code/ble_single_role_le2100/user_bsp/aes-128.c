@@ -132,7 +132,7 @@ static unsigned char xEtime(unsigned char x)	//E:1110
 /*第三类操作：列混合操作 MixColumns: Process the entire block*/
 static void MixColumns(unsigned char *col)//列混合
 {
-	unsigned char tmp[4],xt[4];
+	unsigned char tmp[4];//xt[4];
 	int i;
 	for(i=0;i<4;i++,col+=4)  //col代表一列的基地址，col+4:下一列的基地址
 	{
@@ -162,9 +162,9 @@ static void MixColumns(unsigned char *col)//列混合
 static void Contrary_MixColumns(unsigned char *col)
 {
 	unsigned char tmp[4];
-	unsigned char xt2[4];//colx2
-	unsigned char xt4[4];//colx4
-	unsigned char xt8[4];//colx8
+//	unsigned char xt2[4];//colx2
+//	unsigned char xt4[4];//colx4
+//	unsigned char xt8[4];//colx8
 	int x;
 	for(x=0;x<4;x++,col+=4)
 	{
@@ -426,8 +426,8 @@ void aes_jia_mi(void)
 	#ifdef AES_DUBUG
 	unsigned char TEMP_BUF[100];
 	#endif
-	int i;
-	int j;
+//	int i;
+//	int j;
 	ScheduleKey(key,expansionkey,4,10);	//1、密钥扩展生成
 	AesEncrypt(pt,expansionkey,10);		//2、AES 加密
 	#ifdef AES_DUBUG
@@ -451,9 +451,8 @@ void aes_jie_mi(void)
 	unsigned char TEMP_BUF[100];
 	#endif
 	
-	int i;
-	int j;
-	
+//	int i;
+//	int j;
 	/*解密*/
 	ScheduleKey(key,expansionkey,4,10);	//1、密钥扩展生成
 	Contrary_AesEncrypt(pt,expansionkey,10);//AES 解密
