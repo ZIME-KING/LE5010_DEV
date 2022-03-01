@@ -8,7 +8,7 @@
 #include "lsuart.h"
 #include "lsdmac.h"
 #include "sleep.h"
-
+#include "lsadc.h"
 
 #include "io_config.h"
 #include "platform.h"

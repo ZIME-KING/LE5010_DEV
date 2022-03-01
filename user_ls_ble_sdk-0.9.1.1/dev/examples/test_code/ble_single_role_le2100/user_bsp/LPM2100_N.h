@@ -28,6 +28,7 @@ void Open_Lock_Send(void);
 void Tick_Lock_Send(void);
 void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state);
 
+
 extern uint8_t send_count;							 //·¢ËÍ¼ÆÊý
 extern uint8_t lock_state[LOCK_NUM+1];  //Ëø×´Ì¬´æ´¢
 

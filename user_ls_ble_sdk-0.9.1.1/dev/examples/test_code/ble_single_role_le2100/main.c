@@ -277,14 +277,23 @@ user_code
 	//////////////////////////////////////////
 	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
+
 //50ms 
-uint8_t aaa[4];
-uint8_t once_flag=0;
+
+//uint8_t aaa[4];
+//uint8_t once_flag=0;
+
+//uint8_t temp_buf[50];
 static void ls_user_event_timer_cb_1(void *param)
 {
 /**
 user_code	
 */
+ 
+	//Get_Vbat_val();
+	//sprintf((char*)temp_buf,"%d\r\n",(uint16_t)Get_Vbat_val());
+	//HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_buf,7,10);
+
 	ls_uart_server_send_notification();  //蓝牙数据发送
   Buzzer_Task();//蜂鸣器任务
 	TX_DATA_BUF[6]=Moto_Task();
@@ -292,19 +301,19 @@ user_code
 	AT_GET_DATA();
 	
 	
-	if(once_flag==0){
-			 once_flag=1;
-			 Set_Task_State(START_LOCK_SEND,1);
-	}
-	if(aaa[0]==OK_ASK){
-			if(Get_Task_State(OPEN_LOCK_SEND)==0){
-					Set_Task_State(OPEN_LOCK_SEND,1);
-			}
-	}
-	 aaa[0]=Start_Lock_Send_Task();
-   aaa[1]=Open_Lock_Send_Task();
-   aaa[2]=Tick_Lock_Send_Task();
-   aaa[3]=Open_Lock_Data_Send_Task();
+//	if(once_flag==0){
+//			 once_flag=1;
+//			 Set_Task_State(START_LOCK_SEND,1);
+//	}
+//	if(aaa[0]==OK_ASK){
+//			if(Get_Task_State(OPEN_LOCK_SEND)==0){
+//					Set_Task_State(OPEN_LOCK_SEND,1);
+//			}
+//	}
+	 Start_Lock_Send_Task();
+   //aaa[1]=Open_Lock_Send_Task();
+   //aaa[2]=Tick_Lock_Send_Task();
+   Open_Lock_Data_Send_Task();
 	
 	Uart_Data_Processing();
 	Uart_2_Data_Processing();
@@ -325,9 +334,9 @@ static void ls_uart_init(void)
 }
 static void AT_uart_init(void)
 {
-		uart2_io_init(PA13, PA14);
+		//uart2_io_init(PA13, PA14);
   
-    //uart2_io_init(PA11, PA10);
+    uart2_io_init(PA11, PA10);
     UART_Config_AT.UARTX = UART2;
     UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
     UART_Config_AT.Init.MSBEN 			= 0;

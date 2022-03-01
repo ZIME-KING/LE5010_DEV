@@ -9,10 +9,17 @@ uint8_t T3_enable;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,uint
 uint8_t T4_enable;  //设置休眠  					AT指令相关
 uint8_t T5_enable;  //获取NB模块各项参数	AT指令相关
 
+uint32_t Get_ADC_Value();
+static ADC_HandleTypeDef hadc;
 
 uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
-uint8_t Db_val;  									//	
+uint8_t Db_val;  			
 
+uint32_t adc_value = 0;
+volatile uint8_t recv_flag = 0;
+
+void AT_GET_DATA();
+void lsadc_init(void);
 
 uint8_t Open_Lock_Moto(){
 }
@@ -24,9 +31,10 @@ static void test_delay() {
     int i=65535;
     while(i--);
 }
-void AT_GET_DATA();
 
 void User_Init() {
+	  lsadc_init();
+	  HAL_ADCEx_InjectedStart_IT(&hadc);
 		Button_Gpio_Init();
 	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
@@ -35,6 +43,8 @@ void User_Init() {
 		test_delay();
 		Buzzer_OFF();
 		WAKE_UP();
+		//adc_value = (hadc.Init.AdcDriveType == INRES_ONETHIRD_EINBUF_DRIVE_ADC)?(Get_ADC_Value()*3):Get_ADC_Value();
+	
 //		AT_GET_DATA();
 //		int i=5;
 }
@@ -43,12 +53,66 @@ uint8_t Get_dBm() {
     //uint8_t Db_val;
     return Db_val;
 }
-//获取电池电量 0~100
-uint8_t Get_Vbat_val() {
-    uint8_t x;
-    return x;
+
+/////////////////////////////////////adc_value_num////////////////////////////////////////////////////
+//电阻分压1/3，硬件上VREF为1.4V
+uint16_t Get_Vbat_val() {
+	uint16_t adc_value_num;
+		if(recv_flag == 1){
+		        recv_flag = 0;
+						adc_value_num=(3*1400*adc_value/4095);
+						//adc_value_num=adc_value;
+						//if(adc_value_num<3600) adc_value_num=3600;
+						adc_value_num=(adc_value_num-3600)*100/(4200-3600);
+						//adc_value_num=(adc_value_num)*100*0.01;
+						HAL_ADCEx_InjectedStart_IT(&hadc);
+						return adc_value_num;
+		}
 }
 
+
+////////////////////////////////////////// ADC ///////////////////////////////////////////
+
+static void lsadc_init(void)
+{
+	  adc12b_in6_io_init();
+    hadc.Instance = LSADC;
+    hadc.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    hadc.Init.ScanConvMode          = ADC_SCAN_DISABLE;              /* Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1) */
+    hadc.Init.NbrOfConversion       = 1;                            /* Parameter discarded because sequencer is disabled */
+    hadc.Init.DiscontinuousConvMode = DISABLE;                       /* Parameter discarded because sequencer is disabled */
+    hadc.Init.NbrOfDiscConversion   = 1;                             /* Parameter discarded because sequencer is disabled */
+    hadc.Init.ContinuousConvMode    = DISABLE;                        /* Continuous mode to have maximum conversion speed (no delay between conversions) */
+    hadc.Init.TrigType      = ADC_INJECTED_SOFTWARE_TRIGT;            /* The reference voltage uses an internal reference */
+    hadc.Init.Vref          = ADC_VREF_INSIDE;
+    hadc.Init.AdcCkDiv = ADC_CLOCK_DIV2;
+
+    if (HAL_ADC_Init(&hadc) != HAL_OK)
+    {
+        //Error_Handler();
+    }
+    ADC_InjectionConfTypeDef sConfigInjected = {0};
+    sConfigInjected.InjectedChannel = ADC_CHANNEL_6;  //
+    sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+    sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_15CYCLES;
+    sConfigInjected.InjectedOffset = 0;
+    sConfigInjected.InjectedNbrOfConversion = 1;
+    sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
+    sConfigInjected.AutoInjectedConv = DISABLE;
+
+  if (HAL_ADCEx_InjectedConfigChannel(&hadc, &sConfigInjected) != HAL_OK)
+  {
+    /* Channel Configuration Error */
+    //Error_Handler();
+  }
+}
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+    recv_flag = 1;
+    adc_value = HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_1);
+}
+/////////////////////////////////////////////////////////////////////////////////////
 
 /********************
  **数据处理, 一帧接受完成 后跑一次
@@ -100,7 +164,8 @@ void Uart_2_Data_Processing() {
         }
 				//收到服务器回复值
 				
-				else if( strncmp("+NNMI:",(char*)frame_2[uart_2_frame_id].buffer,strlen("+NNMI:"))==0){
+				else if(strncmp("\r\n+NNMI:",(char*)frame_2[uart_2_frame_id].buffer,strlen("\r\n+NNMI:"))==0){
+						//globle_Result=OK_ASK;
 						 for(int i=0; i<frame_2[uart_2_frame_id].length; i++) {
                 if(frame_2[uart_2_frame_id].buffer[i]==',') {
                     count=i+1;
@@ -120,7 +185,7 @@ void Uart_2_Data_Processing() {
                 else
                     AT_RX_DATA_BUF[i]+=(frame_2[uart_2_frame_id].buffer[count+1+i*2]-'A'+10);
             }
-						 HAL_UART_Transmit(&UART_Config,&AT_RX_DATA_BUF[0],(frame_2[uart_2_frame_id].length-count)/2,10);
+						// HAL_UART_Transmit(&UART_Config,&AT_RX_DATA_BUF[0],(frame_2[uart_2_frame_id].length-count)/2,10);
 
             //标记——————这里应该要加CRC的
             //OK_ASK
@@ -128,8 +193,9 @@ void Uart_2_Data_Processing() {
                 globle_Result=OK_ASK;
             }
             //OPEN_LOCK
-            else if(AT_RX_DATA_BUF[0]==0x00) {
+            else if(AT_RX_DATA_BUF[0]==0x5A && AT_RX_DATA_BUF[0]==0xA5) {
                 globle_Result=OPEN_LOCK;
+								Set_Task_State(OPEN_LOCK_DATA_SEND,START);
                 lock_state[0]=AT_RX_DATA_BUF[0];
                 //lock_state[1]=1
                 //lock_state[1]=1
@@ -158,7 +224,10 @@ void Uart_2_Data_Processing() {
             globle_Result=OK_AT;
         }
         //HAL_UART_Transmit(&UART_Config,&RX_DATA_BUF[0],(frame_2[uart_frame_id].length-count)/2,10);  //
-        frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
+				if(globle_Result==OK_ASK)
+				HAL_UART_Transmit(&UART_Config,(uint8_t*)"FREAM_OK",sizeof("FREAM_OK"),10);
+      
+				frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
 
@@ -216,7 +285,7 @@ uint16_t Start_Lock_Send_Task(){
     static uint16_t temp;
     static uint8_t i;
     i++;
-    if(i%100==0) {
+    if(i%100==1) {
         if(Get_Task_State(START_LOCK_SEND)) {
             if(Get_Uart_Data_Processing_Result()==OK_ASK) {
                 send_count++;
@@ -232,7 +301,7 @@ uint16_t Start_Lock_Send_Task(){
                 Start_Lock_Send();
                 test_delay();
 
-                if(count%5==0) {
+                if(count%3==0) {
                     Set_Task_State(START_LOCK_SEND,STOP);
                     temp=TIME_OUT;
                 }
@@ -303,7 +372,7 @@ uint16_t Tick_Lock_Send_Task() {
     }
     return temp;
 }
-uint16_t Open_Lock_Data_Send_Task() {
+uint16_t c() {
     static uint8_t count;
     static uint16_t temp;
     static uint8_t i;

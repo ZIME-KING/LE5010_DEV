@@ -782,11 +782,6 @@
           <GroupName>user_bsp</GroupName>
           <Files>
             <File>
-              <FileName>key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user_bsp\key.c</FilePath>
-            </File>
-            <File>
               <FileName>user_function.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user_bsp\user_function.c</FilePath>
@@ -820,11 +815,6 @@
               <FileName>scan_sw.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user_bsp\scan_sw.c</FilePath>
-            </File>
-            <File>
-              <FileName>LPM2100.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user_bsp\LPM2100.c</FilePath>
             </File>
             <File>
               <FileName>LPM2100_N.c</FileName>
