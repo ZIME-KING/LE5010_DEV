@@ -506,18 +506,17 @@ uint16_t Open_Lock_Data_Send_Task(){
 //检测状态发生变化上报数据
 void State_Change_Task(){
 	static uint8_t last_lock_state;
-				
 		if(	Check_SW1()){
 				lock_state[0]=1;
 		}
 		else{
 				lock_state[0]=0;
 		}
-		if(last_lock_state != last_lock_state){
+
+		if(last_lock_state != lock_state[0]){
+				last_lock_state=lock_state[0];
 		
-		}
-		
-				if(Get_Task_State(OPEN_LOCK_SEND)==1 )
+			if(Get_Task_State(OPEN_LOCK_SEND)==1 )
 				{
 						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
 				}
@@ -530,19 +529,7 @@ void State_Change_Task(){
 				TX_DATA_BUF[5]=0x01;    //LEN
 				}
 				//TX_DATA_BUF[6]=lock_state[0];
-				if(Get_Task_State(OPEN_LOCK_SEND)==1)
-				{
-					Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-				}
-				if(moro_task_flag==1){
-				}
-				else{
-				user_ble_send_flag=1;    
-				TX_DATA_BUF[0]=0x52;		// CMD
-				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-				TX_DATA_BUF[5]=0x01;    //LEN
-				//TX_DATA_BUF[6]=lock_state[0];
-				}
+		}		
 }
 //开机初始化跑一次
 void AT_GET_DATA(){

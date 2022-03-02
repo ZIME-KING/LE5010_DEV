@@ -269,13 +269,6 @@ static void ls_user_event_timer_cb_0(void *param)
   Scan_Key();
 	Moto_Task();
 	
-	
-	if(	Check_SW1()){
-		lock_state[0]=1;
-	}
-	else{
-		lock_state[0]=0;
-	}
 //Uart_Data_Processing();
 //Uart_2_Data_Processing();
 	
