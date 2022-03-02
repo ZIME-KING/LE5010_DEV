@@ -9,7 +9,7 @@
 #include "lsdmac.h"
 #include "sleep.h"
 #include "lsadc.h"
-
+#include "tinyfs.h"
 #include "io_config.h"
 #include "platform.h"
 #include "log.h"
@@ -30,7 +30,7 @@ extern uint8_t globle_Result;
 extern uint8_t user_ble_send_flag;
 
 extern uint8_t SHORT_NAME[7];
-extern uint8_t COMPLETE_NAME[7];
+//extern uint8_t COMPLETE_NAME[7];
 extern uint8_t TX_DATA_BUF[16]; //BEL
 extern uint8_t TOKEN[4];
 #endif

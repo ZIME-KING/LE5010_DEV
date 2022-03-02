@@ -25,9 +25,7 @@ void Moto_NULL(){
 	io_write_pin(PB04,0);  
 }
 
-
 uint8_t temp_[20];
-
 uint8_t moro_task_flag;
 uint8_t Moto_Task(){
 	uint8_t temp=0x03;
@@ -42,7 +40,7 @@ uint8_t Moto_Task(){
 										sprintf((char*)&temp_[0],"A:%d\r\n",count);
 							HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 							#endif
-					if(count>(2000/5)){
+					if(count>(500/5)){
 							count=0;
 							step=1;
 							//HAL_UART_Transmit(&UART_Config,(uint8_t*)"A",2,100);    
@@ -68,9 +66,9 @@ uint8_t Moto_Task(){
 							}
 							TX_DATA_BUF[6]=temp;
 							user_ble_send_flag=1;	//蓝牙发送数据
-							if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0) { //信息上报任务未启动
-									Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-							}
+							//if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0) { //信息上报任务未启动
+							//		Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+							//}
 					}
 			break;
 			case 2:			
@@ -79,7 +77,7 @@ uint8_t Moto_Task(){
 				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 			#endif
 					Moto_N();
-					if(count>(2000/5)){
+					if(count>(500/5)){
 						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
 							count=0;
 							step=3;
@@ -105,7 +103,7 @@ uint8_t Moto_Task(){
 				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);			
 				#endif
 					Moto_P();
-					if(count>(500/5)){
+					if(count>(300/5)){
 					//	HAL_UART_Transmit(&UART_Config,(uint8_t*)"E",2,100);
 							count=0;
 							step=5;

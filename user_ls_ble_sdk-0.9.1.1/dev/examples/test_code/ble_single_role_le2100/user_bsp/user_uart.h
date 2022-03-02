@@ -4,7 +4,7 @@
 #include "user_main.h"
 
 #define UART_BUFFER_LENTH	128	//帧数据缓存区长度
-#define FRAME_QUANTITY  	1   //帧缓存数量
+#define FRAME_QUANTITY  	2   //帧缓存数量
 #define FRAME_TIMEOUT   	5   //超时
 #define BUSY            	1
 #define FREE				      0

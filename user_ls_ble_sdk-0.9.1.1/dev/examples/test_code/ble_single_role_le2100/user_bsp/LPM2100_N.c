@@ -64,11 +64,7 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 		case AT_SLEEP:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",5000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",5000\r\n"),50);
         break;		
-		case AECPMUCFG:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPMUCFG=1,4\r\n",sizeof("AT+ECPMUCFG=1,4"),50);
-        break;		
-    }
-		
+	}
 }
 //01Æô¶¯ Ëø·¢ËÍ
 void Start_Lock_Send() {

@@ -20,7 +20,7 @@
 #define MASTER_CLIENT_ROLE 0
 
 uint8_t SHORT_NAME[7]="0123456";
-uint8_t COMPLETE_NAME[7]="0123456";
+//uint8_t COMPLETE_NAME[7]="0123456";
 
 //#define UART_SVC_ADV_NAME "LS Single Role"
 #define UART_SERVER_MAX_MTU  517
@@ -284,8 +284,8 @@ user_code
 //uint8_t aaa[4];
 //uint8_t once_flag=0;
 
-uint16_t aaa;
-uint8_t temp_buf[50];
+//uint16_t aaa;
+//uint8_t temp_buf[50];
 static void ls_user_event_timer_cb_1(void *param)
 {
 /**
@@ -301,17 +301,15 @@ user_code
 	else{
 		lock_state[0]=0;
 	}
-	
-	
 	ls_uart_server_send_notification();  //蓝牙数据发送
   Buzzer_Task();//蜂鸣器任务
 	
 	AT_GET_DATA();
 	Start_Lock_Send_Task();			 //启动信息上报
-	Open_Lock_Data_Send_Task();  //信息上报
 	Open_Lock_Send_Task();			 //按键按下，向服务器查询
-
-	Uart_Data_Processing();
+	Open_Lock_Data_Send_Task();  //信息上报
+	
+	//Uart_Data_Processing();
 	Uart_2_Data_Processing();
 	
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
@@ -331,6 +329,8 @@ static void ls_uart_init(void)
 static void AT_uart_init(void)
 {
 		//uart2_io_init(PA13, PA14);
+		io_pull_write(PA11, IO_PULL_UP);  				//设置上拉    
+		io_pull_write(PA10, IO_PULL_UP);  				//设置上拉    
     uart2_io_init(PA11, PA10);
     UART_Config_AT.UARTX = UART2;
     UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
@@ -545,7 +545,7 @@ static void ls_uart_server_send_notification(void)
 {
 	uint8_t AF_TX_DATA_BUF[16];
   User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
-	
+	LOG_I("uart_server_ntf_done:%d,%d,",uart_server_ntf_done,user_ble_send_flag);
 		uint32_t cpu_stat = enter_critical();
 		if(user_ble_send_flag==1 && uart_server_ntf_done==true){
 				uart_server_ntf_done = false;
@@ -591,7 +591,7 @@ static void start_adv(void)
 		uint8_t FF_NAME[]={0xff,0xFF};
     LS_ASSERT(adv_obj_hdl != 0xff);
     uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 3, GAP_ADV_TYPE_SHORTENED_NAME,     &SHORT_NAME[0], sizeof(SHORT_NAME)
-																																,GAP_ADV_TYPE_COMPLETE_NAME,      &COMPLETE_NAME[0], sizeof(COMPLETE_NAME)
+																																,GAP_ADV_TYPE_COMPLETE_NAME,      &SHORT_NAME[0], sizeof(SHORT_NAME)
 																																,GAP_ADV_TYPE_MANU_SPECIFIC_DATA, &FF_NAME[0], sizeof(FF_NAME)
 		);
 		dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
@@ -1018,10 +1018,10 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif       
-        ls_uart_init(); 
+        //ls_uart_init(); 
 				AT_uart_init();
         ls_app_timer_init();
-        HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
+        //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
 				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
 				User_Init();           
     }

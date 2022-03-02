@@ -54,8 +54,15 @@ void Scan_Key(){
 		
 		if(edge_flag == 0x0F){	//上升延
 				buzzer_task_flag=1;
-				Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-				user_ble_send_flag=1;
+				if(//Get_Task_State(OPEN_LOCK_SEND)==0 &&
+					 Get_Task_State(START_LOCK_SEND)==0 &&
+					 Get_Task_State(TICK_LOCK_SEND)==0 )
+				{
+						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+				}
+				
+			
+			  user_ble_send_flag=1;
 				TX_DATA_BUF[0]=0x52;		// CMD
 				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 				TX_DATA_BUF[5]=0x01;    //LEN
@@ -63,7 +70,12 @@ void Scan_Key(){
 		}
 		else if(edge_flag == 0xF0){
 				buzzer_task_flag=1;
-				Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+				if(//Get_Task_State(OPEN_LOCK_SEND)==0 &&
+					 Get_Task_State(START_LOCK_SEND)==0 &&
+					 Get_Task_State(TICK_LOCK_SEND)==0 )
+				{
+						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+				}
 				user_ble_send_flag=1;    
 				TX_DATA_BUF[0]=0x52;		// CMD
 				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]

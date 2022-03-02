@@ -30,7 +30,7 @@ void Uart_2_Time_Even(void) {          //串口接收用在定时器上的事件
             uart_2.frame_id++;
 
             //Uart_Data_Processing();                	//数据处理 切换缓存的数组后 再处理前一个缓存中的数据避免数据覆盖
-            //Uart_2_Data_Processing();
+           // Uart_2_Data_Processing();
             if(uart_2.frame_id >= FRAME_QUANTITY) {
                 uart_2.frame_id=0;
             }
