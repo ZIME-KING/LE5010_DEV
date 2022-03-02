@@ -90,7 +90,7 @@ void Start_Lock_Send() {
     DATA_BUF[10] = Get_dBm();
 
     DATA_BUF[11] = 0XA6;		//支持的从锁数量
-    DATA_BUF[12] = 0X01;
+    DATA_BUF[12] = 0X00;
 
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
     DATA_BUF[14] = Get_Vbat_val();	//50%
@@ -129,11 +129,11 @@ void Open_Lock_Send() {
     DATA_BUF[9]  = 0XA2;		//锁信号强度（0-31，99）
     DATA_BUF[10] = Get_dBm();
 
-    DATA_BUF[10] = 0XA6;		//支持的从锁数量
-    DATA_BUF[11] = 0X00;
+    DATA_BUF[11] = 0XA6;		//支持的从锁数量
+    DATA_BUF[12] = 0X00;
 
-    DATA_BUF[12] = 0XB0; 	//电量 0~100%;
-    DATA_BUF[13] = Get_Vbat_val();	//50%
+    DATA_BUF[13] = 0XB0; 	//电量 0~100%;
+    DATA_BUF[14] = Get_Vbat_val();	//50%
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],15);
     DATA_BUF[15]=(temp & 0xff00) >>8;
@@ -169,11 +169,11 @@ void Tick_Lock_Send() {
     DATA_BUF[9]  = 0XA2;		//锁信号强度（0-31，99）
     DATA_BUF[10] = Get_dBm();
 
-    DATA_BUF[10] = 0XA6;		//支持的从锁数量
-    DATA_BUF[11] = 0X00;
+    DATA_BUF[11] = 0XA6;		//支持的从锁数量
+    DATA_BUF[12] = 0X00;
 
-    DATA_BUF[12] = 0XB0; 	//电量 0~100%;
-    DATA_BUF[13] =  Get_Vbat_val();	//50%
+    DATA_BUF[13] = 0XB0; 	//电量 0~100%;
+    DATA_BUF[14] =  Get_Vbat_val();	//50%
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],15);
     DATA_BUF[15]=(temp & 0xff00) >>8;

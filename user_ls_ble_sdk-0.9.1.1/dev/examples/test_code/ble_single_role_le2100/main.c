@@ -19,7 +19,7 @@
 #define SLAVE_SERVER_ROLE 1
 #define MASTER_CLIENT_ROLE 0
 
-uint8_t SHORT_NAME[7]="0123456";
+uint8_t SHORT_NAME[10]="0123456";
 //uint8_t COMPLETE_NAME[7]="0123456";
 
 //#define UART_SVC_ADV_NAME "LS Single Role"
@@ -269,6 +269,13 @@ static void ls_user_event_timer_cb_0(void *param)
   Scan_Key();
 	Moto_Task();
 	
+	
+	if(	Check_SW1()){
+		lock_state[0]=1;
+	}
+	else{
+		lock_state[0]=0;
+	}
 //Uart_Data_Processing();
 //Uart_2_Data_Processing();
 	
@@ -284,23 +291,36 @@ user_code
 //uint8_t aaa[4];
 //uint8_t once_flag=0;
 
-//uint16_t aaa;
+uint16_t temp_count;
+uint16_t sleep_time;
+uint8_t KEY_FLAG=0;  //收到开锁请求
+uint8_t ONCE_FLAG=0;  //收到开锁请求
+
+
 //uint8_t temp_buf[50];
 static void ls_user_event_timer_cb_1(void *param)
 {
+		if(ONCE_FLAG==0){
+				if(KEY_FLAG==1){
+					ONCE_FLAG=1;
+					KEY_FLAG=0;
+					moro_task_flag=1; 
+				}
+		}
 /**
 user_code	
 */
-//	aaa=Get_Vbat_val();
-//	sprintf((char*)temp_buf,"%d\r\n",aaa);	
-//	HAL_UART_Transmit(&UART_Config,(unsigned char*)temp_buf,strlen((char*)&temp_buf[0]),50);
-//   
-	if(	Check_SW1() && Check_SW2()){
-		lock_state[0]=1;
+	sleep_time++;
+	temp_count++;
+	if(temp_count%400==0){
+			if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0)
+				Set_Task_State(OPEN_LOCK_DATA_SEND,1);
 	}
-	else{
-		lock_state[0]=0;
+	//120s休眠
+	if(sleep_time>2400){
+		ls_sleep_enter_lp2();
 	}
+	
 	ls_uart_server_send_notification();  //蓝牙数据发送
   Buzzer_Task();//蜂鸣器任务
 	
@@ -476,6 +496,7 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
 	//uint8_t buf[100];
     if(att_idx == UART_SVC_IDX_RX_VAL)// && uart_server_tx_buf[0] != UART_SYNC_BYTE)
     {
+				sleep_time=0;
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
 				memcpy(&RX_DATA_BUF[0],value,16); 
 				User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
@@ -545,9 +566,9 @@ static void ls_uart_server_send_notification(void)
 {
 	uint8_t AF_TX_DATA_BUF[16];
   User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
-	LOG_I("uart_server_ntf_done:%d,%d,",uart_server_ntf_done,user_ble_send_flag);
+	//LOG_I("uart_server_ntf_done:%d,%d,",uart_server_ntf_done,user_ble_send_flag);
 		uint32_t cpu_stat = enter_critical();
-		if(user_ble_send_flag==1 && uart_server_ntf_done==true){
+		if(user_ble_send_flag==1 ){//&& uart_server_ntf_done==true){
 				uart_server_ntf_done = false;
 			  user_ble_send_flag=0;
 				uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);

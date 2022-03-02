@@ -143,8 +143,8 @@ tinyfs_dir_t ID_dir;
 
 void Read_Last_Data(){
 static uint32_t count;
-uint8_t  tmp[7];
-uint16_t length = 7; 
+uint8_t  tmp[10];
+uint16_t length = 10; 
 
 	tinyfs_mkdir(&ID_dir,ROOT_DIR,5);  //创建目录
 	
@@ -273,12 +273,11 @@ void Uart_2_Data_Processing() {
             //OPEN_LOCK
             else if(AT_RX_DATA_BUF[0]==0x5A && AT_RX_DATA_BUF[1]==0xA5) {
                 globle_Result=OPEN_LOCK;
-								moro_task_flag=1;      
+								KEY_FLAG=1;
+
+								//moro_task_flag=1;      
 								Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-                //lock_state[0]=AT_RX_DATA_BUF[0];								
-								//HAL_UART_Transmit(&UART_Config,(uint8_t*)"BB",sizeof("BB"),10);
-                //lock_state[1]=1
-                //lock_state[1]=1
+
             }
         }
 				//收到错误消息
@@ -394,7 +393,7 @@ uint16_t Start_Lock_Send_Task(){
                 Set_Task_State(START_LOCK_SEND,START);
 
                 Start_Lock_Send();
-                test_delay();
+             
 
                 if(count%5==0) {
                     Set_Task_State(START_LOCK_SEND,STOP);
@@ -411,7 +410,9 @@ uint16_t Open_Lock_Send_Task() {
     static uint8_t count;
     static uint16_t temp;
     static uint8_t i;
-    i++;
+   // static uint8_t once_flag=1;
+
+		i++;
     if(i%400==1) {
         if(Get_Task_State(OPEN_LOCK_SEND)) {
             if(Get_Uart_Data_Processing_Result()==OPEN_LOCK) {
@@ -432,7 +433,6 @@ uint16_t Open_Lock_Send_Task() {
                 if(count%6==0) {
                     Set_Task_State(OPEN_LOCK_SEND,STOP);
                     temp=TIME_OUT;
-										ls_sleep_enter_lp2();
                 }
             }
         }
@@ -492,7 +492,7 @@ uint16_t Open_Lock_Data_Send_Task(){
                 Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 
 							  Open_Lock_Data_Send(0,lock_state[0]);
-               // test_delay();
+								//test_delay();
 
                 if(count%5==0) {
                     Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
@@ -503,8 +503,47 @@ uint16_t Open_Lock_Data_Send_Task(){
     }
     return temp;
 }
-
-
+//检测状态发生变化上报数据
+void State_Change_Task(){
+	static uint8_t last_lock_state;
+				
+		if(	Check_SW1()){
+				lock_state[0]=1;
+		}
+		else{
+				lock_state[0]=0;
+		}
+		if(last_lock_state != last_lock_state){
+		
+		}
+		
+				if(Get_Task_State(OPEN_LOCK_SEND)==1 )
+				{
+						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+				}
+				if(moro_task_flag==1){
+				}
+				else{
+			  user_ble_send_flag=1;
+				TX_DATA_BUF[0]=0x52;		// CMD
+				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+				TX_DATA_BUF[5]=0x01;    //LEN
+				}
+				//TX_DATA_BUF[6]=lock_state[0];
+				if(Get_Task_State(OPEN_LOCK_SEND)==1)
+				{
+					Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+				}
+				if(moro_task_flag==1){
+				}
+				else{
+				user_ble_send_flag=1;    
+				TX_DATA_BUF[0]=0x52;		// CMD
+				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+				TX_DATA_BUF[5]=0x01;    //LEN
+				//TX_DATA_BUF[6]=lock_state[0];
+				}
+}
 //开机初始化跑一次
 void AT_GET_DATA(){
 	static int step=1;
@@ -527,6 +566,7 @@ void AT_GET_DATA(){
         //HAL_UART_Transmit(&UART_Config,"OK\r\n",5,20);  //
 				//step++;
 				once_flag++;
+				  Start_Lock_Send();
 					Set_Task_State(START_LOCK_SEND,1);
 			}
 			else{
@@ -554,7 +594,7 @@ void AT_GET_DATA(){
 			//DELAY_US(200000); //50ms
 			if(Get_Uart_Data_Processing_Result()==CGSN_OK){
 				globle_Result=0xff;
-				memcpy(&SHORT_NAME[0]   ,&AT_RX_DATA_BUF[8],7);
+				memcpy(&SHORT_NAME[0]   ,&AT_RX_DATA_BUF[8-3],7+3);
 //				memcpy(&COMPLETE_NAME[0],&AT_RX_DATA_BUF[8],7);
 				//后7位设备号写入，作为蓝牙广播名称
 				tinyfs_write(ID_dir,RECORD_KEY1,SHORT_NAME,sizeof(SHORT_NAME));	

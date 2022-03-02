@@ -10,14 +10,14 @@
 
 //io下降沿唤醒函数
 static void exitpb15_iowkup_init(void)
-{	
+{
 	  io_cfg_input(KEY);               				//输入模式                     
     io_pull_write(KEY, IO_PULL_UP);  				//设置上拉    
     io_exti_config(KEY,INT_EDGE_FALLING);   //下降沿触发中断 
     io_exti_enable(KEY,true);            		//启动中断使能    
 }
 static void exitpa00_iowkup_init(void)
-{	
+{
 	  io_cfg_input(SW1);                       
     io_pull_write(SW1, IO_PULL_UP);         
     io_exti_config(SW1,INT_EDGE_FALLING);   
@@ -37,11 +37,17 @@ void Button_Gpio_Init(){
 void Scan_Key(){
 	static uint8_t count;
 	static uint8_t edge_flag;
+	static uint8_t edge_flag_1;
 	
 	if(io_read_pin(KEY)==0){
 			count++;
 			if(count==2){
 					buzzer_task_flag=1;
+					if(KEY_FLAG==1){
+							KEY_FLAG=0;
+							moro_task_flag=1; 
+						  globle_Result=0xff;
+					}
 					Set_Task_State(OPEN_LOCK_SEND,1);//开锁数据请求
 			}
 	}
@@ -50,38 +56,39 @@ void Scan_Key(){
 			//buzzer_task_flag=0;
 	}
 		edge_flag=edge_flag<<1;
-		edge_flag+=io_read_pin(SW2);
+		edge_flag+=io_read_pin(SW1);
 		
 		if(edge_flag == 0x0F){	//上升延
 				buzzer_task_flag=1;
-				if(//Get_Task_State(OPEN_LOCK_SEND)==0 &&
-					 Get_Task_State(START_LOCK_SEND)==0 &&
-					 Get_Task_State(TICK_LOCK_SEND)==0 )
-				{
-						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-				}
-				
-			
-			  user_ble_send_flag=1;
-				TX_DATA_BUF[0]=0x52;		// CMD
-				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-				TX_DATA_BUF[5]=0x01;    //LEN
-				TX_DATA_BUF[6]=lock_state[0];
+
 		}
 		else if(edge_flag == 0xF0){
 				buzzer_task_flag=1;
-				if(//Get_Task_State(OPEN_LOCK_SEND)==0 &&
-					 Get_Task_State(START_LOCK_SEND)==0 &&
-					 Get_Task_State(TICK_LOCK_SEND)==0 )
-				{
-						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-				}
-				user_ble_send_flag=1;    
-				TX_DATA_BUF[0]=0x52;		// CMD
-				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-				TX_DATA_BUF[5]=0x01;    //LEN
-				TX_DATA_BUF[6]=lock_state[0];
 		}
+		
+//		
+//		
+//		
+//		
+//		edge_flag_1=edge_flag_1<<1;
+//		edge_flag_1+=io_read_pin(SW2);
+//		
+//		if(edge_flag_1 == 0x0F){	//上升延
+//				buzzer_task_flag=1;
+//				if(Get_Task_State(OPEN_LOCK_SEND)==1 )
+//				{
+//						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+//				}
+//				//TX_DATA_BUF[6]=lock_state[0];
+//		}
+//		else if(edge_flag_1 == 0xF0){
+//				buzzer_task_flag=1;
+//				if(Get_Task_State(OPEN_LOCK_SEND)==1 )
+//				{
+//						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+//				}
+//		}
+
 }
 
 

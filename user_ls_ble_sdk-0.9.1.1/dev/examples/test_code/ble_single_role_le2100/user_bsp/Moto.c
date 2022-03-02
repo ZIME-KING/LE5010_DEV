@@ -33,6 +33,7 @@ uint8_t Moto_Task(){
 	static unsigned int step=0x10;
 	if(moro_task_flag==1){
 		count++;
+		sleep_time=0;
 		switch(step){
 			case 0x10:
 					Moto_P();
@@ -40,7 +41,7 @@ uint8_t Moto_Task(){
 										sprintf((char*)&temp_[0],"A:%d\r\n",count);
 							HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 							#endif
-					if(count>(500/5)){
+					if(count>(800/5)){
 							count=0;
 							step=1;
 							//HAL_UART_Transmit(&UART_Config,(uint8_t*)"A",2,100);    
@@ -58,10 +59,10 @@ uint8_t Moto_Task(){
 					HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);		
 					HAL_UART_Transmit(&UART_Config,(uint8_t*)"B",2,100);
 				#endif
-					if(count>(200/5)){
+					if(count>(100/5)){
 							count=0;
 							step=2;
-							if(Check_SW1()==1&&Check_SW2()==1){
+							if(Check_SW1()==1){
 								temp=0;  		//00 打开成功  0x03 失败
 							}
 							TX_DATA_BUF[6]=temp;
@@ -76,8 +77,8 @@ uint8_t Moto_Task(){
 				sprintf((char*)&temp_[0],"C:%d\r\n",count);
 				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 			#endif
-					Moto_N();
-					if(count>(500/5)){
+					Moto_P();
+					if(count>(200/5)){
 						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
 							count=0;
 							step=3;
@@ -90,7 +91,7 @@ uint8_t Moto_Task(){
 				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 					#endif
 					Moto_S();
-					if(count>(200/5)){
+					if(count>(500/5)){
 						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"D",2,100);
 							count=0;
 							step=4;
@@ -102,8 +103,8 @@ uint8_t Moto_Task(){
 				sprintf((char*)&temp_[0],"E:%d\r\n",count);
 				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);			
 				#endif
-					Moto_P();
-					if(count>(300/5)){
+					Moto_N();
+					if(count>(150/5)){
 					//	HAL_UART_Transmit(&UART_Config,(uint8_t*)"E",2,100);
 							count=0;
 							step=5;
