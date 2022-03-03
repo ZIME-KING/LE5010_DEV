@@ -33,9 +33,13 @@ void Button_Gpio_Init(){
 	exitpa00_iowkup_init();
 	SW2_init();
 }
+
+#define RECORD_KEY1 1	 //蓝牙名称
+#define RECORD_KEY2 2  //完成模块初始化标记
+
 //5ms 跑一次
 void Scan_Key(){
-	static uint8_t count;
+	static uint16_t count;
 	static uint8_t edge_flag;
 	static uint8_t edge_flag_1;
 	
@@ -48,8 +52,21 @@ void Scan_Key(){
 							moro_task_flag=1; 
 						  globle_Result=0xff;
 					}
-					Set_Task_State(OPEN_LOCK_SEND,1);//开锁数据请求
+					if(temp_count<50){
+					
+					}
+					else{
+						Set_Task_State(OPEN_LOCK_SEND,1);//开锁数据请求
+					}
 			}
+			//10s复位
+			if(count==1500){
+							tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
+							tinyfs_write_through();
+							HAL_IWDG_Init(1);
+							//ls_sleep_enter_lp2();
+			}
+			
 	}
 	else{
 			count=0;

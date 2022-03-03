@@ -112,7 +112,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
         Uart_2_Receive_Interrupt();
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 重新使能串口1接收中断
     }
-
 }
 
 //union Data

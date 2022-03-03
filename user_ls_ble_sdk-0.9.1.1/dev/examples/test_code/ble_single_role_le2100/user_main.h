@@ -13,7 +13,7 @@
 #include "io_config.h"
 #include "platform.h"
 #include "log.h"
-
+#include "lsiwdg.h"
 
 #include "user_function.h"
 #include "user_uart.h"
@@ -35,5 +35,7 @@ extern uint8_t TX_DATA_BUF[16]; //BEL
 extern uint8_t TOKEN[4];
 extern uint16_t sleep_time;
 extern uint8_t KEY_FLAG;
-
+extern uint8_t BLE_connected_flag;
+extern uint8_t VBat_value;
+extern uint16_t temp_count;
 #endif

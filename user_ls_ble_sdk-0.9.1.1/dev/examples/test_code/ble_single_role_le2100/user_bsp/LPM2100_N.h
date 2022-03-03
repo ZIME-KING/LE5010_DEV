@@ -8,6 +8,7 @@
 
 typedef enum 
 {
+AT,
 ATQ0,       //
 CTM2MSETPM,
 CTM2MREG,

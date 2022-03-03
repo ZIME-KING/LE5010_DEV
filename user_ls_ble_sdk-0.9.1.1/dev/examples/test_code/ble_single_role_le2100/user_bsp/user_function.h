@@ -43,10 +43,20 @@ uint16_t Start_Lock_Send_Task(void);
 uint16_t Open_Lock_Send_Task(void);
 uint16_t Tick_Lock_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Task(void);
-	
+
+
+
+#define RECORD_KEY1 1	 //蓝牙名称
+#define RECORD_KEY2 2  //完成模块初始化标记
+extern tinyfs_dir_t ID_dir;
+
+
 void AT_GET_DATA(void);
 uint16_t Get_Vbat_val(void);
 uint8_t Get_dBm(void);
+void LED_TASK(void);
+void Get_Vbat_Task(void);
+void NB_WAKE_Task(void);
 //uint8_t Open_Lock_Moto(void);
 //uint8_t Close_Lock_Moto(void);
 

@@ -24,12 +24,12 @@ void Buzzer_Task(){
 	//		lask_state=buzzer_task_flag;	
 		if(buzzer_task_flag==1){
 			buzzer_task_flag=0;
-			Buzzer_ON();
+			//Buzzer_ON();
 		}
 		else{
 			Buzzer_OFF();
 		}
-//	}
+
 	}
 }
 

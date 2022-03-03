@@ -17,21 +17,21 @@ const uint8_t	Frame_header[2]= {0x58,0x59};
 void WAKE_UP(){
 		io_cfg_output(PA13);               //输出模式                     
     io_pull_write(PA13, IO_PULL_UP);   //设置上拉  
-		io_write_pin(PA13,1);  
+		io_write_pin(PA13,0);  
 		DELAY_US(10*1000);
-		io_write_pin(PA13,0);             
+		io_write_pin(PA13,1);             
 		DELAY_US(10*1000);
-		io_write_pin(PA13,1);
+		io_write_pin(PA13,0);
 }
 
 void RESET_NB(){
 		io_cfg_output(PA05);               //输出模式                     
     io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
-		io_write_pin(PA05,1);  
+		io_write_pin(PA05,0);  
 		DELAY_US(10*1000);
-		io_write_pin(PA05,0);             
+		io_write_pin(PA05,1);             
 		DELAY_US(10*1000);
-		io_write_pin(PA05,1);
+		io_write_pin(PA05,0);
 }
 
 //hex 转char输出
@@ -48,6 +48,9 @@ void hex2string(uint8_t *IN_DATA,uint8_t *OUT_DATA,uint16_t len) {
 //AT命令发送
 void AT_Command_Send(Typedef_AT AT_COM) {
     switch(AT_COM) {
+		case AT:
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT\r\n",sizeof("AT\r\n"),100);
+        break;
     case ATQ0:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATQ0\r\n",sizeof("ATQ0\r\n"),100);
         break;
@@ -73,7 +76,7 @@ void AT_Command_Send(Typedef_AT AT_COM) {
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGSN=1\r\n",sizeof("AT+CGSN=1\r\n"),50);
         break;
 		case AT_SLEEP:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",5000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",5000\r\n"),50);
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",10000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",10000\r\n"),50);
         break;		
 	}
 }
@@ -141,10 +144,10 @@ void Open_Lock_Send() {
     DATA_BUF[10] = Get_dBm();
 
     DATA_BUF[11] = 0XA6;		//支持的从锁数量
-    DATA_BUF[12] = 0X00;
+    DATA_BUF[12] = 0X01;
 
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
-    DATA_BUF[14] = Get_Vbat_val();	//50%
+    DATA_BUF[14] = VBat_value;	//50%
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],15);
     DATA_BUF[15]=(temp & 0xff00) >>8;
@@ -184,7 +187,7 @@ void Tick_Lock_Send() {
     DATA_BUF[12] = 0X00;
 
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
-    DATA_BUF[14] =  Get_Vbat_val();	//50%
+    DATA_BUF[14] = VBat_value;	//50%
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],15);
     DATA_BUF[15]=(temp & 0xff00) >>8;
@@ -222,7 +225,7 @@ void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {
     DATA_BUF[12] = LOCK_NUM;
 
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
-    DATA_BUF[14] =  Get_Vbat_val();	//50%
+    DATA_BUF[14] = VBat_value;	//50%
 
     DATA_BUF[15] = lock_ID; 	  //lock_ID
     DATA_BUF[16] = !lock_state;	//lock_state

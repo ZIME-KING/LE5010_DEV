@@ -3,3 +3,6 @@ https://www.kancloud.cn/freethy/ble_lock
 
 //4G模块
 https://www.kancloud.cn/freethy/xingyue_iot
+
+相关规则
+https://shimo.im/sheets/d9crhc6Q3qjPcjhq/tshUb

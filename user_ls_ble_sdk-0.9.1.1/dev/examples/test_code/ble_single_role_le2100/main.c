@@ -68,6 +68,9 @@ uint8_t RX_DATA_BUF[16];
 uint8_t DATA_BUF[16];
 uint8_t TOKEN[4]={0xf1,0xf2,0xf3,0xf4};
 uint8_t PASSWORD[6]={0x30,0x30,0x30,0x30,0x30,0x30};
+uint8_t BLE_connected_flag=0;
+uint8_t VBat_value=0;
+
 
 //enum uart_rx_status
 //{
@@ -292,38 +295,30 @@ uint8_t ONCE_FLAG=0;  //收到开锁请求
 
 uint8_t a;  //收到开锁请求
 uint8_t LED_flag;  //收到开锁请求
-uint8_t user_start;
+//uint8_t user_start;
 //uint8_t temp_buf[50];
 static void ls_user_event_timer_cb_1(void *param)
 {
-	if(user_start==1){
-				io_write_pin(PC00, LED_flag);
-				io_write_pin(PC01, !LED_flag);
-	}
-	////a=Get_Task_State(OPEN_LOCK_DATA_SEND);
-	//LOG_I("a:%d",a);
-		if(ONCE_FLAG==0){
-				if(KEY_FLAG==1){
-					ONCE_FLAG=1;
-					KEY_FLAG=0;
-					moro_task_flag=1; 
-				}
-		}
 /**
 user_code	
 */
 	sleep_time++;
 	temp_count++;
-//	if(temp_count%400==0){
-//			if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0)
-//				Set_Task_State(OPEN_LOCK_DATA_SEND,1);
-//	}
+	
+	if(temp_count<50){
+			if(KEY_FLAG==1){
+				KEY_FLAG=0;
+				moro_task_flag=1; 
+			}
+	}
+	NB_WAKE_Task();  //5s发AT保持模块唤醒
 	State_Change_Task();
+	Get_Vbat_Task();
+	LED_TASK();
 	//120s休眠
 	if(sleep_time>2400){
 		ls_sleep_enter_lp2();
 	}
-	
 	ls_uart_server_send_notification();  //蓝牙数据发送
   Buzzer_Task();//蜂鸣器任务
 	
@@ -843,9 +838,11 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             gatt_manager_client_mtu_exch_send(con_idx);
         }    
 #endif           
+				BLE_connected_flag=1;
         LOG_I("connected! new con_idx = %d", con_idx);
     break;
     case DISCONNECTED:
+				BLE_connected_flag=0;
         LOG_I("disconnected! delete con_idx = %d", con_idx);       
         if (CONNECTION_IS_SERVER(con_idx))
         {
@@ -1046,11 +1043,12 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
 #endif       
         //ls_uart_init(); 
+			 
 				AT_uart_init();
         ls_app_timer_init();
         //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
 				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-				User_Init();           
+				User_Init();      
     }
     break;
 #if SLAVE_SERVER_ROLE == 1    
