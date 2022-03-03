@@ -13,7 +13,7 @@
 #define RTC_WAKEUP_LP0_TEST 2
 #define RTC_WAKEUP_LP2_TEST 3
 
-#define RTC_TEST_CASE 1
+#define RTC_TEST_CASE 3
 
 #if RTC_TEST_CASE == RTC_CALENDAR_TEST
 static calendar_time_t calendar_time;

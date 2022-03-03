@@ -63,6 +63,7 @@ uint8_t Moto_Task(){
 							count=0;
 							step=2;
 							if(Check_SW1()==1){
+								KEY_FLAG=0;  
 								temp=0;  		//00 打开成功  0x03 失败
 							}
 							TX_DATA_BUF[6]=temp;

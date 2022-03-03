@@ -28,7 +28,7 @@ void RESET_NB(){
 		io_cfg_output(PA05);               //输出模式                     
     io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
 		io_write_pin(PA05,0);  
-		DELAY_US(10*1000);
+		DELAY_US(10*100);
 		io_write_pin(PA05,1);             
 		DELAY_US(10*1000);
 		io_write_pin(PA05,0);
@@ -196,7 +196,7 @@ void Tick_Lock_Send() {
     hex2string(DATA_BUF,RX_BUF,17);
     RX_BUF[34]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit(&UART_Config,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+    HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 }
 //20信息上报输入 锁ID号，锁更新状态
 void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {

@@ -29,8 +29,12 @@ static void SW2_init(){
 }
 
 void Button_Gpio_Init(){
-	exitpb15_iowkup_init();
-	exitpa00_iowkup_init();
+	io_cfg_input(KEY);               				//输入模式                     
+  io_pull_write(KEY, IO_PULL_UP);  				//设置上拉    
+	
+	io_cfg_input(SW1);                       
+  io_pull_write(SW1, IO_PULL_UP);     
+	
 	SW2_init();
 }
 
@@ -48,23 +52,25 @@ void Scan_Key(){
 			if(count==2){
 					buzzer_task_flag=1;
 					if(KEY_FLAG==1){
-							KEY_FLAG=0;
+							//KEY_FLAG=0;
 							moro_task_flag=1; 
-						  globle_Result=0xff;
+						  //globle_Result=0xff;
 					}
-					if(temp_count<50){
-					
-					}
-					else{
-						Set_Task_State(OPEN_LOCK_SEND,1);//开锁数据请求
-					}
+//					if(temp_count<50){
+//					
+//					}
+//					else{
+//						Set_Task_State(OPEN_LOCK_SEND,1);//开锁数据请求
+//					}
 			}
-			//10s复位
-			if(count==1500){
+			//10s复位 5s就差不多了，复位是关掉卡死启动看门狗要一点时间
+			if(count==1000){
+							//模块重新配置服务器
 							tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
 							tinyfs_write_through();
-							HAL_IWDG_Init(1);
-							//ls_sleep_enter_lp2();
+							//RESET_NB();
+							HAL_IWDG_Init(10);
+							while(1);
 			}
 			
 	}
@@ -72,17 +78,19 @@ void Scan_Key(){
 			count=0;
 			//buzzer_task_flag=0;
 	}
-		edge_flag=edge_flag<<1;
-		edge_flag+=io_read_pin(SW1);
-		
-		if(edge_flag == 0x0F){	//上升延
-				buzzer_task_flag=1;
+	
+//	
+//		edge_flag=edge_flag<<1;
+//		edge_flag+=io_read_pin(SW1);
+//		
+//		if(edge_flag == 0x0F){	//上升延
+//				buzzer_task_flag=1;
 
-		}
-		else if(edge_flag == 0xF0){
-				buzzer_task_flag=1;
-		}
-		
+//		}
+//		else if(edge_flag == 0xF0){
+//				buzzer_task_flag=1;
+//		}
+//		
 //		
 //		
 //		
@@ -105,7 +113,6 @@ void Scan_Key(){
 //						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
 //				}
 //		}
-
 }
 
 
@@ -116,11 +123,17 @@ uint8_t Check_SW2(){
 	return io_read_pin(SW2);
 }
 
-
 void  ls_sleep_enter_lp2(void)
 {
 	io_write_pin(PC00, 0);
 	io_write_pin(PC01, 0);
+	
+//	io_init();
+//	exitpb15_iowkup_init();
+//	exitpa00_iowkup_init();
+	exitpb15_iowkup_init();
+	exitpa00_iowkup_init();
+
 	struct deep_sleep_wakeup wakeup;
 	memset(&wakeup,0,sizeof(wakeup));
 	wakeup.pb15 = 1 ;									//选择PB15作为唤醒io

@@ -24,7 +24,7 @@ void Buzzer_Task(){
 	//		lask_state=buzzer_task_flag;	
 		if(buzzer_task_flag==1){
 			buzzer_task_flag=0;
-			//Buzzer_ON();
+			Buzzer_ON();
 		}
 		else{
 			Buzzer_OFF();
@@ -71,7 +71,7 @@ void Basic_PWM_Output_Cfg(void)
 //    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_4);
 
     /*##-3- Start PWM signals generation #######################################*/
-    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1);
+//    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1);
 //    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_2);
 //    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_3);
 //    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_4);

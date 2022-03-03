@@ -14,6 +14,8 @@
 #include "platform.h"
 #include "log.h"
 #include "lsiwdg.h"
+#include "lsrtc.h"
+#include "reg_syscfg.h"
 
 #include "user_function.h"
 #include "user_uart.h"
@@ -23,6 +25,9 @@
 #include "Buzzer.h"
 #include "scan_sw.h"
 #include "LPM2100_N.h"
+
+void start_adv(void);
+
 
 extern UART_HandleTypeDef UART_Config; 
 extern UART_HandleTypeDef UART_Config_AT; 

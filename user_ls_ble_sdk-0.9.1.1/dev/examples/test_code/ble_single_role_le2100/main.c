@@ -176,9 +176,9 @@ static void ls_uart_server_init(void);
 static void ls_uart_init(void);
 static void ls_uart_server_client_uart_tx(void);
 static void ls_uart_server_read_req_ind(uint8_t att_idx, uint8_t con_idx);
-static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length, uint8_t const *value);
+//static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length, uint8_t const *value);
 static void ls_uart_server_send_notification(void);
-static void start_adv(void);
+//static void start_adv(void);
 #endif
 /************************************************data for client*****************************************************/
 #if MASTER_CLIENT_ROLE == 1
@@ -268,67 +268,63 @@ static void ls_single_role_timer_cb(void *param)
 static void ls_user_event_timer_cb_0(void *param)
 {
 	//Uart_Time_Even();
-	Uart_2_Time_Even();
-  Scan_Key();
-	Moto_Task();
+	Uart_2_Time_Even();  //串口接收数据
+  Scan_Key();					 //扫描按键
+	Moto_Task();				 //电机的任务
 	
 	Uart_2_Data_Processing();
 //Uart_Data_Processing();
-//Uart_2_Data_Processing();
-	
-/**
-user_code	
-*/	
-	//////////////////////////////////////////
 	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
-
-//50ms 
-
-//uint8_t aaa[4];
-//uint8_t once_flag=0;
-
-uint16_t temp_count;
-uint16_t sleep_time;
-uint8_t KEY_FLAG=0;  //收到开锁请求
-uint8_t ONCE_FLAG=0;  //收到开锁请求
-
-uint8_t a;  //收到开锁请求
-uint8_t LED_flag;  //收到开锁请求
-//uint8_t user_start;
-//uint8_t temp_buf[50];
+uint16_t temp_count=0;
+uint16_t sleep_time=0;
+uint8_t KEY_FLAG=0;   //收到开锁请求
+//50ms 任务
 static void ls_user_event_timer_cb_1(void *param)
 {
-/**
-user_code	
-*/
-	sleep_time++;
-	temp_count++;
-	
-	if(temp_count<50){
+	sleep_time++;			 //记录休眠时间在收到蓝牙数据，和开锁数据重新计数
+	temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
+	HAL_IWDG_Refresh();//喂狗
+	Get_Vbat_Task();										 //获取电池电量 0~100
+	uint8_t wkup_source = get_wakeup_source();
+  if ((RTC_WKUP & wkup_source) != 0){
+					if(sleep_time<10) Set_Task_State(TICK_LOCK_SEND,START);  //等待500ms 启动一次心跳包
+					//10s休眠
+					if(sleep_time>200){
+							ls_sleep_enter_lp2();
+					}
+					//LOG_I("sleep_time:%d",sleep_time);
+					//AT_Command_Send(CSQ);
+					Tick_Lock_Send_Task();
+          SYSCFG->BKD[7]++; // record times of entering sleep
+  }
+	else{
+		//开机2.5s内收到有收到开锁就开锁
+		if(temp_count<50){
 			if(KEY_FLAG==1){
-				KEY_FLAG=0;
-				moro_task_flag=1; 
+				//KEY_FLAG=0;
+				moro_task_flag=1; 						//开启电机动作，在电机动作里面判断，锁的开开启，未开启KEY_FLAG不清，按键按下再次启动锁防止卡死
 			}
-	}
-	NB_WAKE_Task();  //5s发AT保持模块唤醒
-	State_Change_Task();
-	Get_Vbat_Task();
-	LED_TASK();
-	//120s休眠
-	if(sleep_time>2400){
-		ls_sleep_enter_lp2();
-	}
-	ls_uart_server_send_notification();  //蓝牙数据发送
-  Buzzer_Task();//蜂鸣器任务
-	
-	AT_GET_DATA();
-	Start_Lock_Send_Task();			 //启动信息上报
-	Open_Lock_Send_Task();			 //按键按下，向服务器查询
-	Open_Lock_Data_Send_Task();  //信息上报
-	
-	//Uart_Data_Processing();
+		}
+		//每5s重启数据上报任务
+		if(temp_count%100==0 && Get_Task_State(START_LOCK_SEND)==0){
+		  Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+			//io_write_pin(PA05,1);
+			//RESET_NB();
+		}
+		Sleep_Task(60);     //60s无操作休眠
+		//RESET_NB();
 
+
+		LED_TASK();													 //LED显示效果
+		Buzzer_Task();											 //蜂鸣器任务
+		AT_GET_DATA();											 //获取NB模块信息
+		State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
+		Start_Lock_Send_Task();			 				 //启动信息上报
+		//Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
+		Open_Lock_Data_Send_Task();  				 //信息上报
+		ls_uart_server_send_notification();  //蓝牙数据发送
+  }
 	
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
@@ -608,7 +604,7 @@ static void create_adv_obj()
     };
     dev_manager_create_legacy_adv_object(&adv_param);
 }
-static void start_adv(void)
+ void start_adv(void)
 {
 		uint8_t FF_NAME[]={0xff,0xFF};
     LS_ASSERT(adv_obj_hdl != 0xff);
@@ -734,37 +730,37 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 //void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 //}
 
-static void ls_uart_server_client_uart_tx(void)
-{
-#if SLAVE_SERVER_ROLE == 1    
-    if (uart_server_tx_buf[0] == UART_SYNC_BYTE)
-    {
-        uint32_t cpu_stat = enter_critical();
-        if (!uart_tx_busy)
-        {
-            uint16_t length = (uart_server_tx_buf[2] << 8) | uart_server_tx_buf[1];
-            uart_tx_busy = true;
-            current_uart_tx_idx = (0 << 7);
-            HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length + UART_HEADER_LEN);
-        }
-        exit_critical(cpu_stat);
-    }
-#endif
-#if MASTER_CLIENT_ROLE == 1
-    if (uart_client_tx_buf[0] == UART_SYNC_BYTE)
-    {
-        uint32_t cpu_stat = enter_critical();
-        if (!uart_tx_busy)
-        {
-            uint16_t length = (uart_client_tx_buf[2] << 8) | uart_client_tx_buf[1];
-            uart_tx_busy = true;
-            current_uart_tx_idx = (1 << 7);
-            HAL_UART_Transmit_IT(&UART_Config, &uart_client_tx_buf[0], length + UART_HEADER_LEN);
-        }
-        exit_critical(cpu_stat);
-    }
-#endif    
-}
+//static void ls_uart_server_client_uart_tx(void)
+//{
+//#if SLAVE_SERVER_ROLE == 1    
+//    if (uart_server_tx_buf[0] == UART_SYNC_BYTE)
+//    {
+//        uint32_t cpu_stat = enter_critical();
+//        if (!uart_tx_busy)
+//        {
+//            uint16_t length = (uart_server_tx_buf[2] << 8) | uart_server_tx_buf[1];
+//            uart_tx_busy = true;
+//            current_uart_tx_idx = (0 << 7);
+//            HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length + UART_HEADER_LEN);
+//        }
+//        exit_critical(cpu_stat);
+//    }
+//#endif
+//#if MASTER_CLIENT_ROLE == 1
+//    if (uart_client_tx_buf[0] == UART_SYNC_BYTE)
+//    {
+//        uint32_t cpu_stat = enter_critical();
+//        if (!uart_tx_busy)
+//        {
+//            uint16_t length = (uart_client_tx_buf[2] << 8) | uart_client_tx_buf[1];
+//            uart_tx_busy = true;
+//            current_uart_tx_idx = (1 << 7);
+//            HAL_UART_Transmit_IT(&UART_Config, &uart_client_tx_buf[0], length + UART_HEADER_LEN);
+//        }
+//        exit_critical(cpu_stat);
+//    }
+//#endif    
+//}
 static void connect_pattern_send_prepare(uint8_t con_idx)
 {
     if (CONNECTION_IS_SERVER(con_idx))

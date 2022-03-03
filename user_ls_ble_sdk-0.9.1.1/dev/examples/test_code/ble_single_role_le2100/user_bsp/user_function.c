@@ -12,13 +12,13 @@ uint8_t T3_enable;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,uint
 uint8_t T4_enable;  //设置休眠  					AT指令相关
 uint8_t T5_enable;  //获取NB模块各项参数	AT指令相关
 
-uint32_t adc_value = 0;
+uint32_t adc_value = 0;						//
 uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
 uint8_t Db_val;  
 
 volatile uint8_t recv_flag = 0;
 static ADC_HandleTypeDef hadc;
-static void Read_Last_Data();
+static void Read_Last_Data(void);
 static void lsadc_init(void);
 
 void User_Init() {
@@ -32,11 +32,14 @@ void User_Init() {
 	  io_cfg_output(PC00);   //PB09 config output
     io_write_pin(PC01,0);  
     io_cfg_output(PC00);   //PB10 config output
-    io_write_pin(PC01,0);  //PB10 write low power
+    io_write_pin(PC00,0);  //PB10 write low power
 		io_cfg_input(USB_CHECK);   //PB09 config output
-    
-		VBat_value=Get_Vbat_val();
-		//RESET_NB();
+	
+		HAL_IWDG_Init(32756);  //1s看门狗
+ 		HAL_RTC_Init(2);    	 //RTC内部时钟源
+		RTC_wkuptime_set(30);	 //唤醒时间30s  休眠函数在sw.c 中
+
+	//RESET_NB();
 		WAKE_UP();
 }
 void LED_TASK(){
@@ -131,6 +134,7 @@ uint16_t Get_Vbat_val() {
 						HAL_ADCEx_InjectedStart_IT(&hadc);
 						return adc_value_num;
 		}
+		return adc_value_num;
 }
 ////////////////////////////////////////// ADC ///////////////////////////////////////////
 static void lsadc_init(void)
@@ -175,12 +179,14 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
 /////////////////////////////////////////////////////////////////////////////////////
 #define RECORD_KEY1 1	 //蓝牙名称
 #define RECORD_KEY2 2  //完成模块初始化标记
+#define RECORD_KEY3 3  //上一次启动的电量
 tinyfs_dir_t ID_dir;
 
 void Read_Last_Data(){
-static uint32_t count;
+//static uint32_t count;
 uint8_t  tmp[10];
 uint16_t length = 10; 
+uint16_t KEY3_length = 2; 
 
 	tinyfs_mkdir(&ID_dir,ROOT_DIR,5);  //创建目录
 	
@@ -189,16 +195,24 @@ uint16_t length = 10;
 	LOG_I("%s",tmp);
 	memcpy ( &SHORT_NAME[0], &tmp[0], sizeof(tmp) );
 	
-	//LOG_HEX(tmp,sizeof(tmp));
-	
 	tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
 	LOG_I("read_flag");
 	LOG_I("%s",tmp);
-
-	//LOG_HEX(tmp,sizeof(tmp));
-
 	
+	tinyfs_read(ID_dir,RECORD_KEY3,tmp,&KEY3_length);//读到tmp中
+	LOG_I("read_flag");
+	LOG_I("%s",tmp);
+	if(tmp[0]==1){
+		memcpy ( &VBat_value, &tmp[0], 1);
+	}
+	else{
+			tmp[0]=1;
+			VBat_value=Get_Vbat_val();
+			tinyfs_write(ID_dir,RECORD_KEY3,&tmp[0],1);	
+			tinyfs_write_through();
+	}
 	
+//  LOG_HEX(tmp,sizeof(tmp));
 //	if(tmp[0]!=ID_VAL_0 && tmp[1]!=ID_VAL_1 ){
 //		while(io_read_pin(PA07)==1){
 //			count++;	
@@ -216,7 +230,6 @@ uint16_t length = 10;
 	//}
 	//else{
 	//}
-
 //	memcpy ( &sent_buf[0], &id_num[0], sizeof(id_num) );
 }
 
@@ -389,14 +402,14 @@ uint16_t Start_Lock_Send_Task(){
     static uint16_t temp;
     static uint8_t i;
     i++;
-    if(i%100==1) {
+    if(i%40==1) {
         if(Get_Task_State(START_LOCK_SEND)){
             if(Get_Uart_Data_Processing_Result()==OK_ASK) {
 							 	globle_Result=0xFF;
                 send_count++;
                 temp=OK_ASK;
                 Set_Task_State(START_LOCK_SEND,STOP);
-								Set_Task_State(OPEN_LOCK_SEND,START);  //
+								//Set_Task_State(OPEN_LOCK_SEND,START);  //
             }
             else {
                 count++;
@@ -407,7 +420,7 @@ uint16_t Start_Lock_Send_Task(){
                 Start_Lock_Send();
              
 
-                if(count%5==0) {
+                if(count%3==0) {
                     Set_Task_State(START_LOCK_SEND,STOP);
 										
                     temp=TIME_OUT;
@@ -417,15 +430,14 @@ uint16_t Start_Lock_Send_Task(){
     }
     return temp;
 }
-//请求开锁 20s,6次
+//请求开锁 ??现在不请求开锁直接上报数据了
 uint16_t Open_Lock_Send_Task() {
     static uint8_t count;
     static uint16_t temp;
     static uint8_t i;
    // static uint8_t once_flag=1;
-
 		i++;
-    if(i%400==1) {
+    if(i%40==1) {
         if(Get_Task_State(OPEN_LOCK_SEND)) {
             if(Get_Uart_Data_Processing_Result()==OPEN_LOCK) {
 								globle_Result=0xFF;
@@ -441,7 +453,7 @@ uint16_t Open_Lock_Send_Task() {
 
                 Open_Lock_Send();
 
-                if(count%100==0) {
+                if(count%3==0) {
                     Set_Task_State(OPEN_LOCK_SEND,STOP);
                     temp=TIME_OUT;
                 }
@@ -455,7 +467,7 @@ uint16_t Tick_Lock_Send_Task() {
     static uint16_t temp;
     static uint8_t i;
     i++;
-    if(i%100==1) {
+    if(i%40==1) {
         if(Get_Task_State(TICK_LOCK_SEND)) {
             if(Get_Uart_Data_Processing_Result()==OK_ASK) {
 								globle_Result=0xFF;
@@ -468,11 +480,9 @@ uint16_t Tick_Lock_Send_Task() {
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
                 Set_Task_State(TICK_LOCK_SEND,START);
-                globle_Result=NO_ASK;
-
                 Tick_Lock_Send();
 
-                if(count%100==0) {
+                if(count%5==0) {
                     Set_Task_State(TICK_LOCK_SEND,STOP);
                     temp=TIME_OUT;
                 }
@@ -514,13 +524,13 @@ uint16_t Open_Lock_Data_Send_Task(){
     return temp;
 }
 
-void NB_WAKE_Task(){
-	 static uint8_t i;
-	i++;
-    if(i%100==1) {
-				AT_Command_Send(AT);
-    }
-}
+//void NB_WAKE_Task(){
+//	 static uint8_t i;
+//	i++;
+//    if(i%100==1) {
+//				AT_Command_Send(AT);
+//    }
+//}
 
 //检测状态发生变化上报数据
 void State_Change_Task(){
@@ -536,15 +546,9 @@ void State_Change_Task(){
 				sleep_time=0;
 				last_lock_state=lock_state[0];
 		
-				//if(Get_Task_State(START_LOCK_SEND)==0 ) //&&
-				//Get_Task_State(OPEN_LOCK_DATA_SEND)==0)
-				//{
-						LOG_I("%d",globle_Result);
-						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-				
-			
-				//}
-				if(moro_task_flag==1){
+				Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+	
+			if(moro_task_flag==1){
 				}
 				else{
 			  user_ble_send_flag=1;
@@ -612,13 +616,13 @@ void AT_GET_DATA(){
 				//后7位设备号写入，作为蓝牙广播名称
 				tinyfs_write(ID_dir,RECORD_KEY1,SHORT_NAME,sizeof(SHORT_NAME));	
 				tinyfs_write_through();
-				
+				start_adv();   //更新广播
 				step++;
 			}
 			else{
 				set_flag++;
 				count_out++;
-				if(count_out>50){
+				if(count_out>5){
 					count_out=0	;
 					step++;
 				}
@@ -636,7 +640,7 @@ void AT_GET_DATA(){
 			else{
 				set_flag++;
 				count_out++;
-				if(count_out>50){
+				if(count_out>5){
 					count_out=0	;
 					step++;
 				}
@@ -654,7 +658,7 @@ void AT_GET_DATA(){
 			else{
 				set_flag++;
 				count_out++;
-				if(count_out>50){
+				if(count_out>5){
 					count_out=0	;
 					step++;
 				}
@@ -673,7 +677,7 @@ void AT_GET_DATA(){
 			else{
 				set_flag++;
 				count_out++;
-				if(count_out>50){
+				if(count_out>5){
 					count_out=0	;
 					step++;
 				}
@@ -692,7 +696,7 @@ void AT_GET_DATA(){
 			else{
 				set_flag++;
 				count_out++;
-				if(count_out>50){
+				if(count_out>5){
 					count_out=0	;
 					step++;
 				}
@@ -711,7 +715,7 @@ void AT_GET_DATA(){
 			else{
 				set_flag++;
 				count_out++;
-				if(count_out>50){
+				if(count_out>5){
 					count_out=0	;
 					step++;
 				}
@@ -725,14 +729,16 @@ void AT_GET_DATA(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
-				if(set_flag>50){
+				if(set_flag>10){
 						RESET_NB();
 				}
 				else{
 					tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_OK",sizeof("SET_OK"));	
 					tinyfs_write_through();
 					tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
-					Set_Task_State(START_LOCK_SEND,1);
+					//Set_Task_State(START_LOCK_SEND,1);
+					HAL_IWDG_Init(100);
+					while(1);
 				}
 			}
 			else{
@@ -754,3 +760,14 @@ void AT_GET_DATA(){
 		}
 }
 
+//无操作120s休眠
+void Sleep_Task(uint16_t time_s){
+	uint8_t tmp[2];
+	tmp[0]=0x01;
+	tmp[1]=VBat_value;
+	if(sleep_time*50>time_s*1000){
+			tinyfs_write(ID_dir,RECORD_KEY3,&tmp[0],2);	
+			tinyfs_write_through();
+			ls_sleep_enter_lp2();
+	}
+}
