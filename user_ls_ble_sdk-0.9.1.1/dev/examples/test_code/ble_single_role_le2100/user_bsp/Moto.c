@@ -78,7 +78,7 @@ uint8_t Moto_Task(){
 				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 			#endif
 					Moto_P();
-					if(count>(200/5)){
+					if(count>(1000/5)){
 						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
 							count=0;
 							step=3;

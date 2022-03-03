@@ -23,11 +23,11 @@ volatile uint8_t recv_flag = 0;
 void AT_GET_DATA(void);
 void lsadc_init(void);
 
-uint8_t Open_Lock_Moto(){
-}
-uint8_t Close_Lock_Moto(){
-return 0;
-}
+//uint8_t Open_Lock_Moto(){
+//}
+//uint8_t Close_Lock_Moto(){
+//return 0;
+//}
 
 static void test_delay() {
     int i=65535;
@@ -52,6 +52,14 @@ void User_Init() {
     io_write_pin(PC01,0);  //PB10 write low power
 	
 		WAKE_UP();
+		RESET_NB();
+	
+		//adc_value = (hadc.Init.AdcDriveType == INRES_ONETHIRD_EINBUF_DRIVE_ADC)?(Get_ADC_Value()*3):Get_ADC_Value();
+	
+ //     AT_GET_DATA();
+//		int i=5;
+}
+void LED_TASK(){
 		if(Get_Vbat_val()>40){
 				io_write_pin(PC00, 1);
 				io_write_pin(PC01, 0);
@@ -60,12 +68,10 @@ void User_Init() {
 				io_write_pin(PC00, 0);
 				io_write_pin(PC01, 1);
 		}
-
-		//adc_value = (hadc.Init.AdcDriveType == INRES_ONETHIRD_EINBUF_DRIVE_ADC)?(Get_ADC_Value()*3):Get_ADC_Value();
-	
-//		AT_GET_DATA();
-//		int i=5;
 }
+
+
+
 //锁信号强度获取
 uint8_t Get_dBm() {
     //uint8_t Db_val;
@@ -208,7 +214,7 @@ void Uart_2_Data_Processing() {
 				LOG_I("%s",frame_2[uart_2_frame_id].buffer);
 				//返回接收到的数据到uart1上
 				//收到NNMI卡号返回
-				//globle_Result=0XFF;
+				globle_Result=0XFF;
 				if( strncmp("AT+CGSN=1\r\n+CGSN:",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CGSN=1\r\n+CGSN:"))==0) {
             //HAL_UART_Transmit(&UART_Config,(uint8_t*)"ok \r\n",sizeof("ok \r\n"),10);
             globle_Result=CGSN_OK;
@@ -276,7 +282,7 @@ void Uart_2_Data_Processing() {
 								KEY_FLAG=1;
 
 								//moro_task_flag=1;      
-								Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+								//Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 
             }
         }
@@ -317,6 +323,7 @@ void Uart_2_Data_Processing() {
         //HAL_UART_Transmit(&UART_Config,&RX_DATA_BUF[0],(frame_2[uart_frame_id].length-count)/2,10);  //
 				//if(globle_Result==OK_ASK)
 				//HAL_UART_Transmit(&UART_Config,(uint8_t*)"FREAM_OK",sizeof("FREAM_OK"),10);
+				//		LOG_I("%d",globle_Result);
       
 				frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
@@ -377,14 +384,14 @@ uint16_t Start_Lock_Send_Task(){
     static uint16_t temp;
     static uint8_t i;
     i++;
-    if(i%100==1) {
+    if(i%99==1) {
         if(Get_Task_State(START_LOCK_SEND)) {
             if(Get_Uart_Data_Processing_Result()==OK_ASK) {
 							 	globle_Result=0xFF;
                 send_count++;
                 temp=OK_ASK;
                 Set_Task_State(START_LOCK_SEND,STOP);
-								Set_Task_State(OPEN_LOCK_SEND,START);  //
+//								Set_Task_State(OPEN_LOCK_SEND,START);  //
             }
             else {
                 count++;
@@ -444,7 +451,7 @@ uint16_t Tick_Lock_Send_Task() {
     static uint16_t temp;
     static uint8_t i;
     i++;
-    if(i%100==1) {
+    if(i%110==1) {
         if(Get_Task_State(TICK_LOCK_SEND)) {
             if(Get_Uart_Data_Processing_Result()==OK_ASK) {
 								globle_Result=0xFF;
@@ -477,7 +484,8 @@ uint16_t Open_Lock_Data_Send_Task(){
     static uint16_t temp;
     static uint8_t i;
     i++;
-    if(i%100==1) {
+    if(i%40==1) {
+			  LOG_I("%d",globle_Result);
         if(Get_Task_State(OPEN_LOCK_DATA_SEND)) {
             if(Get_Uart_Data_Processing_Result()==OK_ASK) {
 								globle_Result=0xFF;
@@ -494,7 +502,7 @@ uint16_t Open_Lock_Data_Send_Task(){
 							  Open_Lock_Data_Send(0,lock_state[0]);
 								//test_delay();
 
-                if(count%5==0) {
+                if(count%3==0) {
                     Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
                     temp=TIME_OUT;
                 }
@@ -507,19 +515,23 @@ uint16_t Open_Lock_Data_Send_Task(){
 void State_Change_Task(){
 	static uint8_t last_lock_state;
 		if(	Check_SW1()){
-				lock_state[0]=1;
-		}
-		else{
 				lock_state[0]=0;
 		}
-
+		else{
+				lock_state[0]=1;
+		}
+		//正常启动后进入zd
 		if(last_lock_state != lock_state[0]){
 				last_lock_state=lock_state[0];
 		
-			if(Get_Task_State(OPEN_LOCK_SEND)==1 )
-				{
+				//if(Get_Task_State(START_LOCK_SEND)==0 ) //&&
+				//Get_Task_State(OPEN_LOCK_DATA_SEND)==0)
+				//{
+						LOG_I("%d",globle_Result);
 						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-				}
+				
+			
+				//}
 				if(moro_task_flag==1){
 				}
 				else{
@@ -527,8 +539,9 @@ void State_Change_Task(){
 				TX_DATA_BUF[0]=0x52;		// CMD
 				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 				TX_DATA_BUF[5]=0x01;    //LEN
+				TX_DATA_BUF[6]=lock_state[0];
 				}
-				//TX_DATA_BUF[6]=lock_state[0];
+				
 		}		
 }
 //开机初始化跑一次

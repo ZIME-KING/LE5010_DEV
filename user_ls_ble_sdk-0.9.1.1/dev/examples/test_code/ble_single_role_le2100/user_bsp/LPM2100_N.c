@@ -23,6 +23,17 @@ void WAKE_UP(){
 		DELAY_US(10*1000);
 		io_write_pin(PA13,1);
 }
+
+void RESET_NB(){
+		io_cfg_output(PA05);               //输出模式                     
+    io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
+		io_write_pin(PA05,1);  
+		DELAY_US(10*1000);
+		io_write_pin(PA05,0);             
+		DELAY_US(10*1000);
+		io_write_pin(PA05,1);
+}
+
 //hex 转char输出
 //输出字符长度为输入字符长度2倍
 void hex2string(uint8_t *IN_DATA,uint8_t *OUT_DATA,uint16_t len) {
@@ -214,7 +225,7 @@ void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {
     DATA_BUF[14] =  Get_Vbat_val();	//50%
 
     DATA_BUF[15] = lock_ID; 	  //lock_ID
-    DATA_BUF[16] = lock_state;	//lock_state
+    DATA_BUF[16] = !lock_state;	//lock_state
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],17);
     DATA_BUF[17]=(temp & 0xff00) >>8;

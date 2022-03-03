@@ -31,7 +31,7 @@ GET_DATA,	 							//获取NB模块各项参数
  void Open_Lock_Send(void);
  void Tick_Lock_Send(void);
  void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state);
-
+ void State_Change_Task(void);
  void Uart_Data_Processing(void);
  uint8_t Get_Uart_Data_Processing_Result(void);
 

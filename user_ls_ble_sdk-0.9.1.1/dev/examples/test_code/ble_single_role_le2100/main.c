@@ -264,11 +264,12 @@ static void ls_single_role_timer_cb(void *param)
 //5ms   做按键扫描
 static void ls_user_event_timer_cb_0(void *param)
 {
-	Uart_Time_Even();
+	//Uart_Time_Even();
 	Uart_2_Time_Even();
   Scan_Key();
 	Moto_Task();
 	
+	Uart_2_Data_Processing();
 //Uart_Data_Processing();
 //Uart_2_Data_Processing();
 	
@@ -289,10 +290,18 @@ uint16_t sleep_time;
 uint8_t KEY_FLAG=0;  //收到开锁请求
 uint8_t ONCE_FLAG=0;  //收到开锁请求
 
-
+uint8_t a;  //收到开锁请求
+uint8_t LED_flag;  //收到开锁请求
+uint8_t user_start;
 //uint8_t temp_buf[50];
 static void ls_user_event_timer_cb_1(void *param)
 {
+	if(user_start==1){
+				io_write_pin(PC00, LED_flag);
+				io_write_pin(PC01, !LED_flag);
+	}
+	////a=Get_Task_State(OPEN_LOCK_DATA_SEND);
+	//LOG_I("a:%d",a);
 		if(ONCE_FLAG==0){
 				if(KEY_FLAG==1){
 					ONCE_FLAG=1;
@@ -305,10 +314,11 @@ user_code
 */
 	sleep_time++;
 	temp_count++;
-	if(temp_count%400==0){
-			if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0)
-				Set_Task_State(OPEN_LOCK_DATA_SEND,1);
-	}
+//	if(temp_count%400==0){
+//			if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0)
+//				Set_Task_State(OPEN_LOCK_DATA_SEND,1);
+//	}
+	State_Change_Task();
 	//120s休眠
 	if(sleep_time>2400){
 		ls_sleep_enter_lp2();
@@ -323,7 +333,7 @@ user_code
 	Open_Lock_Data_Send_Task();  //信息上报
 	
 	//Uart_Data_Processing();
-	Uart_2_Data_Processing();
+
 	
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
@@ -450,19 +460,22 @@ static void User_BLE_Data_Handle(){
 				
 						//if(DATA_BUF[5]==0x01 && DATA_BUF[6]==0x01){
 						user_ble_send_flag=1;
-						if(	Check_SW1() && Check_SW2()){
-										lock_state[0]=1;
-								}
-								else{
-										lock_state[0]=0;
-								}
-
+//						if(	Check_SW1()){
+//										lock_state[0]=1;
+//								}
+//								else{
+//										lock_state[0]=0;
+//								}
+					//这里0x55查询锁状态 回复没有更新，用0x52上报锁信息可以更新
+						//TX_DATA_BUF[0]=0x55;		// CMD
+						
 						TX_DATA_BUF[0]=0x55;		// CMD
-						TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-						TX_DATA_BUF[5]=0x03;    //LEN
+						
+					  TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+						TX_DATA_BUF[5]=0x01;    //LEN
 						TX_DATA_BUF[6]=lock_state[0];    //锁状态
-						TX_DATA_BUF[7]=0x00;    //ONLINE
-						TX_DATA_BUF[8]=0x00;    //STATUS
+						//TX_DATA_BUF[7]=0x00;    //ONLINE
+						//TX_DATA_BUF[8]=0x00;    //STATUS
 						//}
 				}
 		//修改广播名称
