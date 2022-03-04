@@ -107,7 +107,7 @@ void Start_Lock_Send() {
     DATA_BUF[12] = 0X00;
 
     DATA_BUF[13] = 0XB0; 	//µçÁ¿ 0~100%;
-    DATA_BUF[14] = Get_Vbat_val();	//50%
+    DATA_BUF[14] = VBat_value;	//50%
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],15);
     DATA_BUF[15]=(temp & 0xff00) >>8;

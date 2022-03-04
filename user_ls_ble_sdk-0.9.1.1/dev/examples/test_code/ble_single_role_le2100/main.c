@@ -271,7 +271,8 @@ static void ls_user_event_timer_cb_0(void *param)
 	Uart_2_Time_Even();  //串口接收数据
   Scan_Key();					 //扫描按键
 	Moto_Task();				 //电机的任务
-	
+	Get_Vbat_Task();										 //获取电池电量 0~100
+
 	Uart_2_Data_Processing();
 //Uart_Data_Processing();
 	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
@@ -284,48 +285,47 @@ static void ls_user_event_timer_cb_1(void *param)
 {
 	sleep_time++;			 //记录休眠时间在收到蓝牙数据，和开锁数据重新计数
 	temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
+	if(wd_FLAG==1){
+	
+	}
+		else{
 	HAL_IWDG_Refresh();//喂狗
-	Get_Vbat_Task();										 //获取电池电量 0~100
+		}
+	LED_TASK();													 //LED显示效果
+	Buzzer_Task();											 //蜂鸣器任务
 	uint8_t wkup_source = get_wakeup_source();
   if ((RTC_WKUP & wkup_source) != 0){
-					if(sleep_time<10) Set_Task_State(TICK_LOCK_SEND,START);  //等待500ms 启动一次心跳包
+					AT_GET_DB();
+					if(sleep_time>100) Set_Task_State(TICK_LOCK_SEND,START);  //等待20s 启动一次心跳包
 					//10s休眠
 					if(sleep_time>200){
 							ls_sleep_enter_lp2();
 					}
-					//LOG_I("sleep_time:%d",sleep_time);
-					//AT_Command_Send(CSQ);
 					Tick_Lock_Send_Task();
           SYSCFG->BKD[7]++; // record times of entering sleep
   }
 	else{
 		//开机2.5s内收到有收到开锁就开锁
-		if(temp_count<50){
+		if(temp_count<100){
 			if(KEY_FLAG==1){
 				//KEY_FLAG=0;
 				moro_task_flag=1; 						//开启电机动作，在电机动作里面判断，锁的开开启，未开启KEY_FLAG不清，按键按下再次启动锁防止卡死
 			}
 		}
+			AT_GET_DATA();											 //获取NB模块信息
 		//每5s重启数据上报任务
 		if(temp_count%100==0 && Get_Task_State(START_LOCK_SEND)==0){
 		  Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-			//io_write_pin(PA05,1);
-			//RESET_NB();
 		}
-		Sleep_Task(60);     //60s无操作休眠
-		//RESET_NB();
+		Sleep_Task(120);     //120s无操作休眠
 
-
-		LED_TASK();													 //LED显示效果
-		Buzzer_Task();											 //蜂鸣器任务
-		AT_GET_DATA();											 //获取NB模块信息
+//	AT_GET_DATA();											 //获取NB模块信息
 		State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
 		Start_Lock_Send_Task();			 				 //启动信息上报
 		//Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
 		Open_Lock_Data_Send_Task();  				 //信息上报
 		ls_uart_server_send_notification();  //蓝牙数据发送
-  }
-	
+	}
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 
@@ -401,7 +401,7 @@ static void User_BLE_Data_Handle(){
 						TX_DATA_BUF[0]=0x10;		// CMD
 						TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 						TX_DATA_BUF[5]=0x01;    //LEN
-						TX_DATA_BUF[6]=Get_Vbat_val();    //LV 电量
+						TX_DATA_BUF[6]=VBat_value;    //LV 电量
 						//}
 				}
 		break;
@@ -1039,7 +1039,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
 #endif       
         //ls_uart_init(); 
-			 
+			  Read_Last_Data();
 				AT_uart_init();
         ls_app_timer_init();
         //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);

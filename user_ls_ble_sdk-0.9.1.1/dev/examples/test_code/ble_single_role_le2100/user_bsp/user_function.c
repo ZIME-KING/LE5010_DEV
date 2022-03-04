@@ -18,7 +18,7 @@ uint8_t Db_val;
 
 volatile uint8_t recv_flag = 0;
 static ADC_HandleTypeDef hadc;
-static void Read_Last_Data(void);
+ void Read_Last_Data(void);
 static void lsadc_init(void);
 
 void User_Init() {
@@ -27,17 +27,19 @@ void User_Init() {
 		Button_Gpio_Init();
 	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
-		Read_Last_Data();
+		//Read_Last_Data();
 	
 	  io_cfg_output(PC00);   //PB09 config output
     io_write_pin(PC01,0);  
     io_cfg_output(PC00);   //PB10 config output
     io_write_pin(PC00,0);  //PB10 write low power
 		io_cfg_input(USB_CHECK);   //PB09 config output
+						io_write_pin(PC00, 1);
+				io_write_pin(PC01, 0);
 	
 		HAL_IWDG_Init(32756);  //1s看门狗
  		HAL_RTC_Init(2);    	 //RTC内部时钟源
-		RTC_wkuptime_set(30);	 //唤醒时间30s  休眠函数在sw.c 中
+		RTC_wkuptime_set(24*60*60);	 //唤醒时间30s  休眠函数在sw.c 中
 
 	//RESET_NB();
 		WAKE_UP();
@@ -63,7 +65,7 @@ void LED_TASK(){
 				io_write_pin(PC01, 0);
 		}
 		//<20 红灯闪
-		else if(VBat_value<20){
+		else if(VBat_value>=0 && VBat_value<20){
 				io_write_pin(PC00, 0);
 				io_write_pin(PC01, flag);
 		}
@@ -79,7 +81,7 @@ void LED_TASK(){
 				io_write_pin(PC01, 0);
 		}
 		//<20 红灯
-		else if(VBat_value<=20){
+		else if(VBat_value>=0 && VBat_value<=20){
 				io_write_pin(PC00, 0);
 				io_write_pin(PC01, 1);
 		}
@@ -88,19 +90,43 @@ void LED_TASK(){
 }
 
 void Get_Vbat_Task(){
-		static uint16_t last_VBat_value;
-		static uint16_t now_VBat_value;
-
-		static uint16_t count;
+		static uint16_t temp_ADC_value[20];
+		 uint32_t true_ADC_value=0;
+		static uint16_t true_VBat_value=0;
+		static uint16_t count=0;
+	
 		count++;
-		now_VBat_value=Get_Vbat_val();
-		last_VBat_value+=now_VBat_value;
-		if(last_VBat_value!=0){
-			last_VBat_value=last_VBat_value/2;
+		count=count%20;
+		temp_ADC_value[count]=Get_Vbat_val();
+		
+		if(count%20==0){
+				for(int i=0;i<20;i++){
+						true_ADC_value+=temp_ADC_value[i];
+					//LOG_I("VBat_value%d:%d",i,temp_ADC_value[i]);
+				}
+				true_ADC_value=true_ADC_value/20;
+					//LOG_I("true_VBat_value:%d",true_ADC_value);
+				true_VBat_value=(4*1400*true_ADC_value/4095);
+				
+				//LOG_I("true_VBat_value:%d",true_VBat_value);
+				if(true_VBat_value>4300){
+							true_VBat_value=4300;
+				}
+				if(true_VBat_value<3000){
+							true_VBat_value=3000;
+				}
+
+						true_VBat_value=(true_VBat_value-3300)*100/(4200-3300);
+						if(true_VBat_value>100)true_VBat_value=100;
+						true_VBat_value=(true_VBat_value)*100*0.01;
+						//VBat_value=true_VBat_value;
+						//LOG_I("VBAT%:%d",VBat_value);
 		}
-		if(count%10==0){
-					VBat_value=last_VBat_value;
+		
+		if(temp_count%200==0){
+				VBat_value=true_VBat_value;
 		}
+		
 }
 
 
@@ -114,27 +140,13 @@ uint8_t Get_dBm() {
 /////////////////////////////////////adc_value_num////////////////////////////////////////////////////
 //电阻分压1/4，硬件上VREF为1.4V
 uint16_t Get_Vbat_val() {
-	uint16_t adc_value_num;
+	uint16_t adc_value_num;	
 		if(recv_flag == 1){
 		        recv_flag = 0;
-						adc_value_num=(4*1400*adc_value/4095);
-						//adc_value_num=adc_value;
-						//if(adc_value_num<3600) adc_value_num=3600;
-						
-						if(adc_value_num>4300){
-							adc_value_num=4300;
-						}
-						if(adc_value_num<3000){
-							adc_value_num=3000;
-						}
-						adc_value_num=(adc_value_num-3300)*100/(4200-3300);
-						if(adc_value_num>100)adc_value_num=100;
-						
-						//adc_value_num=(adc_value_num)*100*0.01;
 						HAL_ADCEx_InjectedStart_IT(&hadc);
-						return adc_value_num;
+						return adc_value;
 		}
-		return adc_value_num;
+		return adc_value;
 }
 ////////////////////////////////////////// ADC ///////////////////////////////////////////
 static void lsadc_init(void)
@@ -186,7 +198,8 @@ void Read_Last_Data(){
 //static uint32_t count;
 uint8_t  tmp[10];
 uint16_t length = 10; 
-uint16_t KEY3_length = 2; 
+uint16_t length2 = 10; 
+uint16_t KEY3_length = 1; 
 
 	tinyfs_mkdir(&ID_dir,ROOT_DIR,5);  //创建目录
 	
@@ -195,22 +208,22 @@ uint16_t KEY3_length = 2;
 	LOG_I("%s",tmp);
 	memcpy ( &SHORT_NAME[0], &tmp[0], sizeof(tmp) );
 	
-	tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
+	tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length2);//读到tmp中
 	LOG_I("read_flag");
 	LOG_I("%s",tmp);
 	
-	tinyfs_read(ID_dir,RECORD_KEY3,tmp,&KEY3_length);//读到tmp中
-	LOG_I("read_flag");
-	LOG_I("%s",tmp);
-	if(tmp[0]==1){
+	tinyfs_read(ID_dir,RECORD_KEY3,&tmp[0],&KEY3_length);//读到tmp中
+	LOG_I("read_Vbat");
+	LOG_I("%d",tmp[0]);
+//	if(tmp[0]==1){
 		memcpy ( &VBat_value, &tmp[0], 1);
-	}
-	else{
-			tmp[0]=1;
-			VBat_value=Get_Vbat_val();
-			tinyfs_write(ID_dir,RECORD_KEY3,&tmp[0],1);	
-			tinyfs_write_through();
-	}
+//	}
+//	else{
+//			tmp[0]=1;
+//			VBat_value=Get_Vbat_val();
+//			tinyfs_write(ID_dir,RECORD_KEY3,&tmp[0],1);	
+//			tinyfs_write_through();
+//	}
 	
 //  LOG_HEX(tmp,sizeof(tmp));
 //	if(tmp[0]!=ID_VAL_0 && tmp[1]!=ID_VAL_1 ){
@@ -560,6 +573,26 @@ void State_Change_Task(){
 				
 		}		
 }
+void AT_GET_DB(){
+		static int once_flag=0;
+		if(once_flag<10){
+			if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99){
+				globle_Result=0xff;
+				LOG_I("DB:%d",Db_val);	
+					once_flag=0xff;
+					//Start_Lock_Send();
+					//Open_Lock_Data_Send(0,lock_state[0]);
+					//Set_Task_State(START_LOCK_SEND,1);
+			}
+			else{
+				//buzzer_task_flag=1;
+				once_flag++;
+				AT_Command_Send(CSQ);
+		}
+	}
+}
+
+
 //开机初始化跑一次
 void AT_GET_DATA(){
 	static int step=1;
@@ -571,8 +604,8 @@ void AT_GET_DATA(){
 	static uint8_t tmp[10];
 	uint16_t length = 10; 
 	
-	if(count%4==0){
-	if(once_flag<20){
+	if(count%20==0){
+	if(once_flag<10){
 		tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
 			if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99){
 				globle_Result=0xff;
@@ -586,6 +619,7 @@ void AT_GET_DATA(){
 			else{
 				buzzer_task_flag=1;
 				once_flag++;
+				set_flag++;
 				AT_Command_Send(CSQ);
 		}
 	}
@@ -616,7 +650,7 @@ void AT_GET_DATA(){
 				//后7位设备号写入，作为蓝牙广播名称
 				tinyfs_write(ID_dir,RECORD_KEY1,SHORT_NAME,sizeof(SHORT_NAME));	
 				tinyfs_write_through();
-				start_adv();   //更新广播
+				//start_adv();   //更新广播
 				step++;
 			}
 			else{
@@ -729,13 +763,13 @@ void AT_GET_DATA(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
-				if(set_flag>10){
+				if(set_flag>15){
 						RESET_NB();
 				}
 				else{
 					tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_OK",sizeof("SET_OK"));	
 					tinyfs_write_through();
-					tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
+					//tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
 					//Set_Task_State(START_LOCK_SEND,1);
 					HAL_IWDG_Init(100);
 					while(1);

@@ -53,4 +53,7 @@ void LED_TASK(void);
 void Get_Vbat_Task(void);
 //void NB_WAKE_Task(void);
 void Sleep_Task(uint16_t time_s);
+
+void AT_GET_DB(void);
+ void Read_Last_Data(void);
 #endif

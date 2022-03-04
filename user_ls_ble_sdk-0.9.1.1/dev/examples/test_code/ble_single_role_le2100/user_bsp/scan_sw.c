@@ -40,22 +40,27 @@ void Button_Gpio_Init(){
 
 #define RECORD_KEY1 1	 //蓝牙名称
 #define RECORD_KEY2 2  //完成模块初始化标记
-
+uint8_t wd_FLAG=0;
+uint8_t KEY_ONCE;
 //5ms 跑一次
 void Scan_Key(){
 	static uint16_t count;
 	static uint8_t edge_flag;
 	static uint8_t edge_flag_1;
 	
+	if(KEY_FLAG==1 && KEY_ONCE==1){
+			//KEY_FLAG=0;
+			moro_task_flag=1; 
+			//globle_Result=0xff;
+	}
+	
+	
 	if(io_read_pin(KEY)==0){
 			count++;
 			if(count==2){
 					buzzer_task_flag=1;
-					if(KEY_FLAG==1){
-							//KEY_FLAG=0;
-							moro_task_flag=1; 
-						  //globle_Result=0xff;
-					}
+					KEY_ONCE=1;
+
 //					if(temp_count<50){
 //					
 //					}
@@ -65,12 +70,16 @@ void Scan_Key(){
 			}
 			//10s复位 5s就差不多了，复位是关掉卡死启动看门狗要一点时间
 			if(count==1000){
+							buzzer_task_flag=1;
 							//模块重新配置服务器
 							tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
 							tinyfs_write_through();
 							//RESET_NB();
-							HAL_IWDG_Init(10);
-							while(1);
+							wd_FLAG=1;
+							//HAL_IWDG_Refresh();
+							//HAL_IWDG_Init(1);
+							//HAL_IWDG_Refresh();							
+							//while(1);
 			}
 			
 	}
@@ -122,15 +131,16 @@ uint8_t Check_SW1(){
 uint8_t Check_SW2(){
 	return io_read_pin(SW2);
 }
-
+#define RECORD_KEY3 3
 void  ls_sleep_enter_lp2(void)
 {
+	//VBat_value=Get_Vbat_val();
+	tinyfs_write(ID_dir,RECORD_KEY3,&VBat_value,1);	
+	tinyfs_write_through();
+	
 	io_write_pin(PC00, 0);
 	io_write_pin(PC01, 0);
 	
-//	io_init();
-//	exitpb15_iowkup_init();
-//	exitpa00_iowkup_init();
 	exitpb15_iowkup_init();
 	exitpa00_iowkup_init();
 
