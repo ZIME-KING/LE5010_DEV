@@ -18,7 +18,7 @@ ECPMUCFG,
 CSQ,    //ÐÅºÅ
 CGSN,		//¿¨ºÅ
 AT_SLEEP,
-AECPMUCFG,
+//AECPMUCFG,
 }Typedef_AT;
 
 

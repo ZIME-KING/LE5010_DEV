@@ -285,44 +285,29 @@ static void ls_user_event_timer_cb_1(void *param)
 {
 	sleep_time++;			 //记录休眠时间在收到蓝牙数据，和开锁数据重新计数
 	temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
-	if(wd_FLAG==1){
 	
-	}
-		else{
-	HAL_IWDG_Refresh();//喂狗
-		}
+	if(wd_FLAG!=1) HAL_IWDG_Refresh();	 //喂狗  按键长按10s停止喂狗，清启动标记，重启初始化启动
 	LED_TASK();													 //LED显示效果
 	Buzzer_Task();											 //蜂鸣器任务
-	uint8_t wkup_source = get_wakeup_source();
+	AT_GET_DB();												 //获取信号强度
+	
+	//来自RTC的启动，发送心跳包
+	uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
   if ((RTC_WKUP & wkup_source) != 0){
-					AT_GET_DB();
+					//AT_GET_DB();
 					if(sleep_time>100) Set_Task_State(TICK_LOCK_SEND,START);  //等待20s 启动一次心跳包
 					//10s休眠
 					if(sleep_time>200){
 							ls_sleep_enter_lp2();
 					}
 					Tick_Lock_Send_Task();
-          SYSCFG->BKD[7]++; // record times of entering sleep
   }
 	else{
-		//开机2.5s内收到有收到开锁就开锁
-		if(temp_count<100){
-			if(KEY_FLAG==1){
-				//KEY_FLAG=0;
-				moro_task_flag=1; 						//开启电机动作，在电机动作里面判断，锁的开开启，未开启KEY_FLAG不清，按键按下再次启动锁防止卡死
-			}
-		}
-			AT_GET_DATA();											 //获取NB模块信息
-		//每5s重启数据上报任务
-		if(temp_count%100==0 && Get_Task_State(START_LOCK_SEND)==0){
-		  Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-		}
-		Sleep_Task(120);     //120s无操作休眠
-
-//	AT_GET_DATA();											 //获取NB模块信息
+		Sleep_Task(120);     								 //120s无操作休眠
+  	AT_INIT();											 		 //向服务器注册消息，只在初始化后运行一次
 		State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
 		Start_Lock_Send_Task();			 				 //启动信息上报
-		//Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
+		Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
 		Open_Lock_Data_Send_Task();  				 //信息上报
 		ls_uart_server_send_notification();  //蓝牙数据发送
 	}
@@ -499,7 +484,7 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
 				User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
 				LOG_I("接收到的");
 				LOG_HEX(&RX_DATA_BUF[0],16);
-				LOG_HEX(&DATA_BUF[0],16);
+				LOG_HEX(&DATA_BUF[0],16); 
 				LOG_I("%d",user_ble_send_flag);
 				User_BLE_Data_Handle();
 				LOG_I("%d",user_ble_send_flag);	

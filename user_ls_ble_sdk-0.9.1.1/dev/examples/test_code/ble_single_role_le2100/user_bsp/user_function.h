@@ -21,8 +21,6 @@ START_LOCK_SEND,     		//启动数据上报
 OPEN_LOCK_SEND,  				//开锁数据请求
 TICK_LOCK_SEND, 				//心跳包发送
 OPEN_LOCK_DATA_SEND,    // 20信息上报
-SLEEP,		 							//休眠
-GET_DATA,	 							//获取NB模块各项参数
 }Typedef_TASK_LIST;
 
 
@@ -35,7 +33,6 @@ GET_DATA,	 							//获取NB模块各项参数
  void Uart_Data_Processing(void);
  uint8_t Get_Uart_Data_Processing_Result(void);
 
-
  uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST);
  void  Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state);
 
@@ -44,16 +41,16 @@ uint16_t Open_Lock_Send_Task(void);
 uint16_t Tick_Lock_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Task(void);
 
-extern tinyfs_dir_t ID_dir;
-
-void AT_GET_DATA(void);
 uint16_t Get_Vbat_val(void);
-uint8_t Get_dBm(void);
+uint8_t  Get_dBm(void);
+
+void AT_INIT(void);
 void LED_TASK(void);
 void Get_Vbat_Task(void);
 //void NB_WAKE_Task(void);
 void Sleep_Task(uint16_t time_s);
 
 void AT_GET_DB(void);
- void Read_Last_Data(void);
+void Read_Last_Data(void); 
+extern tinyfs_dir_t ID_dir;
 #endif

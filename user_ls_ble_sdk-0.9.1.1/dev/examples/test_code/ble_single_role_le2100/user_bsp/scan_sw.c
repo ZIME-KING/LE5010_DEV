@@ -74,8 +74,9 @@ void Scan_Key(){
 							//模块重新配置服务器
 							tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
 							tinyfs_write_through();
-							//RESET_NB();
+							RESET_NB();
 							wd_FLAG=1;
+							return;
 							//HAL_IWDG_Refresh();
 							//HAL_IWDG_Init(1);
 							//HAL_IWDG_Refresh();							
@@ -134,10 +135,6 @@ uint8_t Check_SW2(){
 #define RECORD_KEY3 3
 void  ls_sleep_enter_lp2(void)
 {
-	//VBat_value=Get_Vbat_val();
-	tinyfs_write(ID_dir,RECORD_KEY3,&VBat_value,1);	
-	tinyfs_write_through();
-	
 	io_write_pin(PC00, 0);
 	io_write_pin(PC01, 0);
 	
