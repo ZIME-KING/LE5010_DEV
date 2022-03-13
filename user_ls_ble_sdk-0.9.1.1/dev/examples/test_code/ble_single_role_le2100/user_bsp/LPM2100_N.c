@@ -117,6 +117,8 @@ void Start_Lock_Send() {
     RX_BUF[34]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+		
+		LOG_I("START_LOCK_SEND");
 		//HAL_UART_Transmit(&UART_Config   ,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 }
 //10请求开锁   携带数据同启动    请求开锁（如果20秒内没有收到服务器回复，则需要再次发送请求开锁指令，如果超过6次没有收到服务器开锁指令则放弃。）
@@ -158,6 +160,8 @@ void Open_Lock_Send() {
     RX_BUF[34]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+		
+		LOG_I("Open_Lock_Send");
 	}
 
 //02 心跳 RTC定时唤醒发送数据 锁上传和平台回复数据同启动
@@ -197,6 +201,8 @@ void Tick_Lock_Send() {
     RX_BUF[34]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+		
+		LOG_I("Tick_Lock_Send");
 }
 //20信息上报输入 锁ID号，锁更新状态
 void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {
@@ -238,4 +244,6 @@ void Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state) {
     RX_BUF[38]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+		
+		LOG_I("Open_Lock_Data_Send");
 }

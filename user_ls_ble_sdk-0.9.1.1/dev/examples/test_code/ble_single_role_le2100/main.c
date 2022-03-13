@@ -277,40 +277,36 @@ static void ls_user_event_timer_cb_0(void *param)
 //Uart_Data_Processing();
 	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
-uint16_t temp_count=0;
+//uint16_t temp_count=0;
 uint16_t sleep_time=0;
 uint8_t KEY_FLAG=0;   //收到开锁请求
+uint8_t once_flag=0;
+uint8_t db_flag=0;
 //50ms 任务
 static void ls_user_event_timer_cb_1(void *param)
 {
 	sleep_time++;			 //记录休眠时间在收到蓝牙数据，和开锁数据重新计数
-	temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
-	
-	if(wd_FLAG!=1) HAL_IWDG_Refresh();	 //喂狗  按键长按10s停止喂狗，清启动标记，重启初始化启动
+//temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
+
+	HAL_IWDG_Refresh();	 //喂狗  
 	LED_TASK();													 //LED显示效果
 	Buzzer_Task();											 //蜂鸣器任务
-	AT_GET_DB();												 //获取信号强度
-	
-	//来自RTC的启动，发送心跳包
-	uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
-  if ((RTC_WKUP & wkup_source) != 0){
-					//AT_GET_DB();
-					if(sleep_time>100) Set_Task_State(TICK_LOCK_SEND,START);  //等待20s 启动一次心跳包
-					//10s休眠
-					if(sleep_time>200){
-							ls_sleep_enter_lp2();
-					}
-					Tick_Lock_Send_Task();
-  }
-	else{
-		Sleep_Task(120);     								 //120s无操作休眠
-  	AT_INIT();											 		 //向服务器注册消息，只在初始化后运行一次
+	Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
+	db_flag=AT_GET_DB_TASK();												 //获取信号强度
+	if(db_flag==0xff){
+		if(AT_INIT()==0xff){
+		//AT_INIT();											 	 //向服务器注册消息，只在初始化后运行一次	
 		State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
 		Start_Lock_Send_Task();			 				 //启动信息上报
 		Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
 		Open_Lock_Data_Send_Task();  				 //信息上报
 		ls_uart_server_send_notification();  //蓝牙数据发送
+		Tick_Lock_Send_Task();							 //心跳包
+		
+		if(BLE_connected_flag==1) 	sleep_time=0;
+		}
 	}
+	
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 
@@ -550,7 +546,7 @@ static void ls_uart_server_send_notification(void)
   User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
 	//LOG_I("uart_server_ntf_done:%d,%d,",uart_server_ntf_done,user_ble_send_flag);
 		uint32_t cpu_stat = enter_critical();
-		if(user_ble_send_flag==1 ){//&& uart_server_ntf_done==true){
+		if(user_ble_send_flag==1 && BLE_connected_flag==1){
 				uart_server_ntf_done = false;
 			  user_ble_send_flag=0;
 				uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);
@@ -1030,7 +1026,34 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
 				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
 				User_Init();      
-    }
+				
+				
+				uint8_t wkup_source = get_wakeup_source();   //获取唤醒源	
+				LOG_I("wkup_source:%x",wkup_source) ;
+				Set_Sleep_Time(120);
+				//来自RTC的启动，发送心跳包
+				if ((RTC_WKUP & wkup_source) != 0){
+					Set_Sleep_Time(10);
+					Set_Task_State(TICK_LOCK_SEND,START);
+				}
+				//来自按键和锁开关唤醒
+				else if ((PB15_IO_WKUP & wkup_source) != 0){
+				//由启动按键唤醒
+					if(io_read_pin(PB15)==0){
+						//启动开锁请求发送
+						//Set_Task_State(OPEN_LOCK_SEND,START);
+					}
+					//由锁开关唤醒				
+					else{
+					 Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+					//启动锁数据上报命令
+					}
+				}
+				//断电重启
+				else if (wkup_source == 0){
+					 Set_Task_State(START_LOCK_SEND,START);
+				}					
+				}
     break;
 #if SLAVE_SERVER_ROLE == 1    
     case SERVICE_ADDED:

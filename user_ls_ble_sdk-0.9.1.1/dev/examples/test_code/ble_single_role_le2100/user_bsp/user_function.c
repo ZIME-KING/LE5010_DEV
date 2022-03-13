@@ -5,12 +5,20 @@
 
 #define USB_CHECK PB06
 
-uint8_t T0_enable;  //启动数据上报  			Start_Lock_Send_Task
-uint8_t T1_enable;	//开锁数据请求				Open_Lock_Send
-uint8_t T2_enable;	//心跳包发送					Tick_Lock_Send
-uint8_t T3_enable;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state)
-uint8_t T4_enable;  //设置休眠  					AT指令相关
-uint8_t T5_enable;  //获取NB模块各项参数	AT指令相关
+uint8_t T0_enable=0;  //启动数据上报  			Start_Lock_Send_Task
+uint8_t T1_enable=0;	//开锁数据请求				Open_Lock_Send
+uint8_t T2_enable=0;	//心跳包发送					Tick_Lock_Send
+uint8_t T3_enable=0;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state)
+uint8_t T4_enable=0;  //获取信号强度				AT指令相关
+uint8_t T5_enable;  //										AT指令相关
+
+
+
+uint8_t open_lock_reply_Result=0;
+uint8_t tick_reply_Result=0;
+uint8_t open_lock_data_reply_Result=0;
+uint8_t start_lock_reply_Result=0;
+
 
 uint32_t adc_value = 0;						//
 uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
@@ -39,10 +47,10 @@ void User_Init() {
 	
 		HAL_IWDG_Init(32756);  //1s看门狗
  		HAL_RTC_Init(2);    	 //RTC内部时钟源
-		RTC_wkuptime_set(24*60*60);	 //唤醒时间30s  休眠函数在sw.c 中
-
-	//RESET_NB();
+		//RTC_wkuptime_set(48*60*60);	 //唤醒时间30s  休眠函数在sw.c 中
+		RTC_wkuptime_set(60);	 //唤醒时间30s  休眠函数在sw.c 中
 		WAKE_UP();
+		Set_Task_State(GET_DB_VAL,START);
 }
 void LED_TASK(){
 	static uint8_t flag;
@@ -122,7 +130,7 @@ void Get_Vbat_Task(){
 						//LOG_I("VBAT%:%d",VBat_value);
 		}
 		
-		if(temp_count%200==0){
+		if(count%200==0){
 				VBat_value=true_VBat_value;
 		}
 		
@@ -316,14 +324,26 @@ void Uart_2_Data_Processing() {
                     AT_RX_DATA_BUF[i]+=(frame_2[uart_2_frame_id].buffer[count+1+i*2]-'A'+10);
             }
             //标记——————这里应该要加CRC的
-            //OK_ASK
+            //OK_ASK 服务器有应答
             if(AT_RX_DATA_BUF[0]==0x58 && AT_RX_DATA_BUF[1]==0x59) {
                 globle_Result=OK_ASK;
-            }
-            //OPEN_LOCK
-            else if(AT_RX_DATA_BUF[0]==0x5A && AT_RX_DATA_BUF[1]==0xA5) {
-                globle_Result=OPEN_LOCK;
-								KEY_FLAG=1;
+								   //是OPEN_LOCK
+									if(AT_RX_DATA_BUF[4]== 0x10) {
+										KEY_FLAG=1;
+										open_lock_reply_Result=1;
+									}
+									//心跳包上传成功服务器回复
+									else if(AT_RX_DATA_BUF[4]==0x02) {
+											tick_reply_Result=1;
+									}
+									//数据包上传成功服务器回复
+									else if(AT_RX_DATA_BUF[4]==0x20) {
+											open_lock_data_reply_Result=1;
+									}
+									//启动包上传成功服务器回复
+									else if(AT_RX_DATA_BUF[4]==0x01) {
+										start_lock_reply_Result=1;
+									}
             }
         }
 				//收到OK消息 ,以上都不满足只用OK
@@ -377,6 +397,9 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
     case OPEN_LOCK_DATA_SEND :
         temp=	T3_enable;
         break;
+		case GET_DB_VAL :
+        temp=	T4_enable;
+        break;
     }
     return temp;
 }
@@ -394,6 +417,9 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
     case OPEN_LOCK_DATA_SEND :
         T3_enable=state;
         break;
+		case GET_DB_VAL :
+        T4_enable=state;
+        break;
     }
 }
 //开始启动数据包
@@ -403,9 +429,10 @@ uint16_t Start_Lock_Send_Task(){
     static uint8_t i;
      if(Get_Task_State(START_LOCK_SEND)){
 					i++;
-					if(i%40==1){
-            if(Get_Uart_Data_Processing_Result()==OK_ASK) {
+					if(i%200==1){
+            if(Get_Uart_Data_Processing_Result()==OK_ASK  && start_lock_reply_Result==1) {
 							 	globle_Result=0xFF;
+								start_lock_reply_Result=0;
                 send_count++;
                 temp=OK_ASK;
                 Set_Task_State(START_LOCK_SEND,STOP);
@@ -419,7 +446,7 @@ uint16_t Start_Lock_Send_Task(){
                 Set_Task_State(START_LOCK_SEND,START);
                 Start_Lock_Send();
              
-                if(count%3==0) {
+                if(count%6==0) {
                     Set_Task_State(START_LOCK_SEND,STOP);
 										
                     temp=TIME_OUT;
@@ -437,9 +464,10 @@ uint16_t Open_Lock_Send_Task() {
 	
 			if(Get_Task_State(OPEN_LOCK_SEND)) {
 						i++;
-						if(i%40==1) {
-            if(Get_Uart_Data_Processing_Result()==OPEN_LOCK) {
+						if(i%100==1) {
+            if(Get_Uart_Data_Processing_Result()==OPEN_LOCK   && open_lock_reply_Result==1) {
 								globle_Result=0xFF;
+								open_lock_reply_Result=0;
                 send_count++;
                 temp=OPEN_LOCK;
                 Set_Task_State(OPEN_LOCK_SEND,STOP);
@@ -467,9 +495,10 @@ uint16_t Tick_Lock_Send_Task() {
     static uint8_t i;
        if(Get_Task_State(TICK_LOCK_SEND)) {
 				i++;
-				if(i%40==1) {
-						if(Get_Uart_Data_Processing_Result()==OK_ASK) {
+				if(i%100==1) {
+						if(Get_Uart_Data_Processing_Result()==OK_ASK && tick_reply_Result==1) {
 								globle_Result=0xFF;
+								tick_reply_Result=0;
                 send_count++;
                 temp=OK_ASK;
                 Set_Task_State(TICK_LOCK_SEND,STOP);
@@ -499,9 +528,10 @@ uint16_t Open_Lock_Data_Send_Task(){
     
    if(Get_Task_State(OPEN_LOCK_DATA_SEND)) {
 			i++;			
-			if(i%40==1) {
-   		      if(Get_Uart_Data_Processing_Result()==OK_ASK) {
+			if(i%100==1) {
+   		      if(Get_Uart_Data_Processing_Result()==OK_ASK && open_lock_data_reply_Result==1) {
 								globle_Result=0xFF;
+								open_lock_data_reply_Result=0;
                 send_count++;
                 temp=OPEN_LOCK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
@@ -546,7 +576,7 @@ void State_Change_Task(){
 		if(last_lock_state != lock_state[0]){
 				sleep_time=0;
 				last_lock_state=lock_state[0];
-		
+				LOG_I("State_Change");
 				Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
 	
 			if(moro_task_flag==1){
@@ -562,29 +592,63 @@ void State_Change_Task(){
 		}		
 }
 //获取信号值
-void AT_GET_DB(){
-		static int count=0;
-		if(count<5){
-			if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99){
-				count=10;
-				globle_Result=0xff;
-				LOG_I("DB:%d",Db_val);	
-			}
-			else{
-				//buzzer_task_flag=1;
-				count++;
-				AT_Command_Send(CSQ);
-			}
-		}
-		else if(count!=10){
-			buzzer_task_flag=1;
-			count++;
-		}
+uint16_t AT_GET_DB_TASK(){
+	  static uint8_t count=0;
+    static uint16_t temp;
+    static uint8_t i;
+    
+   if(Get_Task_State(GET_DB_VAL)) {
+			i++;			
+			if(i%10==1) {
+   		      if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99) {
+								globle_Result=0xFF;
+                Set_Task_State(GET_DB_VAL,STOP);
+								i=0;
+								count=0;
+								temp=0xff;
+            }
+            else {
+                count++;
+							  AT_Command_Send(CSQ);
+                if(count>20 && count<40) {
+										buzzer_task_flag=1;
+                }
+								else if(count>=40){
+									Set_Task_State(GET_DB_VAL,STOP);
+									buzzer_task_flag=1;
+                  temp=TIME_OUT;
+									count=0;
+								}
+            }
+        }
+    }
+    return temp;
+//		static int count=0;
+//		static int count_out=0;
+//	
+//	if(count%10==1){
+//		if(count_out<5){
+//			if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99){
+//				count_out=10;
+//				globle_Result=0xff;
+//				LOG_I("DB:%d",Db_val);	
+//			}
+//			else{
+//				//buzzer_task_flag=1;
+//				count_out++;
+//				AT_Command_Send(CSQ);
+//			}
+//		}
+//		else if(count_out!=10){
+//			buzzer_task_flag=1;
+//			count_out++;
+//		}
+//	}
 }
 
 
 //重置初始化跑一次
-void AT_INIT(){
+uint16_t AT_INIT(){
 	static int step=1;
 	static int count=0;
 	static int count_out=0;
@@ -597,10 +661,10 @@ void AT_INIT(){
 	
 	tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
 	if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))==0){
-		return;
+		return 0xff;
 	}
 	
-	if(count%4==0){
+	if(count%10==0){
 		switch(step){
 			case 1:
 			//DELAY_US(200000); //50ms
@@ -613,6 +677,7 @@ void AT_INIT(){
 				tinyfs_write_through();
 				//start_adv();   //更新广播
 				step++;
+				count_out=0;
 			}
 			else{
 				set_flag++;
@@ -631,6 +696,7 @@ void AT_INIT(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
+				count_out=0;
 			}
 			else{
 				set_flag++;
@@ -649,6 +715,7 @@ void AT_INIT(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
+				count_out=0;
 			}
 			else{
 				set_flag++;
@@ -667,6 +734,7 @@ void AT_INIT(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;	
+				count_out=0;
 				//Set_Task_State(START_LOCK_SEND,1);
 			}
 			else{
@@ -686,6 +754,7 @@ void AT_INIT(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
+				count_out=0;
 				//Set_Task_State(START_LOCK_SEND,1);
 			}
 			else{
@@ -705,6 +774,7 @@ void AT_INIT(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
+				count_out=0;
 				//Set_Task_State(START_LOCK_SEND,1);
 			}
 			else{
@@ -724,18 +794,21 @@ void AT_INIT(){
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
-				if(set_flag>15){
-						RESET_NB();
+				count_out=0;
+				
+				LOG_I("set_flag:%d",set_flag);
+				if(set_flag>7){
+						RESET_NB();//
+						DELAY_US(1000*1000*2);
+						platform_reset(0); 					//初始化成功，重启
 				}
 				else{
 					tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_OK",sizeof("SET_OK"));	
 					tinyfs_write_through();
+					platform_reset(0); 					//初始化成功，重启
 					//tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
 					//Set_Task_State(START_LOCK_SEND,1);
 					//HAL_IWDG_Init(100);
-					wd_FLAG=1;     //初始化成功，看门狗停止重启
-					//wd_FLAG=0;
-					//while(1);
 				}
 			}
 			else{
@@ -756,13 +829,19 @@ void AT_INIT(){
 		}
 		}
 }
+static  uint16_t set_sleep_time;
+//设置休眠时间
+void Set_Sleep_Time(uint16_t time_s){
+	set_sleep_time=time_s;
+}
 
-//无操作120s休眠
-void Sleep_Task(uint16_t time_s){
+//休眠任务
+void Sleep_Task(){
+	
 	uint8_t tmp[2];
 	tmp[0]=0x01;
 	tmp[1]=VBat_value;
-	if(sleep_time*50>time_s*1000){
+	if(sleep_time*50>set_sleep_time*1000){
 //			tinyfs_write(ID_dir,RECORD_KEY3,&tmp[0],2);	
 //			tinyfs_write_through();
 			ls_sleep_enter_lp2();

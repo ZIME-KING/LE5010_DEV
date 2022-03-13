@@ -35,13 +35,15 @@ void Button_Gpio_Init(){
 	io_cfg_input(SW1);                       
   io_pull_write(SW1, IO_PULL_UP);     
 	
-	SW2_init();
+	io_cfg_input(SW2);                       
+  io_pull_write(SW2, IO_PULL_UP);
+//	SW2_init();
 }
 
 #define RECORD_KEY1 1	 //蓝牙名称
 #define RECORD_KEY2 2  //完成模块初始化标记
 uint8_t wd_FLAG=0;
-uint8_t KEY_ONCE;
+uint8_t KEY_ONCE;      //按键按下一次标记
 //5ms 跑一次
 void Scan_Key(){
 	static uint16_t count;
@@ -58,17 +60,13 @@ void Scan_Key(){
 	if(io_read_pin(KEY)==0){
 			count++;
 			if(count==2){
+					sleep_time=0;
 					buzzer_task_flag=1;
 					KEY_ONCE=1;
+					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
 
-//					if(temp_count<50){
-//					
-//					}
-//					else{
-//						Set_Task_State(OPEN_LOCK_SEND,1);//开锁数据请求
-//					}
 			}
-			//10s复位 5s就差不多了，复位是关掉卡死启动看门狗要一点时间
+			//10s复位 5s就差不多了，复位
 			if(count==1000){
 							buzzer_task_flag=1;
 							//模块重新配置服务器
@@ -76,11 +74,7 @@ void Scan_Key(){
 							tinyfs_write_through();
 							RESET_NB();
 							wd_FLAG=1;
-							return;
-							//HAL_IWDG_Refresh();
-							//HAL_IWDG_Init(1);
-							//HAL_IWDG_Refresh();							
-							//while(1);
+							platform_reset(0);
 			}
 			
 	}
@@ -135,9 +129,9 @@ uint8_t Check_SW2(){
 #define RECORD_KEY3 3
 void  ls_sleep_enter_lp2(void)
 {
+	io_init();
 	io_write_pin(PC00, 0);
 	io_write_pin(PC01, 0);
-	
 	exitpb15_iowkup_init();
 	exitpa00_iowkup_init();
 
