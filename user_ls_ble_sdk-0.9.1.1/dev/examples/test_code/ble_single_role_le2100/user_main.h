@@ -29,12 +29,15 @@
 void start_adv(void);
 
 
-extern UART_HandleTypeDef UART_Config; 
-extern UART_HandleTypeDef UART_Config_AT; 
-extern uint8_t globle_Result; 
+extern UART_HandleTypeDef UART_Config;
+extern UART_HandleTypeDef UART_Config_AT;
+extern uint8_t globle_Result;
 extern uint8_t user_ble_send_flag;
 
 extern uint8_t SHORT_NAME[10];
+extern uint8_t NEW_SHORT_NAME[10];
+
+extern uint8_t SHORT_NAME_LEN;
 //extern uint8_t COMPLETE_NAME[7];
 extern uint8_t TX_DATA_BUF[16]; //BEL
 extern uint8_t TOKEN[4];

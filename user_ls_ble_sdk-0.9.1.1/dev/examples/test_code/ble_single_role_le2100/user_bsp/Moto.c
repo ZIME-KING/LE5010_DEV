@@ -62,11 +62,20 @@ uint8_t Moto_Task(){
 					if(count>(100/5)){
 							count=0;
 							step=2;
-							if(Check_SW1()==1){
-								KEY_FLAG=0;  
-								KEY_ONCE=0;
-								temp=0;  		//00 打开成功  0x03 失败
+							
+							KEY_FLAG=0;  
+							KEY_ONCE=0;
+							if(Check_SW1()){
+									temp=0;  		//00 打开成功  0x03 失败
+									lock_state[0]=0;
 							}
+							else{
+									lock_state[0]=1;
+							}
+							
+							
+							Open_Lock_Data_Send(0,lock_state[0]);
+							//Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 							TX_DATA_BUF[6]=temp;
 							user_ble_send_flag=1;	//蓝牙发送数据
 							//if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0) { //信息上报任务未启动

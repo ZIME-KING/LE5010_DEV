@@ -50,12 +50,15 @@ uint8_t  Get_dBm(void);
 uint16_t AT_INIT(void);
 void LED_TASK(void);
 void Get_Vbat_Task(void);
-//void NB_WAKE_Task(void);
+void NB_WAKE_Task(void);
 void Sleep_Task();
 void Set_Sleep_Time(uint16_t time_s);
 //void AT_GET_DB(void);
 void Read_Last_Data(void); 
+
 extern tinyfs_dir_t ID_dir;
+extern uint8_t last_lock_state;
+
 #endif
 
 //uint8_t open_lock_reply_Result=0;

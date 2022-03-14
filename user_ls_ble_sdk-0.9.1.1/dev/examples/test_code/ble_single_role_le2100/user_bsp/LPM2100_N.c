@@ -76,7 +76,7 @@ void AT_Command_Send(Typedef_AT AT_COM) {
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGSN=1\r\n",sizeof("AT+CGSN=1\r\n"),50);
         break;
 		case AT_SLEEP:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",10000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",10000\r\n"),50);
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",15000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",15000\r\n"),50);
         break;		
 	}
 }
@@ -146,7 +146,7 @@ void Open_Lock_Send() {
     DATA_BUF[10] = Get_dBm();
 
     DATA_BUF[11] = 0XA6;		//支持的从锁数量
-    DATA_BUF[12] = 0X01;
+    DATA_BUF[12] = 0X00;
 
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
     DATA_BUF[14] = VBat_value;	//50%

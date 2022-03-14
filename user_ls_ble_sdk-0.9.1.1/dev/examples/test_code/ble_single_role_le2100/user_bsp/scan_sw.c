@@ -63,8 +63,9 @@ void Scan_Key(){
 					sleep_time=0;
 					buzzer_task_flag=1;
 					KEY_ONCE=1;
+					Open_Lock_Send();
 					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
-
+					
 			}
 			//10s复位 5s就差不多了，复位
 			if(count==1000){
@@ -73,7 +74,7 @@ void Scan_Key(){
 							tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
 							tinyfs_write_through();
 							RESET_NB();
-							wd_FLAG=1;
+//							wd_FLAG=1;
 							platform_reset(0);
 			}
 			
