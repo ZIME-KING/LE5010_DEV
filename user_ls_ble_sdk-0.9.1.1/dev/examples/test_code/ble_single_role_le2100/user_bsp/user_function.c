@@ -113,8 +113,9 @@ void Get_Vbat_Task(){
 					//LOG_I("VBat_value%d:%d",i,temp_ADC_value[i]);
 				}
 				true_ADC_value=true_ADC_value/20;
-					//LOG_I("true_VBat_value:%d",true_ADC_value);
-				true_VBat_value=(4*1400*true_ADC_value/4095);
+				//LOG_I("true_VBat_value:%d",true_ADC_value);
+				//true_VBat_value=(4*1400*true_ADC_value/4095);
+				true_VBat_value=(2*3300*true_ADC_value/4095);
 				
 				//LOG_I("true_VBat_value:%d",true_VBat_value);
 				if(true_VBat_value>4300){
@@ -167,10 +168,12 @@ static void lsadc_init(void)
     hadc.Init.NbrOfDiscConversion   = 1;                             /* Parameter discarded because sequencer is disabled */
     hadc.Init.ContinuousConvMode    = DISABLE;                        /* Continuous mode to have maximum conversion speed (no delay between conversions) */
     hadc.Init.TrigType      = ADC_INJECTED_SOFTWARE_TRIGT;            /* The reference voltage uses an internal reference */
-    hadc.Init.Vref          = ADC_VREF_INSIDE;
+    hadc.Init.Vref          = ADC_VREF_VCC;
     hadc.Init.AdcCkDiv = ADC_CLOCK_DIV2;
-
-    if (HAL_ADC_Init(&hadc) != HAL_OK)
+		
+		hadc.Init.AdcDriveType=EINBUF_DRIVE_ADC;
+    
+		if (HAL_ADC_Init(&hadc) != HAL_OK)
     {
         //Error_Handler();
     }
