@@ -23,10 +23,10 @@ static void exitpa00_iowkup_init(void)
     io_exti_config(SW1,INT_EDGE_FALLING);   
     io_exti_enable(SW1,true);                
 }
-static void SW2_init(){
-	  io_cfg_input(SW2);                       
-    io_pull_write(SW2, IO_PULL_UP);
-}
+//static void SW2_init(){
+//	  io_cfg_input(SW2);                       
+//    io_pull_write(SW2, IO_PULL_UP);
+//}
 
 void Button_Gpio_Init(){
 	io_cfg_input(KEY);               				//输入模式                     
@@ -40,15 +40,15 @@ void Button_Gpio_Init(){
 //	SW2_init();
 }
 
-#define RECORD_KEY1 1	 //蓝牙名称
+//#define RECORD_KEY1 1	 //蓝牙名称
 #define RECORD_KEY2 2  //完成模块初始化标记
 uint8_t wd_FLAG=0;
 uint8_t KEY_ONCE;      //按键按下一次标记
 //5ms 跑一次
 void Scan_Key(){
 	static uint16_t count;
-	static uint8_t edge_flag;
-	static uint8_t edge_flag_1;
+//	static uint8_t edge_flag;
+//	static uint8_t edge_flag_1;
 	
 	if(KEY_FLAG==1 && KEY_ONCE==1){
 			//KEY_FLAG=0;
@@ -71,7 +71,7 @@ void Scan_Key(){
 			if(count==1000){
 							buzzer_task_flag=1;
 							//模块重新配置服务器
-							tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
+							tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
 							tinyfs_write_through();
 							RESET_NB();
 //							wd_FLAG=1;

@@ -36,7 +36,6 @@ void User_Init() {
 	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
 		//Read_Last_Data();
-	
 	  io_cfg_output(PC00);   //PB09 config output
     io_write_pin(PC01,0);  
     io_cfg_output(PC00);   //PB10 config output
@@ -47,8 +46,8 @@ void User_Init() {
 	
 		HAL_IWDG_Init(32756);  //1s看门狗
  		HAL_RTC_Init(2);    	 //RTC内部时钟源
-		//RTC_wkuptime_set(48*60*60);	 //唤醒时间30s  休眠函数在sw.c 中
-		RTC_wkuptime_set(60);	 //唤醒时间30s  休眠函数在sw.c 中
+		RTC_wkuptime_set(48*60*60);	 //唤醒时间48h  休眠函数在sw.c 中
+		//RTC_wkuptime_set(60);	 //唤醒时间30s  休眠函数在sw.c 中
 		WAKE_UP();
 		Set_Task_State(GET_DB_VAL,START);
 }
@@ -73,7 +72,7 @@ void LED_TASK(){
 				io_write_pin(PC01, 0);
 		}
 		//<20 红灯闪
-		else if(VBat_value>=0 && VBat_value<20){
+		else if(VBat_value>0 && VBat_value<20){
 				io_write_pin(PC00, 0);
 				io_write_pin(PC01, flag);
 		}
@@ -89,52 +88,68 @@ void LED_TASK(){
 				io_write_pin(PC01, 0);
 		}
 		//<20 红灯
-		else if(VBat_value>=0 && VBat_value<=20){
+		else if(VBat_value>0 && VBat_value<=20){
 				io_write_pin(PC00, 0);
 				io_write_pin(PC01, 1);
 		}
 	}
 }
 }
+//冒泡排序
+void _f(uint16_t a[],char len)
+{
+		int n;  //存放数组a中元素的个数
+    int i;  //比较的轮数
+    int j;  //每轮比较的次数
+    int buf;  //交换数据时用于存放中间数据
+
+	n=len;
+	for (i=0; i<n-1; ++i)  //比较n-1轮
+    {
+        for (j=0; j<n-1-i; ++j)  //每轮比较n-1-i次,
+        {
+            if (a[j] < a[j+1])
+            {
+                buf = a[j];
+                a[j] = a[j+1];
+                a[j+1] = buf;
+            }
+        }
+    }
+}
 
 void Get_Vbat_Task(){
+		uint32_t true_ADC_value=0;
 		static uint16_t temp_ADC_value[20];
-		 uint32_t true_ADC_value=0;
 		static uint16_t true_VBat_value=0;
 		static uint16_t count=0;
-	
+		static uint16_t i=0;
 		count++;
-		count=count%20;
-		temp_ADC_value[count]=Get_Vbat_val();
-		
-		if(count%20==0){
-				for(int i=0;i<20;i++){
-						true_ADC_value+=temp_ADC_value[i];
-					//LOG_I("VBat_value%d:%d",i,temp_ADC_value[i]);
+		if(count%2==0){
+				i=i%20;
+				temp_ADC_value[i]=Get_Vbat_val();
+				i++;
+				if(i==19){
+					_f(temp_ADC_value,20);
+					true_ADC_value=temp_ADC_value[10];
+					//LOG_I("Vbat:%d Val",true_ADC_value);
+					true_VBat_value=(2*3300*true_ADC_value/4095);
+					if(true_VBat_value>4190){
+								true_VBat_value=4200;
+					}
+					if(true_VBat_value<3000){
+								true_VBat_value=3000;
+					}
+					//LOG_I("Vbat:%d V",true_VBat_value);
+					true_VBat_value=(true_VBat_value-3300)*100/(4190-3300);
+					if(true_VBat_value>100){
+						true_VBat_value=100;
+					}
+					true_VBat_value=(true_VBat_value)*100*0.01;
+					VBat_value=true_VBat_value;
+					//LOG_I("Vbat:%d %",VBat_value);
 				}
-				true_ADC_value=true_ADC_value/20;
-				//LOG_I("true_VBat_value:%d",true_ADC_value);
-				//true_VBat_value=(4*1400*true_ADC_value/4095);
-				true_VBat_value=(2*3300*true_ADC_value/4095);
-				
-				//LOG_I("true_VBat_value:%d",true_VBat_value);
-				if(true_VBat_value>4300){
-							true_VBat_value=4300;
-				}
-				if(true_VBat_value<3000){
-							true_VBat_value=3000;
-				}
-						true_VBat_value=(true_VBat_value-3300)*100/(4200-3300);
-						if(true_VBat_value>100)true_VBat_value=100;
-						true_VBat_value=(true_VBat_value)*100*0.01;
-						//VBat_value=true_VBat_value;
-						//LOG_I("VBAT%:%d",VBat_value);
 		}
-		
-		if(count%200==0){
-				VBat_value=true_VBat_value;
-		}
-		
 }
 
 
@@ -146,9 +161,9 @@ uint8_t Get_dBm() {
 }
 
 /////////////////////////////////////adc_value_num////////////////////////////////////////////////////
-//电阻分压1/4，硬件上VREF为1.4V
+//电阻分压1/2，硬件上VREF为3.3V
 uint16_t Get_Vbat_val() {
-	uint16_t adc_value_num;	
+//	uint16_t adc_value_num;	
 		if(recv_flag == 1){
 		        recv_flag = 0;
 						HAL_ADCEx_InjectedStart_IT(&hadc);
@@ -200,34 +215,74 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
 }
 /////////////////////////////////////////////////////////////////////////////////////
 #define RECORD_KEY1  1	 //蓝牙名称
-#define RECORD_KEY10 3	 //蓝牙名称长度
-#define RECORD_KEY2 2  		//完成模块初始化标记
-//#define RECORD_KEY3 3  //上电启动包，一次标记
-tinyfs_dir_t ID_dir;
+#define RECORD_KEY2  2  //完成模块初始化标记
+#define RECORD_KEY3  3  //蓝牙开锁密码
+#define RECORD_KEY4  4  //蓝牙通信密钥 低8位
+#define RECORD_KEY5  5  //蓝牙通信密钥 高8位
+#define RECORD_KEY6  6  //给flash里面写入初始值标记
+
+tinyfs_dir_t ID_dir_1;
+tinyfs_dir_t ID_dir_2;
+tinyfs_dir_t ID_dir_3;
+
 
 void Read_Last_Data(){
 //static uint32_t count;
 //const static uint8_t no_wirt_data[10]={0x17,0x00,0x00,0x00,0x05,0x00,0x00,0x00,0xF8,0x07};
 
-uint8_t  tmp[10];
-uint16_t length = 10; 
+static uint8_t tmp[10];
+uint16_t length_3 = 3; 
+uint16_t length_10 = 10; 
+uint16_t length_7  = 10; 
+uint16_t length_6  = 6; 
+uint16_t length_8  = 8; 
 
 
-	tinyfs_mkdir(&ID_dir,ROOT_DIR,5);  //创建目录
-
-	tinyfs_read(ID_dir,RECORD_KEY1,tmp,&length);//读到tmp中
+	tinyfs_mkdir(&ID_dir_1,ROOT_DIR,50);  //创建目录
+	tinyfs_mkdir(&ID_dir_2,ROOT_DIR,51);  //创建目录
+	tinyfs_mkdir(&ID_dir_3,ROOT_DIR,52);  //创建目录
+	tinyfs_read(ID_dir_1,RECORD_KEY6,tmp,&length_3);//读到tmp中
+	LOG_I("flash_init");
+	LOG_I("%s",tmp);
+	LOG_HEX(tmp,10);
+	
+	if(strncmp("ok",(char*)tmp,sizeof("ok"))!=0){
+		LOG_I("w_init");
+		tinyfs_write(ID_dir_1,RECORD_KEY6,(uint8_t*)"ok",sizeof("ok"));	
+		tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"NO_SET",sizeof("NO_SET"));	
+		tinyfs_write(ID_dir_2,RECORD_KEY1,(uint8_t*)SHORT_NAME,sizeof(SHORT_NAME));	
+		tinyfs_write(ID_dir_3,RECORD_KEY3,(uint8_t*)PASSWORD,sizeof(PASSWORD));	
+		tinyfs_write(ID_dir_3,RECORD_KEY4,(uint8_t*)&key[0],8);	
+		tinyfs_write(ID_dir_3,RECORD_KEY5,(uint8_t*)&key[8],8);	
+		tinyfs_write_through();
+	}
+	
+	tinyfs_read(ID_dir_2,RECORD_KEY1,tmp,&length_10);//读到tmp中
 	LOG_I("read_id");
 	LOG_I("%s",tmp);
 	LOG_HEX(tmp,10);
 	memcpy (&SHORT_NAME[0], &tmp[0], strlen((char*)&SHORT_NAME));
 	memcpy (&NEW_SHORT_NAME[0], &tmp[0], strlen((char*)&SHORT_NAME));
 
-	tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
+	tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length_7);//读到tmp中
 	LOG_I("read_flag");
 	LOG_I("%s",tmp);
+		
+	tinyfs_read(ID_dir_3,RECORD_KEY3,tmp,&length_6);//读到tmp中
+	LOG_I("KEY3");
+	LOG_HEX(tmp,6);
+	memcpy (&PASSWORD[0], &tmp[0],6);
+
+	tinyfs_read(ID_dir_3,RECORD_KEY4,tmp,&length_8);//读到tmp中
+	LOG_I("KEY4");
+	LOG_HEX(tmp,8);
+	memcpy (&key[0], &tmp[0],8);
+
+	tinyfs_read(ID_dir_3,RECORD_KEY5,tmp,&length_8);//读到tmp中
+	LOG_I("KEY5");
+	LOG_HEX(tmp,8);
+	memcpy (&key[8], &tmp[0],8);
 }
-
-
 //////////////////////////////////////////////////////////////////////////////////////
 /********************
  **数据处理, 一帧接受完成 后跑一次
@@ -430,7 +485,7 @@ uint16_t Start_Lock_Send_Task(){
     }
     return temp;
 }
-//请求开锁 ??现在不请求开锁直接上报数据了
+//请求开锁
 uint16_t Open_Lock_Send_Task() {
     static uint8_t count;
     static uint16_t temp;
@@ -532,46 +587,41 @@ uint16_t Open_Lock_Data_Send_Task(){
     return temp;
 }
 
+//5s 保持模块唤醒 查一下信号
 void NB_WAKE_Task(){
 	 static uint8_t i;
 	i++;
     if(i%200==1) {
-				AT_Command_Send(AT);
+				Set_Task_State(GET_DB_VAL,START);
+				//AT_Command_Send(AT);
     }
 }
-
 uint8_t last_lock_state;
-
 //检测状态发生变化上报数据
 void State_Change_Task(){
 	//static uint8_t last_lock_state;
-		if(	Check_SW1()){
-				lock_state[0]=0;
-		}
-		else{
+	if(moro_task_flag==1){
+	}
+	else{	
+			if(	Check_SW1()){
+			lock_state[0]=0;
+			}
+			else{
 				lock_state[0]=1;
-		}
-
-		if(last_lock_state != lock_state[0]){
+			}		
+			if(last_lock_state != lock_state[0]){
 				sleep_time=0;
 				last_lock_state=lock_state[0];
-				LOG_I("State_Change");
-				
-				Open_Lock_Data_Send(0,lock_state[0]);  
-			
-				Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-	
-			if(moro_task_flag==1){
-				}
-				else{
+				LOG_I("State_Change");		
+				Open_Lock_Data_Send(0,lock_state[0]);  		
+				Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
 			  user_ble_send_flag=1;
 				TX_DATA_BUF[0]=0x52;		// CMD
 				TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 				TX_DATA_BUF[5]=0x01;    //LEN
 				TX_DATA_BUF[6]=lock_state[0];
 				}
-				
-		}		
+		}
 }
 //获取信号值
 uint16_t AT_GET_DB_TASK(){
@@ -605,62 +655,42 @@ uint16_t AT_GET_DB_TASK(){
         }
     }
     return temp;
-//		static int count=0;
-//		static int count_out=0;
-//	
-//	if(count%10==1){
-//		if(count_out<5){
-//			if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99){
-//				count_out=10;
-//				globle_Result=0xff;
-//				LOG_I("DB:%d",Db_val);	
-//			}
-//			else{
-//				//buzzer_task_flag=1;
-//				count_out++;
-//				AT_Command_Send(CSQ);
-//			}
-//		}
-//		else if(count_out!=10){
-//			buzzer_task_flag=1;
-//			count_out++;
-//		}
-//	}
 }
-
-
 //重置初始化跑一次
 uint16_t AT_INIT(){
 	static int step=1;
 	static int count=0;
 	static int count_out=0;
 	static int set_flag=0;
-	static int once_flag=0;
+//	static int once_flag=0;
 	count++;	
 	static uint8_t tmp[10];
 	uint16_t length = 10; 
-	const static uint8_t no_wirt_data[10]={0x17,0x00,0x00,0x00,0x05,0x00,0x00,0x00,0xF8,0x07};
+	const static uint8_t no_wirt_data[10]="3141592654";
 
 	
-	tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
+	tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length);//读到tmp中
 	if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))==0){
 		return 0xff;
 	}
 	
-	if(count%10==0){
+	if(count%5==0){
 		switch(step){
 			case 1:
 			//DELAY_US(200000); //50ms
 			if(Get_Uart_Data_Processing_Result()==CGSN_OK){
 				globle_Result=0xff;
+				
 				if(strncmp((char*)no_wirt_data,(char*)SHORT_NAME,sizeof(no_wirt_data))==0){			
 					//LOG_I("WIRT_OK");		
+					
 					memcpy(&SHORT_NAME[0],&AT_RX_DATA_BUF[8-3],7+3);
 					//后7位设备号写入，作为蓝牙广播名称
-					tinyfs_write(ID_dir,RECORD_KEY1,SHORT_NAME,strlen((char*)SHORT_NAME));	
+					tinyfs_write(ID_dir_2,RECORD_KEY1,SHORT_NAME,sizeof(SHORT_NAME));	
+					
 					tinyfs_write_through();
-//					tinyfs_write(ID_dir,3,&SHORT_NAME_LEN,1);	  //名称长度10
-//					tinyfs_write_through();
+					LOG_I("WIRT_OK %s",SHORT_NAME);		 
+					
 					//start_adv();   //更新广播
 				}
 					step++;
@@ -790,12 +820,9 @@ uint16_t AT_INIT(){
 						platform_reset(0); 					//初始化成功，重启
 				}
 				else{
-					tinyfs_write(ID_dir,RECORD_KEY2,(uint8_t*)"SET_OK",sizeof("SET_OK"));	
+					tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_OK",sizeof("SET_OK"));	
 					tinyfs_write_through();
 					platform_reset(0); 					//初始化成功，重启
-					//tinyfs_read(ID_dir,RECORD_KEY2,tmp,&length);//读到tmp中
-					//Set_Task_State(START_LOCK_SEND,1);
-					//HAL_IWDG_Init(100);
 				}
 			}
 			else{
@@ -815,22 +842,109 @@ uint16_t AT_INIT(){
 			//statement(s);
 		}
 		}
+	return 0x88;
 }
 static  uint16_t set_sleep_time;
 //设置休眠时间
 void Set_Sleep_Time(uint16_t time_s){
 	set_sleep_time=time_s;
 }
-
 //休眠任务
 void Sleep_Task(){
-	
-	uint8_t tmp[2];
-	tmp[0]=0x01;
-	tmp[1]=VBat_value;
 	if(sleep_time*50>set_sleep_time*1000){
-//			tinyfs_write(ID_dir,RECORD_KEY3,&tmp[0],2);	
-//			tinyfs_write_through();
 			ls_sleep_enter_lp2();
 	}
 }
+//extern uint8_t	psaaword_task_flag;  //改密码任务开始标记
+//extern uint8_t	key_task_flag;			 //改密钥任务开始标记
+void Password_Task(){
+	static uint16_t count;
+	static uint8_t buf_1[6];
+	static uint8_t buf_2[6];
+	if(psaaword_task_flag!=0){
+		count++;
+		//10s
+		if(count<200){
+					if(psaaword_task_flag==1){
+						memcpy (&buf_1[0], &NEW_PASSWORD_BUF[6], 6);
+					}
+					else if(psaaword_task_flag==2){
+						memcpy (&buf_2[0], &NEW_PASSWORD_BUF[6], 6);
+						user_ble_send_flag=1;
+						TX_DATA_BUF[0]=0xA1;		// CMD
+						TX_DATA_BUF[1]=TOKEN[0];
+						TX_DATA_BUF[2]=TOKEN[1];
+						TX_DATA_BUF[3]=TOKEN[2];
+						TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+						TX_DATA_BUF[5]=0x01;    //LEN
+						TX_DATA_BUF[6]=0x01;    //失败
+						//通信帧1 PWD：为原密码。
+						if((strncmp((char*)buf_1,(char*)PASSWORD,6)==0)){
+							TX_DATA_BUF[6]=0x00;    //LEN
+							//写入新密码重启有效
+							tinyfs_write(ID_dir_3,RECORD_KEY3,(uint8_t*)buf_2,sizeof(PASSWORD));	
+							count=0;
+							psaaword_task_flag=0;
+						}
+					}
+		}
+		else{
+				count=0;
+				psaaword_task_flag=0;
+				user_ble_send_flag=1;
+				TX_DATA_BUF[0]=0xA1;		// CMD
+				TX_DATA_BUF[1]=TOKEN[0];
+				TX_DATA_BUF[2]=TOKEN[1];
+				TX_DATA_BUF[3]=TOKEN[2];
+				TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+				TX_DATA_BUF[5]=0x01;    //LEN
+				TX_DATA_BUF[6]=0x01;    //失败
+		}
+	}
+}
+void Key_Task(){
+	static uint16_t count;
+	static uint8_t buf_L[8];
+	static uint8_t buf_H[8];
+
+	if(key_task_flag!=0){
+			count++;
+		if(count<200){
+					if(key_task_flag==1){
+						memcpy (&buf_L[0], &NEW_KEY_BUF[8], 8);
+					}
+					else if(key_task_flag==2){
+						memcpy (&buf_H[0], &NEW_KEY_BUF[8], 8);
+						user_ble_send_flag=1;
+						TX_DATA_BUF[0]=0xA6;		// CMD
+						TX_DATA_BUF[1]=TOKEN[0];
+						TX_DATA_BUF[2]=TOKEN[1];
+						TX_DATA_BUF[3]=TOKEN[2];
+						TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+						TX_DATA_BUF[5]=0x01;    //LEN
+						TX_DATA_BUF[6]=0x00;    //成功
+						//通信帧1 低8位
+						//通信帧2 高8位
+						//写入新密码重启有效
+						tinyfs_write(ID_dir_3,RECORD_KEY4,(uint8_t*)buf_L,8);	
+						tinyfs_write(ID_dir_3,RECORD_KEY5,(uint8_t*)buf_H,8);	
+						count=0;
+						key_task_flag=0;
+					}
+		}
+		else{
+				count=0;
+				key_task_flag=0;
+				user_ble_send_flag=1;
+				TX_DATA_BUF[0]=0xA6;		// CMD
+				TX_DATA_BUF[1]=TOKEN[0];
+				TX_DATA_BUF[2]=TOKEN[1];
+				TX_DATA_BUF[3]=TOKEN[2];
+				TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+				TX_DATA_BUF[5]=0x01;    //LEN
+				TX_DATA_BUF[6]=0x00;    //成功
+		}
+	
+	}
+}
+

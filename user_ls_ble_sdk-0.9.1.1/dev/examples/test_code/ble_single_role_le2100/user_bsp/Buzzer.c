@@ -14,7 +14,7 @@ TIM_HandleTypeDef TimHandle;
 uint8_t buzzer_task_flag;
 //50ms ≈‹“ª¥Œ
 void Buzzer_Task(){
-	static uint8_t lask_state=0xff;
+//	static uint8_t lask_state=0xff;
 	static uint8_t count;
 	count++;
 	count=count%2;

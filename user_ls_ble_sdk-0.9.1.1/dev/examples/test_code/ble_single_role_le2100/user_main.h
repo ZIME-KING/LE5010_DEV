@@ -47,5 +47,13 @@ extern uint8_t BLE_connected_flag;
 extern uint8_t VBat_value;
 extern uint16_t temp_count;
 
+extern uint8_t PASSWORD[6];
+extern unsigned char key[16];
+
+extern uint8_t NEW_PASSWORD_BUF[6]; //暂存改password的数据
+extern uint8_t NEW_KEY_BUF[8];      //暂存改key的数据，分两次接收
+
+extern uint8_t	psaaword_task_flag;  //改密码任务开始标记
+extern uint8_t	key_task_flag;			 //改密钥任务开始标记
 
 #endif

@@ -51,12 +51,18 @@ uint16_t AT_INIT(void);
 void LED_TASK(void);
 void Get_Vbat_Task(void);
 void NB_WAKE_Task(void);
-void Sleep_Task();
+void Sleep_Task(void);
 void Set_Sleep_Time(uint16_t time_s);
 //void AT_GET_DB(void);
 void Read_Last_Data(void); 
 
-extern tinyfs_dir_t ID_dir;
+void Password_Task(void);
+void Key_Task(void);
+
+extern tinyfs_dir_t ID_dir_1;
+extern tinyfs_dir_t ID_dir_2;
+extern tinyfs_dir_t ID_dir_3;
+
 extern uint8_t last_lock_state;
 
 #endif

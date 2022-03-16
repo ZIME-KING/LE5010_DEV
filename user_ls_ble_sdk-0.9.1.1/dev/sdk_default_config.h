@@ -18,7 +18,7 @@
 #endif
 
 #ifndef SDK_USER_TINYFS_NODE_MAX
-#define SDK_USER_TINYFS_NODE_MAX 5
+#define SDK_USER_TINYFS_NODE_MAX 6
 #endif
 
 #ifndef SDK_USER_TASK_NUM

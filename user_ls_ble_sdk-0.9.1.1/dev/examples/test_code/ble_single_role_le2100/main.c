@@ -71,9 +71,17 @@ uint8_t RX_DATA_BUF[16];
 uint8_t DATA_BUF[16];
 uint8_t TOKEN[4]= {0xf1,0xf2,0xf3,0xf4};
 uint8_t PASSWORD[6]= {0x30,0x30,0x30,0x30,0x30,0x30};
+
+uint8_t NEW_PASSWORD_BUF[6]; //暂存改password的数据
+uint8_t NEW_KEY_BUF[8];      //暂存改key的数据，分两次接收
+
+uint8_t	psaaword_task_flag=0;  //改密码任务开始标记
+uint8_t	key_task_flag=0;			 //改密钥任务开始标记
+
+
+
 uint8_t BLE_connected_flag=0;
 uint8_t VBat_value=0;
-
 
 //enum uart_rx_status
 //{
@@ -89,9 +97,7 @@ static bool uart_tx_busy;
 //static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
 UART_HandleTypeDef UART_Config;
 UART_HandleTypeDef UART_Config_AT;
-
-static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
-
+//static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 static const uint8_t ls_uart_svc_uuid_128[] =     {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF0,0xFF,0x00,0x00};
 static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF2,0xFF,0x00,0x00};
 static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF1,0xFF,0x00,0x00};
@@ -235,7 +241,6 @@ static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
 static struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
 static struct builtin_timer 	*ble_app_timer_inst 		 = NULL;
 
-
 #define USER_EVENT_PERIOD_0 5			 //按键扫描
 #define USER_EVENT_PERIOD_1 50     //按键处理
 
@@ -274,10 +279,11 @@ static void ls_user_event_timer_cb_0(void *param)
     Uart_2_Time_Even();  //串口接收数据
     Scan_Key();					 //扫描按键
     Moto_Task();				 //电机的任务
-    Get_Vbat_Task();										 //获取电池电量 0~100
-
     Uart_2_Data_Processing();
-//Uart_Data_Processing();
+		if(moro_task_flag==0 && buzzer_task_flag==0){
+		    Get_Vbat_Task();										 //获取电池电量 0~100		
+		}
+		//Uart_Data_Processing();
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 //uint16_t temp_count=0;
@@ -298,19 +304,19 @@ static void ls_user_event_timer_cb_1(void *param)
     if(db_flag==0xff) {
         if(AT_INIT()==0xff) {
             //名称有变化
-            if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,strlen((char*)SHORT_NAME))!=0) {
+            if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,10)!=0) {
                 LOG_I("read_id");
                 LOG_I("%s",SHORT_NAME);
 
 								LOG_I("read_id N");
                 LOG_I("%s",NEW_SHORT_NAME);
 
-								tinyfs_write(ID_dir,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
+								tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
                 tinyfs_write_through();
 
                 uint8_t  tmp[10];
                 uint16_t length = 10;
-                tinyfs_read(ID_dir,1,tmp,&length);//读到tmp中
+                tinyfs_read(ID_dir_2,1,tmp,&length);//读到tmp中
                 LOG_I("read_id");
                 LOG_I("%s",tmp);
                 wd_FLAG=1;
@@ -324,7 +330,14 @@ static void ls_user_event_timer_cb_1(void *param)
             NB_WAKE_Task();
         }
     }
-    if(BLE_connected_flag==1) 	sleep_time=0;
+    if(BLE_connected_flag==1){
+				Password_Task();
+				Key_Task();
+				sleep_time=0;
+		} 	
+		
+		
+		
     ls_uart_server_send_notification();  //蓝牙数据发送
 
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
@@ -436,14 +449,13 @@ static void User_BLE_Data_Handle() {
     case 0x50:  //开锁
         if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
             //user_ble_send_flag=1;
-            TX_DATA_BUF[0]=0x50;		// CMD
+            TX_DATA_BUF[0]=0x50;			// CMD
             TX_DATA_BUF[1]=TOKEN[0];
             TX_DATA_BUF[2]=TOKEN[1];
             TX_DATA_BUF[3]=TOKEN[2];
             TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-            TX_DATA_BUF[5]=0x01;    //LEN
-
-
+            TX_DATA_BUF[5]=0x01;    	//LEN
+					
             if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
                 moro_task_flag=1;                    ////密码正确 开启电机动作
                 //TX_DATA_BUF[6]=Close_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
@@ -483,17 +495,21 @@ static void User_BLE_Data_Handle() {
             //	SHORT_NAME[i]=0;
             //}
             memcpy (&NEW_SHORT_NAME[0], &DATA_BUF[6], SHORT_NAME_LEN);
+						buzzer_task_flag=1;
+					
             //wd_FLAG=1;
         }
 
         break;
     //修改密码
     case 0xA1:
-
+				memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
+				psaaword_task_flag++;
         break;
     //修改秘钥
     case 0xA2:
-
+				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
+				key_task_flag++;
         break;
     }
 }
@@ -528,50 +544,6 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
     }
 }
 
-
-
-//static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length, uint8_t const *value)
-//{
-//    if(att_idx == UART_SVC_IDX_RX_VAL)// && uart_server_tx_buf[0] != UART_SYNC_BYTE)
-//    {
-//        LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
-//        uart_server_tx_buf[0] = UART_SYNC_BYTE;
-//        uart_server_tx_buf[1] = length & 0xff;
-//        uart_server_tx_buf[2] = (length >> 8) & 0xff;
-//        uart_server_tx_buf[3] = con_idx; // what uart will receive should be the real connection index. array_idx is internal.
-//        memcpy((void*)&uart_server_tx_buf[UART_HEADER_LEN], value, length);
-//        uint32_t cpu_stat = enter_critical();
-//        if(!uart_tx_busy)
-//        {
-//            uart_tx_busy = true;
-//            current_uart_tx_idx = (0 << 7);
-//            HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length + UART_HEADER_LEN);
-//        }
-//        exit_critical(cpu_stat);
-//    }
-//    else if (att_idx == UART_SVC_IDX_TX_NTF_CFG)
-//    {
-//        LS_ASSERT(length == 2);
-//        memcpy(&cccd_config, value, length);
-//    }
-//}
-
-//static void ls_uart_server_send_notification(void)
-//{
-//    uint32_t cpu_stat = enter_critical();
-//    if(con_idx_server != CON_IDX_INVALID_VAL && uart_server_recv_data_length != 0 && uart_server_ntf_done)
-//    {
-//        uart_server_ntf_done = false;
-//        uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);
-//        uint16_t tx_len = uart_server_recv_data_length > co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) ?
-//                        co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length;
-//        uart_server_recv_data_length -= tx_len;
-//        gatt_manager_server_send_notification(con_idx_server, handle, &uart_server_ble_buf[0], tx_len, NULL);
-//        memcpy((void*)&uart_server_ble_buf[0], (void*)&uart_server_ble_buf[tx_len], uart_server_recv_data_length);
-//    }
-//    exit_critical(cpu_stat);
-//}
-
 //蓝牙 50ms 判断接受到数据是否回复
 static void ls_uart_server_send_notification(void)
 {
@@ -583,7 +555,7 @@ static void ls_uart_server_send_notification(void)
         uart_server_ntf_done = false;
         user_ble_send_flag=0;
         uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);
-        TX_DATA_BUF[6]=lock_state[0];
+        //TX_DATA_BUF[6]=lock_state[0];
         //uint16_t tx_len = uart_server_recv_data_length > co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) ?
         //co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length;
         //uart_server_recv_data_length -= tx_len;
@@ -621,7 +593,7 @@ static void create_adv_obj()
 void start_adv(void)
 {
     uint8_t FF_NAME[]= {0xff,0xFF};
-
+ 
     SHORT_NAME_LEN=strlen((char*)&SHORT_NAME[0]);
     LS_ASSERT(adv_obj_hdl != 0xff);
     uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 3, GAP_ADV_TYPE_SHORTENED_NAME,     &SHORT_NAME[0], SHORT_NAME_LEN
@@ -743,40 +715,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     uart_tx_busy = false;
 }
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-//}
 
-//static void ls_uart_server_client_uart_tx(void)
-//{
-//#if SLAVE_SERVER_ROLE == 1
-//    if (uart_server_tx_buf[0] == UART_SYNC_BYTE)
-//    {
-//        uint32_t cpu_stat = enter_critical();
-//        if (!uart_tx_busy)
-//        {
-//            uint16_t length = (uart_server_tx_buf[2] << 8) | uart_server_tx_buf[1];
-//            uart_tx_busy = true;
-//            current_uart_tx_idx = (0 << 7);
-//            HAL_UART_Transmit_IT(&UART_Config, &uart_server_tx_buf[0], length + UART_HEADER_LEN);
-//        }
-//        exit_critical(cpu_stat);
-//    }
-//#endif
-//#if MASTER_CLIENT_ROLE == 1
-//    if (uart_client_tx_buf[0] == UART_SYNC_BYTE)
-//    {
-//        uint32_t cpu_stat = enter_critical();
-//        if (!uart_tx_busy)
-//        {
-//            uint16_t length = (uart_client_tx_buf[2] << 8) | uart_client_tx_buf[1];
-//            uart_tx_busy = true;
-//            current_uart_tx_idx = (1 << 7);
-//            HAL_UART_Transmit_IT(&UART_Config, &uart_client_tx_buf[0], length + UART_HEADER_LEN);
-//        }
-//        exit_critical(cpu_stat);
-//    }
-//#endif
-//}
 static void connect_pattern_send_prepare(uint8_t con_idx)
 {
     if (CONNECTION_IS_SERVER(con_idx))
@@ -850,7 +789,11 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             gatt_manager_client_mtu_exch_send(con_idx);
         }
 #endif
+				uint16_t temp;
         BLE_connected_flag=1;
+				srand (sleep_time);
+				temp=rand()%0xffff;
+				Set_TOKEN(temp>>12,temp>>8,temp>>4,temp);
         LOG_I("connected! new con_idx = %d", con_idx);
         break;
     case DISCONNECTED:
