@@ -504,14 +504,29 @@ static void User_BLE_Data_Handle() {
     //修改密码
     case 0xA1:
 				memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
-				psaaword_task_flag++;
+				psaaword_task_flag=0xA1;
         break;
-    //修改秘钥
+		
     case 0xA2:
-				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
-				key_task_flag++;
+				memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
+				if(psaaword_task_flag==0xA1){
+						psaaword_task_flag=0xA2;
+				}
         break;
-    }
+
+    //修改秘钥
+    case 0xA5:
+				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
+				key_task_flag=0xA5;
+        break;
+    
+    case 0xA6:
+				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
+				if(key_task_flag==0xA5){
+						key_task_flag=0xA6;
+				}
+        break;
+			}
 }
 
 
@@ -1015,7 +1030,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 
         uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
         LOG_I("wkup_source:%x",wkup_source) ;
-        Set_Sleep_Time(240);
+        Set_Sleep_Time(150);
         //来自RTC的启动，发送心跳包
         if ((RTC_WKUP & wkup_source) != 0) {
             Set_Sleep_Time(10);

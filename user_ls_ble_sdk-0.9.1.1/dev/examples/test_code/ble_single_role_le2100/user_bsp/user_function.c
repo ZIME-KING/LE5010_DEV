@@ -133,7 +133,7 @@ void Get_Vbat_Task(){
 					_f(temp_ADC_value,20);
 					true_ADC_value=temp_ADC_value[10];
 					//LOG_I("Vbat:%d Val",true_ADC_value);
-					true_VBat_value=(2*3300*true_ADC_value/4095);
+					true_VBat_value=(4*3300*true_ADC_value/4095);
 					if(true_VBat_value>4190){
 								true_VBat_value=4200;
 					}
@@ -161,7 +161,7 @@ uint8_t Get_dBm() {
 }
 
 /////////////////////////////////////adc_value_num////////////////////////////////////////////////////
-//电阻分压1/2，硬件上VREF为3.3V
+//电阻分压1/2，1/4  硬件上VREF为3.3V
 uint16_t Get_Vbat_val() {
 //	uint16_t adc_value_num;	
 		if(recv_flag == 1){
@@ -357,7 +357,7 @@ void Uart_2_Data_Processing() {
             if(AT_RX_DATA_BUF[0]==0x58 && AT_RX_DATA_BUF[1]==0x59) {
                 globle_Result=OK_ASK;
 								   //是OPEN_LOCK
-									if(AT_RX_DATA_BUF[4]== 0x10) {
+									if(AT_RX_DATA_BUF[4]== 0x10  && AT_RX_DATA_BUF[5]== 0x00 && AT_RX_DATA_BUF[6]== 0x01 ) {
 										KEY_FLAG=1;
 										open_lock_reply_Result=1;
 									}
@@ -458,8 +458,8 @@ uint16_t Start_Lock_Send_Task(){
     static uint8_t i;
      if(Get_Task_State(START_LOCK_SEND)){
 					i++;
-					if(i%400==1){
-            if(Get_Uart_Data_Processing_Result()==OK_ASK  && start_lock_reply_Result==1) {
+					if(i%400==10){
+            if(start_lock_reply_Result==1) {
 							 	globle_Result=0xFF;
 								start_lock_reply_Result=0;
                 send_count++;
@@ -485,6 +485,8 @@ uint16_t Start_Lock_Send_Task(){
     }
     return temp;
 }
+
+
 //请求开锁
 uint16_t Open_Lock_Send_Task() {
     static uint8_t count;
@@ -493,8 +495,8 @@ uint16_t Open_Lock_Send_Task() {
 	
 			if(Get_Task_State(OPEN_LOCK_SEND)) {
 						i++;
-						if(i%400==0) {
-            if(Get_Uart_Data_Processing_Result()==OK_ASK   && open_lock_reply_Result==1) {
+						if(i%400==1) {
+            if( open_lock_reply_Result==1) {
 								globle_Result=0xFF;
 								open_lock_reply_Result=0;
                 send_count++;
@@ -517,6 +519,11 @@ uint16_t Open_Lock_Send_Task() {
             }
         }
     }
+		else{
+			count=0;
+			temp=0;
+			i=0;
+		}
     return temp;
 }
 //心跳包
@@ -528,7 +535,7 @@ uint16_t Tick_Lock_Send_Task() {
 				i++;
 				sleep_time=0;
 				if(i%400==1) {
-						if(Get_Uart_Data_Processing_Result()==OK_ASK && tick_reply_Result==1) {
+						if(tick_reply_Result==1) {
 								globle_Result=0xFF;
 								tick_reply_Result=0;
                 send_count++;
@@ -550,6 +557,11 @@ uint16_t Tick_Lock_Send_Task() {
             }
         }
     }
+		else{
+			count=0;
+			temp=0;
+			i=0;
+		}
     return temp;
 }
 //20信息上报  锁+状态
@@ -560,8 +572,8 @@ uint16_t Open_Lock_Data_Send_Task(){
     
    if(Get_Task_State(OPEN_LOCK_DATA_SEND)) {
 			i++;			
-			if(i%400==0) {
-   		      if(Get_Uart_Data_Processing_Result()==OK_ASK && open_lock_data_reply_Result==1) {
+			if(i%400==1) {
+   		      if(open_lock_data_reply_Result==1) {
 								globle_Result=0xFF;
 								open_lock_data_reply_Result=0;
                 send_count++;
@@ -628,7 +640,8 @@ uint16_t AT_GET_DB_TASK(){
 	  static uint8_t count=0;
     static uint16_t temp;
     static uint8_t i;
-    
+    static uint8_t tmp[10];
+		uint16_t length = 10; 
    if(Get_Task_State(GET_DB_VAL)) {
 			i++;			
 			if(i%10==1) {
@@ -642,12 +655,17 @@ uint16_t AT_GET_DB_TASK(){
             else {
                 count++;
 							  AT_Command_Send(CSQ);
-                if(count>20 && count<40) {
+								if(count<20){
+										tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length);//读到tmp中
+										if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))!=0){
+												buzzer_task_flag=1;
+											}
+								}
+                if(count>=20 && count<40) {
 										buzzer_task_flag=1;
                 }
 								else if(count>=40){
 									Set_Task_State(GET_DB_VAL,STOP);
-									buzzer_task_flag=1;
                   temp=TIME_OUT;
 									count=0;
 								}
@@ -865,10 +883,10 @@ void Password_Task(){
 		count++;
 		//10s
 		if(count<200){
-					if(psaaword_task_flag==1){
+					if(psaaword_task_flag==0xA1){
 						memcpy (&buf_1[0], &NEW_PASSWORD_BUF[6], 6);
 					}
-					else if(psaaword_task_flag==2){
+					else if(psaaword_task_flag==0xA2){
 						memcpy (&buf_2[0], &NEW_PASSWORD_BUF[6], 6);
 						user_ble_send_flag=1;
 						TX_DATA_BUF[0]=0xA1;		// CMD
@@ -883,6 +901,7 @@ void Password_Task(){
 							TX_DATA_BUF[6]=0x00;    //LEN
 							//写入新密码重启有效
 							tinyfs_write(ID_dir_3,RECORD_KEY3,(uint8_t*)buf_2,sizeof(PASSWORD));	
+							tinyfs_write_through();
 							count=0;
 							psaaword_task_flag=0;
 						}
@@ -910,13 +929,13 @@ void Key_Task(){
 	if(key_task_flag!=0){
 			count++;
 		if(count<200){
-					if(key_task_flag==1){
+					if(key_task_flag==0xA5){
 						memcpy (&buf_L[0], &NEW_KEY_BUF[8], 8);
 					}
-					else if(key_task_flag==2){
+					else if(key_task_flag==0xA6){
 						memcpy (&buf_H[0], &NEW_KEY_BUF[8], 8);
 						user_ble_send_flag=1;
-						TX_DATA_BUF[0]=0xA6;		// CMD
+						TX_DATA_BUF[0]=0xA5;		// CMD
 						TX_DATA_BUF[1]=TOKEN[0];
 						TX_DATA_BUF[2]=TOKEN[1];
 						TX_DATA_BUF[3]=TOKEN[2];
@@ -928,6 +947,7 @@ void Key_Task(){
 						//写入新密码重启有效
 						tinyfs_write(ID_dir_3,RECORD_KEY4,(uint8_t*)buf_L,8);	
 						tinyfs_write(ID_dir_3,RECORD_KEY5,(uint8_t*)buf_H,8);	
+						tinyfs_write_through();
 						count=0;
 						key_task_flag=0;
 					}
@@ -936,15 +956,14 @@ void Key_Task(){
 				count=0;
 				key_task_flag=0;
 				user_ble_send_flag=1;
-				TX_DATA_BUF[0]=0xA6;		// CMD
+				TX_DATA_BUF[0]=0xA5;		// CMD
 				TX_DATA_BUF[1]=TOKEN[0];
 				TX_DATA_BUF[2]=TOKEN[1];
 				TX_DATA_BUF[3]=TOKEN[2];
 				TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 				TX_DATA_BUF[5]=0x01;    //LEN
-				TX_DATA_BUF[6]=0x00;    //成功
+				TX_DATA_BUF[6]=0x01;    //失败
 		}
-	
 	}
 }
 

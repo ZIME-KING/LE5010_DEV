@@ -63,7 +63,9 @@ void Scan_Key(){
 					sleep_time=0;
 					buzzer_task_flag=1;
 					KEY_ONCE=1;
-					Open_Lock_Send();
+					if(Get_Task_State(OPEN_LOCK_SEND)){
+							Open_Lock_Send();
+					}
 					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
 					
 			}

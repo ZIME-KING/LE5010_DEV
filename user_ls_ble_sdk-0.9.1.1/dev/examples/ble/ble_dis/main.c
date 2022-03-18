@@ -6,6 +6,10 @@
 #include "ls_dbg.h"
 #include <string.h>
 
+#include "prf_fotas.h"
+#include "tinycrypt/ecc_dsa.h"
+
+
 #define APP_DIS_DEV_NAME                ("LS Dis Server")
 #define APP_DIS_DEV_NAME_LEN            (sizeof(APP_DIS_DEV_NAME))
 
@@ -181,6 +185,64 @@ static void prf_dis_server_callback(enum diss_evt_type type,union diss_evt_u *ev
     }
 }
 
+
+#if FW_ECC_VERIFY
+extern const uint8_t fotas_pub_key[64];
+bool fw_signature_check(struct fw_digest *digest,struct fota_signature *signature)
+{
+    return uECC_verify(fotas_pub_key, digest->data, sizeof(digest->data), signature->data, uECC_secp256r1());
+}
+#else
+bool fw_signature_check(struct fw_digest *digest,struct fota_signature *signature)
+{
+    return true;
+}
+#endif
+
+static void prf_fota_server_callback(enum fotas_evt_type type,union fotas_evt_u *evt,uint8_t con_idx)
+{
+    switch(type)
+    {
+    case FOTAS_START_REQ_EVT:
+    {
+        // ota_settings_write(SINGLE_FOREGROUND); 
+        ota_settings_write(DOUBLE_FOREGROUND); 
+        enum fota_start_cfm_status status;
+        if(fw_signature_check(evt->fotas_start_req.digest, evt->fotas_start_req.signature))
+        {
+            status = FOTA_REQ_ACCEPTED;
+        }else
+        {
+            status = FOTA_REQ_REJECTED;
+        }
+        prf_fotas_start_confirm(con_idx, status);
+    }break;
+    case FOTAS_FINISH_EVT:
+        if(evt->fotas_finish.integrity_checking_result)
+        {
+            if(evt->fotas_finish.new_image->base != get_app_image_base())
+            {
+                ota_copy_info_set(evt->fotas_finish.new_image);
+            }
+            else
+            {
+                ota_settings_erase();
+            }
+            platform_reset(RESET_OTA_SUCCEED);
+        }else
+        {
+            platform_reset(RESET_OTA_FAILED);
+        }
+    break;
+    default:
+        LS_ASSERT(0);
+    break;
+    }
+}
+
+
+
+
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
@@ -208,7 +270,16 @@ static void prf_added_handler(struct profile_added_evt *evt)
     case PRF_DIS_SERVER:
         prf_dis_server_callback_init(prf_dis_server_callback);
         create_adv_obj();
+				dev_manager_prf_fota_server_add(NO_SEC);/////
     break;
+		
+		case PRF_FOTA_SERVER:
+				prf_fota_server_callback_init(prf_fota_server_callback);
+				create_adv_obj();
+		break;
+
+		
+		
     default:
 
     break;
@@ -270,4 +341,40 @@ int main()
     gap_manager_init(gap_manager_callback);
     gatt_manager_init(gatt_manager_callback);
     ble_loop();
+}
+
+
+
+void boot_ram_start(uint32_t exec_addr)
+{
+    disable_global_irq();
+    switch_to_rc32k();
+    clk_switch();
+    uint8_t wkup_stat = REG_FIELD_RD(SYSCFG->PMU_WKUP,SYSCFG_WKUP_STAT);
+    set_wakeup_source(wkup_stat);
+    REG_FIELD_WR(SYSCFG->PMU_WKUP, SYSCFG_LP_WKUP_CLR,1);
+    DELAY_US(200);
+    SYSCFG->PMU_PWR = 0;
+    systick_start();
+    spi_flash_drv_var_init(false,false);
+    spi_flash_init();
+    spi_flash_qe_status_read_and_set();
+    spi_flash_xip_start();
+    lscache_cache_enable(0);
+    io_init();
+    swd_pull_down();
+    trim_val_load();
+    uint32_t image_base;
+    image_base = get_app_image_base();
+    struct fota_image_info image;
+    if(ota_copy_info_get(&image))
+    {
+        fw_copy(&image,image_base);
+        ota_settings_erase();
+    }
+    if(need_foreground_ota())
+    {
+        image_base = get_fota_image_base();
+    }
+    boot_app(image_base);
 }
