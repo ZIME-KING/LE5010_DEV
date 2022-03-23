@@ -73,8 +73,7 @@ uint8_t Moto_Task(){
 									lock_state[0]=1;
 							}
 							
-							
-							Open_Lock_Data_Send(0,lock_state[0]);
+							//Open_Lock_Data_Send(0,lock_state[0]);
 							//Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 							TX_DATA_BUF[6]=temp;
 							user_ble_send_flag=1;	//À¶ÑÀ·¢ËÍÊý¾Ý

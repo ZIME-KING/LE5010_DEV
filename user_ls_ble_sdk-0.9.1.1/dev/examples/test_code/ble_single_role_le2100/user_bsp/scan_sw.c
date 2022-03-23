@@ -47,7 +47,7 @@ uint8_t KEY_ONCE;      //按键按下一次标记
 //5ms 跑一次
 void Scan_Key(){
 	static uint16_t count;
-//	static uint8_t edge_flag;
+	static uint8_t edge_flag;
 //	static uint8_t edge_flag_1;
 	
 	if(KEY_FLAG==1 && KEY_ONCE==1){
@@ -59,7 +59,7 @@ void Scan_Key(){
 	
 	if(io_read_pin(KEY)==0){
 			count++;
-			if(count==2){
+			if(count==3){
 					sleep_time=0;
 					buzzer_task_flag=1;
 					KEY_ONCE=1;
@@ -67,10 +67,9 @@ void Scan_Key(){
 							Open_Lock_Send();
 					}
 					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
-					
 			}
 			//10s复位 5s就差不多了，复位
-			if(count==1000){
+			if(count==1500){
 							buzzer_task_flag=1;
 							//模块重新配置服务器
 							tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
@@ -88,7 +87,7 @@ void Scan_Key(){
 	
 //	
 //		edge_flag=edge_flag<<1;
-//		edge_flag+=io_read_pin(SW1);
+//		edge_flag+=io_read_pin(SW2);
 //		
 //		if(edge_flag == 0x0F){	//上升延
 //				buzzer_task_flag=1;

@@ -321,6 +321,7 @@ static void ls_user_event_timer_cb_1(void *param)
                 LOG_I("%s",tmp);
                 wd_FLAG=1;
             }
+						Once_Send();												 //发送一次的指令
             //AT_INIT();											 	 //向服务器注册消息，只在初始化后运行一次
             State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
             Start_Lock_Send_Task();			 				 //启动信息上报
@@ -1020,17 +1021,17 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
         User_Init();
 
-        if(Check_SW1()) {
-            lock_state[0]=0;
+        if(Check_SW2()==1 && Check_SW1()==0 ) {
+            lock_state[0]=1;
         }
         else {
-            lock_state[0]=1;
+            lock_state[0]=0;
         }
         last_lock_state=lock_state[0];  //获取初始锁状态
 
         uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
         LOG_I("wkup_source:%x",wkup_source) ;
-        Set_Sleep_Time(150);
+        Set_Sleep_Time(30);
         //来自RTC的启动，发送心跳包
         if ((RTC_WKUP & wkup_source) != 0) {
             Set_Sleep_Time(10);
@@ -1041,10 +1042,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             //由启动按键唤醒
             if(io_read_pin(PB15)==0) {
                 //启动开锁请求发送
-                //Set_Task_State(OPEN_LOCK_SEND,START);
+                Set_Task_State(OPEN_LOCK_SEND,START);
             }
             //由锁开关唤醒
             else {
+								buzzer_task_flag=1;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,START);
                 //启动锁数据上报命令
             }

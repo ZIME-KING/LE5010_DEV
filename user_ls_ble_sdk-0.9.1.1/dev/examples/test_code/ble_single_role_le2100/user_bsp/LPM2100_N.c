@@ -28,7 +28,7 @@ void RESET_NB(){
 		io_cfg_output(PA05);               //输出模式                     
     io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
 		io_write_pin(PA05,0);  
-		DELAY_US(10*100);
+		DELAY_US(10*1000);
 		io_write_pin(PA05,1);             
 		DELAY_US(10*1000);
 		io_write_pin(PA05,0);

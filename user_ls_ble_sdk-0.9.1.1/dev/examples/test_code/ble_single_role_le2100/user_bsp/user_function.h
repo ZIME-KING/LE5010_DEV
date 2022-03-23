@@ -59,6 +59,8 @@ void Read_Last_Data(void);
 void Password_Task(void);
 void Key_Task(void);
 
+void Once_Send(void);
+
 extern tinyfs_dir_t ID_dir_1;
 extern tinyfs_dir_t ID_dir_2;
 extern tinyfs_dir_t ID_dir_3;

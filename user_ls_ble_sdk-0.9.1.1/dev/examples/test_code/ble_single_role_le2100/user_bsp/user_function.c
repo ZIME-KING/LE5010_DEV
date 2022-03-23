@@ -133,7 +133,7 @@ void Get_Vbat_Task(){
 					_f(temp_ADC_value,20);
 					true_ADC_value=temp_ADC_value[10];
 					//LOG_I("Vbat:%d Val",true_ADC_value);
-					true_VBat_value=(4*3300*true_ADC_value/4095);
+					true_VBat_value=(4*1400*true_ADC_value/4095);
 					if(true_VBat_value>4190){
 								true_VBat_value=4200;
 					}
@@ -141,7 +141,7 @@ void Get_Vbat_Task(){
 								true_VBat_value=3000;
 					}
 					//LOG_I("Vbat:%d V",true_VBat_value);
-					true_VBat_value=(true_VBat_value-3300)*100/(4190-3300);
+					true_VBat_value=(true_VBat_value-3000)*100/(4190-3000);
 					if(true_VBat_value>100){
 						true_VBat_value=100;
 					}
@@ -183,7 +183,7 @@ static void lsadc_init(void)
     hadc.Init.NbrOfDiscConversion   = 1;                             /* Parameter discarded because sequencer is disabled */
     hadc.Init.ContinuousConvMode    = DISABLE;                        /* Continuous mode to have maximum conversion speed (no delay between conversions) */
     hadc.Init.TrigType      = ADC_INJECTED_SOFTWARE_TRIGT;            /* The reference voltage uses an internal reference */
-    hadc.Init.Vref          = ADC_VREF_VCC;
+    hadc.Init.Vref          = ADC_VREF_INSIDE;//ADC_VREF_INSIDE ADC_VREF_VCC
     hadc.Init.AdcCkDiv = ADC_CLOCK_DIV2;
 		
 		hadc.Init.AdcDriveType=EINBUF_DRIVE_ADC;
@@ -457,8 +457,6 @@ uint16_t Start_Lock_Send_Task(){
     static uint16_t temp;
     static uint8_t i;
      if(Get_Task_State(START_LOCK_SEND)){
-					i++;
-					if(i%400==10){
             if(start_lock_reply_Result==1) {
 							 	globle_Result=0xFF;
 								start_lock_reply_Result=0;
@@ -469,6 +467,8 @@ uint16_t Start_Lock_Send_Task(){
 								//Set_Task_State(OPEN_LOCK_SEND,START);  //
             }
             else {
+							i++;
+							if(i%400==10){
                 count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
@@ -485,17 +485,12 @@ uint16_t Start_Lock_Send_Task(){
     }
     return temp;
 }
-
-
 //请求开锁
 uint16_t Open_Lock_Send_Task() {
     static uint8_t count;
     static uint16_t temp;
     static uint8_t i;
-	
 			if(Get_Task_State(OPEN_LOCK_SEND)) {
-						i++;
-						if(i%400==1) {
             if( open_lock_reply_Result==1) {
 								globle_Result=0xFF;
 								open_lock_reply_Result=0;
@@ -505,6 +500,8 @@ uint16_t Open_Lock_Send_Task() {
 								i=0;
             }
             else {
+						i++;
+						if(i%400==1) {
                 count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
@@ -532,9 +529,7 @@ uint16_t Tick_Lock_Send_Task() {
     static uint16_t temp;
     static uint8_t i;
        if(Get_Task_State(TICK_LOCK_SEND)) {
-				i++;
-				sleep_time=0;
-				if(i%400==1) {
+
 						if(tick_reply_Result==1) {
 								globle_Result=0xFF;
 								tick_reply_Result=0;
@@ -543,7 +538,9 @@ uint16_t Tick_Lock_Send_Task() {
                 Set_Task_State(TICK_LOCK_SEND,STOP);
 								i=0;
             }
-            else {
+            else {	
+							i++;
+							if(i%400==1) {
                 count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
@@ -569,26 +566,27 @@ uint16_t Open_Lock_Data_Send_Task(){
     static uint8_t count;
     static uint16_t temp;
     static uint8_t i;
+		static uint8_t once_flag;
     
-   if(Get_Task_State(OPEN_LOCK_DATA_SEND)) {
-			i++;			
-			if(i%400==1) {
-   		      if(open_lock_data_reply_Result==1) {
+   if(Get_Task_State(OPEN_LOCK_DATA_SEND)){
+		 
+		 if(open_lock_data_reply_Result==1) {
+							  LOG_I("SEND_OK");
 								globle_Result=0xFF;
 								open_lock_data_reply_Result=0;
                 send_count++;
                 temp=OPEN_LOCK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
 								i=0;
-            }
-            else {
+				}
+				else {
+					i++;		
+					if(i%400==0){
                 count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-
 							  Open_Lock_Data_Send(0,lock_state[0]);
-							
                 if(count%3==0) {
                     Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
                     temp=TIME_OUT;
@@ -596,6 +594,11 @@ uint16_t Open_Lock_Data_Send_Task(){
             }
         }
     }
+	 	else{
+			count=0;
+			temp=0;
+			i=0;
+		}
     return temp;
 }
 
@@ -611,17 +614,23 @@ void NB_WAKE_Task(){
 uint8_t last_lock_state;
 //检测状态发生变化上报数据
 void State_Change_Task(){
-	//static uint8_t last_lock_state;
+//	uint8_t a;
+//	uint8_t b;
+//	
+//	a=Check_SW1();
+//	b=Check_SW2();
+//	LOG_I("SW1:%d,SW2:%d",a,b);		
 	if(moro_task_flag==1){
 	}
-	else{	
-			if(	Check_SW1()){
-			lock_state[0]=0;
+	else{
+			if(	Check_SW2()==1 && Check_SW1()==0 ){
+				lock_state[0]=1;
 			}
 			else{
-				lock_state[0]=1;
-			}		
+				lock_state[0]=0;
+			}
 			if(last_lock_state != lock_state[0]){
+				if(lock_state[0]==1) buzzer_task_flag=1;
 				sleep_time=0;
 				last_lock_state=lock_state[0];
 				LOG_I("State_Change");		
@@ -889,6 +898,8 @@ void Password_Task(){
 					else if(psaaword_task_flag==0xA2){
 						memcpy (&buf_2[0], &NEW_PASSWORD_BUF[6], 6);
 						user_ble_send_flag=1;
+						psaaword_task_flag=0;
+						
 						TX_DATA_BUF[0]=0xA1;		// CMD
 						TX_DATA_BUF[1]=TOKEN[0];
 						TX_DATA_BUF[2]=TOKEN[1];
@@ -898,12 +909,11 @@ void Password_Task(){
 						TX_DATA_BUF[6]=0x01;    //失败
 						//通信帧1 PWD：为原密码。
 						if((strncmp((char*)buf_1,(char*)PASSWORD,6)==0)){
-							TX_DATA_BUF[6]=0x00;    //LEN
+							TX_DATA_BUF[6]=0x00;    //
 							//写入新密码重启有效
 							tinyfs_write(ID_dir_3,RECORD_KEY3,(uint8_t*)buf_2,sizeof(PASSWORD));	
 							tinyfs_write_through();
 							count=0;
-							psaaword_task_flag=0;
 						}
 					}
 		}
@@ -967,3 +977,15 @@ void Key_Task(){
 	}
 }
 
+void Once_Send(){
+	static uint8_t once_flag=1;
+	if(once_flag){
+		once_flag=0;
+		uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
+    LOG_I("wkup_source:%x",wkup_source) ;
+		if(Get_Task_State(OPEN_LOCK_DATA_SEND)){
+					Open_Lock_Data_Send(0,lock_state[0]);  		
+          Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+		}
+	}
+}
