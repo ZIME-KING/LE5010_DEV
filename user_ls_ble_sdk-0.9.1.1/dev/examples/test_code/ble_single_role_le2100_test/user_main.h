@@ -27,7 +27,7 @@
 #include "LPM2100_N.h"
 
 
-//#define USER_TEST 
+#define USER_TEST 
 
 #ifdef USER_TEST 
  extern uint8_t open_count;

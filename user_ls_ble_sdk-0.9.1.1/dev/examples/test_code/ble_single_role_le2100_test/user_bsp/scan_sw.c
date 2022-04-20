@@ -50,34 +50,35 @@ void Scan_Key(){
 	static uint8_t edge_flag;
 //	static uint8_t edge_flag_1;
 	
-	if(KEY_FLAG==1 && KEY_ONCE==1){
-			//KEY_FLAG=0;
-			moro_task_flag=1; 
-			//globle_Result=0xff;
-	}
-	
-	
+//	if(KEY_FLAG==1 && KEY_ONCE==1){
+//			//KEY_FLAG=0;
+//			moro_task_flag=1; 
+//			//globle_Result=0xff;
+//	}
+//	
+//	
 	if(io_read_pin(KEY)==0){
 			count++;
 			if(count==2){
+					moro_task_flag=1; 
 					sleep_time=0;
 					buzzer_task_flag=1;
 					SYSCFG->BKD[7]=0;
 					KEY_ONCE=1;
-					if(Get_Task_State(OPEN_LOCK_SEND)){
-							Open_Lock_Send();
-					}
-					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
-			}
-			//10s复位 复位  7.5s
-			if(count==1500){
-							buzzer_task_flag=1;
-							//模块重新配置服务器
-							tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
-							tinyfs_write_through();
-							RESET_NB();
-//							wd_FLAG=1;
-							platform_reset(0);
+//					if(Get_Task_State(OPEN_LOCK_SEND)){
+//							Open_Lock_Send();
+//					}
+//					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
+//			}
+//			//10s复位 复位  7.5s
+//			if(count==1500){
+//							buzzer_task_flag=1;
+//							//模块重新配置服务器
+//							tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
+//							tinyfs_write_through();
+//							RESET_NB();
+////							wd_FLAG=1;
+//							platform_reset(0);
 			}
 			
 	}
@@ -119,7 +120,6 @@ void Scan_Key(){
 //				{
 //						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
 //				}
-//		}
 }
 
 

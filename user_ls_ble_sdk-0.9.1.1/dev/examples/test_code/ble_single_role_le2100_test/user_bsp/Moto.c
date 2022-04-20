@@ -83,14 +83,14 @@ uint8_t Moto_Task(){
 								lock_state[0]=0;
 							}
 							//Open_Lock_Data_Send_Moto();
-							Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,START);
+				//Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,START);
 							//OPEN_LOCK_DATA_SEND_MOTO
 							//Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 							
 							TX_DATA_BUF[6]=temp;
 							user_ble_send_flag=1;	//蓝牙发送数据
 							
-							#
+							
 							count++;
 							//if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0) { //信息上报任务未启动
 							//		Set_Task_State(OPEN_LOCK_DATA_SEND,START);

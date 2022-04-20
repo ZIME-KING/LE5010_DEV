@@ -23,7 +23,9 @@ OPEN_LOCK_SEND,  				//开锁数据请求
 TICK_LOCK_SEND, 				//心跳包发送
 OPEN_LOCK_DATA_SEND,    // 20信息上报
 GET_DB_VAL,   				 	//获取信号强度
-OPEN_LOCK_DATA_SEND_MOTO,
+OPEN_LOCK_DATA_SEND_MOTO,	
+GET_MODE_VAL,
+GET_EMIC_VAL,
 }Typedef_TASK_LIST;
 
 
@@ -47,6 +49,8 @@ uint16_t Open_Lock_Data_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Moto_Task(void);
 
 uint16_t AT_GET_DB_TASK(void);
+uint16_t AT_GET_MODE_TASK(void);
+uint16_t AT_GET_CIMI_TASK(void);
 
 uint16_t Get_Vbat_val(void);
 uint8_t  Get_dBm(void);

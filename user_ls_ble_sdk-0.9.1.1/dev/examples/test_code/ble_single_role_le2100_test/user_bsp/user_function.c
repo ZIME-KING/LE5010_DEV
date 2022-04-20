@@ -44,6 +44,9 @@ uint8_t T3_enable=0;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,ui
 uint8_t T4_enable=0;  //获取信号强度				AT指令相关
 uint8_t T5_enable=0;  //电机动作完成发送包
 
+uint8_t T6_enable=0;  //电机动作完成发送包
+uint8_t T7_enable=0;  //电机动作完成发送包
+
 
 uint8_t open_lock_reply_Result=0;
 uint8_t tick_reply_Result=0;
@@ -73,91 +76,93 @@ void User_Init() {
     io_cfg_output(PC00);   //PB10 config output
     io_write_pin(PC00,0);  //PB10 write low power
 		
-//		io_cfg_input(USB_CHECK);   //PB09 config output
-//		io_cfg_input(USB_CHECK_B);   //PB09 config output
-//	
-////		io_cfg_output(USB_CHECK);   
-////    io_write_pin(USB_CHECK,0);  
-////    io_cfg_output(USB_CHECK_B);   
-////    io_write_pin(USB_CHECK_B,0);  
-	
-		//io_pull_write(USB_CHECK,IO_PULL_DOWN); //设置PA04内部下拉
-		//io_pull_write(USB_CHECK_B,IO_PULL_DOWN); //设置PA04内部下拉
-	
-		//io_write_pin(PC00, 1);
-		//io_write_pin(PC01, 0);
-	
-		HAL_IWDG_Init(32756);  //1s看门狗
- 		HAL_RTC_Init(2);    	 //RTC内部时钟源
+		io_cfg_input(USB_CHECK);   //PB09 config output
+		io_cfg_input(USB_CHECK_B);   //PB09 config output
+
+		HAL_RTC_Init(2);    	 //RTC内部时钟源
 		RTC_wkuptime_set(3*60*60);	 //唤醒时间48h  休眠函数在sw.c 中
-		//RTC_wkuptime_set(60);	 //唤醒时间30s  休眠函数在sw.c 中
 		WAKE_UP();
-	
-		Set_Task_State(GET_DB_VAL,START);
+		Set_Task_State(GET_MODE_VAL,START);
 }
 extern uint8_t RTC_flag;
 void LED_TASK(){
 	static uint8_t flag;
-	static uint8_t count;
+	static uint8_t flag1;
+	static uint16_t count;
 	
-	//uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
-	//来自RTC的启动，发送心跳包
-  if (RTC_flag==1) {
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 0);
-	}
-	else{
 	count++;
+	
+	if(count%10==0){
+		if(flag1==1)flag1=0;
+		else flag1=1;
+	}
 	if(count%20==0){
 		if(flag==1)flag=0;
 		else flag=1;
 	}
-	if(BLE_connected_flag==1){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
-	}	
-	else{
-	//5V接入
-		
-		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
-		
-	if(io_read_pin(USB_CHECK)==1  || io_read_pin(USB_CHECK_B)==1){
-		//LOG_I("usb_in");
-		//20~90 绿灯闪
-		if(VBat_value>20 && VBat_value<=90){
-				io_write_pin(PC00, flag);
-				io_write_pin(PC01, 0);
-		}
-		//<20 红灯闪
-		else if(VBat_value>=0 && VBat_value<=20){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, flag);
-		}
-		//20~90 绿灯常量
-		else if(VBat_value>90){
-				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
-		}
+
+	//前5s闪烁,后面亮红灯
+	if(count<50){
+			io_write_pin(PC00, flag1);
+			io_write_pin(PC01, !flag1);
+	}
+	else if(count==51){
+			io_write_pin(PC00, 0);
+			io_write_pin(PC01, 1);
 	}
 	else{
-		if(VBat_value>20){
-				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
-		}
-		//<20 红灯
-		else if(VBat_value>0 && VBat_value<=20){
+			if(BLE_connected_flag==1){
 				io_write_pin(PC00, 0);
 				io_write_pin(PC01, 1);
-		}
-	}
-		io_cfg_output(USB_CHECK);   
-    io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
-	}
+			}
+			else{
+				if(Get_Task_State(GET_MODE_VAL)==START){
+						io_write_pin(PC00, 0);
+						io_write_pin(PC01, 1);
+				}
+				else if(Get_Task_State(GET_EMIC_VAL)==START){
+						io_write_pin(PC00, 0);
+						io_write_pin(PC01, flag1);
+				}
+				else if(Get_Task_State(GET_DB_VAL)==START){
+						io_write_pin(PC00, 0);
+						io_write_pin(PC01, flag);
+				}
+				else{
+					
+					io_cfg_input(USB_CHECK);   //PB09 config output
+					io_cfg_input(USB_CHECK_B);   //PB09 config output					
+					if(io_read_pin(USB_CHECK)==1  || io_read_pin(USB_CHECK_B)==1){
+						
+						io_cfg_output(USB_CHECK);   //PB09 config output
+						io_cfg_output(USB_CHECK_B);   //PB09 config output
+						io_write_pin(USB_CHECK, 0);
+						io_write_pin(USB_CHECK_B, 0);
+												
+						LOG_I("usb_in");
+						//20~90 绿灯闪
+						//if(VBat_value>20 && VBat_value<=90){
+						io_write_pin(PC00, flag);
+						io_write_pin(PC01, 0);
+						//}
+						}
+					else{
+						if(VBat_value>20){
+							io_write_pin(PC00, 1);
+							io_write_pin(PC01, 0);
+						}
+						//<20 红灯
+						else if(VBat_value>0 && VBat_value<=20){
+							io_write_pin(PC00, 0);
+							io_write_pin(PC01, 1);
+						}
+					}
+				}
+			}
 	}
 }
+
+
 //冒泡排序
 void _f(uint16_t a[],char len){
 		int n;  //存放数组a中元素的个数
@@ -182,7 +187,6 @@ void _f(uint16_t a[],char len){
 
 
 //为了让电量显示准确，加入校准100%时的电池电压功能
-//在
 
 uint16_t global_vbat_max;
 void Get_Vbat_Task(){
@@ -202,11 +206,6 @@ void Get_Vbat_Task(){
 		static uint16_t start_time=0;
 		if(start_time<0xffff)start_time++;
 		if(start_time==2*200)once_flag=1;
-	
-	
-		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
-	
 	
 		//采集实时的电压
 		count++;
@@ -277,10 +276,6 @@ void Get_Vbat_Task(){
 				}
 //		}
 		}
-		io_cfg_output(USB_CHECK);   
-    io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
 }
 
 
@@ -621,7 +616,12 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
 		case OPEN_LOCK_DATA_SEND_MOTO:
         temp=	T5_enable;
         break;
-
+		case GET_MODE_VAL:
+        temp=	T6_enable;
+        break;
+		case GET_EMIC_VAL:
+        temp=	T7_enable;
+        break;
     }
     return temp;
 }
@@ -644,6 +644,12 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
         break;
 		case OPEN_LOCK_DATA_SEND_MOTO:
         T5_enable=state;
+        break;
+		case GET_MODE_VAL:
+        T6_enable=state;
+        break;
+		case GET_EMIC_VAL:
+        T7_enable=state;
         break;
     }
 }
@@ -873,33 +879,7 @@ void State_Change_Task(){
 	
 			static uint8_t sw_count;
 			static uint8_t sw_flag;			
-	
-//			static uint8_t sw2_count;
-//			static uint8_t sw1_count;
-//	
-//			static uint8_t sw2_flag;
-//			static uint8_t sw1_flag;
-
-//			if(Check_SW2()==1){
-//					sw2_count++;
-//					if(sw2_count>10) sw2_count=10;
-//					if(sw2_count==3){
-//						sw2_flag=1;
-//					}
-//			} 
-//			else sw2_count=0;
-//			
-//			if(Check_SW1()==0) {
-//				sw1_count++;
-//				if(sw1_count>10) sw1_count=10;
-//					if(sw1_count==3){
-//					sw1_flag=1;
-//				}
-//			}
-//			else sw1_count=0;
-
-			
-			
+							
 			if(Check_SW2()==1 && Check_SW1()==0){
 					sw_count++;
 					if(sw_count>10) sw_count=10;
@@ -913,13 +893,6 @@ void State_Change_Task(){
 				sw_count=0;
 			}
 			
-//			if(sw_flag==1/*Check_SW2()==1 && Check_SW1()==0 */){
-//				lock_state[0]=1;
-//				sw_flag=0;
-//			}
-//			else{
-//				lock_state[0]=0;
-//			}
 			if(last_lock_state != lock_state[0]){
 					if(moro_task_flag==1){
 					}
@@ -930,9 +903,9 @@ void State_Change_Task(){
 							LOG_I("State_Change");		
 							//服务器回复需要几百ms，期间状态有变需要直接发送，覆盖前面的，保持服务器端状态最新
 							if(Get_Task_State(OPEN_LOCK_DATA_SEND) && count > 10){
-									Open_Lock_Data_Send();  		
+								//	Open_Lock_Data_Send();  		
 							}
-							Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
+							//Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
 							user_ble_send_flag=1;
 							TX_DATA_BUF[0]=0x52;		// CMD
 							TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
@@ -956,38 +929,105 @@ uint16_t AT_GET_DB_TASK(){
 								count=0;
 								temp=0xff;								
             }
-            else {
+            else{							
 								i++;
 								temp=0;
                 if(i%20==1){  //重发间隔
 										count++;
 										AT_Command_Send(CSQ);
-										if(count<20){
-										tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length);//读到tmp中
-											if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))!=0){
 												buzzer_task_flag=1;
-											}
-										}
-										if(count>=20 && count<40) {
-											buzzer_task_flag=1;
-										}
-										else if(count>=40){
-											Set_Task_State(GET_DB_VAL,STOP);
+										 //if(count>=20){
+											//Set_Task_State(GET_DB_VAL,START);
 											temp=TIME_OUT;
-											RESET_NB();
-											count=0;
-										}
+										//}
 								}
             }
      }
     else{
 			count=0;
-			//temp=0;
 			i=0;
 		}
     return temp;
 }
 
+
+//获取模块是否存在
+uint16_t AT_GET_MODE_TASK(){
+		static uint8_t count=0;
+    static uint16_t temp;
+    static uint16_t i;
+    static uint8_t tmp[10];
+		uint16_t length = 10; 
+   if(Get_Task_State(GET_MODE_VAL)) {
+   		      if(Get_Uart_Data_Processing_Result()==CSQ_OK) {
+								globle_Result=0xFF;
+                Set_Task_State(GET_MODE_VAL,STOP);
+								Set_Task_State(GET_EMIC_VAL,START);
+								i=0;
+								count=0;
+								temp=0xff;								
+            }
+            else{							
+								i++;
+								temp=0;
+                if(i%20==1){  //重发间隔
+										count++;
+										AT_Command_Send(CSQ);
+												buzzer_task_flag=1;
+										// if(count>=20){
+										//	Set_Task_State(GET_MODE_VAL,START);
+										//}
+								}
+            }
+     }
+    else{
+			count=0;
+			i=0;
+		}
+    return temp;
+}
+
+
+
+//获取CIMI
+uint16_t AT_GET_CIMI_TASK(){
+		static uint8_t count=0;
+    static uint16_t temp;
+    static uint16_t i;
+    static uint8_t tmp[10];
+		uint16_t length = 10; 
+		if(Get_Task_State(GET_EMIC_VAL)) {
+			if(Get_Uart_Data_Processing_Result()==CIMI_OK){
+				globle_Result=0xff;
+				memcpy(&CIMI_DATA[0],&AT_RX_DATA_BUF[0],15);
+				tinyfs_write(ID_dir_3,RECORD_KEY9,CIMI_DATA,sizeof(CIMI_DATA));	
+				tinyfs_write_through();
+				LOG_I("WIRT_OK %s",CIMI_DATA);		 									
+				i=0;
+				count=0;
+				temp=0xff;								
+				Set_Task_State(GET_EMIC_VAL,STOP);
+				Set_Task_State(GET_DB_VAL,START);
+			}
+			else{
+					i++;
+					temp=0;
+          if(i%20==1){  //重发间隔
+						count++;
+						AT_Command_Send(CIMI);
+						buzzer_task_flag=1;
+						//if(count>=20){
+						//	Set_Task_State(GET_EMIC_VAL,START);
+						//}
+				  }
+			}
+		}
+    else{
+			count=0;
+			i=0;
+		}
+    return temp;
+}
 //查询模块设置
 uint16_t AT_User_Reply(){
 static uint8_t step=0;

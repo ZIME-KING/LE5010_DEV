@@ -73,14 +73,8 @@ void User_Init() {
     io_cfg_output(PC00);   //PB10 config output
     io_write_pin(PC00,0);  //PB10 write low power
 		
-//		io_cfg_input(USB_CHECK);   //PB09 config output
-//		io_cfg_input(USB_CHECK_B);   //PB09 config output
-//	
-////		io_cfg_output(USB_CHECK);   
-////    io_write_pin(USB_CHECK,0);  
-////    io_cfg_output(USB_CHECK_B);   
-////    io_write_pin(USB_CHECK_B,0);  
-	
+		io_cfg_input(USB_CHECK);   //PB09 config output
+		io_cfg_input(USB_CHECK_B);   //PB09 config output
 		//io_pull_write(USB_CHECK,IO_PULL_DOWN); //设置PA04内部下拉
 		//io_pull_write(USB_CHECK_B,IO_PULL_DOWN); //设置PA04内部下拉
 	
@@ -118,10 +112,6 @@ void LED_TASK(){
 	}	
 	else{
 	//5V接入
-		
-		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
-		
 	if(io_read_pin(USB_CHECK)==1  || io_read_pin(USB_CHECK_B)==1){
 		//LOG_I("usb_in");
 		//20~90 绿灯闪
@@ -151,11 +141,7 @@ void LED_TASK(){
 				io_write_pin(PC01, 1);
 		}
 	}
-		io_cfg_output(USB_CHECK);   
-    io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
-	}
+}
 	}
 }
 //冒泡排序
@@ -202,11 +188,6 @@ void Get_Vbat_Task(){
 		static uint16_t start_time=0;
 		if(start_time<0xffff)start_time++;
 		if(start_time==2*200)once_flag=1;
-	
-	
-		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
-	
 	
 		//采集实时的电压
 		count++;
@@ -277,10 +258,6 @@ void Get_Vbat_Task(){
 				}
 //		}
 		}
-		io_cfg_output(USB_CHECK);   
-    io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
 }
 
 
@@ -524,10 +501,10 @@ void Uart_2_Data_Processing() {
             }
             //标记——————这里应该要加CRC的
             //OK_ASK 服务器有应答
-            if(AT_RX_DATA_BUF[0]==0x58 && AT_RX_DATA_BUF[1]==0x59) {
+            if(AT_RX_DATA_BUF[0]==0x5A && AT_RX_DATA_BUF[1]==0xA5) {
                 globle_Result=OK_ASK;
 								   //是OPEN_LOCK
-									if(AT_RX_DATA_BUF[4]== 0x10  && AT_RX_DATA_BUF[5]== 0x00 && AT_RX_DATA_BUF[6]== 0x01 ) {
+									if(AT_RX_DATA_BUF[4]== 0x01  && AT_RX_DATA_BUF[5]== 0x01) {
 										KEY_FLAG=1;
 										open_lock_reply_Result=1;
 										#ifdef USER_TEST
@@ -535,19 +512,19 @@ void Uart_2_Data_Processing() {
 										#endif
 									}
 									//心跳包上传成功服务器回复
-									else if(AT_RX_DATA_BUF[4]==0x02) {
+									else if(AT_RX_DATA_BUF[5]==0x00) {
 											tick_reply_Result=1;
 									}
 									//数据包上传成功服务器回复
-									else if(AT_RX_DATA_BUF[4]==0x20) {
+									else if(AT_RX_DATA_BUF[5]==0x00) {
 											open_lock_data_reply_Result=1;
 									}
 									//数据包上传成功服务器回复
-									else if(AT_RX_DATA_BUF[4]==0x21) {
+									else if(AT_RX_DATA_BUF[5]==0x00) {
 											open_lock_data_moto_reply_Result=1;
 									}
 									//启动包上传成功服务器回复
-									else if(AT_RX_DATA_BUF[4]==0x01) {
+									else if(AT_RX_DATA_BUF[5]==0x00) {
 										start_lock_reply_Result=1;
 									}
             }

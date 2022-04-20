@@ -299,60 +299,17 @@ uint8_t db_flag=0;
 //50ms 任务
 static void ls_user_event_timer_cb_1(void *param)
 {
-		//moro_task_flag=1;
-    sleep_time++;			 //记录休眠时间在收到蓝牙数据，和开锁数据重新计数
-		//temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
-    if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
-
-		LED_TASK();													 //LED显示效果
-    
+		LED_TASK();													 //LED显示效果    
 		Buzzer_Task();											 //蜂鸣器任务
-    Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
-   
-	 //#ifdef USER_TEST
-//	   AT_User_Set_Task();
-//		 AT_User_Reply_Task();
-	 //#endif
-	  NB_WAKE_Task();
-		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
-		//LOG_I("db_%x",db_flag);
-		if(db_flag==0xff) {
-        if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
-            //名称有变化
-            if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,10)!=0) {
-                LOG_I("read_id");
-                LOG_I("%s",SHORT_NAME);
-
-								LOG_I("read_id N");
-                LOG_I("%s",NEW_SHORT_NAME);
-
-								tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
-                tinyfs_write_through();
-
-                uint8_t  tmp[10];
-                uint16_t length = 10;
-                tinyfs_read(ID_dir_2,1,tmp,&length);//读到tmp中
-                LOG_I("read_id");
-                LOG_I("%s",tmp);
-                wd_FLAG=1;
-            }
-						AT_User_Set_Task();
-						AT_User_Reply_Task();
-						
-						Open_Lock_Data_Send_Moto_Task();	 	 
-            State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
-            Start_Lock_Send_Task();			 				 //启动信息上报
-            Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-            Open_Lock_Data_Send_Task();  				 //信息上报
-            Tick_Lock_Send_Task();							 //心跳包
-
-        }
-    }
+		AT_GET_MODE_TASK();
+		AT_GET_CIMI_TASK();
+		AT_GET_DB_TASK();							
+	  State_Change_Task();
 		//蓝牙连接下
     if(BLE_connected_flag==1){
 				Password_Task();//改开锁的密码
 				Key_Task();     //改aes128的密钥
-				sleep_time=0;   //不休眠
+				//sleep_time=0;   //不休眠
 		} 	
 		
     ls_uart_server_send_notification();  //蓝牙数据发送
