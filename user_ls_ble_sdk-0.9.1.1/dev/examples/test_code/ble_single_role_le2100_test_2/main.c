@@ -280,7 +280,7 @@ static void ls_single_role_timer_cb(void *param)
 //5ms   做按键扫描
 static void ls_user_event_timer_cb_0(void *param)
 {
-    //Uart_Time_Even();
+    Uart_Time_Even();
     Uart_2_Time_Even();  //串口接收数据
     Scan_Key();					 //扫描按键
     Moto_Task();				 //电机的任务
@@ -288,7 +288,7 @@ static void ls_user_event_timer_cb_0(void *param)
 		if(moro_task_flag==0 && buzzer_task_flag==0){
 		    Get_Vbat_Task();										 //获取电池电量 0~100		
 		}
-		//Uart_Data_Processing();
+		Uart_Data_Processing();
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 //uint16_t temp_count=0;
@@ -299,62 +299,20 @@ uint8_t db_flag=0;
 //50ms 任务
 static void ls_user_event_timer_cb_1(void *param)
 {
-		//moro_task_flag=1;
-    sleep_time++;			 //记录休眠时间在收到蓝牙数据，和开锁数据重新计数
-		//temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
-    if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
-
-		LED_TASK();													 //LED显示效果
-    
+		LED_TASK();													 //LED显示效果    
 		Buzzer_Task();											 //蜂鸣器任务
-    Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
-   
-	 //#ifdef USER_TEST
-//	   AT_User_Set_Task();
-//		 AT_User_Reply_Task();
-	 //#endif
-	  NB_WAKE_Task();
-		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
-		//LOG_I("db_%x",db_flag);
-		if(db_flag==0xff) {
-        if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
-            //名称有变化
-            if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,10)!=0) {
-                LOG_I("read_id");
-                LOG_I("%s",SHORT_NAME);
+ 	  AT_SET_BPS_ONCE();
 
-								LOG_I("read_id N");
-                LOG_I("%s",NEW_SHORT_NAME);
-
-								tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
-                tinyfs_write_through();
-
-                uint8_t  tmp[10];
-                uint16_t length = 10;
-                tinyfs_read(ID_dir_2,1,tmp,&length);//读到tmp中
-                LOG_I("read_id");
-                LOG_I("%s",tmp);
-                wd_FLAG=1;
-            }
-						AT_User_Set_Task();
-						AT_User_Reply_Task();
-						
-						Open_Lock_Data_Send_Moto_Task();	 	 
-            State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
-            Start_Lock_Send_Task();			 				 //启动信息上报
-            Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-            Open_Lock_Data_Send_Task();  				 //信息上报
-            Tick_Lock_Send_Task();							 //心跳包
-
-        }
-    }
+  	AT_GET_MODE_TASK();
+		AT_GET_CIMI_TASK();
+		AT_GET_DB_TASK();							
+	  State_Change_Task();
 		//蓝牙连接下
     if(BLE_connected_flag==1){
 				Password_Task();//改开锁的密码
 				Key_Task();     //改aes128的密钥
-				sleep_time=0;   //不休眠
-		} 	
-		
+				//sleep_time=0;   //不休眠
+		}
     ls_uart_server_send_notification();  //蓝牙数据发送
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
@@ -377,13 +335,32 @@ static void AT_uart_init(void)
     io_pull_write(PA10, IO_PULL_UP);  				//设置上拉
     uart2_io_init(PA11, PA10);
     UART_Config_AT.UARTX = UART2;
-    UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
+    UART_Config_AT.Init.BaudRate 	 = UART_BAUDRATE_9600;
+    UART_Config_AT.Init.MSBEN 		 = 0;
+    UART_Config_AT.Init.Parity     = UART_NOPARITY;
+    UART_Config_AT.Init.StopBits 	 = UART_STOPBITS1;
+    UART_Config_AT.Init.WordLength = UART_BYTESIZE8;
+    HAL_UART_Init(&UART_Config_AT);
+}
+
+void AT_uart_init_user(app_uart_baudrate_t a)
+{
+    //uart2_io_init(PA13, PA14);
+    io_pull_write(PA11, IO_PULL_UP);  				//设置上拉
+    io_pull_write(PA10, IO_PULL_UP);  				//设置上拉
+    uart2_io_init(PA11, PA10);
+    UART_Config_AT.UARTX = UART2;
+    UART_Config_AT.Init.BaudRate 	= a;
     UART_Config_AT.Init.MSBEN 			= 0;
     UART_Config_AT.Init.Parity  	  = UART_NOPARITY;
     UART_Config_AT.Init.StopBits 	= UART_STOPBITS1;
     UART_Config_AT.Init.WordLength = UART_BYTESIZE8;
     HAL_UART_Init(&UART_Config_AT);
 }
+
+
+
+
 
 #if SLAVE_SERVER_ROLE == 1
 static void ls_uart_server_init(void)
@@ -1058,72 +1035,29 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif
-        //ls_uart_init();
+        //
 				//RESET_NB();
 				Button_Gpio_Init();
-				uint8_t button_flag=io_read_pin(PB15);
-				DELAY_US(200*1000);
-        Read_Last_Data();
-        AT_uart_init();
-        ls_app_timer_init();
-        //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
-        HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-        User_Init();
+        Read_Last_Data();			
+				ls_uart_init();
+        AT_uart_init();			
+        ls_app_timer_init();       
+				HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);					
+				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
+				User_Init();
+ 			  DELAY_US(1000*10);
+//				UART_Transmit_Str(&UART_Config,(uint8_t*)"uart1_ok");
+//				DELAY_US(1000*50);
+//				HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+IPR=115200r\n",sizeof("AT+IPR=115200r\n"),100);
+//				DELAY_US(1000*50);
+//				HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+IPR=115200r\n",sizeof("AT+IPR=115200r\n"),100);
+//				DELAY_US(1000*50);
+//				
+//				AT_uart_init_user(UART_BAUDRATE_115200);
+//				HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
 
-        if(Check_SW2()==1 && Check_SW1()==0 ) {
-            lock_state[0]=1;
-        }
-        else {
-            lock_state[0]=0;
-        }
-        last_lock_state=lock_state[0];  //获取初始锁状态
 
-        uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
-        LOG_I("wkup_source:%x",wkup_source) ;
-        Set_Sleep_Time(150);
-				
-        //来自RTC的启动，发送心跳包
-        if ((RTC_WKUP & wkup_source) != 0) {
-						RTC_flag=1;
-						SYSCFG->BKD[7]++;
-						if(SYSCFG->BKD[7]<7){
-							Set_Sleep_Time(1);
-							//RESET_NB();
-						}
-						else if(SYSCFG->BKD[7]==8){
-							SYSCFG->BKD[7]=0;
-							Set_Sleep_Time(150);
-							RESET_NB();
-							Set_Task_State(TICK_LOCK_SEND,START);
-							AT_tset_flag=1;
-						}
-        }
-        //来自按键和锁开关唤醒
-        else if ((PB15_IO_WKUP & wkup_source) != 0) {
-					  AT_tset_flag=2;
-            //Set_Task_State(OPEN_LOCK_SEND,START);
-						//KEY_ONCE=1;            //由启动按键唤醒
-            if(button_flag==0) {
-                //启动开锁请求发送
-								buzzer_task_flag=1;
-                Set_Task_State(OPEN_LOCK_SEND,START);
-								KEY_ONCE=1;
-            }
-            //由锁开关唤醒
-            else {
-							if(lock_state[0]==1) {
-								buzzer_task_flag=1;
-							}
-							Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-                //启动锁数据上报命令
-            }
-        }
-        //断电重启
-        else if (wkup_source == 0) {
-					  AT_tset_flag=2;
-            Set_Task_State(START_LOCK_SEND,START);
-        }
-				HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
+			//HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
   
     }
     break;
