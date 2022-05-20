@@ -12,23 +12,45 @@ TIM_HandleTypeDef TimHandle;
 
 
 uint8_t buzzer_task_flag;
+uint8_t buzzer_task_flag_2;
 //50ms ÅÜÒ»´Î
 void Buzzer_Task(){
 //	static uint8_t lask_state=0xff;
 	static uint8_t count;
-	count++;
-	count=count%2;
+	static uint8_t count_2;
+	static uint8_t temp;
 	
-	if(count==0){
-	//	if(lask_state!=buzzer_task_flag){
-	//		lask_state=buzzer_task_flag;	
-		if(buzzer_task_flag==1){
+	if(buzzer_task_flag==1){
+  		Buzzer_ON();
+		if(count>=2){
 			buzzer_task_flag=0;
-			Buzzer_ON();
+			Buzzer_OFF();
+		}
+		count++;
+	}
+	else{
+		count=0;
+	}
+	
+	if(buzzer_task_flag_2==1){
+			count_2++;
+			count_2=count_2%4;
+		if(count_2<2){
+  		Buzzer_ON();
 		}
 		else{
 			Buzzer_OFF();
+			temp++;
 		}
+		
+		if(temp>=4){
+			Buzzer_OFF();
+			buzzer_task_flag_2=0;
+		}
+	}
+	else{
+			temp=0;
+			count_2=0;
 	}
 }
 

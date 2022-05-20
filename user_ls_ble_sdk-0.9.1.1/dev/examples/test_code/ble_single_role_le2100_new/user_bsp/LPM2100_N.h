@@ -45,6 +45,7 @@ void Open_Lock_Data_Send_Moto(void);
 
 extern uint8_t send_count;							 //·¢ËÍ¼ÆÊý
 extern uint8_t lock_state[LOCK_NUM+1];  //Ëø×´Ì¬´æ´¢
+extern uint8_t C0_lock_state[LOCK_NUM+1];
 
 #endif 
 

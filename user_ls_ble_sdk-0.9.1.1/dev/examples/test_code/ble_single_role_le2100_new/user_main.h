@@ -81,4 +81,6 @@ extern uint8_t NEW_KEY_BUF[8];      //暂存改key的数据，分两次接收
 extern uint8_t	psaaword_task_flag;  //改密码任务开始标记
 extern uint8_t	key_task_flag;			 //改密钥任务开始标记
 
+extern uint8_t  reset_flag;
+
 #endif

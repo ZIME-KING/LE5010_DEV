@@ -9,11 +9,15 @@
 
 //定义重发时间 400是20s
 //#define	USER_TIME 400
-#define	USER_TIME 100
+
+uint8_t user_time  =100;
+uint8_t user_count =25;
+
+#define	USER_TIME  100
 #define	USER_COUNT 25
 
 
-//#define RECORD_KEY1  1	 //蓝牙名称
+//#define RECORD_KEY1  1	//蓝牙名称
 //#define RECORD_KEY2  2  //完成模块初始化标记
 //#define RECORD_KEY3  3  //蓝牙开锁密码
 //#define RECORD_KEY4  4  //蓝牙通信密钥 低8位
@@ -24,7 +28,7 @@
 //#define RECORD_KEY9  9  //CIMI
 
 //#ifdef USER_TEST 
-//	#define RECORD_KEY10 10 
+//#define RECORD_KEY10 10 
 //#endif
 
 tinyfs_dir_t ID_dir_1;
@@ -489,6 +493,15 @@ void Uart_2_Data_Processing() {
 								Db_val=(frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+0]-'0')*10;
 								Db_val+=frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+1]-'0';
 						}
+//						if(Db_val<=12){
+//							user_time  =20;
+//							user_count =150;
+//						}
+//						else{
+//								user_time =100;
+//								user_count=25;
+//						}	
+						
         }
 				//收到sim卡卡号
         else if( strncmp("AT+CIMI\r\n",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CIMI\r\n"))==0)  {
@@ -651,7 +664,7 @@ uint16_t Start_Lock_Send_Task(){
     static uint8_t count;
     static uint16_t temp;
     static uint16_t i;
-     if(Get_Task_State(START_LOCK_SEND)){
+     if(Get_Task_State(START_LOCK_SEND)  && AT_tset_flag==0 ){
             if(start_lock_reply_Result==1) {
 							 	globle_Result=0xFF;
 								start_lock_reply_Result=0;
@@ -686,7 +699,7 @@ uint16_t Open_Lock_Send_Task() {
     static uint8_t count;
     static uint16_t temp;
     static uint16_t i;
-			if(Get_Task_State(OPEN_LOCK_SEND)) {
+			if(Get_Task_State(OPEN_LOCK_SEND) && AT_tset_flag==0) {
             if( open_lock_reply_Result==1) {
 								globle_Result=0xFF;
 								open_lock_reply_Result=0;
@@ -697,7 +710,7 @@ uint16_t Open_Lock_Send_Task() {
             }
             else {
 						i++;
-						if(i%USER_TIME==1) {
+						if(i%user_time==1) {
 								count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
@@ -705,7 +718,7 @@ uint16_t Open_Lock_Send_Task() {
 
                 Open_Lock_Send();
 
-                if(count==USER_COUNT) {
+                if(count==user_count) {
 									count=0;
                     Set_Task_State(OPEN_LOCK_SEND,STOP);
                     temp=TIME_OUT;
@@ -736,7 +749,7 @@ uint16_t Tick_Lock_Send_Task() {
                 Set_Task_State(TICK_LOCK_SEND,STOP);
 								i=0;
             }
-            else {	
+            else {
 							i++;
 							if(i%400==100) {
                count++;
@@ -765,33 +778,31 @@ uint16_t Open_Lock_Data_Send_Task(){
     static uint8_t count;
     static uint16_t temp;
     static uint16_t i;
-//		static uint8_t once_flag;
-    
+		//static uint8_t once_flag;  
    if(Get_Task_State(OPEN_LOCK_DATA_SEND)){
-		 
 		 if(open_lock_data_reply_Result==1) {
-							  LOG_I("SEND_OK");
+							  LOG_I("20_REPLY_OK");
 								globle_Result=0xFF;
 								open_lock_data_reply_Result=0;
-//                send_count++;
+								//send_count++;
                 temp=OPEN_LOCK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
 								i=0;
 				}
 				else {
 					i++;		
-					if(i%USER_TIME==1){
+					if(i%user_time==2){
                 count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 							  Open_Lock_Data_Send();
-                if(count==USER_COUNT) {
+                if(count==user_count){
 									count=0;
                     Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
                     temp=TIME_OUT;
                 }
-            }
+           }
         }
     }
 	 	else{
@@ -813,7 +824,7 @@ uint16_t Open_Lock_Data_Send_Moto_Task(){
    if(Get_Task_State(OPEN_LOCK_DATA_SEND_MOTO)){
 		 
 		 if(open_lock_data_moto_reply_Result==1) {
-							  LOG_I("SEND_OK");
+							  LOG_I("21_REPLY_OK");
 								globle_Result=0xFF;
 								open_lock_data_moto_reply_Result=0;
 //                send_count++;
@@ -822,20 +833,20 @@ uint16_t Open_Lock_Data_Send_Moto_Task(){
 								i=0;
 				}
 				else {
-					i++;		
+					i++;
 					//LOG_I("I:%d",i);
-					if(i%USER_TIME==1){
+					if(i%user_time==3){
 						count++;
 						//LOG_I("Ii:%d",i);
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,START);
 							  Open_Lock_Data_Send_Moto();
-                if(count==USER_COUNT) {
+                if(count==user_count) {
 									count=0;
                     Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,STOP);
                     temp=TIME_OUT;
-                } 
+                }
             }
         }
     }
@@ -868,10 +879,14 @@ uint8_t last_lock_state;
 void State_Change_Task(){
 	static uint8_t count;
 			count++;
-			if(count>10)count=10;
+			if(count>20)count=20;
 	
 			static uint8_t sw_count;
 			static uint8_t sw_flag;			
+
+			static uint8_t sw_count_2;
+			static uint8_t sw_flag_2;			
+
 	
 //			static uint8_t sw2_count;
 //			static uint8_t sw1_count;
@@ -898,8 +913,8 @@ void State_Change_Task(){
 //			else sw1_count=0;
 
 			
-			
 			if(Check_SW2()==1 && Check_SW1()==0){
+			//if( Check_SW1()==0){
 					sw_count++;
 					if(sw_count>10) sw_count=10;
 					if(sw_count==3){
@@ -911,6 +926,22 @@ void State_Change_Task(){
 				lock_state[0]=0;
 				sw_count=0;
 			}
+			
+			if( Check_SW2()==0){
+					sw_count_2++;
+					if(sw_count_2>10) sw_count_2=10;
+					if(sw_count_2==3){
+					sw_flag_2=1;
+						C0_lock_state[0]=1;
+				}
+			}
+			else{
+				C0_lock_state[0]=0;
+				sw_count_2=0;
+			}
+			
+		
+			
 			
 //			if(sw_flag==1/*Check_SW2()==1 && Check_SW1()==0 */){
 //				lock_state[0]=1;
@@ -928,10 +959,16 @@ void State_Change_Task(){
 							last_lock_state=lock_state[0];
 							LOG_I("State_Change");		
 							//服务器回复需要几百ms，期间状态有变需要直接发送，覆盖前面的，保持服务器端状态最新
-							if(Get_Task_State(OPEN_LOCK_DATA_SEND) && count > 10){
-									Open_Lock_Data_Send();  		
-							}
+							
+							//Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
+							
+							//if(count>10){
+									//Open_Lock_Data_Send();  		
+								//LOG_I("State_Change111111111");	
+							//}
+							open_lock_data_reply_Result=0;
 							Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
+						
 							user_ble_send_flag=1;
 							TX_DATA_BUF[0]=0x52;		// CMD
 							TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
@@ -966,6 +1003,9 @@ uint16_t AT_GET_DB_TASK(){
 											if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))!=0){
 												buzzer_task_flag=1;
 											}
+											if(reset_flag==1){
+												buzzer_task_flag=1;
+											}
 										}
 										if(count>=20 && count<40) {
 											buzzer_task_flag=1;
@@ -991,56 +1031,64 @@ uint16_t AT_GET_DB_TASK(){
 uint16_t AT_User_Reply(){
 static uint8_t step=0;
 static uint8_t count=0;
-	count++;
-	if(count%10==1){
-	switch(step){
-			case 0:    ///AT
-				step++;				
-				AT_Command_Send(AT);  
-				return 0xff;
-			break;
+uint8_t temp =0xFF;
+		count++;
+		if(count%10==1){
+		switch(step){
+				case 0:    ///AT
+					step++;				
+					AT_Command_Send(AT);  
+					//return 0xff;
+				break;
 			
-			case 1:  //CGATT
-				step++;
-				AT_Command_Send(CGATT_R);
-				return 0xff;
-			break;
+				case 1:  //CGATT
+					step++;
+					AT_Command_Send(CGATT_R);
+					//return 0xff;
+				break;
 									
-			case 2:  //CEREG
-				step++;
-				AT_Command_Send(CEREG_R);
-				return 0xff;
-			break;
+				case 2:  //CEREG
+					step++;
+					AT_Command_Send(CEREG_R);
+					temp=0xAA;
+					//return 0xff;
+				break;
+		}	
 	}
-		step=0;
-		return 0xAA;
-	}
-	return 0xFF;
+	return temp;
 }
 
 //重置模块设置
 uint16_t AT_User_Set(){
 static uint8_t step=0;
 static uint8_t count=0;
+ uint8_t temp =0xFF;
 	count++;
-	if(count%2==1){
-	switch(step){
+	if(count%20==1){
+		switch(step){
 			case 0:    ///AT
 				step++;				
-				AT_Command_Send(AT);  
-				return 0xFF;
+				AT_Command_Send(AT);
+				//buzzer_task_flag=1;			
+				temp=0xFF;
 			break;
 			
 			case 1:  //CTM2MSETPM
 				step++;
 				AT_Command_Send(CTM2MSETPM);
-				return 0xFF;
+				//buzzer_task_flag=1;
+				temp=0xFF;
 			break;
+		
+			case 2:    ///AT
+				step++;				
+				AT_Command_Send(CTM2MREG);
+				//buzzer_task_flag=1;			
+				temp=0xAA;
+			break;		
 		}
-		step=0;
-		return 0xAA;
 	}
-	return 0xFF;
+	return temp;
 }
 
 
@@ -1057,6 +1105,11 @@ void AT_User_Set_Task(){
 		if(AT_tset_flag==2){
 			if(AT_User_Set()==0xAA)
 			AT_tset_flag=0;
+			if(reset_flag==1){
+				reset_flag=0;
+				buzzer_task_flag_2=1;
+			}
+			
 		}
 }
 

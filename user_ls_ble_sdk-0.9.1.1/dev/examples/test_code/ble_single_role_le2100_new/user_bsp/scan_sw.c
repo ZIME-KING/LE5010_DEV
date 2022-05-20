@@ -59,15 +59,18 @@ void Scan_Key(){
 	
 	if(io_read_pin(KEY)==0){
 			count++;
-			if(count==2){
+			if(count==3){
 					sleep_time=0;
-					buzzer_task_flag=1;
 					SYSCFG->BKD[7]=0;
 					KEY_ONCE=1;
 					if(Get_Task_State(OPEN_LOCK_SEND)){
 							Open_Lock_Send();
+							buzzer_task_flag=1;
 					}
-					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
+					else{
+							Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
+							buzzer_task_flag=1;
+					}
 			}
 			//10s复位 复位  7.5s
 			if(count==1500){

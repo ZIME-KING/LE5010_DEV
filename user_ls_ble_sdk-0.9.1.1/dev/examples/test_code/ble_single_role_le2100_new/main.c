@@ -84,6 +84,8 @@ uint8_t	psaaword_task_flag=0;  //改密码任务开始标记
 uint8_t	key_task_flag=0;			 //改密钥任务开始标记
 
 
+uint8_t	reset_flag=0;			 //掉电启动标记
+
 
 uint8_t BLE_connected_flag=0;
 uint8_t VBat_value=0;
@@ -602,7 +604,7 @@ static void ls_uart_server_send_notification(void)
 					memcpy (&key[8], &tmp[0],8);
 					
 					
-		} 
+		}
     //LOG_I("uart_server_ntf_done:%d,%d,",uart_server_ntf_done,user_ble_send_flag);
     uint32_t cpu_stat = enter_critical();
     if(user_ble_send_flag==1 && BLE_connected_flag==1) {
@@ -1121,6 +1123,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         //断电重启
         else if (wkup_source == 0) {
 					  AT_tset_flag=2;
+						reset_flag=1;
             Set_Task_State(START_LOCK_SEND,START);
         }
 				HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);

@@ -90,7 +90,7 @@ uint8_t Moto_Task(){
 							TX_DATA_BUF[6]=temp;
 							user_ble_send_flag=1;	//蓝牙发送数据
 							
-							#
+							//#
 							count++;
 							//if(Get_Task_State(OPEN_LOCK_DATA_SEND)==0) { //信息上报任务未启动
 							//		Set_Task_State(OPEN_LOCK_DATA_SEND,START);

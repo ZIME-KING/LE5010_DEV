@@ -10,6 +10,9 @@
 
 uint8_t send_count;							 //发送计数
 uint8_t lock_state[LOCK_NUM+1];  //锁状态存储
+uint8_t C0_lock_state[LOCK_NUM+1];  //锁状态存储
+
+
 const uint8_t	Frame_header[2]= {0x58,0x59};
 
 void WAKE_UP(){
@@ -113,13 +116,13 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 void Start_Lock_Send() {
     uint8_t RX_BUF[100];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[40+2];
+    uint8_t DATA_BUF[40+2+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X2A;		//长度42
+    DATA_BUF[2] = 0X2C;		//长度
     DATA_BUF[3] = send_count++;   //send_count;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X01;   //功能码  启动
 
@@ -141,21 +144,25 @@ void Start_Lock_Send() {
     DATA_BUF[15] = 0x00; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
 		
-		DATA_BUF[17] = 0xA8;			//MAC_ADDR
-		memcpy(&DATA_BUF[18],&MAC_ADDR[0],6);
+		DATA_BUF[17] = 0xC0; 	  //lock_ID
+    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
+		
+		
+		DATA_BUF[17+2] = 0xA8;			//MAC_ADDR
+		memcpy(&DATA_BUF[18+2],&MAC_ADDR[0],6);
 
-		DATA_BUF[24] = 0xA7;			//MICI 卡号
-		memcpy(&DATA_BUF[25],&CIMI_DATA[0],15);
+		DATA_BUF[24+2] = 0xA7;			//MICI 卡号
+		memcpy(&DATA_BUF[25+2],&CIMI_DATA[0],15);
 		
 		//MAC_ADDR[0]
 		
-    temp=CRC16_8005Modbus(&DATA_BUF[0],40);
-    DATA_BUF[40]=(temp & 0xff00) >>8;
-    DATA_BUF[41]= temp & 0xff;
+    temp=CRC16_8005Modbus(&DATA_BUF[0],40+2);
+    DATA_BUF[40+2]=(temp & 0xff00) >>8;
+    DATA_BUF[41+2]= temp & 0xff;
 
 
-    hex2string(DATA_BUF,RX_BUF,42);
-    RX_BUF[84]='\0';
+    hex2string(DATA_BUF,RX_BUF,42+2);
+    RX_BUF[84+4]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
@@ -166,14 +173,14 @@ void Start_Lock_Send() {
 void Open_Lock_Send() {
     uint8_t RX_BUF[50];
     uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2];
+    uint8_t DATA_BUF[17+2+2];
     //uint8_t DATA_BUF[17];
 		uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X13;		//长度19
+    DATA_BUF[2] = 0X15;		//长度
     DATA_BUF[3] = send_count++;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X10;   //功能码  请求开锁
 
@@ -195,13 +202,18 @@ void Open_Lock_Send() {
     DATA_BUF[15] = 0x00; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
 
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17);
-    DATA_BUF[17]=(temp & 0xff00) >>8;
-    DATA_BUF[18]= temp & 0xff;
+		DATA_BUF[17] = 0xC0; 	  //lock_ID
+    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 
 
-    hex2string(DATA_BUF,RX_BUF,19);
-    RX_BUF[38]='\0';
+
+    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
+    DATA_BUF[17+2]=(temp & 0xff00) >>8;
+    DATA_BUF[18+2]= temp & 0xff;
+
+
+    hex2string(DATA_BUF,RX_BUF,19+2);
+    RX_BUF[38+4]='\0';
 
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
@@ -213,13 +225,13 @@ void Open_Lock_Send() {
 void Tick_Lock_Send() {
     uint8_t RX_BUF[50];
     uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2];
+    uint8_t DATA_BUF[17+2+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X13;		//长度17
+    DATA_BUF[2] = 0X15;		//长度
     DATA_BUF[3] = send_count;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X02;   //功能码  心跳
 
@@ -240,13 +252,16 @@ void Tick_Lock_Send() {
 
 		DATA_BUF[15] = 0x00; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
+		
+		DATA_BUF[17] = 0xC0; 	  //lock_ID
+    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17);
-    DATA_BUF[17]=(temp & 0xff00) >>8;
-    DATA_BUF[18]= temp & 0xff;
+    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
+    DATA_BUF[17+2]=(temp & 0xff00) >>8;
+    DATA_BUF[18+2]= temp & 0xff;
 
-    hex2string(DATA_BUF,RX_BUF,19);
-    RX_BUF[38]='\0';
+    hex2string(DATA_BUF,RX_BUF,19+2);
+    RX_BUF[38+4]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
@@ -259,13 +274,13 @@ void Tick_Lock_Send() {
 void Open_Lock_Data_Send_Moto() {
     uint8_t RX_BUF[50];
     uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2];
+    uint8_t DATA_BUF[17+2+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X13;		//长度17
+    DATA_BUF[2] = 0X15;		//长度
     DATA_BUF[3] = send_count++;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X21;   //功能码  启动
 
@@ -286,13 +301,16 @@ void Open_Lock_Data_Send_Moto() {
 
 		DATA_BUF[15] = 0x00; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
+		
+		DATA_BUF[17] = 0xc0; 	  //lock_ID
+    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17);
-    DATA_BUF[17]=(temp & 0xff00) >>8;
-    DATA_BUF[18]= temp & 0xff;
+    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
+    DATA_BUF[17+2]=(temp & 0xff00) >>8;
+    DATA_BUF[18+2]= temp & 0xff;
 
-    hex2string(DATA_BUF,RX_BUF,19);
-    RX_BUF[38]='\0';
+    hex2string(DATA_BUF,RX_BUF,19+2);
+    RX_BUF[38+4]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
@@ -304,13 +322,13 @@ void Open_Lock_Data_Send_Moto() {
 void Open_Lock_Data_Send() {
     uint8_t RX_BUF[50];
     uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2];
+    uint8_t DATA_BUF[17+2+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X13;		//长度17
+    DATA_BUF[2] = 0X15;		//长度17
     DATA_BUF[3] = send_count++;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X20;   //功能码  启动
 
@@ -331,13 +349,16 @@ void Open_Lock_Data_Send() {
 
 		DATA_BUF[15] = 0x00; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
+	
+		DATA_BUF[17] = 0xC0; 	  //lock_ID
+    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
+		
+    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
+    DATA_BUF[17+2]=(temp & 0xff00) >>8;
+    DATA_BUF[18+2]= temp & 0xff;
 
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17);
-    DATA_BUF[17]=(temp & 0xff00) >>8;
-    DATA_BUF[18]= temp & 0xff;
-
-    hex2string(DATA_BUF,RX_BUF,19);
-    RX_BUF[38]='\0';
+    hex2string(DATA_BUF,RX_BUF,19+2);
+    RX_BUF[38+4]='\0';
     sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
     HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
