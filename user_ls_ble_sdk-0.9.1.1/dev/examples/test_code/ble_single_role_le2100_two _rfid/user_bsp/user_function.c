@@ -3,9 +3,9 @@
 #include "user_function.h"
 #include <string.h>
 
-//#define USB_CHECK PA03
-#define USB_CHECK   PA03
-#define	USB_CHECK_B PB06
+
+#define USB_CHECK   PA00
+//#define	USB_CHECK_B PB06
 
 //定义重发时间 400是20s
 //#define	USER_TIME 400
@@ -15,6 +15,10 @@ uint8_t user_count =25;
 
 #define	USER_TIME  100
 #define	USER_COUNT 25
+
+#define	LED_G  PC00
+#define	LED_R  PA05
+
 
 
 //#define RECORD_KEY1  1	//蓝牙名称
@@ -69,31 +73,18 @@ void User_Init() {
 	  lsadc_init();
 	  HAL_ADCEx_InjectedStart_IT(&hadc);
 		Button_Gpio_Init();
-	  moto_gpio_init();
+//	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
 		//Read_Last_Data();
-	  io_cfg_output(PC00);   //PB09 config output
-    io_write_pin(PC01,0);  
-    io_cfg_output(PC00);   //PB10 config output
-    io_write_pin(PC00,0);  //PB10 write low power
+	  io_cfg_output(LED_R);   //PB09 config output
+    io_write_pin(LED_R,0);  
+    io_cfg_output(LED_G);   //PB10 config output
+    io_write_pin(LED_G,0);  //PB10 write low power
 		
-//		io_cfg_input(USB_CHECK);   //PB09 config output
-//		io_cfg_input(USB_CHECK_B);   //PB09 config output
-//	
-////		io_cfg_output(USB_CHECK);   
-////    io_write_pin(USB_CHECK,0);  
-////    io_cfg_output(USB_CHECK_B);   
-////    io_write_pin(USB_CHECK_B,0);  
-	
-		//io_pull_write(USB_CHECK,IO_PULL_DOWN); //设置PA04内部下拉
-		//io_pull_write(USB_CHECK_B,IO_PULL_DOWN); //设置PA04内部下拉
-	
-		//io_write_pin(PC00, 1);
-		//io_write_pin(PC01, 0);
 	
 		HAL_IWDG_Init(32756);  //1s看门狗
  		HAL_RTC_Init(2);    	 //RTC内部时钟源
-		RTC_wkuptime_set(3*60*60);	 //唤醒时间48h  休眠函数在sw.c 中
+		RTC_wkuptime_set(3*60*60);	 //唤醒时间3h  休眠函数在sw.c 中
 		//RTC_wkuptime_set(60);	 //唤醒时间30s  休眠函数在sw.c 中
 		WAKE_UP();
 	
@@ -107,8 +98,8 @@ void LED_TASK(){
 	//uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
 	//来自RTC的启动，发送心跳包
   if (RTC_flag==1) {
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, 0);
 	}
 	else{
 	count++;
@@ -117,48 +108,46 @@ void LED_TASK(){
 		else flag=1;
 	}
 	if(BLE_connected_flag==1){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, 1);
 	}	
 	else{
 	//5V接入
 		
 		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
+//  	io_cfg_input(USB_CHECK_B);   //PB09 config output
 		
-	if(io_read_pin(USB_CHECK)==1  || io_read_pin(USB_CHECK_B)==1){
+	if(io_read_pin(USB_CHECK)==1){
 		//LOG_I("usb_in");
 		//20~90 绿灯闪
 		if(VBat_value>20 && VBat_value<=90){
-				io_write_pin(PC00, flag);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, flag);
+				io_write_pin(LED_R, 0);
 		}
 		//<20 红灯闪
 		else if( VBat_value<=20){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, flag);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, flag);
 		}
 		//20~90 绿灯常量
 		else if(VBat_value>90){
-				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, 1);
+				io_write_pin(LED_R, 0);
 		}
 	}
 	else{
 		if(VBat_value>20){
-				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, 1);
+				io_write_pin(LED_R, 0);
 		}
 		//<20 红灯
 		else if(VBat_value<=20){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, 1);
 		}
 	}
 		io_cfg_output(USB_CHECK);   
     io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
 	}
 	}
 }
@@ -208,11 +197,11 @@ void Get_Vbat_Task(){
 	
 	
 		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
+//  	io_cfg_input(USB_CHECK_B);   //PB09 config output
 	
 	
 		//采集实时的电压
-		if(moro_task_flag==0 && buzzer_task_flag==0){
+		if(buzzer_task_flag==0){
 			count++;
 			//50MS 采集一次 20次 1s
 			if(count>=10){
@@ -232,7 +221,7 @@ void Get_Vbat_Task(){
 			}
 		}
 		//在启动2s且未插电的时候记录一下电量，另外在休眠的时候也会记录一次 作为
-		if(io_read_pin(USB_CHECK)!=1  && io_read_pin(USB_CHECK_B)!=1){
+		if(io_read_pin(USB_CHECK)!=1 ){
 								if(ADC_Count==2){
 									//once_flag=0;			
 									//LOG_I("1_Vbat:%d %",VBat_value);
@@ -260,7 +249,7 @@ void Get_Vbat_Task(){
 	
 		//2200mha 电池360ma充电电流预计6h小时充满 216s 加1% 这里5ms进一次
 		//为冲电时电量显示
-		if(io_read_pin(USB_CHECK)==1  || io_read_pin(USB_CHECK_B)==1){
+		if(io_read_pin(USB_CHECK)==1){
 			change_time++;
 			sleep_time=0;
 //			if(count%200==1  && ADC_Count>1 && true_VBat_value<=global_vbat_max-100){  //大于4.1v都算涓流算时间看电量
@@ -292,8 +281,6 @@ void Get_Vbat_Task(){
 		}
 		io_cfg_output(USB_CHECK);   
     io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
 }
 
 
@@ -960,7 +947,7 @@ void State_Change_Task(){
 //				lock_state[0]=0;
 //			}
 			if(last_lock_state != lock_state[0]){
-					if(moro_task_flag==1){
+					if(/*moro_task_flag==*/1){
 					}
 					else{
 						if(lock_state[0]==1) buzzer_task_flag=1;

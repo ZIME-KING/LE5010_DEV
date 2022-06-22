@@ -4,8 +4,8 @@
 
 //配置任意开关中断模式可以唤醒启动
 
-#define SW1 PA00
-#define SW2 PA01
+#define SW1 PA07
+#define SW2 PB11
 #define KEY PB15
 
 //io下降沿唤醒函数
@@ -23,6 +23,23 @@ static void exitpa00_iowkup_init(void)
     io_exti_config(SW1,INT_EDGE_FALLING);   
     io_exti_enable(SW1,true);                
 }
+
+static void exitpa07_iowkup_init(void)
+{
+	  io_cfg_input(PA07);                 
+    io_pull_write(PA07, IO_PULL_UP);         
+    io_exti_config(PA07,INT_EDGE_FALLING);   
+    io_exti_enable(PA07,true);                
+}
+
+static void exitpb11_iowkup_init(void)
+{
+	  io_cfg_input(PB11);                       
+    io_pull_write(PB11, IO_PULL_UP);         
+    io_exti_config(PB11,INT_EDGE_FALLING);   
+    io_exti_enable(PB11,true);                
+}
+
 
 //static void SW2_init(){
 //	  io_cfg_input(SW2);                       
@@ -63,11 +80,11 @@ void Scan_Key(){
 					sleep_time=0;
 					SYSCFG->BKD[7]=0;
 					KEY_ONCE=1;
-				
-						LOG_I("Vbat:%d",VBat_value);
-									
-				
-				
+					
+				  if(test_mode_flag!=0xAA){
+						 moro_task_flag=1; 
+					}
+					LOG_I("Vbat:%d",VBat_value);				
 					//if(Get_Task_State(OPEN_LOCK_SEND)){
 					//		Open_Lock_Send();
 					//		buzzer_task_flag=1;
@@ -78,6 +95,15 @@ void Scan_Key(){
 					//}
 			}
 			//10s复位 复位  7.5s
+			if(count==100 && test_mode_flag!=0xAA){
+						uint8_t temp_val = 0xAA;
+						//uint16_t length_one = 1;
+						tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
+						tinyfs_write_through();
+						RESET_NB();
+						platform_reset(0);
+			}
+			
 			if(count==1500){
 							buzzer_task_flag=1;
 							//模块重新配置服务器
@@ -149,9 +175,11 @@ void  ls_sleep_enter_lp2(void)
 	tinyfs_write_through();
 	
 	io_init();
-	io_write_pin(PC00, 0);
-	io_write_pin(PC01, 0);
+	io_write_pin(LED_R, 0);
+	io_write_pin(LED_G, 0);
 	exitpb15_iowkup_init();
+	exitpa07_iowkup_init();
+	exitpb11_iowkup_init();
 	exitpa00_iowkup_init();
 
 	
@@ -162,6 +190,13 @@ void  ls_sleep_enter_lp2(void)
 	wakeup.pb15_rising_edge = 0;			//选择边沿唤醒
 	wakeup.pa00 = 1 ;									//选择PA00作为唤醒io
 	wakeup.pa00_rising_edge = 0;			//选择边沿唤醒
+	wakeup.pa07 = 1 ;									//选择PA00作为唤醒io
+	wakeup.pa07_rising_edge = 0;			//选择边沿唤醒
+	wakeup.pb11 = 1 ;									//选择PA00作为唤醒io
+	wakeup.pb11_rising_edge = 0;			//选择边沿唤醒
+
+
+	
 	
 	wakeup.rtc  = 1 ;
   enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//调用唤醒函数

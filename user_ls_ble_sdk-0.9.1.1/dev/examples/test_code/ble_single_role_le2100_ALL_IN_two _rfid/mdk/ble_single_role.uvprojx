@@ -821,6 +821,11 @@
               <FileType>1</FileType>
               <FilePath>..\user_bsp\LPM2100_N.c</FilePath>
             </File>
+            <File>
+              <FileName>test_user_function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_bsp\test_user_function.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

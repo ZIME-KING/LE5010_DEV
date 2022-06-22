@@ -310,7 +310,7 @@ static void ls_user_event_timer_cb_1(void *param)
 				Password_Task();//改开锁的密码
 				Key_Task();     //改aes128的密钥
 				//sleep_time=0;   //不休眠
-		} 	
+		}
 		
     ls_uart_server_send_notification();  //蓝牙数据发送
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);

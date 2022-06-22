@@ -17,7 +17,8 @@
 #include "lsrtc.h"
 #include "reg_syscfg.h"
 
-#include "user_function.h"
+#include "user_function.h" 
+#include "test_user_function.h"
 #include "user_uart.h"
 #include "crc.h"
 #include "aes-128.h"
@@ -43,6 +44,9 @@
 #define RECORD_KEY7  7  //last_Vbat
 #define RECORD_KEY8  8  //last_Vbat_max
 #define RECORD_KEY9  9  //CIMI
+
+#define RECORD_KEY_T  11  //测试模式标记
+
 
 #ifdef USER_TEST 
 	#define RECORD_KEY10 10 
@@ -84,5 +88,8 @@ extern uint8_t	key_task_flag;			 //改密钥任务开始标记
 extern uint8_t  reset_flag;
 
 extern uint16_t send_time_delay;
+
+extern uint8_t test_mode_flag;
+
 
 #endif

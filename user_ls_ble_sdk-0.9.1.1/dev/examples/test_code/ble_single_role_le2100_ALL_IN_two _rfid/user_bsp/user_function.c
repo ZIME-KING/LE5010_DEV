@@ -4,12 +4,13 @@
 #include <string.h>
 
 //#define USB_CHECK PA03
-#define USB_CHECK   PA03
-#define	USB_CHECK_B PB06
+#define USB_CHECK   PA00
+//#define	USB_CHECK_B PB06
+uint8_t usb_check_flag;
+
 
 //定义重发时间 400是20s
 //#define	USER_TIME 400
-
 uint8_t user_time  =100;
 uint8_t user_count =25;
 
@@ -48,6 +49,10 @@ uint8_t T3_enable=0;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,ui
 uint8_t T4_enable=0;  //获取信号强度				AT指令相关
 uint8_t T5_enable=0;  //电机动作完成发送包
 
+uint8_t T6_enable=0;  //
+uint8_t T7_enable=0;  //
+uint8_t T8_enable=0;  //
+
 
 uint8_t open_lock_reply_Result=0;
 uint8_t tick_reply_Result=0;
@@ -65,6 +70,8 @@ static ADC_HandleTypeDef hadc;
 void Read_Last_Data(void);
 static void lsadc_init(void);
 
+
+
 void User_Init() {
 	  lsadc_init();
 	  HAL_ADCEx_InjectedStart_IT(&hadc);
@@ -72,11 +79,16 @@ void User_Init() {
 	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
 		//Read_Last_Data();
-	  io_cfg_output(PC00);   //PB09 config output
-    io_write_pin(PC01,0);  
-    io_cfg_output(PC00);   //PB10 config output
-    io_write_pin(PC00,0);  //PB10 write low power
+	  io_cfg_output(LED_R);   //PB09 config output
+    io_write_pin(LED_R,0);  
+    io_cfg_output(LED_G);   //PB10 config output
+    io_write_pin(LED_G,0);  //PB10 write low power
 		
+	
+		io_cfg_output(PA06);   //PB10 config output
+    io_write_pin(PA06,0);  //PB10 write low power
+		
+	
 //		io_cfg_input(USB_CHECK);   //PB09 config output
 //		io_cfg_input(USB_CHECK_B);   //PB09 config output
 //	
@@ -88,8 +100,8 @@ void User_Init() {
 		//io_pull_write(USB_CHECK,IO_PULL_DOWN); //设置PA04内部下拉
 		//io_pull_write(USB_CHECK_B,IO_PULL_DOWN); //设置PA04内部下拉
 	
-		//io_write_pin(PC00, 1);
-		//io_write_pin(PC01, 0);
+		//io_write_pin(LED_G, 1);
+		//io_write_pin(LED_R, 0);
 	
 		HAL_IWDG_Init(32756);  //1s看门狗
  		HAL_RTC_Init(2);    	 //RTC内部时钟源
@@ -107,8 +119,8 @@ void LED_TASK(){
 	//uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
 	//来自RTC的启动，发送心跳包
   if (RTC_flag==1) {
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, 0);
 	}
 	else{
 	count++;
@@ -117,48 +129,47 @@ void LED_TASK(){
 		else flag=1;
 	}
 	if(BLE_connected_flag==1){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, 1);
 	}	
 	else{
 	//5V接入
+//		io_cfg_input(USB_CHECK);   //PB09 config output
+//  	io_cfg_input(USB_CHECK_B);   //PB09 config output
 		
-		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
-		
-	if(io_read_pin(USB_CHECK)==1  || io_read_pin(USB_CHECK_B)==1){
+	if(usb_check_flag==1){
 		//LOG_I("usb_in");
 		//20~90 绿灯闪
 		if(VBat_value>20 && VBat_value<=90){
-				io_write_pin(PC00, flag);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, flag);
+				io_write_pin(LED_R, 0);
 		}
 		//<20 红灯闪
 		else if( VBat_value<=20){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, flag);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, flag);
 		}
 		//20~90 绿灯常量
 		else if(VBat_value>90){
-				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, 1);
+				io_write_pin(LED_R, 0);
 		}
 	}
 	else{
 		if(VBat_value>20){
-				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
+				io_write_pin(LED_G, 1);
+				io_write_pin(LED_R, 0);
 		}
 		//<20 红灯
 		else if(VBat_value<=20){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
+				io_write_pin(LED_G, 0);
+				io_write_pin(LED_R, 1);
 		}
 	}
-		io_cfg_output(USB_CHECK);   
-    io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
+//		io_cfg_output(USB_CHECK);   
+//    io_write_pin(USB_CHECK,0);  
+//    io_cfg_output(USB_CHECK_B);   
+//    io_write_pin(USB_CHECK_B,0);  
 	}
 	}
 }
@@ -195,7 +206,7 @@ void Get_Vbat_Task(){
 		static uint16_t true_VBat_value=0;
 
 		static uint16_t count=0;
-		//static uint16_t count_2=0;
+		static uint16_t count_2=0;
 		
 		static uint16_t i=0;
 		static uint8_t ADC_Count=0;
@@ -207,16 +218,18 @@ void Get_Vbat_Task(){
 		if(start_time==2*200)once_flag=1;
 	
 	
-		io_cfg_input(USB_CHECK);   //PB09 config output
-  	io_cfg_input(USB_CHECK_B);   //PB09 config output
+//		io_cfg_input(USB_CHECK);   //PB09 config output
+//  	io_cfg_input(USB_CHECK_B);   //PB09 config output
 	
+	count_2++;
 	
+	if(count_2<=100){
 		//采集实时的电压
 		if(moro_task_flag==0 && buzzer_task_flag==0){
 			count++;
-			//50MS 采集一次 20次 1s
-			if(count>=10){
-						count=0;;
+			//20MS 采集一次 20次 400ms
+			if(count>=4){
+						count=0;
 						temp_ADC_value[i]=Get_Vbat_val();
 						if(i>19){
 							i=0;
@@ -227,12 +240,35 @@ void Get_Vbat_Task(){
 							if(true_VBat_value>4200)	true_VBat_value=4200;
 							if(true_VBat_value<3000)	true_VBat_value=3000;
 							//LOG_I("Vbat:%d %",true_VBat_value);
+							VBat_value=true_VBat_value;  //VBat_value 全局电量显示
 						}
 						i++;
 			}
 		}
+
+	}
+	else if(count_2==101){
+	  io_cfg_output(PB07);   //PB09 config output
+		io_write_pin(PB07,1);
+		io_cfg_input(USB_CHECK);   //PB09 config output
+	  usb_check_flag=io_read_pin(USB_CHECK);;
+		
+		
+		if(usb_check_flag==1){
+			change_time++;
+			sleep_time=0;
+		}
+	}
+	else if(count_2>=1000){
+		io_cfg_output(PB07);   //PB09 config output
+		//io_pull_write(USB_CHECK,IO_PULL_DOWN);
+		io_write_pin(PB07,0);
+		count_2=0;
+		
+	}
+#ifdef OLD_BAT_MODE
 		//在启动2s且未插电的时候记录一下电量，另外在休眠的时候也会记录一次 作为
-		if(io_read_pin(USB_CHECK)!=1  && io_read_pin(USB_CHECK_B)!=1){
+		if(io_read_pin(USB_CHECK)!=1 ){
 								if(ADC_Count==2){
 									//once_flag=0;			
 									//LOG_I("1_Vbat:%d %",VBat_value);
@@ -249,8 +285,10 @@ void Get_Vbat_Task(){
 									last_ADC_count=ADC_Count;
 									true_VBat_value=(true_VBat_value-3000)*100/(global_vbat_max-3000);
 									true_VBat_value=(true_VBat_value)*100*0.01;
+									#ifdef USER_TEST
 									LOG_I("Vbat:%d",true_VBat_value);
 									LOG_I("ADC_Count:%d",ADC_Count);
+									#endif
 									VBat_value=true_VBat_value;  //VBat_value 全局电量显示
 								}
 								
@@ -260,7 +298,7 @@ void Get_Vbat_Task(){
 	
 		//2200mha 电池360ma充电电流预计6h小时充满 216s 加1% 这里5ms进一次
 		//为冲电时电量显示
-		if(io_read_pin(USB_CHECK)==1  || io_read_pin(USB_CHECK_B)==1){
+		if(io_read_pin(USB_CHECK)==1 ){
 			change_time++;
 			sleep_time=0;
 //			if(count%200==1  && ADC_Count>1 && true_VBat_value<=global_vbat_max-100){  //大于4.1v都算涓流算时间看电量
@@ -290,10 +328,12 @@ void Get_Vbat_Task(){
 				}
 //		}
 		}
-		io_cfg_output(USB_CHECK);   
-    io_write_pin(USB_CHECK,0);  
-    io_cfg_output(USB_CHECK_B);   
-    io_write_pin(USB_CHECK_B,0);  
+
+//		io_cfg_output(USB_CHECK);   
+//    io_write_pin(USB_CHECK,0);  
+//    io_cfg_output(USB_CHECK_B);   
+//    io_write_pin(USB_CHECK_B,0);  
+#endif
 }
 
 
@@ -367,13 +407,16 @@ uint16_t length_1  = 1;
 #ifdef USER_TEST
 	uint16_t length_1_1  = 1; 
 #endif
-	uint16_t length_2  = 2; 
-uint16_t length_3 = 3; 
+uint16_t length_2  = 2; 
+uint16_t length_3  = 3; 
 uint16_t length_10 = 10; 
 uint16_t length_7  = 10; 
 uint16_t length_6  = 6; 
 uint16_t length_8  = 8; 
-uint16_t length_15 =15;
+uint16_t length_15 = 15;
+uint16_t length_one = 1;
+
+//uint8_t temp_val = 0xAA;
 
 	tinyfs_mkdir(&ID_dir_1,ROOT_DIR,50);  //创建目录
 	tinyfs_mkdir(&ID_dir_2,ROOT_DIR,51);  //创建目录
@@ -391,6 +434,8 @@ uint16_t length_15 =15;
 		tinyfs_write(ID_dir_3,RECORD_KEY3,(uint8_t*)PASSWORD,sizeof(PASSWORD));	
 		tinyfs_write(ID_dir_3,RECORD_KEY4,(uint8_t*)&key[0],8);			
 		tinyfs_write(ID_dir_3,RECORD_KEY5,(uint8_t*)&key[8],8);	
+		
+//		tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
 		
 		SYSCFG->BKD[7]=0;
 		
@@ -444,6 +489,13 @@ uint16_t length_15 =15;
 	memcpy (&CIMI_DATA[0], &tmp[0],15);
 	LOG_I("KEY9_CIMI");
 	LOG_I("CIMI,%s",&CIMI_DATA[0]);
+	
+	tinyfs_read(ID_dir_3,RECORD_KEY_T,tmp,&length_one);//读到tmp中
+	memcpy (&test_mode_flag, &tmp[0],1);
+	LOG_I("KEY_T_test_mode_flag");
+	LOG_I("test_mode_flag,%d",test_mode_flag);
+	
+	
 
 #ifdef USER_TEST 
 	tinyfs_read(ID_dir_2,RECORD_KEY10,tmp,&length_1_1);//读到tmp中
@@ -502,23 +554,20 @@ void Uart_2_Data_Processing() {
 								Db_val=(frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+0]-'0')*10;
 								Db_val+=frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+1]-'0';
 						}
-//						if(Db_val<=12){
-//							user_time  =20;
-//							user_count =150;
-//						}
-//						else{
-//								user_time =100;
-//								user_count=25;
-//						}	
-						
         }
 				//收到sim卡卡号
         else if( strncmp("AT+CIMI\r\n",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CIMI\r\n"))==0)  {
-					globle_Result=CIMI_OK;
-						count=strlen("AT+CIMI\r\n");
-            for(int i=0; i<count+15; i++) {
+					
+					count=strlen("AT+CIMI\r\n");
+          if(frame_2[uart_2_frame_id].buffer[count]=='E'){
+						globle_Result=CIMI_ERROR;
+					}
+					else{
+						globle_Result=CIMI_OK;
+						for(int i=0; i<count+15; i++) {
                 AT_RX_DATA_BUF[i]=frame_2[uart_2_frame_id].buffer[count+i];
 						}
+					}
         }
 				
 
@@ -644,6 +693,15 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
 		case OPEN_LOCK_DATA_SEND_MOTO:
         temp=	T5_enable;
         break;
+		case GET_MODE_VAL:
+        temp=	T6_enable;
+        break;
+		case GET_EMIC_VAL:
+        temp=	T7_enable;
+        break;
+		case TEST_GET_DB_VAL:
+        temp=	T8_enable;
+        break;
     }
     return temp;
 }
@@ -666,6 +724,15 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
         break;
 		case OPEN_LOCK_DATA_SEND_MOTO:
         T5_enable=state;
+        break;
+		case GET_MODE_VAL:
+        T6_enable=state;
+        break;
+		case GET_EMIC_VAL:
+        T7_enable=state;
+        break;
+		case TEST_GET_DB_VAL:
+        T8_enable=state;
         break;
     }
 }

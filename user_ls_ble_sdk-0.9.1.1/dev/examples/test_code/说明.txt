@@ -1,4 +1,9 @@
 test2为最终的测试程序 log.h中奢侈log输出口为Rtt  
 new为最终的生产程序  log.h中奢侈log输出口为uart
+工程共用log.h编译前需分别设置2022/4/28
 
+
+
+test2为最终的测试程序 log.h中奢侈log输出口为Rtt  
+new为最终的生产程序  log.h中奢侈log输出口为uart
 工程共用log.h编译前需分别设置2022/4/28

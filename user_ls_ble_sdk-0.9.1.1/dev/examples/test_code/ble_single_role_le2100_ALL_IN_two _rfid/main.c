@@ -289,12 +289,7 @@ static void ls_user_event_timer_cb_0(void *param)
     Scan_Key();					 //扫描按键
     Moto_Task();				 //电机的任务
 		Uart_2_Data_Processing();
-		//if(send_time_delay>0) send_time_delay--;
-		//if(moro_task_flag==0 && buzzer_task_flag==0 && send_time_delay==0 ){
-		    Get_Vbat_Task();										 //获取电池电量 0~100		
-		//}
-		
-		
+		Get_Vbat_Task();		 //获取电池电量 0~100		
 		
 		//Uart_Data_Processing();
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
@@ -304,23 +299,39 @@ uint16_t sleep_time=0;
 uint8_t KEY_FLAG=0;   //收到开锁请求
 uint8_t once_flag=0;
 uint8_t db_flag=0;
+uint8_t test_mode_flag;
 //50ms 任务
 static void ls_user_event_timer_cb_1(void *param)
 {
-		//moro_task_flag=1;
-    sleep_time++;			 //记录休眠时间在收到蓝牙数据，和开锁数据重新计数
-		//temp_count++;      //这个应该做在系统定时里面记录启动时间，这里省事了
-    if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
+	//第一次上电从flash读出默认值不为aa进入测试代码
+	if(test_mode_flag!=0xAA){
+		if(wd_FLAG==0)HAL_IWDG_Refresh();	  //喂狗
+		TEST_LED_TASK();										//LED显示效果    
+		Buzzer_Task();											//蜂鸣器任务
+		TEST_AT_GET_MODE_TASK();
+		TEST_AT_GET_CIMI_TASK();
+		TEST_AT_GET_DB_TASK();							
+	  State_Change_Task();	
+		
+		//LOG_I("tMODE:%X",test_mode_flag);
+		//if(){
+		//}
+	}
+	else{
+		//LOG_I("fMODE:%X",test_mode_flag);
+
+    sleep_time++;			 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
+  	if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
 		LED_TASK();													 //LED显示效果    
 		Buzzer_Task();											 //蜂鸣器任务
     Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
-	 //#ifdef USER_TEST
-//	   AT_User_Set_Task();
-//		 AT_User_Reply_Task();
-	 //#endif
+	 #ifdef USER_TEST
+	   AT_User_Set_Task();
+		 AT_User_Reply_Task();	
+     LOG_I("db_%x",db_flag);
+	 #endif
 	  NB_WAKE_Task();
 		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
-		//LOG_I("db_%x",db_flag);
 		if(db_flag==0xff) {
         if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
             //名称有变化
@@ -350,7 +361,6 @@ static void ls_user_event_timer_cb_1(void *param)
             Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
             Open_Lock_Data_Send_Task();  				 //信息上报
             Tick_Lock_Send_Task();							 //心跳包
-
         }
     }
 		//蓝牙连接下
@@ -358,8 +368,8 @@ static void ls_user_event_timer_cb_1(void *param)
 				Password_Task();//改开锁的密码
 				Key_Task();     //改aes128的密钥
 				sleep_time=0;   //不休眠
-		} 	
-		
+		}
+	}
     ls_uart_server_send_notification();  //蓝牙数据发送
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
@@ -380,7 +390,7 @@ static void AT_uart_init(void)
     //uart2_io_init(PA13, PA14);
     io_pull_write(PA11, IO_PULL_UP);  				//设置上拉
     io_pull_write(PA10, IO_PULL_UP);  				//设置上拉
-    uart2_io_init(PA11, PA10);
+    uart2_io_init(PA10, PA11);
     UART_Config_AT.UARTX = UART2;
     UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
     UART_Config_AT.Init.MSBEN 			= 0;
@@ -1130,7 +1140,26 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             Set_Task_State(START_LOCK_SEND,START);
         }
 				HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
-  
+				if(test_mode_flag!=0xAA){
+				    Set_Task_State(GET_MODE_VAL,START);
+						Set_Task_State(GET_EMIC_VAL,STOP);
+					  Set_Task_State(START_LOCK_SEND,STOP);
+					  Set_Task_State(OPEN_LOCK_SEND,STOP);
+					  Set_Task_State(TICK_LOCK_SEND,STOP);
+					  Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+					  Set_Task_State(GET_DB_VAL,STOP);
+						//Set_Task_State(GET_DB_VAL,STOP);
+					
+					
+				//START_LOCK_SEND,     		//启动数据上报
+				//OPEN_LOCK_SEND,  				//开锁数据请求
+				//TICK_LOCK_SEND, 				//心跳包发送
+				//OPEN_LOCK_DATA_SEND,    // 20信息上报
+				//GET_DB_VAL,   				 	//获取信号强度
+				//OPEN_LOCK_DATA_SEND_MOTO,
+				//GET_MODE_VAL,  //获取模式（测试程序用任务）
+				//GET_EMIC_VAL,  //获取EMIC任务（测试程序用任务）
+				}
     }
     break;
 #if SLAVE_SERVER_ROLE == 1

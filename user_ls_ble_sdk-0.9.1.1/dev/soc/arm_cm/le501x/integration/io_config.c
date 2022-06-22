@@ -873,6 +873,16 @@ void io_cfg_output(uint8_t pin)
     gpiox->OE |= 1<< x->num;
 }
 
+//user 开漏模式输出
+void io_cfg_output_OD(uint8_t pin)
+{
+    gpio_pin_t *x = (gpio_pin_t *)&pin;
+    reg_lsgpio_t *gpiox = GPIO_GetPort(x->port);
+    gpiox->OE |= 1<< x->num;
+		gpiox->OT |= 1<< x->num;
+}
+//user
+
 void io_cfg_input(uint8_t pin)
 {
     gpio_pin_t *x = (gpio_pin_t *)&pin;

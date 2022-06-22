@@ -202,8 +202,9 @@ void io_exti_enable(uint8_t pin,bool enable);
   * @param pin specific GPIO pin
   */
 void io_exti_callback(uint8_t pin);
-
-
+//user 开漏模式输出
+void io_cfg_output_OD(uint8_t pin);
+//user 
 void qspi_flash_io_init(void);
 void qspi_flash_io_deinit(void);
 

@@ -26,13 +26,13 @@ void WAKE_UP(){
 }
 
 void RESET_NB(){
-		io_cfg_output(PA05);               //输出模式                     
-    io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
-		io_write_pin(PA05,0);  
+		io_cfg_output(PA08);               //输出模式                     
+    io_pull_write(PA08, IO_PULL_UP);   //设置上拉  
+		io_write_pin(PA08,0);  
 		DELAY_US(10*1000);
-		io_write_pin(PA05,1);             
+		io_write_pin(PA08,1);             
 		DELAY_US(10*1000);
-		io_write_pin(PA05,0);
+		io_write_pin(PA08,0);
 }
 
 //hex 转char输出

@@ -4,8 +4,8 @@
 
 //配置任意开关中断模式可以唤醒启动
 
-#define SW1 PA00
-#define SW2 PA01
+#define SW1 PB11
+#define SW2 PA07
 #define KEY PB15
 
 //io下降沿唤醒函数
@@ -52,7 +52,7 @@ void Scan_Key(){
 	
 	if(KEY_FLAG==1 && KEY_ONCE==1){
 			//KEY_FLAG=0;
-			moro_task_flag=1; 
+//			moro_task_flag=1; 
 			//globle_Result=0xff;
 	}
 	
@@ -150,7 +150,7 @@ void  ls_sleep_enter_lp2(void)
 	
 	io_init();
 	io_write_pin(PC00, 0);
-	io_write_pin(PC01, 0);
+	io_write_pin(PA05, 0);
 	exitpb15_iowkup_init();
 	exitpa00_iowkup_init();
 

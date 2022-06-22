@@ -63,11 +63,11 @@ void Scan_Key(){
 					sleep_time=0;
 					SYSCFG->BKD[7]=0;
 					KEY_ONCE=1;
-				
-						LOG_I("Vbat:%d",VBat_value);
-									
-				
-				
+					
+				  if(test_mode_flag!=0xAA){
+						 moro_task_flag=1; 
+					}
+					LOG_I("Vbat:%d",VBat_value);				
 					//if(Get_Task_State(OPEN_LOCK_SEND)){
 					//		Open_Lock_Send();
 					//		buzzer_task_flag=1;
@@ -78,6 +78,15 @@ void Scan_Key(){
 					//}
 			}
 			//10s复位 复位  7.5s
+			if(count==100 && test_mode_flag!=0xAA){
+						uint8_t temp_val = 0xAA;
+						//uint16_t length_one = 1;
+						tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
+						tinyfs_write_through();
+						RESET_NB();
+						platform_reset(0);
+			}
+			
 			if(count==1500){
 							buzzer_task_flag=1;
 							//模块重新配置服务器

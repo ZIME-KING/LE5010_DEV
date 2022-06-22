@@ -287,14 +287,10 @@ static void ls_user_event_timer_cb_0(void *param)
     //Uart_Time_Even();
     Uart_2_Time_Even();  //串口接收数据
     Scan_Key();					 //扫描按键
-    Moto_Task();				 //电机的任务
 		Uart_2_Data_Processing();
-		//if(send_time_delay>0) send_time_delay--;
-		//if(moro_task_flag==0 && buzzer_task_flag==0 && send_time_delay==0 ){
-		    Get_Vbat_Task();										 //获取电池电量 0~100		
-		//}
-		
-		
+	
+		 //   Get_Vbat_Task();										 //获取电池电量 0~100		
+		VBat_value=80;
 		
 		//Uart_Data_Processing();
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
@@ -478,7 +474,7 @@ static void User_BLE_Data_Handle() {
             TX_DATA_BUF[5]=0x01;    	//LEN
 					
             if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
-                moro_task_flag=1;                    ////密码正确 开启电机动作
+//                moro_task_flag=1;                    ////密码正确 开启电机动作
                 //TX_DATA_BUF[6]=Close_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
             }
             else {
@@ -1067,6 +1063,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 				//RESET_NB();
 				Button_Gpio_Init();
 				uint8_t button_flag=io_read_pin(PB15);
+				//if(){
+					
 				DELAY_US(200*1000);
         Read_Last_Data();
         AT_uart_init();
