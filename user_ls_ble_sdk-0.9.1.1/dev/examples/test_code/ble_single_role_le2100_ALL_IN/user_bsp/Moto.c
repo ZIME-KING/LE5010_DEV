@@ -82,10 +82,11 @@ uint8_t Moto_Task(){
 								temp=0;  		//00 打开成功  0x03 失败
 								lock_state[0]=0;
 							}
-							//Open_Lock_Data_Send_Moto();
-							Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,START);
-							//OPEN_LOCK_DATA_SEND_MOTO
-							//Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+
+							
+							Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+							look_status_send_count++;
+							
 							
 							TX_DATA_BUF[6]=temp;
 							user_ble_send_flag=1;	//蓝牙发送数据

@@ -7,6 +7,8 @@
 #define USB_CHECK   PA03
 //#define	USB_CHECK_B PB06
 
+uint8_t look_status_send_count;
+
 //定义重发时间 400是20s
 //#define	USER_TIME 400
 uint8_t user_time  =100;
@@ -818,33 +820,31 @@ uint16_t Open_Lock_Data_Send_Task(){
     static uint8_t count;
     static uint16_t temp;
     static uint16_t i;
-		static uint16_t send_count=2;
+		//static uint16_t send_count_20=2;
 	
 		//static uint8_t once_flag;  
    if(Get_Task_State(OPEN_LOCK_DATA_SEND)){
-		 if(open_lock_data_reply_Result==1) {
+		 if(open_lock_data_reply_Result==1  && look_status_send_count==0) {
 								open_lock_data_reply_Result=0;
 								LOG_I("20_REPLY_OK");
-								LOG_I("send_count%d",send_count);
 								globle_Result=0xFF;	
-								send_count--;
-								if(send_count==0){
-									send_count=2;
-									Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-								}
+								Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
 								temp=OPEN_LOCK;
 								i=0;
 				}
 				else {
 					i++;		
 					if(i%user_time==1){
+								if(look_status_send_count)
+								look_status_send_count--;
+								LOG_I("send_count_20=%d",look_status_send_count);
                 count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 							  Open_Lock_Data_Send();
                 if(count==user_count){
-									count=0;
+										count=0;
                     Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
                     temp=TIME_OUT;
                 }
@@ -1015,7 +1015,7 @@ void State_Change_Task(){
 							open_lock_data_reply_Result=0;
 						
 							Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
-						
+							look_status_send_count+=3;
 							user_ble_send_flag=1;
 							TX_DATA_BUF[0]=0x52;		// CMD
 							TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]

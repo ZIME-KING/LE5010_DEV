@@ -1130,6 +1130,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 								buzzer_task_flag=1;
 							}
 							Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+							look_status_send_count++;
                 //启动锁数据上报命令
             }
         }
