@@ -286,9 +286,10 @@ static void ls_user_event_timer_cb_0(void *param)
 {
     //Uart_Time_Even();
     Uart_2_Time_Even();  //串口接收数据
+		Uart_2_Data_Processing();
+	
     Scan_Key();					 //扫描按键
     Moto_Task();				 //电机的任务
-		Uart_2_Data_Processing();
 		Get_Vbat_Task();		 //获取电池电量 0~100		
 		
 		//Uart_Data_Processing();

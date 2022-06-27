@@ -12,7 +12,7 @@ uint8_t look_status_send_count;
 //定义重发时间 400是20s
 //#define	USER_TIME 400
 uint8_t user_time  =100;
-uint8_t user_count =25;
+uint8_t user_count =30;
 
 #define	USER_TIME  100
 #define	USER_COUNT 25
@@ -228,7 +228,7 @@ void Get_Vbat_Task(){
 							_f(temp_ADC_value,20);
 							true_ADC_value=(temp_ADC_value[1]+temp_ADC_value[2])/2;
 							true_VBat_value=(4*1400*true_ADC_value/4095);
-							if(true_VBat_value>4200)	true_VBat_value=4200;
+							if(true_VBat_value>4200)	true_VBat_value=global_vbat_max;
 							if(true_VBat_value<3000)	true_VBat_value=3000;
 							//LOG_I("Vbat:%d %",true_VBat_value);
 						}
@@ -1016,6 +1016,9 @@ void State_Change_Task(){
 						
 							Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
 							look_status_send_count+=3;
+						  if(look_status_send_count>=3){
+									look_status_send_count=3;
+							}
 							user_ble_send_flag=1;
 							TX_DATA_BUF[0]=0x52;		// CMD
 							TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]

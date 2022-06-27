@@ -85,8 +85,7 @@ extern uint8_t last_lock_state;
 extern uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
 extern uint8_t Db_val;  
 
-
-
+extern uint8_t user_count;
 #endif
 
 //uint8_t open_lock_reply_Result=0;

@@ -60,11 +60,12 @@ void Scan_Key(){
 	if(io_read_pin(KEY)==0){
 			count++;
 			if(count==3){
+					user_count=30;
 					sleep_time=0;
 					SYSCFG->BKD[7]=0;
 					KEY_ONCE=1;
 					
-				  if(test_mode_flag!=0xAA){
+				  if(test_mode_flag!=0xAA && moro_task_flag!=1){
 						 moro_task_flag=1; 
 					}
 					LOG_I("Vbat:%d",VBat_value);				
