@@ -20,7 +20,7 @@ void WAKE_UP(){
     io_pull_write(PA13, IO_PULL_UP);   //设置上拉  
 		io_write_pin(PA13,0);  
 		DELAY_US(10*1000);
-		io_write_pin(PA13,1);             
+		io_write_pin(PA13,1);
 		DELAY_US(10*1000);
 		io_write_pin(PA13,0);
 }
@@ -28,7 +28,7 @@ void WAKE_UP(){
 void RESET_NB(){
 		io_cfg_output(PA05);               //输出模式                     
     io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
-		io_write_pin(PA05,0);  
+		io_write_pin(PA05,0);
 		DELAY_US(10*1000);
 		io_write_pin(PA05,1);             
 		DELAY_US(10*1000);

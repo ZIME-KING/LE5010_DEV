@@ -14,8 +14,8 @@ uint8_t look_status_send_count;
 uint8_t user_time  =100;
 uint8_t user_count =30;
 
-#define	USER_TIME  100
-#define	USER_COUNT 25
+//#define	USER_TIME  100
+//#define	USER_COUNT 25
 
 
 //#define RECORD_KEY1  1	//À¶ÑÀÃû³Æ

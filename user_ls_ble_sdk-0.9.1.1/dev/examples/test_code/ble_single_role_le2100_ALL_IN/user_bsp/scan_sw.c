@@ -78,7 +78,6 @@ void Scan_Key(){
 							buzzer_task_flag=1;
 					//}
 			}
-			//10s¸´Î» ¸´Î»  7.5s
 			if(count==100 && test_mode_flag!=0xAA){
 						uint8_t temp_val = 0xAA;
 						//uint16_t length_one = 1;
