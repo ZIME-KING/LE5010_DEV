@@ -346,7 +346,7 @@ static void ls_user_event_timer_cb_1(void *param)
 								tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
                 tinyfs_write_through();
 
-                uint8_t  tmp[10];
+                uint8_t  tmp[11];
                 uint16_t length = 10;
                 tinyfs_read(ID_dir_2,1,tmp,&length);//读到tmp中
                 LOG_I("read_id");
@@ -368,7 +368,7 @@ static void ls_user_event_timer_cb_1(void *param)
     if(BLE_connected_flag==1){
 				Password_Task();//改开锁的密码
 				Key_Task();     //改aes128的密钥
-				sleep_time=0;   //不休眠
+				sleep_time=2;   //不休眠
 		}
 	}
     ls_uart_server_send_notification();  //蓝牙数据发送
@@ -526,9 +526,10 @@ static void User_BLE_Data_Handle() {
             //for(uint8_t i=0;i<10;i++){
             //	SHORT_NAME[i]=0;
             //}
-						
+						//memcpy (&NEW_SHORT_NAME[0], &DATA_BUF[6],  DATA_BUF[5]);
 						
 						SHORT_NAME_LEN=DATA_BUF[5];
+						
 						NEW_SHORT_NAME[0]=0x00;
 						NEW_SHORT_NAME[1]=0x00;
 						NEW_SHORT_NAME[2]=0x00;
@@ -540,8 +541,11 @@ static void User_BLE_Data_Handle() {
 						NEW_SHORT_NAME[8]=0x00;
 						NEW_SHORT_NAME[9]=0x00;
 						
-            memcpy (&NEW_SHORT_NAME[0], &DATA_BUF[6], SHORT_NAME_LEN);
+
+            memcpy (&NEW_SHORT_NAME[0], &DATA_BUF[6],  DATA_BUF[5]);
+						
 						buzzer_task_flag=1;
+					
             //wd_FLAG=1;
         }
 
@@ -678,11 +682,12 @@ static void create_adv_obj()
 }
 void start_adv(void)
 {
-  //  uint8_t FF_NAME[]= {0xff,0xFF};
+   // uint8_t FF_NAME[]= {0xff,0xFF};
 		uint8_t temp_len;
+ 
     temp_len=strlen((char*)&SHORT_NAME[0]);
 		if(temp_len>=10){
-			 temp_len=10;
+				temp_len=10;
 		}
     LS_ASSERT(adv_obj_hdl != 0xff);
     uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 2, GAP_ADV_TYPE_SHORTENED_NAME,     &SHORT_NAME[0], temp_len
@@ -1102,7 +1107,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
         User_Init();
 
-        if(Check_SW2()==1 && Check_SW1()==0 ) {
+        if(Check_SW1()==1 /*&& Check_SW1()==0 */) {
             lock_state[0]=1;
         }
         else {

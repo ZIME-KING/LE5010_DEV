@@ -41,15 +41,23 @@ uint8_t Moto_Task(){
 										sprintf((char*)&temp_[0],"A:%d\r\n",count);
 							HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 							#endif
+//					if(count>(600/5)){
+//							count=0;
+//							step=1;
+//							//HAL_UART_Transmit(&UART_Config,(uint8_t*)"A",2,100);    
+//					}
+//				 	if(count>(200/5)&&Check_SW1()==1){//里面的开关断开 默认上拉 高电平 弹出
+//					  	count=0;
+//							step=1;
+//					}
+					
 					if(count>(600/5)){
 							count=0;
 							step=1;
 							//HAL_UART_Transmit(&UART_Config,(uint8_t*)"A",2,100);    
 					}
-				 	if(count>(200/5)&&Check_SW1()==1){//里面的开关断开 默认上拉 高电平 弹出
-					  	count=0;
-							step=1;
-					}
+
+					
 			break;
 					
 			case 1:			
@@ -75,9 +83,10 @@ uint8_t Moto_Task(){
 //							}
 
 							
-							if(Check_SW2()==1 && Check_SW1()==0 ) {
+							if(Check_SW1()==1) {
 								lock_state[0]=1;
 							}
+							
 							else {
 								temp=0;  		//00 打开成功  0x03 失败
 								lock_state[0]=0;
@@ -104,10 +113,10 @@ uint8_t Moto_Task(){
 				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
 			#endif
 					Moto_N();
-					if(count>(500/5)){
+					if(count>(150/5)){
 						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
 							count=0;
-							step=3;
+							step=5;
 					}
 			break;
 					
@@ -121,6 +130,7 @@ uint8_t Moto_Task(){
 						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"D",2,100);
 							count=0;
 							step=4;
+						//step=5;
 					}
 			break;
 					
