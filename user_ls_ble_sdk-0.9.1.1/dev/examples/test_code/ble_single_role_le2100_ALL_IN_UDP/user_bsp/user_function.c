@@ -52,14 +52,14 @@ uint8_t T5_enable=0;  //电机动作完成发送包
 uint8_t T6_enable=0;  //
 uint8_t T7_enable=0;  //
 uint8_t T8_enable=0;  //
-
+uint8_t T9_enable=0;  //
 
 uint8_t open_lock_reply_Result=0;
 uint8_t tick_reply_Result=0;
 uint8_t open_lock_data_reply_Result=0;
 uint8_t open_lock_data_moto_reply_Result=0;
 uint8_t start_lock_reply_Result=0;
-
+uint8_t set_sktconnect_reply_Result=0;
 
 uint32_t adc_value = 0;						//
 uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
@@ -380,6 +380,7 @@ uint16_t length_7  = 10;
 uint16_t length_6  = 6; 
 uint16_t length_8  = 8; 
 uint16_t length_15 = 15;
+uint16_t length_11 = 15;
 uint16_t length_one = 1;
 
 //uint8_t temp_val = 0xAA;
@@ -390,30 +391,32 @@ uint16_t length_one = 1;
 	tinyfs_read(ID_dir_1,RECORD_KEY6,tmp,&length_3);//读到tmp中
 	LOG_I("flash_init");
 	LOG_I("%s",tmp);
-	LOG_HEX(tmp,10);
 	
 	if(strncmp("ok",(char*)tmp,sizeof("ok"))!=0){
 		LOG_I("w_init");
-		tinyfs_write(ID_dir_1,RECORD_KEY6,(uint8_t*)"ok",sizeof("ok"));	
+		tinyfs_write(ID_dir_1,RECORD_KEY6,(uint8_t*)"ok",sizeof("ok"));
+		tinyfs_write(ID_dir_1,RECORD_KEY11,(uint8_t*)MICI_DATA,sizeof(MICI_DATA));
 		tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"NO_SET",sizeof("NO_SET"));	
 		tinyfs_write(ID_dir_2,RECORD_KEY1,(uint8_t*)SHORT_NAME,sizeof(SHORT_NAME));	
 		tinyfs_write(ID_dir_3,RECORD_KEY3,(uint8_t*)PASSWORD,sizeof(PASSWORD));	
 		tinyfs_write(ID_dir_3,RECORD_KEY4,(uint8_t*)&key[0],8);			
 		tinyfs_write(ID_dir_3,RECORD_KEY5,(uint8_t*)&key[8],8);	
 		
-//		tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
-		
+		//tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
 		SYSCFG->BKD[7]=0;
-		
 		#ifdef USER_TEST 
 		open_count=0;
 		tinyfs_write(ID_dir_2,RECORD_KEY10,(uint8_t*)&open_count,1);	
-		#endif
-		
+		#endif	
 		u16_to_u8.i=4200;
 		tinyfs_write(ID_dir_3,RECORD_KEY8,(uint8_t*)u16_to_u8.str,2);	
 		tinyfs_write_through();
 	}
+
+	tinyfs_read(ID_dir_1,RECORD_KEY11,tmp,&length_11);//读到tmp中
+	LOG_I("read_MICI_DATA");
+	LOG_I("%s",tmp);
+	memcpy (&MICI_DATA[0], &tmp[0], 15);
 	
 	tinyfs_read(ID_dir_2,RECORD_KEY1,tmp,&length_10);//读到tmp中
 	LOG_I("read_id");
@@ -539,16 +542,29 @@ void Uart_2_Data_Processing() {
 				
 
 				//收到服务器回复值		
-				else if(strncmp("\r\n+NNMI:",(char*)frame_2[uart_2_frame_id].buffer,strlen("\r\n+NNMI:"))==0){
+//				else if(strncmp("\r\n+NNMI:",(char*)frame_2[uart_2_frame_id].buffer,strlen("\r\n+NNMI:"))==0){
+//						//globle_Result=OK_ASK;
+//						 for(int i=0; i<frame_2[uart_2_frame_id].length; i++) {
+//                if(frame_2[uart_2_frame_id].buffer[i]==',') {
+//                    count=i+1;
+//                    break;
+//                }
+//            }
+
+				else if(strncmp("\r\n+SKTRECV:1,",(char*)frame_2[uart_2_frame_id].buffer,strlen("\r\n+SKTRECV:1,"))==0){
 						//globle_Result=OK_ASK;
 						 for(int i=0; i<frame_2[uart_2_frame_id].length; i++) {
-                if(frame_2[uart_2_frame_id].buffer[i]==',') {
+                if(frame_2[uart_2_frame_id].buffer[i]=='\"') {
                     count=i+1;
                     break;
                 }
-            }
+						}
+						
+						
+						
+						
             //默认输入为大写
-            for(int i=0; i<frame_2[uart_2_frame_id].length-count; i++) {
+            for(int i=0; i<frame_2[uart_2_frame_id].length-count-1; i++) {
                 AT_RX_DATA_BUF[i]=0;
                 if( frame_2[uart_2_frame_id].buffer[count+i*2]<='9')
                     AT_RX_DATA_BUF[i]+= (frame_2[uart_2_frame_id].buffer[count+i*2]-'0')<<4;
@@ -633,6 +649,11 @@ void Uart_2_Data_Processing() {
             globle_Result=OK_AT;
         }
 				
+				else if( strncmp("AT+SKTCONNECT=1,139.224.136.93,50513\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+SKTCONNECT=1,139.224.136.93,50513\r\nOK"))==0){
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }
+				
 				frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
@@ -669,6 +690,9 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
 		case TEST_GET_DB_VAL:
         temp=	T8_enable;
         break;
+		case SET_SKTCONNECT:
+        temp=	T9_enable;
+        break;
     }
     return temp;
 }
@@ -700,6 +724,8 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
         break;
 		case TEST_GET_DB_VAL:
         T8_enable=state;
+		case SET_SKTCONNECT:
+        T9_enable=state;
         break;
     }
 }
@@ -916,11 +942,11 @@ void NB_WAKE_Task(){
 		if(Get_Task_State(GET_DB_VAL)==STOP){
 			i++;
 			if(i%200==1) {
-				Set_Task_State(GET_DB_VAL,START);		
+				Set_Task_State(GET_DB_VAL,START);	
+				AT_User_Set(0xff);				
 				i=1;
 			}
-		}
-}
+		}}
 uint8_t last_lock_state;
 //检测状态发生变化上报数据
 void State_Change_Task(){
@@ -1028,6 +1054,46 @@ void State_Change_Task(){
 				}
 		}
 }
+
+
+
+
+uint16_t AT_Set_SKTCONNECT_Task(){
+		static uint8_t count;
+    static uint16_t temp;
+    static uint16_t i;    
+    if(Get_Task_State(SET_SKTCONNECT)){ 
+		 if(globle_Result==OK_AT) {
+							  LOG_I("set_ss_REPLY_OK");
+								globle_Result=0xFF;
+								//open_lock_data_moto_reply_Result=0;
+                Set_Task_State(SET_SKTCONNECT,STOP);
+								i=0;
+				}
+				else {
+					i++;
+					if(i%200==10){                      //10s重发
+						count++;
+                temp=NO_ASK;
+                globle_Result=NO_ASK;
+                Set_Task_State(SET_SKTCONNECT,START);
+							  AT_Command_Send(SKTCONNECT);
+                if(count==user_count) {               //
+									count=0;
+                    Set_Task_State(SET_SKTCONNECT,STOP);
+                    temp=TIME_OUT;
+                }
+            }
+        }
+    }
+	 	else{
+			count=0;
+			temp=0;
+			i=0;
+		}
+    return temp;
+}
+									
 //获取信号值
 uint16_t AT_GET_DB_TASK(){
 		static uint8_t count=0;
@@ -1049,7 +1115,7 @@ uint16_t AT_GET_DB_TASK(){
                 if(i%20==1){  //重发间隔
 										count++;
 										AT_Command_Send(CSQ);
-										if(count<20){
+											if(count<20){
 										tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length);//读到tmp中
 											if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))!=0){
 												buzzer_task_flag=1;
@@ -1110,16 +1176,24 @@ uint8_t temp =0xFF;
 }
 
 //重置模块设置
-uint16_t AT_User_Set(){
+uint16_t AT_User_Set(uint8_t reset){
 static uint8_t step=0;
 static uint8_t count=0;
+
+if(reset==0xff){
+	step=0;
+	count=0;
+AT_tset_flag=2;
+	return 0x00;
+}
+
  uint8_t temp =0xFF;
 	count++;
 	if(count%20==1){
 		switch(step){
 			case 0:    ///AT
 				step++;				
-				AT_Command_Send(AT);
+				AT_Command_Send(SKTDELETE);
 				//buzzer_task_flag=1;			
 				temp=0xFF;
 			break;
@@ -1154,13 +1228,12 @@ void AT_User_Reply_Task(){
 
 void AT_User_Set_Task(){
 		if(AT_tset_flag==2){
-			if(AT_User_Set()==0xAA)
+			if(AT_User_Set(0x00)==0xAA)
 			AT_tset_flag=0;
 			if(reset_flag==1){
 				reset_flag=0;
 				buzzer_task_flag_2=1;
 			}
-			
 		}
 }
 
@@ -1219,9 +1292,12 @@ uint16_t AT_INIT(){
 				if(strncmp((char*)no_wirt_data,(char*)SHORT_NAME,sizeof(no_wirt_data))==0){			
 					//LOG_I("WIRT_OK");		
 					
-					memcpy(&SHORT_NAME[0],&AT_RX_DATA_BUF[8-3],7+3);
-					//后7位设备号写入，作为蓝牙广播名称
+					memcpy(&SHORT_NAME[0],&AT_RX_DATA_BUF[5],10);
+					memcpy(&MICI_DATA[0],&AT_RX_DATA_BUF[0],15);
+					
+					//后10位设备号写入，作为蓝牙广播名称
 					tinyfs_write(ID_dir_2,RECORD_KEY1,SHORT_NAME,sizeof(SHORT_NAME));	
+					tinyfs_write(ID_dir_1,RECORD_KEY11,MICI_DATA,sizeof(MICI_DATA));	
 					
 					tinyfs_write_through();
 					LOG_I("WIRT_OK %s",SHORT_NAME);		 
