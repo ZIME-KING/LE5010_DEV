@@ -1,4 +1,4 @@
-#include "user_function.h"
+#include "user_main.h"
 #include "key.h"
 
 unsigned char key_status=0;	
@@ -25,7 +25,7 @@ void scan_key(){
 	}
 	else{
 		io_write_pin(PB09,1) ;
-		no_act_count=0;
+	//	no_act_count=0;
 	}
 		  edge_flag=edge_flag<<1;
 			edge_flag+=io_read_pin(PA07);
@@ -92,7 +92,7 @@ void scan_touch_key(){
   static unsigned char edge_status;
 	
 		if(io_read_pin(PA00)==0){
-			no_act_count=0;
+		//	no_act_count=0;
 		}
 	
 		  edge_flag=edge_flag<<1;

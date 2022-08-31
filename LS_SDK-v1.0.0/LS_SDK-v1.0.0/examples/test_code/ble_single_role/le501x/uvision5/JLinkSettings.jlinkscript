@@ -5,5 +5,6 @@ int ConfigTargetSettings(void) {
 
 int AfterResetTarget() {
     JLINK_MEM_WriteU32(0x40021004,0x80000008);
+    JLINK_MEM_WriteU32(0x40021040,0x00000608);
     return 0;
 }

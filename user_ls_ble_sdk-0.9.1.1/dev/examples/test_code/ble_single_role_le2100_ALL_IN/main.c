@@ -21,13 +21,10 @@
  uint8_t open_count;
 #endif
 uint8_t MAC_ADDR[6];
-
 uint8_t CIMI_DATA[15]="460000000000000";
-
 uint8_t SHORT_NAME[10]="3141592654";
 uint8_t NEW_SHORT_NAME[10];
 uint8_t SHORT_NAME_LEN=10;
-
 uint16_t send_time_delay=0; //说明nb模块收到数据后，发送过程中功率与信号强度相关，造成电压骤降，每次发送后延时一段时间再去采集电压
 
 
