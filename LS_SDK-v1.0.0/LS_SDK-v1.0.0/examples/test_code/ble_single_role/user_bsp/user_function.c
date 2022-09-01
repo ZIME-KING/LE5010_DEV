@@ -40,7 +40,7 @@ union Data
 {
    uint16_t i;
    uint8_t  str[2];
-} u16_to_u8;
+}u16_to_u8;
 
 uint8_t T0_enable=0;  //启动数据上报  			Start_Lock_Send_Task
 uint8_t T1_enable=0;	//开锁数据请求				Open_Lock_Send
@@ -82,24 +82,10 @@ void User_Init() {
     io_cfg_output(PC00);   //PB10 config output
     io_write_pin(PC00,0);  //PB10 write low power
 		
-//		io_cfg_input(USB_CHECK);   //PB09 config output
-//		io_cfg_input(USB_CHECK_B);   //PB09 config output
-//	
-////		io_cfg_output(USB_CHECK);   
-////    io_write_pin(USB_CHECK,0);  
-////    io_cfg_output(USB_CHECK_B);   
-////    io_write_pin(USB_CHECK_B,0);  
-	
-		//io_pull_write(USB_CHECK,IO_PULL_DOWN); //设置PA04内部下拉
-		//io_pull_write(USB_CHECK_B,IO_PULL_DOWN); //设置PA04内部下拉
-	
-		//io_write_pin(PC00, 1);
-		//io_write_pin(PC01, 0);
-	
-		HAL_IWDG_Init(32756);  //1s看门狗
- 		HAL_RTC_Init(2);    	 //RTC内部时钟源
-		RTC_wkuptime_set(3*60*60);	 //唤醒时间48h  休眠函数在sw.c 中
-		//RTC_wkuptime_set(60);	 //唤醒时间30s  休眠函数在sw.c 中
+		HAL_IWDG_Init(32756);  			  //1s看门狗
+ 		HAL_RTC_Init(2);    				 //RTC内部时钟源
+		RTC_wkuptime_set(3*60*60);	 //唤醒时间3h  休眠函数在sw.c 中
+		//RTC_wkuptime_set(60);	 		 //唤醒时间60s  休眠函数在sw.c 中
 		WAKE_UP();
 	
 		Set_Task_State(GET_DB_VAL,START);
@@ -107,9 +93,8 @@ void User_Init() {
 extern uint8_t RTC_flag;
 void LED_TASK(){
 	static uint8_t flag;
-	static uint8_t count;	
-	//uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
-	//来自RTC的启动，发送心跳包
+	static uint8_t count;		
+	//来自RTC的启动，不要亮灯
   if (RTC_flag==1) {
 				io_write_pin(PC00, 0);
 				io_write_pin(PC01, 0);
@@ -126,8 +111,7 @@ void LED_TASK(){
 	}	
 	else{
 	//5V接入
-		io_cfg_input(USB_CHECK);   //PB09 config output
-		
+		io_cfg_input(USB_CHECK);   //PB09 config output		
 	if(io_read_pin(USB_CHECK)==1){
 		//LOG_I("usb_in");
 		//20~90 绿灯闪
@@ -182,10 +166,7 @@ void _f(uint16_t a[],char len){
     }
 }
 
-
 //为了让电量显示准确，加入校准100%时的电池电压功能
-//在
-
 uint16_t global_vbat_max;
 void Get_Vbat_Task(){
 		uint32_t true_ADC_value=0;
@@ -204,10 +185,7 @@ void Get_Vbat_Task(){
 		if(start_time<0xffff)start_time++;
 		if(start_time==2*200)once_flag=1;
 	
-	
 		io_cfg_input(USB_CHECK);   //PB09 config output
-//  	io_cfg_input(USB_CHECK_B);   //PB09 config output
-	
 	
 		//采集实时的电压
 		if(moro_task_flag==0 && buzzer_task_flag==0){
@@ -253,11 +231,7 @@ void Get_Vbat_Task(){
 									#endif
 									VBat_value=true_VBat_value;  //VBat_value 全局电量显示
 								}
-								
-								
 		}
-		
-	
 		//2200mha 电池360ma充电电流预计6h小时充满 216s 加1% 这里5ms进一次
 		//为冲电时电量显示
 		if(io_read_pin(USB_CHECK)==1 ){
@@ -300,7 +274,6 @@ void Get_Vbat_Task(){
 
 //锁信号强度获取
 uint8_t Get_dBm() {
-    //uint8_t Db_val;
     return Db_val;
 }
 
@@ -1250,7 +1223,7 @@ uint16_t AT_INIT(){
 					count_out=0	;
 					step++;
 				}
-				AT_Command_Send(ATQ0);
+				AT_Command_Send(AT);            //mark  !!!!
 				buzzer_task_flag=1;
 			}
 			break;

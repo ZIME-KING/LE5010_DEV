@@ -25,8 +25,8 @@
 #include "moto.h"
 #include "Buzzer.h"
 #include "scan_sw.h"
-#include "LPM2100_N.h"
-
+//#include "LPM2100_N.h"
+#include "CLM920_YV9V2.h"
 
 //#define USER_TEST 
 

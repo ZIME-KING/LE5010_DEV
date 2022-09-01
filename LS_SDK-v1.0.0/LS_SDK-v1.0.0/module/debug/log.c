@@ -5,7 +5,7 @@
 #include "io_config.h"
 
 #define JLINK_RTT           1
-#define UART_LOG           2
+#define UART_LOG            2
 #define RAM_LOG             4
 #ifndef LOG_BACKEND
 #if __arm__

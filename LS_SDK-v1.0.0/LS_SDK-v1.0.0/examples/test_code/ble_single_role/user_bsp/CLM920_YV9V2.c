@@ -51,85 +51,56 @@ void AT_Command_Send(Typedef_AT AT_COM) {
     switch(AT_COM) {
 		case AT:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT\r\n",sizeof("AT\r\n"),100);
-        break;
-    case ATQ0:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATQ0\r\n",sizeof("ATQ0\r\n"),100);
-        break;
-		case CFUN_R: //功能设置
+        break;	
+		case CFUN_ASK: 	//查询功能设置
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CFUN?\r\n",sizeof("AT+CFUN?\r\n"),100);
-        break;
-			
-		case CFUN:		//功能设置
+        break;			
+		case CFUN_0: 		//功能设置0   最小功能
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CFUN=0",sizeof("AT+CFUN=0"),100);
+        break;		
+		case CFUN_1:		//功能设置1   全功能
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CFUN=1",sizeof("AT+CFUN=1"),100);
         break;
-		
-		case CGATT_R:  //附着查询
+		case CFUN_4:		//功能设置4   关闭网络连接
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CFUN=4",sizeof("AT+CFUN=4"),100);
+        break;
+		case CGATT_ASK:   //附着查询
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGATT?",sizeof("AT+CGATT?"),100);
         break;
-		case CGATT:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGATT=1",sizeof("AT+CGATT=1"),100);
-    break;
-
-    case CTM2MSETPM:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ CTM2MSETPM =221.229.214.202,5683,38400\r\n",sizeof("AT+ CTM2MSETPM =221.229.214.202,5683,38400\r\n"),100);
-        break;
-    case CTM2MREG:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CTM2MREG\r\n",sizeof("AT+CTM2MREG\r\n"),100);
-        break;
-    case CPSMS:
-        //HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=1\r\n",sizeof("AT+CPSMS=1\r\n"),50);
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=1,,,\"01000001\",\"00000101\"\r\n",sizeof("AT+CPSMS=1,,,\"10100011\",\"00000101\"\r\n"),100);
-				break;
-    case ECPMUCFG:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPMUCFG=1,4\r\n",sizeof("AT+ECPMUCFG=1,4\r\n"),100);
-        break;
-    case CSQ:
+    case CSQ:				 //查信号
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CSQ\r\n",sizeof("AT+CSQ\r\n"),100);
         break;
-    case CGSN:
+    case CGSN:       //查IMEI设备识别号
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGSN=1\r\n",sizeof("AT+CGSN=1\r\n"),100);
         break;
-		case AT_SLEEP:
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",15000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",15000\r\n"),100);
-        break;	
-		case CIMI:
+		case CIMI:        //查IMSI国际移动用户识别码
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CIMI\r\n",sizeof("AT+CIMI\r\n"),100);
         break;	
-		case CEREG_R:  //查注册状态 
+		case CEREG_ASK:   //查网络注册状态 
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CEREG?\r\n",sizeof("AT+CEREG?\r\n"),100);
      break;	
-				case CPSMS_R: //查psm设置
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS?\r\n",sizeof("AT+CPSMS?\r\n"),100);
+			
+		 //tcp,udp相关
+		 case QIPCSGP:   //注册服务 
+         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPCSGP=1,1,\"3GNET\"\r\n",sizeof("AT+QIPCSGP=1,1,\"3GNET\"\r\n"),100);
+     break;		 
+		 case QIPACT:   //激活服务 
+        //HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\","47.99.180.198",38888,0,1",sizeof("AT+CEREG=0\r\n"),100);
      break;	
-		case CEREG: //设置psm数据上报
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CEREG=0\r\n",sizeof("AT+CEREG=0\r\n"),100);
+
+		 case QIPOPEN:   //启动连接 
+       // HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\","47.99.180.198",38888,0,1",sizeof("AT+CEREG=0\r\n"),100);
      break;	
-	
-
-//	
-//		case TEMP1: //注册udp
-//        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPCSGP=1,1,\"3GNET\"\r\n",sizeof("AT+QIPCSGP=1,1,\"3GNET\"\r\n"),100);
-//     break;	
-//		 
-//		 
-//		case TEMP2: //设置psm数据上报
-//        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\","47.99.180.198",38888,0,1",sizeof("AT+CEREG=0\r\n"),100);
-//     break;	
-//		 
-
-//		case TEMP3: //设置psm数据上报
-//        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CEREG=0\r\n",sizeof("AT+CEREG=0\r\n"),100);
-//     break;	
-//		 
-
-				
-//		case CPSMS_SET:
-////        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=1,,,,\"00100010\"\r\n",sizeof("AT+CPSMS?\r\n"),50);
-////     break;	
-//		
-		//AT+CGSN
 	}
 }
+
+void UDP_Data_Send(uint8_t len){
+	uint8_t buf[20];
+	sprintf((char*)buf,"AT+QIPSEND=1,%d\r\n",len);
+}
+
+
+
 //01启动 锁发送
 void Start_Lock_Send() {
     uint8_t RX_BUF[100];
