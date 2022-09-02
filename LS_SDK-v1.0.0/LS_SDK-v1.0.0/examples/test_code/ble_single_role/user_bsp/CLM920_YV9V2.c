@@ -16,13 +16,13 @@ uint8_t C0_lock_state[LOCK_NUM+1];  //锁状态存储
 const uint8_t	Frame_header[2]= {0x58,0x59};
 
 void WAKE_UP(){
-		io_cfg_output(PA13);               //输出模式                     
-    io_pull_write(PA13, IO_PULL_UP);   //设置上拉  
-		io_write_pin(PA13,0);  
+		io_cfg_output(PA03);               //输出模式                     
+    io_pull_write(PA03, IO_PULL_UP);   //设置上拉  
+		io_write_pin(PA10,0);  
 		DELAY_US(10*1000);
-		io_write_pin(PA13,1);
+		io_write_pin(PA03,1);
 		DELAY_US(10*1000);
-		io_write_pin(PA13,0);
+		io_write_pin(PA03,0);
 }
 
 void RESET_NB(){

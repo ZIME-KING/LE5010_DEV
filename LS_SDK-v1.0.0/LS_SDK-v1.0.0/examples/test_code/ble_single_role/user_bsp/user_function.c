@@ -1060,13 +1060,13 @@ uint8_t temp =0xFF;
 			
 				case 1:  //CGATT
 					step++;
-					AT_Command_Send(CGATT_R);
+//					AT_Command_Send(CGATT_R);
 					//return 0xff;
 				break;
 									
 				case 2:  //CEREG
 					step++;
-					AT_Command_Send(CEREG_R);
+//					AT_Command_Send(CEREG_R);
 					temp=0xAA;
 					//return 0xff;
 				break;
@@ -1092,14 +1092,14 @@ static uint8_t count=0;
 			
 			case 1:  //CTM2MSETPM
 				step++;
-				AT_Command_Send(CTM2MSETPM);
+//				AT_Command_Send(CTM2MSETPM);
 				//buzzer_task_flag=1;
 				temp=0xFF;
 			break;
 		
 			case 2:    ///AT
 				step++;				
-				AT_Command_Send(CTM2MREG);
+//				AT_Command_Send(CTM2MREG);
 				//buzzer_task_flag=1;			
 				temp=0xAA;
 			break;		
@@ -1242,7 +1242,7 @@ uint16_t AT_INIT(){
 					count_out=0	;
 					step++;
 				}
-				AT_Command_Send(CTM2MSETPM);
+//				AT_Command_Send(CTM2MSETPM);
 				buzzer_task_flag=1;
 			}
 			break;
@@ -1262,7 +1262,7 @@ uint16_t AT_INIT(){
 					count_out=0	;
 					step++;
 				}
-				AT_Command_Send(CTM2MREG);
+//				AT_Command_Send(CTM2MREG);
 				buzzer_task_flag=1;
 			}
 			break;
@@ -1282,7 +1282,7 @@ uint16_t AT_INIT(){
 					count_out=0	;
 					step++;
 				}
-				AT_Command_Send(AT_SLEEP);
+//				AT_Command_Send(AT_SLEEP);
 				buzzer_task_flag=1;
 			}
 			break;
@@ -1302,7 +1302,7 @@ uint16_t AT_INIT(){
 					count_out=0	;
 					step++;
 				}
-				AT_Command_Send(CPSMS);
+//				AT_Command_Send(CPSMS);
 				buzzer_task_flag=1;
 			}
 			break;
@@ -1321,7 +1321,7 @@ uint16_t AT_INIT(){
 					count_out=0	;
 					step++;
 				}
-				AT_Command_Send(CEREG);
+//				AT_Command_Send(CEREG);
 				buzzer_task_flag=1;
 			}
 			break;
@@ -1354,7 +1354,7 @@ uint16_t AT_INIT(){
 					step++;
 				}
 				
-				AT_Command_Send(ECPMUCFG);
+//				AT_Command_Send(ECPMUCFG);
 				buzzer_task_flag=1;
 			}
 			break;					

@@ -302,7 +302,7 @@ uint8_t test_mode_flag;
 static void ls_user_event_timer_cb_1(void *param)
 {
 	//第一次上电从flash读出默认值不为aa进入测试代码
-	if(test_mode_flag!=0xAA){
+	if(0/*test_mode_flag!=0xAA*/){
 		if(wd_FLAG==0)HAL_IWDG_Refresh();	  //喂狗
 		TEST_LED_TASK();										//LED显示效果    
 		Buzzer_Task();											//蜂鸣器任务
@@ -318,8 +318,8 @@ static void ls_user_event_timer_cb_1(void *param)
 	else{
 		//LOG_I("fMODE:%X",test_mode_flag);
 
-    sleep_time++;			 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
-  	if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
+    sleep_time++;			 									 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
+  	if(wd_FLAG==0)HAL_IWDG_Refresh();	 	 //喂狗
 		LED_TASK();													 //LED显示效果    
 		Buzzer_Task();											 //蜂鸣器任务
     Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
@@ -328,7 +328,9 @@ static void ls_user_event_timer_cb_1(void *param)
 		 AT_User_Reply_Task();	
      LOG_I("db_%x",db_flag);
 	 #endif
+	 
 	  NB_WAKE_Task();
+		
 		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
 		if(db_flag==0xff) {
         if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
