@@ -17,27 +17,39 @@ const uint8_t	Frame_header[2]= {0x58,0x59};
 
 void WAKE_UP(){
 		io_cfg_output(PA03);               //输出模式                     
-    io_pull_write(PA03, IO_PULL_UP);   //设置上拉  
-		io_write_pin(PA10,0);  
-		DELAY_US(10*1000);
+    //io_pull_write(PA03, IO_PULL_UP);   //设置上拉  
 		io_write_pin(PA03,1);
-		DELAY_US(10*1000);
+		DELAY_US(500*1000);
 		io_write_pin(PA03,0);
 }
 
 void RESET_NB(){
-		io_cfg_output(PA05);               //输出模式                     
-    io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
-		io_write_pin(PA05,0);
-		DELAY_US(10*1000);
-		io_write_pin(PA05,1);             
-		DELAY_US(10*1000);
-		io_write_pin(PA05,0);
+//		io_cfg_output(PA05);               //输出模式                     
+//    io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
+//		io_write_pin(PA05,0);
+//		DELAY_US(10*1000);
+//		io_write_pin(PA05,1);             
+//		DELAY_US(10*1000);
+//		io_write_pin(PA05,0);
 }
+
+
+void Read_Status(){
+	 uint8_t temp_val;
+   	io_cfg_input(PA04);                //输出模式                     
+    io_pull_write(PA04, IO_PULL_UP);   //设置上拉  
+		//io_write_pin(PA04,0);		
+		temp_val=io_read_pin(PA04);
+		LOG_I("STATUS %d",temp_val);		
+}
+
+
+
+
 
 //hex 转char输出
 //输出字符长度为输入字符长度2倍
-void hex2string(uint8_t *IN_DATA,uint8_t *OUT_DATA,uint16_t len) {
+void hex2string(uint8_t *IN_DATA,uint8_t *OUT_DATA,uint16_t len){
     int i = 0;
     char newchar[10] = {0};
     for (i = 0; i< len; i++)

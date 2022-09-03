@@ -29,6 +29,7 @@ void UDP_Data_Send(uint8_t len);
 
 void WAKE_UP(void);
 void RESET_NB(void);
+void Read_Status(void);
 
 void Start_Lock_Send(void);
 void Open_Lock_Send(void);

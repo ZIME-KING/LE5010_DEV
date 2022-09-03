@@ -77,16 +77,21 @@ void User_Init() {
 	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
 		//Read_Last_Data();
-	  io_cfg_output(PC01);   //PB09 config output
-    io_write_pin(PC01,0);  
-    io_cfg_output(PC00);   //PB10 config output
-    io_write_pin(PC00,0);  //PB10 write low power
+	  io_cfg_output(PA05);   //LED_0
+    io_write_pin(PA05,0);	 //LED_0
+    io_cfg_output(PC00);   //LED_1
+    io_write_pin(PC00,0);  //LED_1
+		
+		
+		io_cfg_output(PA08);   //REST
+    io_write_pin(PA08,0);  //REST
+		
 		
 		HAL_IWDG_Init(32756);  			  //1s看门狗
  		HAL_RTC_Init(2);    				 //RTC内部时钟源
 		RTC_wkuptime_set(3*60*60);	 //唤醒时间3h  休眠函数在sw.c 中
 		//RTC_wkuptime_set(60);	 		 //唤醒时间60s  休眠函数在sw.c 中
-		WAKE_UP();
+		WAKE_UP();                   //POWER_100MS下拉
 	
 		Set_Task_State(GET_DB_VAL,START);
 }
@@ -107,7 +112,7 @@ void LED_TASK(){
 	}
 	if(BLE_connected_flag==1){
 				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
+				io_write_pin(PA05, 1);
 	}	
 	else{
 	//5V接入
@@ -117,28 +122,28 @@ void LED_TASK(){
 		//20~90 绿灯闪
 		if(VBat_value>20 && VBat_value<=90){
 				io_write_pin(PC00, flag);
-				io_write_pin(PC01, 0);
+				io_write_pin(PA05, 0);
 		}
 		//<20 红灯闪
 		else if( VBat_value<=20){
 				io_write_pin(PC00, 0);
-				io_write_pin(PC01, flag);
+				io_write_pin(PA05, flag);
 		}
 		//20~90 绿灯常量
 		else if(VBat_value>90){
 				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
+				io_write_pin(PA05, 0);
 		}
 	}
 	else{
 		if(VBat_value>20){
 				io_write_pin(PC00, 1);
-				io_write_pin(PC01, 0);
+				io_write_pin(PA05, 0);
 		}
 		//<20 红灯
 		else if(VBat_value<=20){
 				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
+				io_write_pin(PA05, 1);
 		}
 	}
 	}
@@ -340,13 +345,13 @@ uint16_t length_1  = 1;
 #ifdef USER_TEST
 	uint16_t length_1_1  = 1; 
 #endif
-uint16_t length_2  = 2; 
-uint16_t length_3  = 3; 
-uint16_t length_10 = 10; 
-uint16_t length_7  = 10; 
-uint16_t length_6  = 6; 
-uint16_t length_8  = 8; 
-uint16_t length_15 = 15;
+uint16_t length_2   = 2; 
+uint16_t length_3   = 3; 
+uint16_t length_10  = 10; 
+uint16_t length_7   = 10; 
+uint16_t length_6   = 6; 
+uint16_t length_8   = 8; 
+uint16_t length_15  = 15;
 uint16_t length_one = 1;
 
 //uint8_t temp_val = 0xAA;
@@ -368,7 +373,7 @@ uint16_t length_one = 1;
 		tinyfs_write(ID_dir_3,RECORD_KEY4,(uint8_t*)&key[0],8);			
 		tinyfs_write(ID_dir_3,RECORD_KEY5,(uint8_t*)&key[8],8);	
 		
-//		tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
+		//tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
 		
 		SYSCFG->BKD[7]=0;
 		
@@ -901,29 +906,7 @@ void State_Change_Task(){
 			static uint8_t sw_flag_2;			
 
 	
-//			static uint8_t sw2_count;
-//			static uint8_t sw1_count;
-//	
-//			static uint8_t sw2_flag;
-//			static uint8_t sw1_flag;
 
-//			if(Check_SW2()==1){
-//					sw2_count++;
-//					if(sw2_count>10) sw2_count=10;
-//					if(sw2_count==3){
-//						sw2_flag=1;
-//					}
-//			}
-//			else sw2_count=0;
-//			
-//			if(Check_SW1()==0) {
-//				sw1_count++;
-//				if(sw1_count>10) sw1_count=10;
-//					if(sw1_count==3){
-//						sw1_flag=1;
-//					}
-//			}
-//			else sw1_count=0;
 
 			
 			if(Check_SW2()==1 && Check_SW1()==0){

@@ -68,7 +68,8 @@ void Scan_Key(){
 				  if(test_mode_flag!=0xAA && moro_task_flag!=1){
 						 moro_task_flag=1; 
 					}
-					LOG_I("Vbat:%d",VBat_value);				
+					LOG_I("Vbat:%d",VBat_value);		
+					Read_Status();
 					//if(Get_Task_State(OPEN_LOCK_SEND)){
 					//		Open_Lock_Send();
 					//		buzzer_task_flag=1;

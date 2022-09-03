@@ -390,9 +390,9 @@ static void AT_uart_init(void)
     //uart2_io_init(PA13, PA14);
     io_pull_write(PA11, IO_PULL_UP);  				//设置上拉
     io_pull_write(PA10, IO_PULL_UP);  				//设置上拉
-    uart2_io_init(PA11, PA10);
+    uart2_io_init(PA10, PA11);
     UART_Config_AT.UARTX = UART2;
-    UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_9600;
+    UART_Config_AT.Init.BaudRate 	= UART_BAUDRATE_115200;
     UART_Config_AT.Init.MSBEN 			= 0;
     UART_Config_AT.Init.Parity  	  = UART_NOPARITY;
     UART_Config_AT.Init.StopBits 	= UART_STOPBITS1;

@@ -20,6 +20,8 @@ void Buzzer_Task(){
 	static uint8_t count_2;
 	static uint8_t temp;
 	
+	return;
+	
 	if(buzzer_task_flag==1){
   		Buzzer_ON();
 		if(count>=2){
@@ -62,7 +64,7 @@ void Basic_PWM_Output_Cfg(void)
 {
     TIM_OC_InitTypeDef sConfig = {0};
 
-    gptimb1_ch1_io_init(PA06, true, 0);
+    gptimb1_ch1_io_init(PB09, true, 0);
    // gptimb1_ch2_io_init(PA01, true, 0);
    // gptimb1_ch3_io_init(PB14, true, 0);
    // gptimb1_ch4_io_init(PB15, true, 0);
@@ -106,7 +108,7 @@ void Buzzer_ON(){
 	 HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1);
 }
 void Buzzer_OFF(){
-	HAL_TIM_PWM_Stop(&TimHandle, TIM_CHANNEL_1);
+	 HAL_TIM_PWM_Stop(&TimHandle, TIM_CHANNEL_1);
 }
 //HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1);
 //int main(void)
