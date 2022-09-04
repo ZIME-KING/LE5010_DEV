@@ -483,14 +483,14 @@ void Uart_2_Data_Processing() {
 						}
 				}
 				//收到信号强度值
-        else if( strncmp("AT+CSQ\r\n+CSQ:",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CSQ\r\n+CSQ:"))==0)  {
+        else if( strncmp("AT+CSQ\r\r\n+CSQ: ",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CSQ\r\r\n+CSQ: "))==0)  {
 					globle_Result=CSQ_OK;
-						if(frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+1]==','){
-								Db_val=frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+0]-'0';
+						if(frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\r\n+CSQ: ")+1]==','){
+								Db_val=frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n\r\n+CSQ: ")+0]-'0';
 						}
 						else{
-								Db_val=(frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+0]-'0')*10;
-								Db_val+=frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\n+CSQ:")+1]-'0';
+								Db_val=(frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\r\n+CSQ: ")+0]-'0')*10;
+								Db_val+=frame_2[uart_2_frame_id].buffer[strlen("AT+CSQ\r\r\n+CSQ: ")+1]-'0';
 						}
         }
 				//收到sim卡卡号

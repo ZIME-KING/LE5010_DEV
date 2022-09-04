@@ -69,6 +69,7 @@ void Scan_Key(){
 						 moro_task_flag=1; 
 					}
 					LOG_I("Vbat:%d",VBat_value);		
+					LOG_I("Db_val:%d",Db_val);	
 					Read_Status();
 					//if(Get_Task_State(OPEN_LOCK_SEND)){
 					//		Open_Lock_Send();

@@ -8,6 +8,11 @@ void gpio_init(void)
     io_write_pin(PB09,0);  //PB09 write low level
     io_cfg_output(PB10);   //PB10 config output
     io_write_pin(PB10,1);  //PB10 write high level
+	
+	
+	  io_cfg_output(PA01);   //
+    io_write_pin(PA01,0);  //
+
 }
  
 void exti_test(void)
@@ -24,7 +29,10 @@ int main(void)
     exti_test();
     while (1)
     {
-        io_write_pin(PB09,io_read_pin(PB11));
+          //io_write_pin(PA01,0);  //
+				
+			    io_write_pin(PA01,1);  //
+
     }
 }
 
