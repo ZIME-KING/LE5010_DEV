@@ -83,7 +83,7 @@ void AT_Command_Send(Typedef_AT AT_COM) {
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CSQ\r\n",sizeof("AT+CSQ\r\n"),100);
         break;
     case CGSN:       //查IMEI设备识别号
-        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGSN=1\r\n",sizeof("AT+CGSN=1\r\n"),100);
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CGSN\r\n",sizeof("AT+CGSN\r\n"),100);
         break;
 		case CIMI:        //查IMSI国际移动用户识别码
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CIMI\r\n",sizeof("AT+CIMI\r\n"),100);
@@ -97,11 +97,11 @@ void AT_Command_Send(Typedef_AT AT_COM) {
          HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPCSGP=1,1,\"3GNET\"\r\n",sizeof("AT+QIPCSGP=1,1,\"3GNET\"\r\n"),100);
      break;		 
 		 case QIPACT:   //激活服务 
-        //HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\","47.99.180.198",38888,0,1",sizeof("AT+CEREG=0\r\n"),100);
+         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPACT=1\r\n",sizeof("AT+QIPACT=1\r\n"),100);
      break;	
 
 		 case QIPOPEN:   //启动连接 
-       // HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\","47.99.180.198",38888,0,1",sizeof("AT+CEREG=0\r\n"),100);
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\n",sizeof("AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\n"),100);
      break;	
 	}
 }
@@ -113,17 +113,17 @@ void UDP_Data_Send(uint8_t len){
 
 
 
-//01启动 锁发送
+///01启动 锁发送
 void Start_Lock_Send() {
-    uint8_t RX_BUF[100];
+    uint8_t RX_BUF[255];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[40+2+2];
+    uint8_t DATA_BUF[60];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X2C;		//长度
+    DATA_BUF[2] = 0X3c;		//长度
     DATA_BUF[3] = send_count++;   //send_count;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X01;   //功能码  启动
 
@@ -149,23 +149,29 @@ void Start_Lock_Send() {
     DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 		
 		
-		DATA_BUF[17+2] = 0xA8;			//MAC_ADDR
-		memcpy(&DATA_BUF[18+2],&MAC_ADDR[0],6);
+		DATA_BUF[19] = 0xA8;			//MAC_ADDR
+		memcpy(&DATA_BUF[20],&MAC_ADDR[0],6);
 
-		DATA_BUF[24+2] = 0xA7;			//MICI 卡号
-		memcpy(&DATA_BUF[25+2],&CIMI_DATA[0],15);
+		DATA_BUF[26] = 0xA7;			//MICI 卡号
+		memcpy(&DATA_BUF[27],&CIMI_DATA[0],15);
+		
+		DATA_BUF[42] = 0xA9;			//MICI 设备号
+		memcpy(&DATA_BUF[43],&MICI_DATA[0],15);
+		
+		
 		
 		//MAC_ADDR[0]
 		
-    temp=CRC16_8005Modbus(&DATA_BUF[0],40+2);
-    DATA_BUF[40+2]=(temp & 0xff00) >>8;
-    DATA_BUF[41+2]= temp & 0xff;
+    temp=CRC16_8005Modbus(&DATA_BUF[0],58);
+    DATA_BUF[59]=(temp & 0xff00) >>8;
+    DATA_BUF[58]= temp & 0xff;
 
 
-    hex2string(DATA_BUF,RX_BUF,42+2);
-    RX_BUF[84+4]='\0';
-    sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+    hex2string(DATA_BUF,RX_BUF,60);
+    RX_BUF[120]='\0';
+    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
+		sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,500);
 		
 		LOG_I("START_LOCK_SEND");
 		send_time_delay+=100;
@@ -173,16 +179,16 @@ void Start_Lock_Send() {
 }
 //10请求开锁   携带数据同启动    请求开锁（如果20秒内没有收到服务器回复，则需要再次发送请求开锁指令，如果超过6次没有收到服务器开锁指令则放弃。）
 void Open_Lock_Send() {
-    uint8_t RX_BUF[50];
-    uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2+2];
+    uint8_t RX_BUF[100];
+    uint8_t F_RX_BUF[255];
+    uint8_t DATA_BUF[37];
     //uint8_t DATA_BUF[17];
 		uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X15;		//长度
+    DATA_BUF[2] = 0X25;		//长度
     DATA_BUF[3] = send_count++;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X10;   //功能码  请求开锁
 
@@ -208,17 +214,21 @@ void Open_Lock_Send() {
     DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 
 
-
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
-    DATA_BUF[17+2]=(temp & 0xff00) >>8;
-    DATA_BUF[18+2]= temp & 0xff;
+		DATA_BUF[19] = 0xA9;			//MICI 卡号
+		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
 
 
-    hex2string(DATA_BUF,RX_BUF,19+2);
-    RX_BUF[38+4]='\0';
+    temp=CRC16_8005Modbus(&DATA_BUF[0],35);
+    DATA_BUF[36]=(temp & 0xff00) >>8;
+    DATA_BUF[35]= temp & 0xff;
 
-    sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+
+    hex2string(DATA_BUF,RX_BUF,37);
+    RX_BUF[74]='\0';
+
+    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
+    sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
 		LOG_I("Open_Lock_Send");
 		send_time_delay+=100;
@@ -226,15 +236,15 @@ void Open_Lock_Send() {
 
 //02 心跳 RTC定时唤醒发送数据 锁上传和平台回复数据同启动
 void Tick_Lock_Send() {
-    uint8_t RX_BUF[50];
-    uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2+2];
+    uint8_t RX_BUF[100];
+    uint8_t F_RX_BUF[255];
+    uint8_t DATA_BUF[37];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X15;		//长度
+    DATA_BUF[2] = 0X25;		//长度
     DATA_BUF[3] = send_count;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X02;   //功能码  心跳
 
@@ -259,14 +269,21 @@ void Tick_Lock_Send() {
 		DATA_BUF[17] = 0xC0; 	  //lock_ID
     DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
-    DATA_BUF[17+2]=(temp & 0xff00) >>8;
-    DATA_BUF[18+2]= temp & 0xff;
+		DATA_BUF[19] = 0xA9;			//MICI 卡号
+		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
 
-    hex2string(DATA_BUF,RX_BUF,19+2);
-    RX_BUF[38+4]='\0';
-    sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+
+    temp=CRC16_8005Modbus(&DATA_BUF[0],35);
+    DATA_BUF[36]=(temp & 0xff00) >>8;
+    DATA_BUF[35]= temp & 0xff;
+
+
+    hex2string(DATA_BUF,RX_BUF,37);
+    RX_BUF[74]='\0';
+
+    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
+    sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
 		
 		
@@ -276,15 +293,15 @@ void Tick_Lock_Send() {
 
 //20 电机动作 信息上报   21数据未处理改为20同锁数据上报
 void Open_Lock_Data_Send_Moto() {
-    uint8_t RX_BUF[50];
-    uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2+2];
+    uint8_t RX_BUF[100];
+    uint8_t F_RX_BUF[255];
+    uint8_t DATA_BUF[37];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X15;		//长度
+    DATA_BUF[2] = 0X24;		//长度
     DATA_BUF[3] = send_count++;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X20;   //功能码  启动
 
@@ -309,14 +326,21 @@ void Open_Lock_Data_Send_Moto() {
 		DATA_BUF[17] = 0xc0; 	  //lock_ID
     DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
-    DATA_BUF[17+2]=(temp & 0xff00) >>8;
-    DATA_BUF[18+2]= temp & 0xff;
+		DATA_BUF[19] = 0xA9;			//MICI 卡号
+		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
 
-    hex2string(DATA_BUF,RX_BUF,19+2);
-    RX_BUF[38+4]='\0';
-    sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+
+    temp=CRC16_8005Modbus(&DATA_BUF[0],35);
+    DATA_BUF[36]=(temp & 0xff00) >>8;
+    DATA_BUF[35]= temp & 0xff;
+
+
+    hex2string(DATA_BUF,RX_BUF,37);
+    RX_BUF[74]='\0';
+
+    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
+    sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
 		LOG_I("Open_Lock_Data_Send_Moto");
 		send_time_delay+=100;
@@ -325,15 +349,15 @@ void Open_Lock_Data_Send_Moto() {
 
 //20 信息上报输入 锁ID号，锁更新状态
 void Open_Lock_Data_Send() {
-    uint8_t RX_BUF[50];
-    uint8_t F_RX_BUF[100];
-    uint8_t DATA_BUF[17+2+2];
+    uint8_t RX_BUF[100];
+    uint8_t F_RX_BUF[255];
+    uint8_t DATA_BUF[37];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X15;		//长度17
+    DATA_BUF[2] = 0X25;		//长度
     DATA_BUF[3] = send_count++;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X20;   //功能码  启动
 
@@ -358,14 +382,23 @@ void Open_Lock_Data_Send() {
 		DATA_BUF[17] = 0xC0; 	  //lock_ID
     DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 		
-    temp=CRC16_8005Modbus(&DATA_BUF[0],17+2);
-    DATA_BUF[17+2]=(temp & 0xff00) >>8;
-    DATA_BUF[18+2]= temp & 0xff;
+		DATA_BUF[19] = 0xA9;			//MICI 卡号
+		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
 
-    hex2string(DATA_BUF,RX_BUF,19+2);
-    RX_BUF[38+4]='\0';
-    sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+
+    temp=CRC16_8005Modbus(&DATA_BUF[0],35);
+    DATA_BUF[36]=(temp & 0xff00) >>8;
+    DATA_BUF[35]= temp & 0xff;
+
+
+    hex2string(DATA_BUF,RX_BUF,37);
+    RX_BUF[74]='\0';
+
+    
+		//sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
+		sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		
+		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 		
 		LOG_I("Open_Lock_Data_Send");
 		send_time_delay+=100;

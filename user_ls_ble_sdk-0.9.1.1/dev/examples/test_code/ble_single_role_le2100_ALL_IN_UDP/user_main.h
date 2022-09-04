@@ -64,9 +64,9 @@ extern uint8_t user_ble_send_flag;
 
 extern uint8_t MAC_ADDR[6];
 extern uint8_t CIMI_DATA[15];
+extern uint8_t MICI_DATA[15];
 extern uint8_t SHORT_NAME[10];
 extern uint8_t NEW_SHORT_NAME[10];
-extern uint8_t MICI_DATA[15];
 extern uint8_t SHORT_NAME_LEN;
 //extern uint8_t COMPLETE_NAME[7];
 extern uint8_t TX_DATA_BUF[16]; //BEL

@@ -22,6 +22,7 @@
 #endif
 uint8_t MAC_ADDR[6];
 uint8_t CIMI_DATA[15] ="460000000000000";
+uint8_t MICI_DATA[15]="860000000000000";
 uint8_t SHORT_NAME[10]="3141592654";
 uint8_t NEW_SHORT_NAME[10];
 uint8_t SHORT_NAME_LEN=10;
@@ -352,8 +353,10 @@ static void ls_user_event_timer_cb_1(void *param)
                 LOG_I("%s",tmp);
                 wd_FLAG=1;
             }
-						AT_User_Set_Task();
-						AT_User_Reply_Task();
+						
+						UDP_INIT();
+						//AT_User_Set_Task();
+						//AT_User_Reply_Task();
 						
 						Open_Lock_Data_Send_Moto_Task();	 	 
             State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据

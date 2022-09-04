@@ -345,13 +345,14 @@ uint16_t length_1  = 1;
 #ifdef USER_TEST
 	uint16_t length_1_1  = 1; 
 #endif
-uint16_t length_2   = 2; 
-uint16_t length_3   = 3; 
-uint16_t length_10  = 10; 
-uint16_t length_7   = 10; 
-uint16_t length_6   = 6; 
-uint16_t length_8   = 8; 
-uint16_t length_15  = 15;
+uint16_t length_2  = 2; 
+uint16_t length_3  = 3; 
+uint16_t length_10 = 10; 
+uint16_t length_7  = 10; 
+uint16_t length_6  = 6; 
+uint16_t length_8  = 8; 
+uint16_t length_15 = 15;
+uint16_t length_11 = 15;
 uint16_t length_one = 1;
 
 //uint8_t temp_val = 0xAA;
@@ -362,11 +363,11 @@ uint16_t length_one = 1;
 	tinyfs_read(ID_dir_1,RECORD_KEY6,tmp,&length_3);//读到tmp中
 	LOG_I("flash_init");
 	LOG_I("%s",tmp);
-	LOG_HEX(tmp,10);
 	
 	if(strncmp("ok",(char*)tmp,sizeof("ok"))!=0){
 		LOG_I("w_init");
-		tinyfs_write(ID_dir_1,RECORD_KEY6,(uint8_t*)"ok",sizeof("ok"));	
+		tinyfs_write(ID_dir_1,RECORD_KEY6,(uint8_t*)"ok",sizeof("ok"));
+		tinyfs_write(ID_dir_1,RECORD_KEY11,(uint8_t*)MICI_DATA,sizeof(MICI_DATA));
 		tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"NO_SET",sizeof("NO_SET"));	
 		tinyfs_write(ID_dir_2,RECORD_KEY1,(uint8_t*)SHORT_NAME,sizeof(SHORT_NAME));	
 		tinyfs_write(ID_dir_3,RECORD_KEY3,(uint8_t*)PASSWORD,sizeof(PASSWORD));	
@@ -374,24 +375,26 @@ uint16_t length_one = 1;
 		tinyfs_write(ID_dir_3,RECORD_KEY5,(uint8_t*)&key[8],8);	
 		
 		//tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
-		
 		SYSCFG->BKD[7]=0;
-		
 		#ifdef USER_TEST 
 		open_count=0;
 		tinyfs_write(ID_dir_2,RECORD_KEY10,(uint8_t*)&open_count,1);	
-		#endif
-		
+		#endif	
 		u16_to_u8.i=4200;
 		tinyfs_write(ID_dir_3,RECORD_KEY8,(uint8_t*)u16_to_u8.str,2);	
 		tinyfs_write_through();
 	}
+
+	tinyfs_read(ID_dir_1,RECORD_KEY11,tmp,&length_11);//读到tmp中
+	LOG_I("read_MICI_DATA");
+	LOG_I("%s",tmp);
+	memcpy (&MICI_DATA[0], &tmp[0], 15);
 	
 	tinyfs_read(ID_dir_2,RECORD_KEY1,tmp,&length_10);//读到tmp中
-	LOG_I("read_id");
-	LOG_I("%s",tmp);
 	memcpy (&SHORT_NAME[0], &tmp[0], strlen((char*)&SHORT_NAME));
 	memcpy (&NEW_SHORT_NAME[0], &tmp[0], strlen((char*)&SHORT_NAME));
+	LOG_I("read_id");
+	LOG_I("%s",SHORT_NAME);
 
 	tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length_7);//读到tmp中
 	LOG_I("read_flag");
@@ -426,7 +429,7 @@ uint16_t length_one = 1;
 	tinyfs_read(ID_dir_3,RECORD_KEY9,tmp,&length_15);//读到tmp中
 	memcpy (&CIMI_DATA[0], &tmp[0],15);
 	LOG_I("KEY9_CIMI");
-	LOG_I("CIMI,%s",&CIMI_DATA[0]);
+	LOG_I("CIMI,%15s",CIMI_DATA);
 	
 	tinyfs_read(ID_dir_3,RECORD_KEY_T,tmp,&length_one);//读到tmp中
 	memcpy (&test_mode_flag, &tmp[0],1);
@@ -470,17 +473,19 @@ void Uart_2_Data_Processing() {
 				LOG_I("%s",frame_2[uart_2_frame_id].buffer);
 				//返回接收到的数据到uart1上
 				//收到NNMI卡号返回
-				if( strncmp("AT+CGSN=1\r\n+CGSN:",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CGSN=1\r\n+CGSN:"))==0) {
+				if( strncmp("AT+CGSN\r\r\n",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CGSN\r\r\n"))==0) {
            globle_Result=CGSN_OK;
-						 for(int i=0; i<frame_2[uart_2_frame_id].length; i++) {
-                if(frame_2[uart_2_frame_id].buffer[i]=='"') {
-                    count=i+1;
-                    break;
-                }
-            }
-            for(int i=0; i<count+15; i++) {
+//						 for(int i=0; i<frame_2[uart_2_frame_id].length; i++) {
+//                if(frame_2[uart_2_frame_id].buffer[i]=='"') {
+//                    count=i+1;
+//                    break;
+//                }
+//            }
+						count=strlen("AT+CGSN\r\r\n");
+            for(int i=0; i<15; i++) {
                 AT_RX_DATA_BUF[i]=frame_2[uart_2_frame_id].buffer[count+i];
 						}
+						LOG_I("%s",AT_RX_DATA_BUF);
 				}
 				//收到信号强度值
         else if( strncmp("AT+CSQ\r\r\n+CSQ: ",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CSQ\r\r\n+CSQ: "))==0)  {
@@ -494,17 +499,18 @@ void Uart_2_Data_Processing() {
 						}
         }
 				//收到sim卡卡号
-        else if( strncmp("AT+CIMI\r\n",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CIMI\r\n"))==0)  {
+        else if( strncmp("AT+CIMI\r\r\n",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CIMI\r\r\n"))==0)  {
 					
-					count=strlen("AT+CIMI\r\n");
+					count=strlen("AT+CIMI\r\r\n");
           if(frame_2[uart_2_frame_id].buffer[count]=='E'){
 						globle_Result=CIMI_ERROR;
 					}
 					else{
 						globle_Result=CIMI_OK;
-						for(int i=0; i<count+15; i++) {
+						for(int i=0; i<15; i++) {
                 AT_RX_DATA_BUF[i]=frame_2[uart_2_frame_id].buffer[count+i];
 						}
+						LOG_I("%s",AT_RX_DATA_BUF);
 					}
         }
 				
@@ -603,6 +609,27 @@ void Uart_2_Data_Processing() {
             //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
             globle_Result=OK_AT;
         }
+				
+				
+				
+				
+				else if( strncmp("AT\r\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT\r\r\nOK"))==0){
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }
+				else if( strncmp("AT+QIPCSGP=1,1,\"3GNET\"\r\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+QIPCSGP=1,1,\"3GNET\"\r\r\nOK"))==0){
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }
+				else if( strncmp("AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\r\nOK"))==0){
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }
+				else if( strncmp("AT+QIPACT=1\r\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+QIPACT=1\r\r\nOK"))==0){
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }
+				
 				
 				frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
@@ -1124,13 +1151,10 @@ uint16_t AT_INIT(){
 	static uint8_t tmp[10];
 	uint16_t length = 10; 
 	const static uint8_t no_wirt_data[10]="3141592654";
-
-	
 	tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length);//读到tmp中
 	if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))==0){
 		return 0xff;
 	}
-	
 	if(count%5==0){
 		switch(step){
 			
@@ -1140,9 +1164,9 @@ uint16_t AT_INIT(){
 				globle_Result=0xff;				
 
 					memcpy(&CIMI_DATA[0],&AT_RX_DATA_BUF[0],15);
-					tinyfs_write(ID_dir_3,RECORD_KEY9,CIMI_DATA,sizeof(CIMI_DATA));	
+					tinyfs_write(ID_dir_3,RECORD_KEY9,CIMI_DATA,15);	
 					tinyfs_write_through();
-					LOG_I("WIRT_OK %s",CIMI_DATA);		 					
+					LOG_I("CIMI_DATA %s",CIMI_DATA);		 					
 				
 					step++;
 					count_out=0;
@@ -1166,17 +1190,16 @@ uint16_t AT_INIT(){
 				globle_Result=0xff;
 				
 				if(strncmp((char*)no_wirt_data,(char*)SHORT_NAME,sizeof(no_wirt_data))==0){			
-					//LOG_I("WIRT_OK");		
+					memcpy(&SHORT_NAME[0],&AT_RX_DATA_BUF[5],10);
+					memcpy(&MICI_DATA[0],&AT_RX_DATA_BUF[0],15);
 					
-					memcpy(&SHORT_NAME[0],&AT_RX_DATA_BUF[8-3],7+3);
-					//后7位设备号写入，作为蓝牙广播名称
+					//后10位设备号写入，作为蓝牙广播名称
 					tinyfs_write(ID_dir_2,RECORD_KEY1,SHORT_NAME,sizeof(SHORT_NAME));	
-					
+					tinyfs_write(ID_dir_1,RECORD_KEY11,MICI_DATA,sizeof(MICI_DATA));						
 					tinyfs_write_through();
-					LOG_I("WIRT_OK %s",SHORT_NAME);		 
-					
-					//start_adv();   //更新广播
-				}
+					LOG_I("SHORT_NAME %s",SHORT_NAME);	
+					LOG_I("MICI_DATA %s",MICI_DATA);					
+				}	
 					step++;
 					count_out=0;
 			}
@@ -1198,135 +1221,17 @@ uint16_t AT_INIT(){
 				globle_Result=0xff;
 				step++;
 				count_out=0;
-			}
-			else{
-				set_flag++;
-				count_out++;
-				if(count_out>5){
-					count_out=0	;
-					step++;
-				}
-				AT_Command_Send(AT);            //mark  !!!!
-				buzzer_task_flag=1;
-			}
-			break;
-			
-			case 3:
-			//DELAY_US(200000); //50ms
-			if(Get_Uart_Data_Processing_Result()==OK_AT){
-				globle_Result=0xff;
-				step++;
-				count_out=0;
-			}
-			else{
-				set_flag++;
-				count_out++;
-				if(count_out>5){
-					count_out=0	;
-					step++;
-				}
-//				AT_Command_Send(CTM2MSETPM);
-				buzzer_task_flag=1;
-			}
-			break;
-	
-			case 4:
-			//DELAY_US(200000); //50ms
-			if(Get_Uart_Data_Processing_Result()==OK_AT){
-				globle_Result=0xff;
-				step++;	
-				count_out=0;
-				//Set_Task_State(START_LOCK_SEND,1);
-			}
-			else{
-				set_flag++;
-				count_out++;
-				if(count_out>5){
-					count_out=0	;
-					step++;
-				}
-//				AT_Command_Send(CTM2MREG);
-				buzzer_task_flag=1;
-			}
-			break;
-			
-			case 5:
-			//DELAY_US(200000); //50ms
-			if(Get_Uart_Data_Processing_Result()==OK_AT){
-				globle_Result=0xff;
-				step++;
-				count_out=0;
-				//Set_Task_State(START_LOCK_SEND,1);
-			}
-			else{
-				set_flag++;
-				count_out++;
-				if(count_out>5){
-					count_out=0	;
-					step++;
-				}
-//				AT_Command_Send(AT_SLEEP);
-				buzzer_task_flag=1;
-			}
-			break;
-
-			case 6:
-			//DELAY_US(200000); //50ms
-			if(Get_Uart_Data_Processing_Result()==OK_AT){
-				globle_Result=0xff;
-				step++;
-				count_out=0;
-				//Set_Task_State(START_LOCK_SEND,1);
-			}
-			else{
-				set_flag++;
-				count_out++;
-				if(count_out>5){
-					count_out=0	;
-					step++;
-				}
-//				AT_Command_Send(CPSMS);
-				buzzer_task_flag=1;
-			}
-			break;
-			
-			case 7:
-			if(Get_Uart_Data_Processing_Result()==OK_AT){
-				globle_Result=0xff;
-				step++;
-				count_out=0;
-				//Set_Task_State(START_LOCK_SEND,1);
-			}
-			else{
-				set_flag++;
-				count_out++;
-				if(count_out>5){
-					count_out=0	;
-					step++;
-				}
-//				AT_Command_Send(CEREG);
-				buzzer_task_flag=1;
-			}
-			break;
-			
-
-			case 8:
-			//DELAY_US(200000); //50ms
-			if(Get_Uart_Data_Processing_Result()==OK_AT){
-				globle_Result=0xff;
-				step++;
-				count_out=0;
 				
 				LOG_I("set_flag:%d",set_flag);
 				if(set_flag>9){
 						RESET_NB();//
 						DELAY_US(1000*1000*2);
-						platform_reset(0); 					//初始化成功，重启
+						platform_reset(0); 					//初始化失败，重启
 				}
 				else{
 					tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_OK",sizeof("SET_OK"));	
 					tinyfs_write_through();
-					platform_reset(0); 					//初始化成功，重启
+					platform_reset(0); 						//初始化成功写入成功标记位，重启
 				}
 			}
 			else{
@@ -1336,8 +1241,7 @@ uint16_t AT_INIT(){
 					count_out=0	;
 					step++;
 				}
-				
-//				AT_Command_Send(ECPMUCFG);
+				AT_Command_Send(AT);
 				buzzer_task_flag=1;
 			}
 			break;					
@@ -1348,6 +1252,81 @@ uint16_t AT_INIT(){
 		}
 	return 0x88;
 }
+//重置
+//void Start_UDP_INIT(){
+//}
+void UDP_INIT(){
+	static int step=0;
+	static int count=0;
+	static int count_out=0;
+	//static int set_flag=0;
+	count++;	
+	
+	if(count%10==0){
+		switch(step){
+			
+			case 0:
+			////注册服务 
+			if(Get_Uart_Data_Processing_Result()==OK_AT){
+					globle_Result=0xff;				
+					step++;
+					count_out=0;
+			}
+			else{
+				
+				count_out++;
+				if(count_out>5){
+					count_out=0	;
+					step++;
+				}
+				AT_Command_Send(QIPCSGP);
+				buzzer_task_flag=1;
+			}
+			break;
+			//激活服务	
+			case 1:
+			if(Get_Uart_Data_Processing_Result()==OK_AT){
+					globle_Result=0xff;
+					step++;
+					count_out=0;
+			}
+			else{
+				
+				count_out++;
+				if(count_out>5){
+					count_out=0	;
+					step++;
+				}
+				AT_Command_Send(QIPACT);
+				buzzer_task_flag=1;
+			}
+			break;
+			//启动连接	
+			case 2:
+			if(Get_Uart_Data_Processing_Result()==OK_AT){
+				globle_Result=0xff;
+				step++;
+				count_out=0;
+			 }
+			else{
+				
+				count_out++;
+				if(count_out>10){
+					count_out=0	;
+					step++;
+				}
+				AT_Command_Send(QIPOPEN);
+				buzzer_task_flag=1;
+			}
+			break;					
+			default : /* 可选的 */
+      break;
+			//statement(s);
+		}
+		}
+//	return 0x88;
+}
+
 static  uint16_t set_sleep_time;
 //设置休眠时间
 void Set_Sleep_Time(uint16_t time_s){

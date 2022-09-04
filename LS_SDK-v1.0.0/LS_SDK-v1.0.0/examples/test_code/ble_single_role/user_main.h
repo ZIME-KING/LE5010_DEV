@@ -35,7 +35,8 @@
 #endif
 
 
-#define RECORD_KEY1  1	 //蓝牙名称
+#define RECORD_KEY1  1	//蓝牙名称
+#define RECORD_KEY11 12	//IMEI/设备号
 #define RECORD_KEY2  2  //完成模块初始化标记
 #define RECORD_KEY3  3  //蓝牙开锁密码
 #define RECORD_KEY4  4  //蓝牙通信密钥 低8位
@@ -43,7 +44,7 @@
 #define RECORD_KEY6  6  //给flash里面写入初始值标记
 #define RECORD_KEY7  7  //last_Vbat
 #define RECORD_KEY8  8  //last_Vbat_max
-#define RECORD_KEY9  9  //CIMI
+#define RECORD_KEY9  9  //CIMI /IMSI 卡号
 
 #define RECORD_KEY_T  11  //测试模式标记
 
@@ -63,6 +64,7 @@ extern uint8_t user_ble_send_flag;
 
 extern uint8_t MAC_ADDR[6];
 extern uint8_t CIMI_DATA[15];
+extern uint8_t MICI_DATA[15];
 extern uint8_t SHORT_NAME[10];
 extern uint8_t NEW_SHORT_NAME[10];
 

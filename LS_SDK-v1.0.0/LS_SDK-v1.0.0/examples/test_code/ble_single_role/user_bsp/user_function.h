@@ -13,9 +13,9 @@ TIME_OUT,	 //超时未相应
 CGSN_OK,	 //
 CSQ_OK,		 //
 CIMI_OK,
-	CIMI_ERROR,
+CIMI_ERROR,
 //CSQ_ERROR,		 //		
-}NB_RX_STATE;
+}RX_STATE;
 
 //任务列表
 typedef enum {
@@ -62,7 +62,7 @@ void NB_WAKE_Task(void);
 void Sleep_Task(void);
 void Set_Sleep_Time(uint16_t time_s);
 void Read_Last_Data(void); 
-
+void UDP_INIT(void);
 void Password_Task(void);
 void Key_Task(void);
 
