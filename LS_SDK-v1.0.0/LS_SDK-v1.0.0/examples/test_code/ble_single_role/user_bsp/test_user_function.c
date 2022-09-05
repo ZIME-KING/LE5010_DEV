@@ -87,8 +87,8 @@ uint16_t TEST_AT_GET_DB_TASK(){
 		static uint8_t count=0;
     static uint16_t temp;
     static uint16_t i;
-   // static uint8_t tmp[10];
-//		uint16_t length = 10; 
+   //static uint8_t tmp[10];
+	 //uint16_t length = 10; 
    if(Get_Task_State(TEST_GET_DB_VAL)) {
    		      if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99   && Db_val!=0) {
 								globle_Result=0xFF;

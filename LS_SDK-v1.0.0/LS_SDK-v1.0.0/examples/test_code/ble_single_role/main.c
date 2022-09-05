@@ -330,7 +330,7 @@ static void ls_user_event_timer_cb_1(void *param)
      LOG_I("db_%x",db_flag);
 	 #endif
 	 
-	  NB_WAKE_Task();
+	 // NB_WAKE_Task();
 		
 		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
 		if(db_flag==0xff) {
@@ -358,12 +358,12 @@ static void ls_user_event_timer_cb_1(void *param)
 						//AT_User_Set_Task();
 						//AT_User_Reply_Task();
 						
-						Open_Lock_Data_Send_Moto_Task();	 	 
-            State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
-            Start_Lock_Send_Task();			 				 //启动信息上报
-            Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-            Open_Lock_Data_Send_Task();  				 //信息上报
-            Tick_Lock_Send_Task();							 //心跳包
+//						Open_Lock_Data_Send_Moto_Task();	 	 
+//            State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
+							Start_Lock_Send_Task();			 				 //启动信息上报
+              Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
+//            Open_Lock_Data_Send_Task();  				 //信息上报
+//            Tick_Lock_Send_Task();							 //心跳包
         }
     }
 		//蓝牙连接下
@@ -388,7 +388,7 @@ static void ls_uart_init(void)
     UART_Config.Init.WordLength = UART_BYTESIZE8;
     HAL_UART_Init(&UART_Config);
 }
-static void AT_uart_init(void)
+void AT_uart_init(void)
 {
     //uart2_io_init(PA13, PA14);
     io_pull_write(PA11, IO_PULL_UP);  				//设置上拉
@@ -1104,13 +1104,19 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
         User_Init();
 
-        if(Check_SW2()==1 && Check_SW1()==0 ) {
-            lock_state[0]=1;
-        }
-        else {
-            lock_state[0]=0;
-        }
-        last_lock_state=lock_state[0];  //获取初始锁状态
+//        if(Check_SW2()==1 && Check_SW1()==0 ) {
+//            lock_state[0]=1;
+//        }
+//        else {
+//            lock_state[0]=0;
+//        }
+        last_lock_state_0=Check_SW1();   //获取初始锁状态
+				last_lock_state_1=Check_SW2();  //获取初始锁状态
+				
+				
+				
+				
+				
 
         uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
         LOG_I("wkup_source:%x",wkup_source) ;
@@ -1160,7 +1166,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 						reset_flag=1;
             Set_Task_State(START_LOCK_SEND,START);
         }
-				HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
+				
+				// AT_tset_flag=0;
+				// LOG_I("wkup_source:%x",wkup_source) ;
+				//HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
+				
 				if(test_mode_flag!=0xAA){
 				    Set_Task_State(GET_MODE_VAL,START);
 						Set_Task_State(GET_EMIC_VAL,STOP);

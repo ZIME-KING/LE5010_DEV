@@ -1,7 +1,7 @@
 #include "user_main.h"
 #include "CLM920_YV9V2.h"
 
-#define LOCK_NUM 0x00   //从锁数量 0x01，0x02
+//#define LOCK_NUM  2   //锁数量 0,1,2...127 
 #define START 0x01
 #define STOP  0x00
 
@@ -9,8 +9,9 @@
 #define VER_1  0xA0
 
 uint8_t send_count;							    //发送计数
-uint8_t lock_state[LOCK_NUM+1];     //锁状态存储
-uint8_t C0_lock_state[LOCK_NUM+1];  //锁状态存储
+uint8_t lock_state[LOCK_NUM];     //锁状态存储
+
+uint8_t C0_lock_state[LOCK_NUM];  //锁状态存储 防盗锁，本版本未启用
 
 
 const uint8_t	Frame_header[2]= {0x58,0x59};
@@ -109,15 +110,13 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 void UDP_Data_Send(uint8_t len){
 	uint8_t buf[20];
 	sprintf((char*)buf,"AT+QIPSEND=1,%d\r\n",len);
+	HAL_UART_Transmit(&UART_Config_AT,buf,strlen((char*)buf),100);
 }
-
-
-
 ///01启动 锁发送
 void Start_Lock_Send() {
-    uint8_t RX_BUF[255];
+    //uint8_t RX_BUF[255];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[60];
+    uint8_t DATA_BUF[60+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
@@ -145,7 +144,7 @@ void Start_Lock_Send() {
     DATA_BUF[15] = 0x00; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
 		
-		DATA_BUF[17] = 0xC0; 	  //lock_ID
+		DATA_BUF[17] = 0x01; 	  //lock_ID
     DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 		
 		
@@ -159,19 +158,19 @@ void Start_Lock_Send() {
 		memcpy(&DATA_BUF[43],&MICI_DATA[0],15);
 		
 		
-		
-		//MAC_ADDR[0]
-		
     temp=CRC16_8005Modbus(&DATA_BUF[0],58);
     DATA_BUF[59]=(temp & 0xff00) >>8;
     DATA_BUF[58]= temp & 0xff;
 
 
-    hex2string(DATA_BUF,RX_BUF,60);
-    RX_BUF[120]='\0';
-    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-		sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
-		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,500);
+		DATA_BUF[60]='\r';										
+		DATA_BUF[61]='\n';
+
+    //hex2string(DATA_BUF,RX_BUF,60);
+    //RX_BUF[60]='\0';
+    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);				
+		//sprintf((char*)F_RX_BUF,"&s\r\n",strlen((char*)DATA_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
 		
 		LOG_I("START_LOCK_SEND");
 		send_time_delay+=100;
@@ -181,8 +180,7 @@ void Start_Lock_Send() {
 void Open_Lock_Send() {
     uint8_t RX_BUF[100];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[37];
-    //uint8_t DATA_BUF[17];
+    uint8_t DATA_BUF[37+2];
 		uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
@@ -222,13 +220,14 @@ void Open_Lock_Send() {
     DATA_BUF[36]=(temp & 0xff00) >>8;
     DATA_BUF[35]= temp & 0xff;
 
+		DATA_BUF[37]= '\r';
+		DATA_BUF[38]= '\n';
 
-    hex2string(DATA_BUF,RX_BUF,37);
-    RX_BUF[74]='\0';
-
+		//hex2string(DATA_BUF,RX_BUF,37);
+		//RX_BUF[74]='\0';
     //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
-		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+    //sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
 		
 		LOG_I("Open_Lock_Send");
 		send_time_delay+=100;
@@ -238,7 +237,7 @@ void Open_Lock_Send() {
 void Tick_Lock_Send() {
     uint8_t RX_BUF[100];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[37];
+    uint8_t DATA_BUF[37+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
@@ -278,14 +277,15 @@ void Tick_Lock_Send() {
     DATA_BUF[35]= temp & 0xff;
 
 
-    hex2string(DATA_BUF,RX_BUF,37);
-    RX_BUF[74]='\0';
+ 
+		DATA_BUF[37]= '\r';
+		DATA_BUF[38]= '\n';
 
+		//hex2string(DATA_BUF,RX_BUF,37);
+    //RX_BUF[74]='\0';
     //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
-		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
-		
-		
+    //sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
 		
 		LOG_I("Tick_Lock_Send");
 		send_time_delay+=100;
@@ -295,7 +295,7 @@ void Tick_Lock_Send() {
 void Open_Lock_Data_Send_Moto() {
     uint8_t RX_BUF[100];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[37];
+    uint8_t DATA_BUF[37+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
@@ -334,14 +334,16 @@ void Open_Lock_Data_Send_Moto() {
     DATA_BUF[36]=(temp & 0xff00) >>8;
     DATA_BUF[35]= temp & 0xff;
 
+		DATA_BUF[37]= '\r';
+		DATA_BUF[38]= '\n';
 
-    hex2string(DATA_BUF,RX_BUF,37);
-    RX_BUF[74]='\0';
-
-    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
-		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
-		
+//	hex2string(DATA_BUF,RX_BUF,37);
+//  RX_BUF[74]='\0';
+//	UDP_Data_Send(74);
+//  //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
+//  sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
+	
 		LOG_I("Open_Lock_Data_Send_Moto");
 		send_time_delay+=100;
 }
@@ -351,7 +353,7 @@ void Open_Lock_Data_Send_Moto() {
 void Open_Lock_Data_Send() {
     uint8_t RX_BUF[100];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[37];
+    uint8_t DATA_BUF[37+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
@@ -390,15 +392,17 @@ void Open_Lock_Data_Send() {
     DATA_BUF[36]=(temp & 0xff00) >>8;
     DATA_BUF[35]= temp & 0xff;
 
+		DATA_BUF[37]= '\r';
+		DATA_BUF[38]= '\n';
 
-    hex2string(DATA_BUF,RX_BUF,37);
-    RX_BUF[74]='\0';
+//    hex2string(DATA_BUF,RX_BUF,37);
+//    RX_BUF[74]='\0';
 
-    
-		//sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-		sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
-		
-		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
+
+//    UDP_Data_Send(74);
+//		//sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
+//		sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);			
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
 		
 		LOG_I("Open_Lock_Data_Send");
 		send_time_delay+=100;

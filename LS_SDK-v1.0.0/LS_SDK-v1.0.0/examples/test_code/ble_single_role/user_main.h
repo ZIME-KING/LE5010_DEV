@@ -55,6 +55,7 @@
 
 
 void start_adv(void);
+void AT_uart_init(void);
 
 
 extern UART_HandleTypeDef UART_Config;

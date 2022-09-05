@@ -2,7 +2,8 @@
 #define __CLM920_YV9V2_H
 
 #include "user_main.h"
-#define LOCK_NUM 0x00   //从锁数量 0x01，0x02
+
+#define LOCK_NUM  2   //锁数量 0,1,2...127 
 #define START 0x01
 #define STOP  0x00
 
@@ -40,8 +41,8 @@ void Open_Lock_Data_Send_Moto(void);
 
 
 extern uint8_t send_count;							 //发送计数
-extern uint8_t lock_state[LOCK_NUM+1];  //锁状态存储
-extern uint8_t C0_lock_state[LOCK_NUM+1];
+extern uint8_t lock_state[LOCK_NUM];  //锁状态存储
+extern uint8_t C0_lock_state[LOCK_NUM];
 
 #endif 
 

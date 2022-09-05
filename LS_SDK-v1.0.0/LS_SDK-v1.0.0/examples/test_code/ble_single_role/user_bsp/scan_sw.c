@@ -4,8 +4,8 @@
 
 //配置任意开关中断模式可以唤醒启动
 
-#define SW1 PA00
-#define SW2 PA01
+#define SW1 PA07
+#define SW2 PB11
 #define KEY PB15
 
 //io下降沿唤醒函数
@@ -16,18 +16,22 @@ static void exitpb15_iowkup_init(void)
     io_exti_config(KEY,INT_EDGE_FALLING);   //下降沿触发中断 
     io_exti_enable(KEY,true);            		//启动中断使能    
 }
-static void exitpa00_iowkup_init(void)
+
+static void exitpa07_iowkup_init(void)
 {
-	  io_cfg_input(SW1);                       
+	  io_cfg_input(SW1);                 
     io_pull_write(SW1, IO_PULL_UP);         
     io_exti_config(SW1,INT_EDGE_FALLING);   
     io_exti_enable(SW1,true);                
 }
 
-//static void SW2_init(){
-//	  io_cfg_input(SW2);                       
-//    io_pull_write(SW2, IO_PULL_UP);
-//}
+static void exitpb11_iowkup_init(void)
+{
+	  io_cfg_input(SW2);                       
+    io_pull_write(SW2, IO_PULL_UP);         
+    io_exti_config(SW2,INT_EDGE_FALLING);   
+    io_exti_enable(SW2,true);                
+}
 
 void Button_Gpio_Init(){
 	io_cfg_input(KEY);               				//输入模式                     
@@ -69,7 +73,9 @@ void Scan_Key(){
 						 moro_task_flag=1; 
 					}
 					LOG_I("Vbat:%d",VBat_value);		
-					LOG_I("Db_val:%d",Db_val);	
+					LOG_I("Db_val:%d",Db_val);
+					//LOG_I("lock_state0:%d",Check_SW1());
+					//LOG_I("lock_state1:%d",Check_SW2());					
 					Read_Status();
 					//if(Get_Task_State(OPEN_LOCK_SEND)){
 					//		Open_Lock_Send();
@@ -163,7 +169,8 @@ void  ls_sleep_enter_lp2(void)
 	io_write_pin(PC00, 0);
 	io_write_pin(PC01, 0);
 	exitpb15_iowkup_init();
-	exitpa00_iowkup_init();
+	exitpa07_iowkup_init();
+	exitpb11_iowkup_init();
 
 	
 	
