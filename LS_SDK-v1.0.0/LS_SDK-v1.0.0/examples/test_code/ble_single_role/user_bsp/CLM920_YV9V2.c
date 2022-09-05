@@ -43,10 +43,6 @@ void Read_Status(){
 		LOG_I("STATUS %d",temp_val);		
 }
 
-
-
-
-
 //hex 转char输出
 //输出字符长度为输入字符长度2倍
 void hex2string(uint8_t *IN_DATA,uint8_t *OUT_DATA,uint16_t len){
@@ -99,6 +95,10 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 		 case QIPACT:   //激活服务 
          HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPACT=1\r\n",sizeof("AT+QIPACT=1\r\n"),100);
      break;	
+		 
+		 case QIPACT_ASK://查询激活服务 
+         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPACT?\r\n",sizeof("AT+QIPACT?\r\n"),100);
+     break;
 
 		 case QIPOPEN:   //启动连接 
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\n",sizeof("AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\n"),100);

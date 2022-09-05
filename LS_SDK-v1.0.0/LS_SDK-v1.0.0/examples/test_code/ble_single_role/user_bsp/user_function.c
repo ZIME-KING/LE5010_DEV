@@ -625,12 +625,15 @@ void Uart_2_Data_Processing() {
             //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
             globle_Result=OK_AT;
         }
-				else if( strncmp("AT+QIPACT=1\r\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+QIPACT=1\r\r\nOK"))==0){
+				else if( strncmp("AT+QIPACT?\r\r\n+QIPACT",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+QIPACT?\r\r\n+QIPACT"))==0){
             //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
             globle_Result=OK_AT;
         }
-				
-				
+//				else if( strncmp("AT+QIPACT=1\r\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+QIPACT=1\r\r\nOK"))==0){
+//            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+//            globle_Result=OK_AT;
+//        }
+			
 				frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
@@ -1262,7 +1265,7 @@ void UDP_INIT(){
 	//static int set_flag=0;
 	count++;	
 	
-	if(count%10==0){
+	if(count%10==1){
 		switch(step){
 			
 			case 0:
@@ -1272,8 +1275,7 @@ void UDP_INIT(){
 					step++;
 					count_out=0;
 			}
-			else{
-				
+			else{				
 				count_out++;
 				if(count_out>5){
 					count_out=0	;
@@ -1282,27 +1284,45 @@ void UDP_INIT(){
 				AT_Command_Send(QIPCSGP);
 				buzzer_task_flag=1;
 			}
-			break;
-			//激活服务	
-			case 1:
+			break;			
+			
+			case 1://查询激活服务	
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 					globle_Result=0xff;
-					step++;
+					step+=2;
 					count_out=0;
 			}
-			else{
-				
+			else{			
 				count_out++;
-				if(count_out>5){
+				if(count_out>2){
 					count_out=0	;
 					step++;
 				}
-				AT_Command_Send(QIPACT);
+				AT_Command_Send(QIPACT_ASK);
 				buzzer_task_flag=1;
 			}
+			break;	
+			
+			//激活服务	
+			case 2:
+//			if(Get_Uart_Data_Processing_Result()==OK_AT){
+//					globle_Result=0xff;
+//					step++;
+//					count_out=0;
+//			}
+//			else{		
+//			count_out++;
+				step--;
+//				if(count_out>5){
+//					count_out=0	;
+//					step++;
+//				}
+				AT_Command_Send(QIPACT);
+				buzzer_task_flag=1;
+//			}
 			break;
 			//启动连接	
-			case 2:
+			case 3:
 			if(Get_Uart_Data_Processing_Result()==OK_AT){
 				globle_Result=0xff;
 				step++;
@@ -1311,7 +1331,7 @@ void UDP_INIT(){
 			else{
 				
 				count_out++;
-				if(count_out>10){
+				if(count_out>5){
 					count_out=0	;
 					step++;
 				}
