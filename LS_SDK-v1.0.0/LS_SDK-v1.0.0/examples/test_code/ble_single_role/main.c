@@ -23,7 +23,10 @@
 uint8_t MAC_ADDR[6];
 uint8_t CIMI_DATA[15] ="460000000000000";
 uint8_t MICI_DATA[15]="860000000000000";
+uint8_t RFID_DATA[4]	={0XAA,0XBB,0XCC,0XDD};
+uint8_t RFID_DATA_2[4]={0X11,0x22,0x33,0x44};
 uint8_t SHORT_NAME[10]="3141592654";
+
 uint8_t NEW_SHORT_NAME[10];
 uint8_t SHORT_NAME_LEN=10;
 uint16_t send_time_delay=0; //说明nb模块收到数据后，发送过程中功率与信号强度相关，造成电压骤降，每次发送后延时一段时间再去采集电压
@@ -287,7 +290,6 @@ static void ls_user_event_timer_cb_0(void *param)
 		Uart_2_Data_Processing();
 	
     Scan_Key();					 //扫描按键
-    Moto_Task();				 //电机的任务
 		Get_Vbat_Task();		 //获取电池电量 0~100		
 		
 		//Uart_Data_Processing();
@@ -295,7 +297,7 @@ static void ls_user_event_timer_cb_0(void *param)
 }
 //uint16_t temp_count=0;
 uint16_t sleep_time=0;
-uint8_t KEY_FLAG=0;   //收到开锁请求
+//uint8_t KEY_FLAG=0;   //收到开锁请求
 uint8_t once_flag=0;
 uint8_t db_flag=0;
 uint8_t test_mode_flag;
@@ -329,8 +331,6 @@ static void ls_user_event_timer_cb_1(void *param)
 		 AT_User_Reply_Task();	
      LOG_I("db_%x",db_flag);
 	 #endif
-	 
-	 // NB_WAKE_Task();
 		
 		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
 		if(db_flag==0xff) {
@@ -342,7 +342,6 @@ static void ls_user_event_timer_cb_1(void *param)
 
 								LOG_I("read_id N");
                 LOG_I("%s",NEW_SHORT_NAME);
-
 								tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
                 tinyfs_write_through();
 
@@ -357,13 +356,14 @@ static void ls_user_event_timer_cb_1(void *param)
 						UDP_INIT();
 						//AT_User_Set_Task();
 						//AT_User_Reply_Task();
-						
-//						Open_Lock_Data_Send_Moto_Task();	 	 
-//            State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
-							Start_Lock_Send_Task();			 				 //启动信息上报
-              Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-//            Open_Lock_Data_Send_Task();  				 //信息上报
-//            Tick_Lock_Send_Task();							 //心跳包
+;						
+//					Open_Lock_Data_Send_Moto_Task();	 	 
+            State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
+						Start_Lock_Send_Task();			 				 //启动信息上报
+            Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
+            Open_Lock_Data_Send_Task();  				 //信息上报
+//            Tick_Lock_Send_Task();							 //心跳包       	
+					Lock_task() ;
         }
     }
 		//蓝牙连接下
@@ -438,13 +438,14 @@ static void User_BLE_Data_Handle() {
         TX_DATA_BUF[2]=TOKEN[1];
         TX_DATA_BUF[3]=TOKEN[2];
         TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-        TX_DATA_BUF[5]=0x05;    //LEN
+        TX_DATA_BUF[5]=0x06;    //LEN
         TX_DATA_BUF[6]=0xA0;		//VER1
         TX_DATA_BUF[7]=0xA1;		//VER2
         TX_DATA_BUF[8]=0x00;   	//STA
         TX_DATA_BUF[9]=0x00;   	//CNT[2]
         TX_DATA_BUF[10]=0xFF;   	//CNT[2]
-        break;
+        TX_DATA_BUF[11]=0x02;   	//
+				break;
     case 0x10:
         if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
             //if(DATA_BUF[5]==0x01 && DATA_BUF[6]==0x00){
@@ -491,7 +492,13 @@ static void User_BLE_Data_Handle() {
             TX_DATA_BUF[5]=0x01;    	//LEN
 					
             if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
-                moro_task_flag=1;                    ////密码正确 开启电机动作
+								if(DATA_BUF[13]==0x01){
+									lock_task_flag_1=1;
+								}
+								else if(DATA_BUF[13]==0x02){
+									lock_task_flag_2=1;
+								}
+                //moro_task_flag=1;                    ////密码正确 开启电机动作
                 //TX_DATA_BUF[6]=Close_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
             }
             else {
@@ -513,9 +520,13 @@ static void User_BLE_Data_Handle() {
             TX_DATA_BUF[2]=TOKEN[1];
             TX_DATA_BUF[3]=TOKEN[2];
             TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-            TX_DATA_BUF[5]=0x01;    //LEN
-            TX_DATA_BUF[6]=lock_state[0];    //锁状态
-            //TX_DATA_BUF[7]=0x00;    //ONLINE
+            TX_DATA_BUF[5]=0x03;    //LEN
+            TX_DATA_BUF[6]=0x01;    //锁状态
+            
+            TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+			
+						//TX_DATA_BUF[7]=0x00;    //ONLINE
             //TX_DATA_BUF[8]=0x00;    //STATUS
             //}
         }
@@ -1110,8 +1121,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 //        else {
 //            lock_state[0]=0;
 //        }
-        last_lock_state_0=Check_SW1();   //获取初始锁状态
-				last_lock_state_1=Check_SW2();  //获取初始锁状态
+        last_lock_state_0=!Check_SW1();   //获取初始锁状态
+				last_lock_state_1=!Check_SW2();  //获取初始锁状态
 				
 				
 				
@@ -1164,7 +1175,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         else if (wkup_source == 0) {
 					  AT_tset_flag=2;
 						reset_flag=1;
-            Set_Task_State(START_LOCK_SEND,START);
+            Set_Task_State(START_LOCK_SEND,START);						
+						User_Mfrc522(&M1_Card,0); //获取rfid						
         }
 				
 				// AT_tset_flag=0;
@@ -1172,8 +1184,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 				//HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
 				
 				if(test_mode_flag!=0xAA){
-				    Set_Task_State(GET_MODE_VAL,START);
-						Set_Task_State(GET_EMIC_VAL,STOP);
+				    //Set_Task_State(GET_MODE_VAL,START);
+						//Set_Task_State(GET_EMIC_VAL,STOP);
 					  Set_Task_State(START_LOCK_SEND,STOP);
 					  Set_Task_State(OPEN_LOCK_SEND,STOP);
 					  Set_Task_State(TICK_LOCK_SEND,STOP);

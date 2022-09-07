@@ -70,11 +70,14 @@ static ADC_HandleTypeDef hadc;
 void Read_Last_Data(void);
 static void lsadc_init(void);
 
+
+uint8_t test_status;
+
 void User_Init() {
     lsadc_init();
     HAL_ADCEx_InjectedStart_IT(&hadc);
     Button_Gpio_Init();
-    moto_gpio_init();
+    Lock_gpio_init();
     Basic_PWM_Output_Cfg();
     //Read_Last_Data();
     io_cfg_output(PA05);   //LED_0
@@ -86,13 +89,11 @@ void User_Init() {
     io_cfg_output(PA08);   //REST
     io_write_pin(PA08,0);  //REST
 
-
     //HAL_IWDG_Init(32756);  			  //1s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
     RTC_wkuptime_set(3*60*60);	 //唤醒时间3h  休眠函数在sw.c 中
     //RTC_wkuptime_set(60);	 		 //唤醒时间60s  休眠函数在sw.c 中
     WAKE_UP();                   //POWER_100MS下拉
-
     Set_Task_State(GET_DB_VAL,START);
 }
 extern uint8_t RTC_flag;
@@ -193,7 +194,7 @@ void Get_Vbat_Task() {
     io_cfg_input(USB_CHECK);   //PB09 config output
 
     //采集实时的电压
-    if(moro_task_flag==0 && buzzer_task_flag==0) {
+    if(lock_task_flag_1==0 && lock_task_flag_2==0 && buzzer_task_flag==0) {
         count++;
         //50MS 采集一次 20次 1s
         if(count>=10) {
@@ -529,31 +530,28 @@ void Uart_2_Data_Processing() {
             }
             LOG_HEX(AT_RX_DATA_BUF,frame_2[uart_2_frame_id].length-count);
 
-//            //默认输入为大写
-//            for(int i=0; i<frame_2[uart_2_frame_id].length-count; i++) {
-//                AT_RX_DATA_BUF[i]=0;
-//                if( frame_2[uart_2_frame_id].buffer[count+i*2]<='9')
-//                    AT_RX_DATA_BUF[i]+= (frame_2[uart_2_frame_id].buffer[count+i*2]-'0')<<4;
-//                else
-//                    AT_RX_DATA_BUF[i]+=(frame_2[uart_2_frame_id].buffer[count+i*2]-'A'+10)<<4;
 
-//                if(frame_2[uart_2_frame_id].buffer[count+1+i*2]<='9')
-//                    AT_RX_DATA_BUF[i]+=(frame_2[uart_2_frame_id].buffer[count+1+i*2]-'0');
-//                else
-//                    AT_RX_DATA_BUF[i]+=(frame_2[uart_2_frame_id].buffer[count+1+i*2]-'A'+10);
-//            }
             //标记——————这里应该要加CRC的
             //OK_ASK 服务器有应答
             if(AT_RX_DATA_BUF[0]==0x58 && AT_RX_DATA_BUF[1]==0x59) {
                 globle_Result=OK_ASK;
                 //是OPEN_LOCK
-                if(AT_RX_DATA_BUF[4]== 0x10  && AT_RX_DATA_BUF[5]== 0x00 && AT_RX_DATA_BUF[6]== 0x01 ) {
-                    KEY_FLAG=1;
-                    open_lock_reply_Result=1;
-#ifdef USER_TEST
-                    open_count++;
-#endif
-                }
+                if(AT_RX_DATA_BUF[4]== 0x10 ) {
+								
+										
+										for(uint8_t i=5;i<AT_RX_DATA_BUF[2]-2;i+=2){
+												if(AT_RX_DATA_BUF[i]==0x00 && AT_RX_DATA_BUF[i+1]==0x01){
+												}
+												else if(AT_RX_DATA_BUF[i]==0x01 && AT_RX_DATA_BUF[i+1]==0x01){
+														lock_task_flag_1_temp=1;
+														open_lock_reply_Result=1;		
+												}
+												else if(AT_RX_DATA_BUF[i]==0x02 && AT_RX_DATA_BUF[i+1]==0x01){
+														lock_task_flag_2_temp=1;
+														open_lock_reply_Result=1;
+												}
+										}
+	               }
                 //心跳包上传成功服务器回复
                 else if(AT_RX_DATA_BUF[4]==0x02) {
                     tick_reply_Result=1;
@@ -715,140 +713,122 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
 }
 //开始启动数据包
 uint16_t Start_Lock_Send_Task() {
-    static uint16_t count;
-    static uint16_t temp;
-    static uint16_t i;
+    static uint16_t over_count=0;  // 超限计数
+    static uint16_t count=0;  		 //
+	static uint16_t temp=0;
+    static uint16_t i=0;
     static uint8_t step=1;
-
     if(Get_Task_State(START_LOCK_SEND) && AT_tset_flag==0 ) {
-        switch (step) {
+				if(start_lock_reply_Result==1) {
+                globle_Result=0xFF;
+                start_lock_reply_Result=0;
+                temp=OK_ASK;
+                Set_Task_State(START_LOCK_SEND,STOP);
+								return temp;
+				}
+				switch (step) {
         case 1:
             if(send_mode_Result==1) {
                 send_mode_Result=0;
                 temp=OK_ASK;
                 step++;
-                //i=0;
-            }
+            }		
             else {
                 i++;
                 if(i%400==10) {
-                    count++;
                     temp=NO_ASK;
                     globle_Result=NO_ASK;
-                    //Set_Task_State(START_LOCK_SEND,START);
-                    UDP_Data_Send(60);		//进入发送模式
-                    if(count==3) {
-                        count=0;
-                        Set_Task_State(START_LOCK_SEND,STOP);
-                        temp=TIME_OUT;
-                    }
+										over_count++;
+										if(over_count>5){
+											Set_Task_State(START_LOCK_SEND,STOP);  //回复错误次数>5停发
+											break;
+										}
+										UDP_Data_Send(67);		//进入发送模式
                 }
             }
             break;
-
-
         case 2:
-            if(start_lock_reply_Result==1) {
-                globle_Result=0xFF;
-                start_lock_reply_Result=0;
-                temp=OK_ASK;
-                Set_Task_State(START_LOCK_SEND,STOP);
-								//step=1;
-                //i=0;
-            }
-            else {
                 i++;
                 if(i%400==20) {
                     count++;
                     temp=NO_ASK;
                     globle_Result=NO_ASK;
                     Set_Task_State(START_LOCK_SEND,START);
-                    //AT_uart_init();
-                    Start_Lock_Send();
-                    step=1;
-                    if(count==6) {
+                    Start_Lock_Send();										
+                    if(count==1) {    //count=1发送数据，count=2为发送无回复跳转到第一步，
                         count=0;
-                        Set_Task_State(START_LOCK_SEND,STOP);
-                        temp=TIME_OUT;
+                        step=1;
                     }
                 }
-            }
             break;
         }
     }
 		    else {
         count=0;
+				over_count=0;
         temp=0;
         i=0;
 				step=1;
     }
     return temp;
 }
+
 //请求开锁
-uint16_t Open_Lock_Send_Task() {
-    static uint16_t count;
-    static uint16_t temp;
-    static uint16_t i;
+uint16_t Open_Lock_Send_Task() {		
+		static uint16_t over_count=0;  // 超限计数
+    static uint16_t count=0;  		 //
+		static uint16_t temp=0;
+    static uint16_t i=0;
     static uint8_t step=1;
-    if(Get_Task_State(OPEN_LOCK_SEND) && AT_tset_flag==0) {
-        switch (step) {
+    if(Get_Task_State(OPEN_LOCK_SEND) && AT_tset_flag==0 ) {
+				if(open_lock_reply_Result==1) {
+                globle_Result=0xFF;
+                open_lock_reply_Result=0;
+                temp=OK_ASK;
+                Set_Task_State(OPEN_LOCK_SEND,STOP);
+								return temp;
+				}
+				switch (step) {
         case 1:
             if(send_mode_Result==1) {
                 send_mode_Result=0;
                 temp=OK_ASK;
                 step++;
-                //i=0;
-            }
+            }		
             else {
                 i++;
-                if(i%user_time==1) {
-                    count++;
+                if(i%100==1) {
                     temp=NO_ASK;
                     globle_Result=NO_ASK;
-                    UDP_Data_Send(39);		//进入发送模式
-                    if(count==3) {
-                        count=0;
-                        Set_Task_State(OPEN_LOCK_SEND,STOP);
-                        temp=TIME_OUT;
-                    }
+										over_count++;
+										if(over_count>5){
+											Set_Task_State(OPEN_LOCK_SEND,STOP);  //回复错误次数>5停发
+											break;
+										}
+										UDP_Data_Send(37);		//进入发送模式
                 }
             }
             break;
-
-
-        case 2:
-            if(open_lock_reply_Result==1) {
-                globle_Result=0xFF;
-                open_lock_reply_Result=0;
-                temp=OK_ASK;
-                Set_Task_State(OPEN_LOCK_SEND,STOP);
-                step=1;
-                //i=0;
-            }
-            else {
-                i++;
-                if(i%user_time==11) {
+        case 2:                           
+								i++;
+                if(i%100==10) {
                     count++;
                     temp=NO_ASK;
+            
                     globle_Result=NO_ASK;
                     Set_Task_State(OPEN_LOCK_SEND,START);
-                    ////
-                    Open_Lock_Send();
-                    ////
-                    step=1;
-                    if(count==user_count) {
+                    Open_Lock_Send();										
+                    if(count==1) {    //count=1发送数据，count=2为发送无回复跳转到第一步，
                         count=0;
-                        Set_Task_State(OPEN_LOCK_SEND,STOP);
                         step=1;
-                        temp=TIME_OUT;
                     }
                 }
-            }
             break;
         }
     }
-		 else {
+		    else {
         count=0;
+				over_count=0;
         temp=0;
         i=0;
 				step=1;
@@ -856,225 +836,137 @@ uint16_t Open_Lock_Send_Task() {
     return temp;
 }
 //心跳包
-uint16_t Tick_Lock_Send_Task() {
-
-    static uint16_t count;
-    static uint16_t temp;
-    static uint16_t i;
+uint16_t Tick_Lock_Send_Task() {		
+		static uint16_t over_count=0;  // 超限计数
+    static uint16_t count=0;  		 //
+		static uint16_t temp=0;
+    static uint16_t i=0;
     static uint8_t step=1;
-
-    if(Get_Task_State(OPEN_LOCK_SEND) && AT_tset_flag==0) {
-        switch (step) {
-        case 1:
-            if(send_mode_Result==1) {
-                send_mode_Result=0;
-                temp=OK_ASK;
-                step++;
-                i=0;
-            }
-            else {
-                i++;
-                if(i%user_time==1) {
-                    count++;
-                    temp=NO_ASK;
-                    globle_Result=NO_ASK;
-                    /////
-                    UDP_Data_Send(39);		//进入发送模式
-                    /////
-                    if(count==3) {
-                        count=0;
-                        Set_Task_State(TICK_LOCK_SEND,STOP);
-                        temp=TIME_OUT;
-                    }
-                }
-            }
-            break;
-
-        case 2:
-            if(tick_reply_Result==1) {
+    if(Get_Task_State(TICK_LOCK_SEND) && AT_tset_flag==0 ) {
+				if(tick_reply_Result==1) {
                 globle_Result=0xFF;
                 tick_reply_Result=0;
                 temp=OK_ASK;
                 Set_Task_State(TICK_LOCK_SEND,STOP);
-                i=0;
-            }
+								return temp;
+				}
+				switch (step) {
+        case 1:
+            if(send_mode_Result==1) {
+                send_mode_Result=0;
+                temp=OK_ASK;
+                step++;
+            }		
             else {
                 i++;
-                if(i%400==100) {
-                    count++;
+                if(i%100==1) {
                     temp=NO_ASK;
                     globle_Result=NO_ASK;
-                    Set_Task_State(TICK_LOCK_SEND,START);
-                    /////////////////
-										Tick_Lock_Send();
-										/////////////////
-                    if(count==6) {
-                        count=0;
-                        Set_Task_State(TICK_LOCK_SEND,STOP);
-                        temp=TIME_OUT;
-                    }
+										over_count++;
+										if(over_count>5){
+											Set_Task_State(TICK_LOCK_SEND,STOP);  //回复错误次数>5停发
+											break;
+										}
+										UDP_Data_Send(37);		//进入发送模式
                 }
             }
             break;
+        case 2:                           
+								i++;
+                if(i%100==10) {
+                    count++;
+                    temp=NO_ASK;
+            
+                    globle_Result=NO_ASK;
+                    Set_Task_State(TICK_LOCK_SEND,START);
+                    Tick_Lock_Send();										
+                    if(count==1) {    //count=1发送数据，count=2为发送无回复跳转到第一步，
+                        count=0;
+                        step=1;
+                    }
+                }
+            break;
         }
     }
-		 else {
+		    else {
         count=0;
+				over_count=0;
         temp=0;
         i=0;
 				step=1;
     }
-    return temp;
+    return temp;		
 }
+
+
+
+
+//MARK!!!!!!!!!!!!!!!!
 //20信息上报  锁+状态
 uint16_t Open_Lock_Data_Send_Task() {
 
-    static uint16_t count;
-    static uint16_t temp;
-    static uint16_t i;
-    static uint8_t step=1;
 
-    if(Get_Task_State(OPEN_LOCK_DATA_SEND)) {
-        switch (step) {
+
+		static uint16_t over_count=0;  // 超限计数
+    static uint16_t count=0;  		 //
+		static uint16_t temp=0;
+    static uint16_t i=0;
+    static uint8_t step=1;
+    if(Get_Task_State(OPEN_LOCK_DATA_SEND) && AT_tset_flag==0 ) {
+				if(open_lock_data_reply_Result==1) {
+                globle_Result=0xFF;
+                open_lock_data_reply_Result=0;
+                temp=OK_ASK;
+                Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+								return temp;
+				}
+				switch (step) {
         case 1:
             if(send_mode_Result==1) {
                 send_mode_Result=0;
                 temp=OK_ASK;
                 step++;
-                i=0;
-            }
+            }		
             else {
                 i++;
-                if(i%user_time==1) {
-                    count++;
+                if(i%100==1) {
                     temp=NO_ASK;
                     globle_Result=NO_ASK;
-                    /////
-                    UDP_Data_Send(39);		//进入发送模式
-                    /////
-                    if(count==3) {
-                        count=0;
-                        Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-                        temp=TIME_OUT;
-                    }
+										over_count++;
+										if(over_count>5){
+											Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);  //回复错误次数>5停发
+											break;
+										}
+										UDP_Data_Send(37);		//进入发送模式
                 }
             }
             break;
-
-        case 2:
-						if(open_lock_data_reply_Result==1  && look_status_send_count==0) {
-            open_lock_data_reply_Result=0;
-            LOG_I("20_REPLY_OK");
-            globle_Result=0xFF;
-            Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-            temp=OPEN_LOCK;
-            i=0;
-        }
-        else {
-            i++;
-            if(i%user_time==1) {
-                if(look_status_send_count)
-                    look_status_send_count--;
-                LOG_I("send_count_20=%d",look_status_send_count);
-                count++;
-                temp=NO_ASK;
-                globle_Result=NO_ASK;
-                Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-                Open_Lock_Data_Send();
-                if(count==user_count) {
-                    count=0;
-                    Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-                    temp=TIME_OUT;
+        case 2:                           
+								i++;
+                if(i%100==10) {
+                    count++;
+                    temp=NO_ASK;
+            
+                    globle_Result=NO_ASK;
+                    Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+                    Open_Lock_Data_Send();										
+                    if(count==1) {    //count=1发送数据，count=2为发送无回复跳转到第一步，
+                        count=0;
+                        step=1;
+                    }
                 }
-            }
-        }
             break;
         }
     }
 		    else {
         count=0;
+				over_count=0;
         temp=0;
         i=0;
 				step=1;
     }
     return temp;
 }
-
-
-//21
-uint16_t Open_Lock_Data_Send_Moto_Task() {
-
-    static uint16_t count;
-    static uint16_t temp;
-    static uint16_t i;
-    static uint8_t step=1;
-
-  if(Get_Task_State(OPEN_LOCK_DATA_SEND_MOTO)) {
-        switch (step) {
-        case 1:
-            if(send_mode_Result==1) {
-                send_mode_Result=0;
-                temp=OK_ASK;
-                step++;
-                i=0;
-            }
-            else {
-                i++;
-                if(i%user_time==1) {
-                    count++;
-                    temp=NO_ASK;
-                    globle_Result=NO_ASK;
-                    /////
-                    UDP_Data_Send(39);		//进入发送模式
-                    /////
-                    if(count==3) {
-                        count=0;
-                        Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,STOP);
-                        temp=TIME_OUT;
-                    }
-                }
-            }
-            break;
-
-        case 2:
-        if(open_lock_data_moto_reply_Result==1) {
-            LOG_I("21_REPLY_OK");
-            globle_Result=0xFF;
-            open_lock_data_moto_reply_Result=0;
-            temp=OPEN_LOCK;
-            Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,STOP);
-            i=0;
-        }
-        else {
-            i++;
-            if(i%user_time==10) {
-                count++;
-                temp=NO_ASK;
-                globle_Result=NO_ASK;
-                Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,START);
-                Open_Lock_Data_Send_Moto();
-                if(count==user_count) {
-                    count=0;
-                    Set_Task_State(OPEN_LOCK_DATA_SEND_MOTO,STOP);
-                    temp=TIME_OUT;
-                }
-            }
-        }
-            break;
-        }
-    }
-		    else {
-        count=0;
-        temp=0;
-        i=0;
-				step=1;
-    }
-    return temp;
-}
-
-
-
-
 
 //5s 保持模块唤醒 查一下信号
 void NB_WAKE_Task() {
@@ -1094,26 +986,26 @@ uint8_t last_lock_state_1;
 //检测状态发生变化上报数据
 void State_Change_Task() {
 
-//    static uint8_t count;
-//    count++;
-//    if(count>20)count=20;
     static uint8_t sw1_count;
 		static uint8_t sw1_flag;
     static uint8_t sw2_count;
 		static uint8_t sw2_flag;
-
-
-
+		
+		
+		if(AT_tset_flag !=0 ){
+			return;
+		}
+		
    if(Check_SW1()==1) {
         sw1_count++;
         if(sw1_count>10) sw1_count=10;
         if(sw1_count==3) {
             sw1_flag=1;
-            lock_state[0]=1;
+            lock_state[0]=0;
         }
     }
     else {
-        lock_state[0]=0;
+        lock_state[0]=1;
         sw1_count=0;
     }
 
@@ -1123,40 +1015,85 @@ void State_Change_Task() {
         if(sw2_count>10) sw2_count=10;
         if(sw2_count==3) {
             sw2_flag=1;
-            lock_state[1]=1;
+            lock_state[1]=0;
         }
     }
     else {
-        lock_state[1]=0;
+        lock_state[1]=1;
         sw2_count=0;
     }
 
-    if(last_lock_state_0 != lock_state[0]   ||  last_lock_state_1 != lock_state[1]) {
+    if(last_lock_state_0 != lock_state[0]  && lock_task_flag_1==0 && lock_task_flag_2==0) {
 
             if(lock_state[0]==1) buzzer_task_flag=1;
             sleep_time=0;
             last_lock_state_0=lock_state[0];
-            last_lock_state_1=lock_state[1];
-						LOG_I("State_Change");
-						
-						
-						LOG_I("sw1:%d,sw2:%d", lock_state[0],lock_state[1]);
+
+						LOG_I("State_Change");	
+						LOG_I("sw1:%d", lock_state[0]);
 						
             open_lock_data_reply_Result=0;
             Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-            look_status_send_count+=3;
+            
+						look_status_send_count+=3;
             if(look_status_send_count>=3) {
                 look_status_send_count=3;
             }
+												
             user_ble_send_flag=1;
             TX_DATA_BUF[0]=0x52;		// CMD
             TX_DATA_BUF[1]=TOKEN[0];
             TX_DATA_BUF[2]=TOKEN[1];
             TX_DATA_BUF[3]=TOKEN[2];
             TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-            TX_DATA_BUF[5]=0x01;    //LEN
-            TX_DATA_BUF[6]=lock_state[0];
+            TX_DATA_BUF[5]=0x08;    	//LEN
+            TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+						TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+						TX_DATA_BUF[9]=0x01;
+						
+						TX_DATA_BUF[10]=RFID_DATA[0];
+						TX_DATA_BUF[11]=RFID_DATA[1];
+						TX_DATA_BUF[12]=RFID_DATA[2];
+						TX_DATA_BUF[13]=RFID_DATA[3];		
     }
+		
+    if(last_lock_state_1 != lock_state[1] && lock_task_flag_1==0 && lock_task_flag_2==0) {
+
+            if(lock_state[1]==1) buzzer_task_flag=1;
+            sleep_time=0;
+
+            last_lock_state_1=lock_state[1];
+						
+						LOG_I("State_Change");						
+						LOG_I("sw2:%d", lock_state[1]);	
+						
+            open_lock_data_reply_Result=0;
+            Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传            
+
+						look_status_send_count+=3;
+            if(look_status_send_count>=3) {
+                look_status_send_count=3;
+            }						
+            user_ble_send_flag=1;
+            TX_DATA_BUF[0]=0x52;		// CMD
+            TX_DATA_BUF[1]=TOKEN[0];
+            TX_DATA_BUF[2]=TOKEN[1];
+            TX_DATA_BUF[3]=TOKEN[2];
+            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+            TX_DATA_BUF[5]=0x08;    	//LEN
+            TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+						TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+						TX_DATA_BUF[9]=0x02;
+						
+						TX_DATA_BUF[10]=RFID_DATA_2[0];
+						TX_DATA_BUF[11]=RFID_DATA_2[1];
+						TX_DATA_BUF[12]=RFID_DATA_2[2];
+						TX_DATA_BUF[13]=RFID_DATA_2[3];						
+			}
+		
+		
 }
 //获取信号值
 uint16_t AT_GET_DB_TASK() {

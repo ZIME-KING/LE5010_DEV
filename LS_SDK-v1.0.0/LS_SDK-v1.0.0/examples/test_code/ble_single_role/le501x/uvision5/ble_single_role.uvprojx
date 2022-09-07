@@ -1734,6 +1734,21 @@
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\CLM920_YV9V2.c</FilePath>
             </File>
+            <File>
+              <FileName>lock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\lock.c</FilePath>
+            </File>
+            <File>
+              <FileName>MFRC522.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\MFRC522.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_rc522_function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_rc522_function.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

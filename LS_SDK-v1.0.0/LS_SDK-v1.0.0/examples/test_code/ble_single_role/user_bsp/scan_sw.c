@@ -4,8 +4,8 @@
 
 //配置任意开关中断模式可以唤醒启动
 
-#define SW1 PA07
-#define SW2 PB11
+#define SW1 PB11
+#define SW2 PA07
 #define KEY PB15
 
 //io下降沿唤醒函数
@@ -54,13 +54,15 @@ void Scan_Key(){
 //	static uint8_t edge_flag;
 //	static uint8_t edge_flag_1;
 	
-	if(KEY_FLAG==1 && KEY_ONCE==1){
-			//KEY_FLAG=0;
-			moro_task_flag=1; 
-			//globle_Result=0xff;
+	if(KEY_ONCE==1){
+			if(lock_task_flag_1_temp==1){
+							lock_task_flag_1=1; 
+			}
+			if(lock_task_flag_2_temp==1){
+							lock_task_flag_2=1;	
+			}
 	}
-	
-	
+		
 	if(io_read_pin(KEY)==0){
 			count++;
 			if(count==3){
@@ -69,22 +71,21 @@ void Scan_Key(){
 					SYSCFG->BKD[7]=0;
 					KEY_ONCE=1;
 					
-				  if(test_mode_flag!=0xAA && moro_task_flag!=1){
-						 moro_task_flag=1; 
+					//测试模式下有按键按下就启动开锁任务
+				  if(test_mode_flag!=0xAA){
+						 lock_task_flag_1=1; 
+						 lock_task_flag_2=1; 
 					}
 					LOG_I("Vbat:%d",VBat_value);		
 					LOG_I("Db_val:%d",Db_val);
-					//LOG_I("lock_state0:%d",Check_SW1());
-					//LOG_I("lock_state1:%d",Check_SW2());					
+					LOG_I("L11:%d",lock_state[0]);						
+					LOG_I("L2:%d",lock_state[1]);	
+					LOG_I("sw1:%d",Check_SW1());						
+					LOG_I("sw2:%d",Check_SW2());	
+					
 					Read_Status();
-					//if(Get_Task_State(OPEN_LOCK_SEND)){
-					//		Open_Lock_Send();
-					//		buzzer_task_flag=1;
-					//}
-					//else{
-							Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
-							buzzer_task_flag=1;
-					//}
+					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
+					buzzer_task_flag=1;
 			}
 			if(count==100 && test_mode_flag!=0xAA){
 						uint8_t temp_val = 0xAA;
@@ -93,22 +94,19 @@ void Scan_Key(){
 						tinyfs_write_through();
 						RESET_NB();
 						platform_reset(0);
-			}
-			
+			}			
 			if(count==1500){
 							buzzer_task_flag=1;
 							//模块重新配置服务器
 							tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
 							tinyfs_write_through();
 							RESET_NB();
-//							wd_FLAG=1;
 							platform_reset(0);
 			}
 			
 	}
 	else{
 			count=0;
-			//buzzer_task_flag=0;
 	}
 	
 //	
@@ -157,8 +155,7 @@ uint8_t Check_SW2(){
 #define RECORD_KEY7 7
 void  ls_sleep_enter_lp2(void)
 {
-	RESET_NB();
-	
+	RESET_NB();	
 	tinyfs_write(ID_dir_3,RECORD_KEY7,&VBat_value,1);	
 	#ifdef USER_TEST 
 	tinyfs_write(ID_dir_2,RECORD_KEY10,(uint8_t*)&open_count,1);	

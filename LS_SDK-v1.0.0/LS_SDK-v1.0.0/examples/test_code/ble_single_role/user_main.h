@@ -22,12 +22,15 @@
 #include "user_uart.h"
 #include "crc.h"
 #include "aes-128.h"
-#include "moto.h"
+//#include "moto.h"
+#include "lock.h"
 #include "Buzzer.h"
 #include "scan_sw.h"
 //#include "LPM2100_N.h"
 #include "CLM920_YV9V2.h"
 
+#include "mfrc522.h"
+#include "user_rc522_function.h"
 //#define USER_TEST 
 
 #ifdef USER_TEST 
@@ -68,6 +71,8 @@ extern uint8_t CIMI_DATA[15];
 extern uint8_t MICI_DATA[15];
 extern uint8_t SHORT_NAME[10];
 extern uint8_t NEW_SHORT_NAME[10];
+extern uint8_t RFID_DATA[4];
+extern uint8_t RFID_DATA_2[4];
 
 extern uint8_t SHORT_NAME_LEN;
 //extern uint8_t COMPLETE_NAME[7];

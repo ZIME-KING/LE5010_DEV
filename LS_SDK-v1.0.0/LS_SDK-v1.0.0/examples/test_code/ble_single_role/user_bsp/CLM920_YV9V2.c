@@ -5,8 +5,8 @@
 #define START 0x01
 #define STOP  0x00
 
-#define VER_0  0xA0
-#define VER_1  0xA0
+#define VER_0  0xB0
+#define VER_1  0xB0
 
 uint8_t send_count;							    //发送计数
 uint8_t lock_state[LOCK_NUM];     //锁状态存储
@@ -116,13 +116,13 @@ void UDP_Data_Send(uint8_t len){
 void Start_Lock_Send() {
     //uint8_t RX_BUF[255];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[60+2];
+    uint8_t DATA_BUF[67+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X3c;		//长度
+    DATA_BUF[2] = 67;		//长度
     DATA_BUF[3] = send_count++;   //send_count;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X01;   //功能码  启动
 
@@ -135,45 +135,50 @@ void Start_Lock_Send() {
     DATA_BUF[9]  = 0XA2;		//锁信号强度（0-31，99）
     DATA_BUF[10] = Get_dBm();
 
-    DATA_BUF[11] = 0XA6;		//支持的从锁数量
-    DATA_BUF[12] = 0X00;
+		DATA_BUF[11]  =0XAC;		//协议类型
+    DATA_BUF[12] = 0x02;	  //4G udp
 
-    DATA_BUF[13] = 0XB0; 	//电量 0~100%;
-    DATA_BUF[14] = VBat_value;	//50%
+    DATA_BUF[13] = 0XA6;		//支持的从锁数量
+    DATA_BUF[14] = LOCK_NUM;
 
-    DATA_BUF[15] = 0x00; 	  //lock_ID
-    DATA_BUF[16] = !lock_state[0];	//lock_state
-		
-		DATA_BUF[17] = 0x01; 	  //lock_ID
-    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
-		
-		
-		DATA_BUF[19] = 0xA8;			//MAC_ADDR
-		memcpy(&DATA_BUF[20],&MAC_ADDR[0],6);
+    DATA_BUF[15] = 0XB0; 	//电量 0~100%;
+    DATA_BUF[16] = VBat_value;	//50%
 
-		DATA_BUF[26] = 0xA7;			//MICI 卡号
-		memcpy(&DATA_BUF[27],&CIMI_DATA[0],15);
+    DATA_BUF[17] = 0x01; 	  //lock_ID
+    DATA_BUF[18] = !lock_state[0];	//lock_state
 		
-		DATA_BUF[42] = 0xA9;			//MICI 设备号
-		memcpy(&DATA_BUF[43],&MICI_DATA[0],15);
+		DATA_BUF[19] = 0x02; 	  //lock_ID
+    DATA_BUF[20] = !lock_state[1];	//lock_state
 		
 		
-    temp=CRC16_8005Modbus(&DATA_BUF[0],58);
-    DATA_BUF[59]=(temp & 0xff00) >>8;
-    DATA_BUF[58]= temp & 0xff;
+		DATA_BUF[21] = 0xA8;			//MAC_ADDR
+		memcpy(&DATA_BUF[22],&MAC_ADDR[0],6);
+
+		DATA_BUF[28] = 0xA7;			//MICI 卡号
+		memcpy(&DATA_BUF[29],&CIMI_DATA[0],15);
+		
+		DATA_BUF[44] = 0xA9;			//MICI 设备号
+		memcpy(&DATA_BUF[45],&MICI_DATA[0],15);
+		
+		DATA_BUF[60] = 0x80;			//RFID
+		memcpy(&DATA_BUF[61],&RFID_DATA[0],4);
+			
+    temp=CRC16_8005Modbus(&DATA_BUF[0],65);
+    DATA_BUF[66]=(temp & 0xff00) >>8;
+    DATA_BUF[65]= temp & 0xff;
 
 
-		DATA_BUF[60]='\r';										
-		DATA_BUF[61]='\n';
+		DATA_BUF[67]='\r';										
+		DATA_BUF[68]='\n';
 
     //hex2string(DATA_BUF,RX_BUF,60);
     //RX_BUF[60]='\0';
     //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);				
 		//sprintf((char*)F_RX_BUF,"&s\r\n",strlen((char*)DATA_BUF)>>1,(char*)RX_BUF);	
-		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
-		
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);		
 		LOG_I("START_LOCK_SEND");
-		send_time_delay+=100;
+		
+		//send_time_delay+=100;
 		//HAL_UART_Transmit(&UART_Config   ,&F_RX_BUF[0],strlen((char*)F_RX_BUF)+1,100);
 }
 //10请求开锁   携带数据同启动    请求开锁（如果20秒内没有收到服务器回复，则需要再次发送请求开锁指令，如果超过6次没有收到服务器开锁指令则放弃。）
@@ -186,7 +191,7 @@ void Open_Lock_Send() {
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X25;		//长度
+    DATA_BUF[2] = 37;		//长度
     DATA_BUF[3] = send_count++;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X10;   //功能码  请求开锁
 
@@ -200,16 +205,16 @@ void Open_Lock_Send() {
     DATA_BUF[10] = Get_dBm();
 
     DATA_BUF[11] = 0XA6;		//支持的从锁数量
-    DATA_BUF[12] = 0X00;
+    DATA_BUF[12] = LOCK_NUM;
 
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
     DATA_BUF[14] = VBat_value;	//50%
 
-    DATA_BUF[15] = 0x00; 	  //lock_ID
+    DATA_BUF[15] = 0x01; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
-
-		DATA_BUF[17] = 0xC0; 	  //lock_ID
-    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
+		
+		DATA_BUF[17] = 0x02; 	  //lock_ID
+    DATA_BUF[18] = !lock_state[1];	//lock_state
 
 
 		DATA_BUF[19] = 0xA9;			//MICI 卡号
@@ -243,7 +248,7 @@ void Tick_Lock_Send() {
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X25;		//长度
+    DATA_BUF[2] = 37;		//长度
     DATA_BUF[3] = send_count;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X02;   //功能码  心跳
 
@@ -262,10 +267,10 @@ void Tick_Lock_Send() {
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
     DATA_BUF[14] = VBat_value;	//50%
 
-		DATA_BUF[15] = 0x00; 	  //lock_ID
+		DATA_BUF[15] = 0x01; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
 		
-		DATA_BUF[17] = 0xC0; 	  //lock_ID
+		DATA_BUF[17] = 0x02; 	  //lock_ID
     DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 
 		DATA_BUF[19] = 0xA9;			//MICI 卡号
@@ -291,63 +296,6 @@ void Tick_Lock_Send() {
 		send_time_delay+=100;
 }
 
-//20 电机动作 信息上报   21数据未处理改为20同锁数据上报
-void Open_Lock_Data_Send_Moto() {
-    uint8_t RX_BUF[100];
-    uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[37+2];
-    uint16_t temp;
-
-    DATA_BUF[0] = Frame_header[0];//帧头
-    DATA_BUF[1] = Frame_header[1];//帧头
-
-    DATA_BUF[2] = 0X24;		//长度
-    DATA_BUF[3] = send_count++;     //事务ID  发送一次++ 0~255
-    DATA_BUF[4] = 0X20;   //功能码  启动
-
-    DATA_BUF[5] = 0XA0;   //锁硬件版本号
-    DATA_BUF[6] = VER_0;
-
-    DATA_BUF[7] = 0XA1;		//锁固件版本号
-    DATA_BUF[8] = VER_1;
-
-    DATA_BUF[9]  = 0XA2;		//锁信号强度（0-31，99）
-    DATA_BUF[10] = Get_dBm();
-
-    DATA_BUF[11] = 0XA6;		//支持的从锁数量
-    DATA_BUF[12] = LOCK_NUM;
-
-    DATA_BUF[13] = 0XB0; 	//电量 0~100%;
-    DATA_BUF[14] = VBat_value;	//50%
-
-		DATA_BUF[15] = 0x00; 	  //lock_ID
-    DATA_BUF[16] = !lock_state[0];	//lock_state
-		
-		DATA_BUF[17] = 0xc0; 	  //lock_ID
-    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
-
-		DATA_BUF[19] = 0xA9;			//MICI 卡号
-		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
-
-
-    temp=CRC16_8005Modbus(&DATA_BUF[0],35);
-    DATA_BUF[36]=(temp & 0xff00) >>8;
-    DATA_BUF[35]= temp & 0xff;
-
-		DATA_BUF[37]= '\r';
-		DATA_BUF[38]= '\n';
-
-//	hex2string(DATA_BUF,RX_BUF,37);
-//  RX_BUF[74]='\0';
-//	UDP_Data_Send(74);
-//  //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-//  sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
-		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
-	
-		LOG_I("Open_Lock_Data_Send_Moto");
-		send_time_delay+=100;
-}
-
 
 //20 信息上报输入 锁ID号，锁更新状态
 void Open_Lock_Data_Send() {
@@ -356,12 +304,12 @@ void Open_Lock_Data_Send() {
     uint8_t DATA_BUF[37+2];
     uint16_t temp;
 
-    DATA_BUF[0] = Frame_header[0];//帧头
+   DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 0X25;		//长度
-    DATA_BUF[3] = send_count++;     //事务ID  发送一次++ 0~255
-    DATA_BUF[4] = 0X20;   //功能码  启动
+    DATA_BUF[2] = 37;		//长度
+    DATA_BUF[3] = send_count++;   //事务ID  发送一次++ 0~255
+    DATA_BUF[4] = 0X20;   //功能码  
 
     DATA_BUF[5] = 0XA0;   //锁硬件版本号
     DATA_BUF[6] = VER_0;
@@ -378,15 +326,14 @@ void Open_Lock_Data_Send() {
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
     DATA_BUF[14] = VBat_value;	//50%
 
-		DATA_BUF[15] = 0x00; 	  //lock_ID
+    DATA_BUF[15] = 0x01; 	  //lock_ID
     DATA_BUF[16] = !lock_state[0];	//lock_state
-	
-		DATA_BUF[17] = 0xC0; 	  //lock_ID
-    DATA_BUF[18] = !C0_lock_state[0];	//lock_state
 		
+		DATA_BUF[17] = 0x02; 	  //lock_ID
+    DATA_BUF[18] = !lock_state[1];	//lock_state
+
 		DATA_BUF[19] = 0xA9;			//MICI 卡号
 		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
-
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],35);
     DATA_BUF[36]=(temp & 0xff00) >>8;
@@ -395,15 +342,7 @@ void Open_Lock_Data_Send() {
 		DATA_BUF[37]= '\r';
 		DATA_BUF[38]= '\n';
 
-//    hex2string(DATA_BUF,RX_BUF,37);
-//    RX_BUF[74]='\0';
-
-
-//    UDP_Data_Send(74);
-//		//sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-//		sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);			
-		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
-		
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);	
 		LOG_I("Open_Lock_Data_Send");
 		send_time_delay+=100;
 }
