@@ -14,6 +14,11 @@ typedef struct{
 
 extern Card_TypeDef  M1_Card;
 
+
+extern uint8_t	rfid_task_flag_1;
+extern uint8_t	rfid_task_flag_2;
+
+
 void User_Mfrc522(Card_TypeDef *card,char snr);
 
 #endif

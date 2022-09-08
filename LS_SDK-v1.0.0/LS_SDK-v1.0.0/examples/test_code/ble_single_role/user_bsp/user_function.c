@@ -4,7 +4,7 @@
 #include <string.h>
 
 //#define USB_CHECK PA03
-#define USB_CHECK   PA03
+#define USB_CHECK   PA00
 //#define	USB_CHECK_B PB06
 
 uint8_t look_status_send_count;
@@ -14,23 +14,6 @@ uint8_t look_status_send_count;
 uint8_t user_time  =100;
 uint8_t user_count =30;
 
-//#define	USER_TIME  100
-//#define	USER_COUNT 25
-
-
-//#define RECORD_KEY1  1	//蓝牙名称
-//#define RECORD_KEY2  2  //完成模块初始化标记
-//#define RECORD_KEY3  3  //蓝牙开锁密码
-//#define RECORD_KEY4  4  //蓝牙通信密钥 低8位
-//#define RECORD_KEY5  5  //蓝牙通信密钥 高8位
-//#define RECORD_KEY6  6  //给flash里面写入初始值标记
-//#define RECORD_KEY7  7  //last_Vbat
-//#define RECORD_KEY8  8  //last_Vbat_max
-//#define RECORD_KEY9  9  //CIMI
-
-//#ifdef USER_TEST
-//#define RECORD_KEY10 10
-//#endif
 
 tinyfs_dir_t ID_dir_1;
 tinyfs_dir_t ID_dir_2;
@@ -63,7 +46,7 @@ uint8_t send_mode_Result=0;//进入udp发送模式成功标记
 
 uint32_t adc_value = 0;						//
 uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
-uint8_t Db_val;
+uint8_t Db_val=0x00;
 
 volatile uint8_t recv_flag = 0;
 static ADC_HandleTypeDef hadc;
@@ -73,37 +56,54 @@ static void lsadc_init(void);
 
 uint8_t test_status;
 
+#define LED_R     PA05
+#define LED_G     PC00
+
+#include "reg_lsgpio.h"
+
 void User_Init() {
     lsadc_init();
     HAL_ADCEx_InjectedStart_IT(&hadc);
     Button_Gpio_Init();
     Lock_gpio_init();
     Basic_PWM_Output_Cfg();
-    //Read_Last_Data();
-    io_cfg_output(PA05);   //LED_0
-    io_write_pin(PA05,0);	 //LED_0
-    io_cfg_output(PC00);   //LED_1
-    io_write_pin(PC00,0);  //LED_1
-
-
+    
+		io_cfg_output(LED_R);   //LED_0
+    io_write_pin(LED_R,0);	//LED_0
+		
+    io_cfg_output(LED_G);   //LED_1
+    io_write_pin(LED_G,0);  //LED_1
+		
     io_cfg_output(PA08);   //REST
     io_write_pin(PA08,0);  //REST
-
-    //HAL_IWDG_Init(32756);  			  //1s看门狗
+		
+    io_cfg_output(PB07);   //充电控制
+    io_write_pin(PB07,1);  //
+		
+    io_cfg_output(PC01);   //外置紫外灯		
+		io_write_pin(PC01,1);  //
+		
+		io_cfg_output(PA06);   //LED_0
+    io_write_pin(PA06,1);	 //LED_0
+		io_write_pin(PA06,0);	 //LED_0
+		io_write_pin(PA06,1);	 //LED_0
+		
+    //HAL_IWDG_Init(32756*10);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
-    RTC_wkuptime_set(3*60*60);	 //唤醒时间3h  休眠函数在sw.c 中
-    //RTC_wkuptime_set(60);	 		 //唤醒时间60s  休眠函数在sw.c 中
+    //RTC_wkuptime_set(3*60*60); //单位ms  唤醒时间3h  休眠函数在sw.c 中
+    RTC_wkuptime_set(60*1000);	 //唤醒时间60s  休眠函数在sw.c 中
     WAKE_UP();                   //POWER_100MS下拉
     Set_Task_State(GET_DB_VAL,START);
 }
+
 extern uint8_t RTC_flag;
 void LED_TASK() {
     static uint8_t flag;
     static uint8_t count;
     //来自RTC的启动，不要亮灯
     if (RTC_flag==1) {
-        io_write_pin(PC00, 0);
-        io_write_pin(PC01, 0);
+        io_write_pin(LED_G, 0);
+        io_write_pin(LED_R, 0);
     }
     else {
         count++;
@@ -112,8 +112,8 @@ void LED_TASK() {
             else flag=1;
         }
         if(BLE_connected_flag==1) {
-            io_write_pin(PC00, 0);
-            io_write_pin(PA05, 1);
+            io_write_pin(LED_G, 0);
+            io_write_pin(LED_R, 1);
         }
         else {
             //5V接入
@@ -122,29 +122,29 @@ void LED_TASK() {
                 //LOG_I("usb_in");
                 //20~90 绿灯闪
                 if(VBat_value>20 && VBat_value<=90) {
-                    io_write_pin(PC00, flag);
-                    io_write_pin(PA05, 0);
+                    io_write_pin(LED_G, flag);
+                    io_write_pin(LED_R, 0);
                 }
                 //<20 红灯闪
                 else if( VBat_value<=20) {
-                    io_write_pin(PC00, 0);
-                    io_write_pin(PA05, flag);
+                    io_write_pin(LED_G, 0);
+                    io_write_pin(LED_R, flag);
                 }
                 //20~90 绿灯常量
                 else if(VBat_value>90) {
-                    io_write_pin(PC00, 1);
-                    io_write_pin(PA05, 0);
+                    io_write_pin(LED_G, 1);
+                    io_write_pin(LED_R, 0);
                 }
             }
             else {
                 if(VBat_value>20) {
-                    io_write_pin(PC00, 1);
-                    io_write_pin(PA05, 0);
+                    io_write_pin(LED_G, 1);
+                    io_write_pin(LED_R, 0);
                 }
                 //<20 红灯
                 else if(VBat_value<=20) {
-                    io_write_pin(PC00, 0);
-                    io_write_pin(PA05, 1);
+                    io_write_pin(LED_G, 0);
+                    io_write_pin(LED_R, 1);
                 }
             }
         }
@@ -898,21 +898,14 @@ uint16_t Tick_Lock_Send_Task() {
     return temp;		
 }
 
-
-
-
-//MARK!!!!!!!!!!!!!!!!
 //20信息上报  锁+状态
 uint16_t Open_Lock_Data_Send_Task() {
-
-
-
 		static uint16_t over_count=0;  // 超限计数
     static uint16_t count=0;  		 //
 		static uint16_t temp=0;
     static uint16_t i=0;
     static uint8_t step=1;
-    if(Get_Task_State(OPEN_LOCK_DATA_SEND) && AT_tset_flag==0 ) {
+    if(Get_Task_State(OPEN_LOCK_DATA_SEND) && AT_tset_flag==0 && rfid_task_flag_1==0 && rfid_task_flag_2==0 ) {
 				if(open_lock_data_reply_Result==1) {
                 globle_Result=0xFF;
                 open_lock_data_reply_Result=0;
@@ -937,7 +930,7 @@ uint16_t Open_Lock_Data_Send_Task() {
 											Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);  //回复错误次数>5停发
 											break;
 										}
-										UDP_Data_Send(37);		//进入发送模式
+										UDP_Data_Send(47);		//进入发送模式
                 }
             }
             break;
@@ -1023,42 +1016,45 @@ void State_Change_Task() {
         sw2_count=0;
     }
 
-    if(last_lock_state_0 != lock_state[0]  && lock_task_flag_1==0 && lock_task_flag_2==0) {
-
-            if(lock_state[0]==1) buzzer_task_flag=1;
+    if(last_lock_state_0 != lock_state[0]  && lock_task_flag_1==0 && lock_task_flag_2==0){   //开锁中任务中不触发     
+						
+						rfid_task_flag_1=1;    //开启一号卡扫卡/            
+						if(lock_state[0]==1) buzzer_task_flag=1;
+						
+						 last_lock_state_0=lock_state[0];
+						
             sleep_time=0;
-            last_lock_state_0=lock_state[0];
-
 						LOG_I("State_Change");	
 						LOG_I("sw1:%d", lock_state[0]);
-						
             open_lock_data_reply_Result=0;
-            Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
-            
-						look_status_send_count+=3;
-            if(look_status_send_count>=3) {
-                look_status_send_count=3;
-            }
-												
-            user_ble_send_flag=1;
-            TX_DATA_BUF[0]=0x52;		// CMD
-            TX_DATA_BUF[1]=TOKEN[0];
-            TX_DATA_BUF[2]=TOKEN[1];
-            TX_DATA_BUF[3]=TOKEN[2];
-            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-            TX_DATA_BUF[5]=0x08;    	//LEN
-            TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
-						TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
-            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
-						TX_DATA_BUF[9]=0x01;
+            Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传           
 						
-						TX_DATA_BUF[10]=RFID_DATA[0];
-						TX_DATA_BUF[11]=RFID_DATA[1];
-						TX_DATA_BUF[12]=RFID_DATA[2];
-						TX_DATA_BUF[13]=RFID_DATA[3];		
+						look_status_send_count+=3;            
+						if(look_status_send_count>=3) {
+                look_status_send_count=3;
+            }									
+            
+//						user_ble_send_flag=1;						
+//            TX_DATA_BUF[0]=0x52;		// CMD
+//            TX_DATA_BUF[1]=TOKEN[0];
+//            TX_DATA_BUF[2]=TOKEN[1];
+//            TX_DATA_BUF[3]=TOKEN[2];
+//            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//            TX_DATA_BUF[5]=0x08;    	//LEN
+//            TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+//						TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+//            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+//						TX_DATA_BUF[9]=0x01;
+//						
+//						TX_DATA_BUF[10]=RFID_DATA[0];
+//						TX_DATA_BUF[11]=RFID_DATA[1];
+//						TX_DATA_BUF[12]=RFID_DATA[2];
+//						TX_DATA_BUF[13]=RFID_DATA[3];		
     }
 		
-    if(last_lock_state_1 != lock_state[1] && lock_task_flag_1==0 && lock_task_flag_2==0) {
+    if(last_lock_state_1 != lock_state[1] && lock_task_flag_1==0 && lock_task_flag_2==0) {      //扫卡完成再上报数据
+						
+						//rfid_task_flag_2=1;    //开启二号卡扫卡
 
             if(lock_state[1]==1) buzzer_task_flag=1;
             sleep_time=0;
@@ -1210,7 +1206,7 @@ uint16_t AT_User_Set() {
 }
 
 
-uint8_t AT_tset_flag=0;
+uint8_t AT_tset_flag=0x00;
 
 void AT_User_Reply_Task() {
     if(AT_tset_flag==1) {
@@ -1370,7 +1366,7 @@ void UDP_INIT() {
                     step++;
                 }
                 AT_Command_Send(QIPCSGP);
-                buzzer_task_flag=1;
+                //buzzer_task_flag=1;
             }
             break;
 
@@ -1382,12 +1378,13 @@ void UDP_INIT() {
             }
             else {
                 count_out++;
-                if(count_out>2) {
+                if(count_out>5) {
                     count_out=0	;
-                    step++;
+                    step+=2;
                 }
+								step++;
                 AT_Command_Send(QIPACT_ASK);
-                buzzer_task_flag=1;
+                //buzzer_task_flag=1;
             }
             break;
 
@@ -1395,7 +1392,7 @@ void UDP_INIT() {
         case 2:
             step--;
             AT_Command_Send(QIPACT);
-            buzzer_task_flag=1;
+            //buzzer_task_flag=1;
             break;
 
         //启动连接
@@ -1414,7 +1411,7 @@ void UDP_INIT() {
                     step++;
                 }
                 AT_Command_Send(QIPOPEN);
-                buzzer_task_flag=1;
+                //buzzer_task_flag=1;
             }
             break;
         default : /* 可选的 */

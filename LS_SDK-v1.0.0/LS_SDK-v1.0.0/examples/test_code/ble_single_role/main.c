@@ -23,8 +23,8 @@
 uint8_t MAC_ADDR[6];
 uint8_t CIMI_DATA[15] ="460000000000000";
 uint8_t MICI_DATA[15]="860000000000000";
-uint8_t RFID_DATA[4]	={0XAA,0XBB,0XCC,0XDD};
-uint8_t RFID_DATA_2[4]={0X11,0x22,0x33,0x44};
+uint8_t RFID_DATA[4]	={0x00,0x00,0x00,0x00};
+uint8_t RFID_DATA_2[4]={0X00,0x00,0x00,0x00};
 uint8_t SHORT_NAME[10]="3141592654";
 
 uint8_t NEW_SHORT_NAME[10];
@@ -355,15 +355,14 @@ static void ls_user_event_timer_cb_1(void *param)
 						
 						UDP_INIT();
 						//AT_User_Set_Task();
-						//AT_User_Reply_Task();
-;						
-//					Open_Lock_Data_Send_Moto_Task();	 	 
+						//AT_User_Reply_Task();				
             State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
 						Start_Lock_Send_Task();			 				 //启动信息上报
             Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
             Open_Lock_Data_Send_Task();  				 //信息上报
-//            Tick_Lock_Send_Task();							 //心跳包       	
-					Lock_task() ;
+            Tick_Lock_Send_Task();							 //心跳包       	
+						Lock_task() ;
+						User_Mfrc522(&M1_Card,0); //获取rfid		
         }
     }
 		//蓝牙连接下
@@ -1126,28 +1125,31 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 				
 				
 				
-				
+
 				
 
         uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
         LOG_I("wkup_source:%x",wkup_source) ;
-        Set_Sleep_Time(150);
-				
+        Set_Sleep_Time(60);
+
         //来自RTC的启动，发送心跳包
-        if ((RTC_WKUP & wkup_source) != 0) {
-						RTC_flag=1;
-						SYSCFG->BKD[7]++;
-						if(SYSCFG->BKD[7]<7){
-							Set_Sleep_Time(1);
-							//RESET_NB();
-						}
-						else if(SYSCFG->BKD[7]==8){
-							SYSCFG->BKD[7]=0;
-							Set_Sleep_Time(150);
-							RESET_NB();
-							Set_Task_State(TICK_LOCK_SEND,START);
-							AT_tset_flag=1;
-						}
+        if ((RTC_WKUP & wkup_source) != 0) {					
+						AT_tset_flag=2;
+						RTC_flag=1;						
+						Set_Task_State(TICK_LOCK_SEND,START);						
+//SYSCFG->BKD[7]++;
+//if(SYSCFG->BKD[7]<7){
+//Set_Sleep_Time(1);
+////RESET_NB();
+//}
+//else if(SYSCFG->BKD[7]==8){
+//SYSCFG->BKD[7]=0;
+//Set_Sleep_Time(150);
+//RESET_NB();
+//Set_Task_State(TICK_LOCK_SEND,START);
+//AT_tset_flag=1;
+//}
+
         }
         //来自按键和锁开关唤醒
         else if ((PB15_IO_WKUP & wkup_source) != 0) {
@@ -1175,10 +1177,9 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         else if (wkup_source == 0) {
 					  AT_tset_flag=2;
 						reset_flag=1;
-            Set_Task_State(START_LOCK_SEND,START);						
-						User_Mfrc522(&M1_Card,0); //获取rfid						
+            Set_Task_State(START_LOCK_SEND,START);										
         }
-				
+				//RTC_flag=1;	
 				// AT_tset_flag=0;
 				// LOG_I("wkup_source:%x",wkup_source) ;
 				//HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
@@ -1186,11 +1187,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 				if(test_mode_flag!=0xAA){
 				    //Set_Task_State(GET_MODE_VAL,START);
 						//Set_Task_State(GET_EMIC_VAL,STOP);
-					  Set_Task_State(START_LOCK_SEND,STOP);
-					  Set_Task_State(OPEN_LOCK_SEND,STOP);
-					  Set_Task_State(TICK_LOCK_SEND,STOP);
-					  Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-					  Set_Task_State(GET_DB_VAL,STOP);
+//					  Set_Task_State(START_LOCK_SEND,STOP);
+//					  Set_Task_State(OPEN_LOCK_SEND,STOP);
+//					  Set_Task_State(TICK_LOCK_SEND,STOP);
+//					  Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+//					  Set_Task_State(GET_DB_VAL,STOP);
 						//Set_Task_State(GET_DB_VAL,STOP);
 					
 					

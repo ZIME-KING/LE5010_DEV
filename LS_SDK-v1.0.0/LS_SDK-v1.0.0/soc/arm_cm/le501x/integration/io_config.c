@@ -856,7 +856,7 @@ void io_init(void)
     LSGPIOA->IE = 0;
     LSGPIOA->OE = 0;
 		
-		LSGPIOA->OT = 0X20;
+		//LSGPIOA->OT = 0X20;
     
 		LSGPIOA->PUPD = 0;
     LSGPIOB->MODE &= 0x3c00;  //3C00

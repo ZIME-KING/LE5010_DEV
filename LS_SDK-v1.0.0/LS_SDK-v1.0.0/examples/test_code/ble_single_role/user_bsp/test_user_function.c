@@ -3,84 +3,84 @@
 #include "test_user_function.h"
 #include <string.h>
 
-#define TUSB_CHECK   PA03
+#define TUSB_CHECK   PA00
 //#define	TUSB_CHECK_B PB06
 
 void TEST_LED_TASK(){
-	static uint8_t flag;
-	static uint8_t flag1;
-	static uint16_t count;
-	count++;
-	if(count%10==0){
-		if(flag1==1)flag1=0;
-		else flag1=1;
-	}
-	if(count%20==0){
-		if(flag==1)flag=0;
-		else flag=1;
-	}
+//	static uint8_t flag;
+//	static uint8_t flag1;
+//	static uint16_t count;
+//	count++;
+//	if(count%10==0){
+//		if(flag1==1)flag1=0;
+//		else flag1=1;
+//	}
+//	if(count%20==0){
+//		if(flag==1)flag=0;
+//		else flag=1;
+//	}
 
-	//«∞5s…¡À∏,∫Û√Ê¡¡∫Ïµ∆
-	if(count<50){
-			io_write_pin(PC00, flag1);
-			io_write_pin(PC01, !flag1);
-	}
-	else if(count==51){
-			io_write_pin(PC00, 0);
-			io_write_pin(PC01, 1);
-	}
-	else{
-			if(BLE_connected_flag==1){
-				io_write_pin(PC00, 0);
-				io_write_pin(PC01, 1);
-			}
-			else{
-				if(Get_Task_State(GET_MODE_VAL)==START){
-						io_write_pin(PC00, 0);
-						io_write_pin(PC01, 1);
-				}
-				else if(Get_Task_State(GET_EMIC_VAL)==START){
-						io_write_pin(PC00, 0);
-						io_write_pin(PC01, flag1);
-				}
-				else if(Get_Task_State(TEST_GET_DB_VAL)==START){
-						io_write_pin(PC00, 0);
-						io_write_pin(PC01, flag);
-				}
-				else{
-					
-					io_cfg_input(TUSB_CHECK);   //PB09 config output
-//				io_cfg_input(TUSB_CHECK_B);   //PB09 config output										
-//				LOG_I("usb_in1%d",io_read_pin(TUSB_CHECK));
-//				LOG_I("usb_in2%d",io_read_pin(TUSB_CHECK_B));		
-					if(io_read_pin(TUSB_CHECK)==1 ){
-						
-//						io_cfg_output(TUSB_CHECK);   //PB09 config output
-//						io_cfg_output(TUSB_CHECK_B);   //PB09 config output
-//						io_write_pin(TUSB_CHECK, 0);
-//						io_write_pin(TUSB_CHECK_B, 0);
-												
-						LOG_I("usb_in");
-						//20~90 ¬Ãµ∆…¡
-						//if(VBat_value>20 && VBat_value<=90){
-						io_write_pin(PC00, flag);
-						io_write_pin(PC01, 0);
-						//}
-						}
-					else{
-						if(VBat_value>20){
-							io_write_pin(PC00, 1);
-							io_write_pin(PC01, 0);
-						}
-						//<20 ∫Ïµ∆
-						else if(VBat_value>0 && VBat_value<=20){
-							io_write_pin(PC00, 0);
-							io_write_pin(PC01, 1);
-						}
-					}
-				}
-			}
-	}
+//	//«∞5s…¡À∏,∫Û√Ê¡¡∫Ïµ∆
+//	if(count<50){
+//			io_write_pin(PC00, flag1);
+//			io_write_pin(PC01, !flag1);
+//	}
+//	else if(count==51){
+//			io_write_pin(PC00, 0);
+//			io_write_pin(PC01, 1);
+//	}
+//	else{
+//			if(BLE_connected_flag==1){
+//				io_write_pin(PC00, 0);
+//				io_write_pin(PC01, 1);
+//			}
+//			else{
+//				if(Get_Task_State(GET_MODE_VAL)==START){
+//						io_write_pin(PC00, 0);
+//						io_write_pin(PC01, 1);
+//				}
+//				else if(Get_Task_State(GET_EMIC_VAL)==START){
+//						io_write_pin(PC00, 0);
+//						io_write_pin(PC01, flag1);
+//				}
+//				else if(Get_Task_State(TEST_GET_DB_VAL)==START){
+//						io_write_pin(PC00, 0);
+//						io_write_pin(PC01, flag);
+//				}
+//				else{
+//					
+//					io_cfg_input(TUSB_CHECK);   //PB09 config output
+////				io_cfg_input(TUSB_CHECK_B);   //PB09 config output										
+////				LOG_I("usb_in1%d",io_read_pin(TUSB_CHECK));
+////				LOG_I("usb_in2%d",io_read_pin(TUSB_CHECK_B));		
+//					if(io_read_pin(TUSB_CHECK)==1 ){
+//						
+////						io_cfg_output(TUSB_CHECK);   //PB09 config output
+////						io_cfg_output(TUSB_CHECK_B);   //PB09 config output
+////						io_write_pin(TUSB_CHECK, 0);
+////						io_write_pin(TUSB_CHECK_B, 0);
+//												
+//						LOG_I("usb_in");
+//						//20~90 ¬Ãµ∆…¡
+//						//if(VBat_value>20 && VBat_value<=90){
+//						io_write_pin(PC00, flag);
+//						io_write_pin(PC01, 0);
+//						//}
+//						}
+//					else{
+//						if(VBat_value>20){
+//							io_write_pin(PC00, 1);
+//							io_write_pin(PC01, 0);
+//						}
+//						//<20 ∫Ïµ∆
+//						else if(VBat_value>0 && VBat_value<=20){
+//							io_write_pin(PC00, 0);
+//							io_write_pin(PC01, 1);
+//						}
+//					}
+//				}
+//			}
+//	}
 }
 //ªÒ»°–≈∫≈÷µ
 uint16_t TEST_AT_GET_DB_TASK(){

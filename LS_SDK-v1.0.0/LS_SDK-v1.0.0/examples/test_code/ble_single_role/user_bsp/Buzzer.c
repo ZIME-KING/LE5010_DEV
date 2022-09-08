@@ -20,7 +20,7 @@ void Buzzer_Task(){
 	static uint8_t count_2;
 	static uint8_t temp;
 	
-	return;
+	//return;
 	
 	if(buzzer_task_flag==1){
   		Buzzer_ON();

@@ -7,8 +7,18 @@
 #define SW1 PB11
 #define SW2 PA07
 #define KEY PB15
+#define USB_CHECK PA00
+
 
 //io下降沿唤醒函数
+static void exitpa00_iowkup_init(void)
+{
+	  io_cfg_input(USB_CHECK);               				//输入模式                     
+    io_pull_write(USB_CHECK, IO_PULL_UP);  				//设置上拉    
+    io_exti_config(USB_CHECK,INT_EDGE_FALLING);   //下降沿触发中断 
+    io_exti_enable(USB_CHECK,true);            		//启动中断使能    
+}
+
 static void exitpb15_iowkup_init(void)
 {
 	  io_cfg_input(KEY);               				//输入模式                     
@@ -155,20 +165,27 @@ uint8_t Check_SW2(){
 #define RECORD_KEY7 7
 void  ls_sleep_enter_lp2(void)
 {
-	RESET_NB();	
+	//RESET_NB();	
 	tinyfs_write(ID_dir_3,RECORD_KEY7,&VBat_value,1);	
 	#ifdef USER_TEST 
 	tinyfs_write(ID_dir_2,RECORD_KEY10,(uint8_t*)&open_count,1);	
 	#endif
 	tinyfs_write_through();
 	
+	io_write_pin(PA03,1);
+	DELAY_US(1000*1000*6);
+	io_write_pin(PA03,0);
+	
 	io_init();
 	io_write_pin(PC00, 0);
-	io_write_pin(PC01, 0);
+	//io_write_pin(PC01, 0);
+	
+	
+	
 	exitpb15_iowkup_init();
+	exitpa00_iowkup_init();
 	exitpa07_iowkup_init();
 	exitpb11_iowkup_init();
-
 	
 	
 	struct deep_sleep_wakeup wakeup;
@@ -177,6 +194,10 @@ void  ls_sleep_enter_lp2(void)
 	wakeup.pb15_rising_edge = 0;			//选择边沿唤醒
 	wakeup.pa00 = 1 ;									//选择PA00作为唤醒io
 	wakeup.pa00_rising_edge = 0;			//选择边沿唤醒
+	wakeup.pa07 = 1 ;									//选择PB15作为唤醒io
+	wakeup.pa07_rising_edge = 0;			//选择边沿唤醒
+	wakeup.pb11 = 1 ;									//选择PA00作为唤醒io
+	wakeup.pb11_rising_edge = 0;			//选择边沿唤醒
 	
 	wakeup.rtc  = 1 ;
   enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//调用唤醒函数

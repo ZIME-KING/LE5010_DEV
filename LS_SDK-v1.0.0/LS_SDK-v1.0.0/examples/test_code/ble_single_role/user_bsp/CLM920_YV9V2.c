@@ -24,6 +24,24 @@ void WAKE_UP(){
 		io_write_pin(PA03,0);
 }
 
+//void POWER_OFF(){
+//		if(power_off_flag==1){
+//			count++;
+//			
+//		
+//		
+//		
+//		
+//		
+//		}
+//		io_cfg_output(PA03);               //输出模式                     
+//    //io_pull_write(PA03, IO_PULL_UP);   //设置上拉  
+//		io_write_pin(PA03,1);
+//		DELAY_US(500*1000);
+//		io_write_pin(PA03,0);
+//}
+
+
 void RESET_NB(){
 //		io_cfg_output(PA05);               //输出模式                     
 //    io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
@@ -160,7 +178,7 @@ void Start_Lock_Send() {
 		DATA_BUF[44] = 0xA9;			//MICI 设备号
 		memcpy(&DATA_BUF[45],&MICI_DATA[0],15);
 		
-		DATA_BUF[60] = 0x80;			//RFID
+		DATA_BUF[60] = 0x81;			//RFID
 		memcpy(&DATA_BUF[61],&RFID_DATA[0],4);
 			
     temp=CRC16_8005Modbus(&DATA_BUF[0],65);
@@ -217,9 +235,8 @@ void Open_Lock_Send() {
     DATA_BUF[18] = !lock_state[1];	//lock_state
 
 
-		DATA_BUF[19] = 0xA9;			//MICI 卡号
+		DATA_BUF[19] = 0xA9;			//MICI 
 		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
-
 
     temp=CRC16_8005Modbus(&DATA_BUF[0],35);
     DATA_BUF[36]=(temp & 0xff00) >>8;
@@ -228,10 +245,6 @@ void Open_Lock_Send() {
 		DATA_BUF[37]= '\r';
 		DATA_BUF[38]= '\n';
 
-		//hex2string(DATA_BUF,RX_BUF,37);
-		//RX_BUF[74]='\0';
-    //sprintf((char*)F_RX_BUF,"AT+CTM2MSEND=%s,1\r\n",(char*)RX_BUF);
-    //sprintf((char*)F_RX_BUF,"AT+SKTSEND=1,%d,%s\r\n",strlen((char*)RX_BUF)>>1,(char*)RX_BUF);	
 		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
 		
 		LOG_I("Open_Lock_Send");
@@ -299,17 +312,17 @@ void Tick_Lock_Send() {
 
 //20 信息上报输入 锁ID号，锁更新状态
 void Open_Lock_Data_Send() {
-    uint8_t RX_BUF[100];
+   uint8_t RX_BUF[100];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[37+2];
-    uint16_t temp;
+    uint8_t DATA_BUF[47+2];
+		uint16_t temp;
 
-   DATA_BUF[0] = Frame_header[0];//帧头
+    DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 37;		//长度
+    DATA_BUF[2] = 47;		//长度
     DATA_BUF[3] = send_count++;   //事务ID  发送一次++ 0~255
-    DATA_BUF[4] = 0X20;   //功能码  
+    DATA_BUF[4] = 0X20;   //功能码
 
     DATA_BUF[5] = 0XA0;   //锁硬件版本号
     DATA_BUF[6] = VER_0;
@@ -332,17 +345,24 @@ void Open_Lock_Data_Send() {
 		DATA_BUF[17] = 0x02; 	  //lock_ID
     DATA_BUF[18] = !lock_state[1];	//lock_state
 
-		DATA_BUF[19] = 0xA9;			//MICI 卡号
+
+		DATA_BUF[19] = 0xA9;			//MICI 
 		memcpy(&DATA_BUF[20],&MICI_DATA[0],15);
 
-    temp=CRC16_8005Modbus(&DATA_BUF[0],35);
-    DATA_BUF[36]=(temp & 0xff00) >>8;
-    DATA_BUF[35]= temp & 0xff;
+		DATA_BUF[35] = 0x81;			//RFID
+		memcpy(&DATA_BUF[36],&RFID_DATA[0],4);
+		
+		DATA_BUF[40] = 0x82;			//RFID
+		memcpy(&DATA_BUF[41],&RFID_DATA_2[0],4);
 
-		DATA_BUF[37]= '\r';
-		DATA_BUF[38]= '\n';
+    temp=CRC16_8005Modbus(&DATA_BUF[0],45);
+    DATA_BUF[46]=(temp & 0xff00) >>8;
+    DATA_BUF[45]= temp & 0xff;
 
-		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);	
+		DATA_BUF[47]= '\r';
+		DATA_BUF[48]= '\n';
+
+		HAL_UART_Transmit(&UART_Config_AT,&DATA_BUF[0],sizeof(DATA_BUF),500);
 		LOG_I("Open_Lock_Data_Send");
 		send_time_delay+=100;
 }
