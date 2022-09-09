@@ -32,8 +32,10 @@ uint8_t lock_task_flag_2_temp=0;
 void Lock_task(){
 		static uint16_t count_1;
 		static uint16_t count_2;
-		static uint8_t  temp=0x10;    //µÈ´ý
-					 
+		static uint8_t  temp=0x10;    //µÈ´ý					 
+		 if(rfid_task_flag_1!=0  || rfid_task_flag_2!=0){
+				return;
+		 }			 		
 		if(lock_task_flag_1==1){
 					if(lock_state[0]==0){
 							 Lock_1_off();

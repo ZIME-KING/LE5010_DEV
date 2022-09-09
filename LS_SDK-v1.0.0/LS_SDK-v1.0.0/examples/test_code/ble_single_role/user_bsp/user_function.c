@@ -88,10 +88,10 @@ void User_Init() {
 		io_write_pin(PA06,0);	 //LED_0
 		io_write_pin(PA06,1);	 //LED_0
 		
-    //HAL_IWDG_Init(32756*10);  	 //5s看门狗
+    HAL_IWDG_Init(32756*10);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
-    //RTC_wkuptime_set(3*60*60); //单位ms  唤醒时间3h  休眠函数在sw.c 中
-    RTC_wkuptime_set(60*1000);	 //唤醒时间60s  休眠函数在sw.c 中
+    RTC_wkuptime_set(24*60*60*1000); //单位ms  唤醒时间3h  休眠函数在sw.c 中
+    //RTC_wkuptime_set(60*1000);	 //唤醒时间60s  休眠函数在sw.c 中
     WAKE_UP();                   //POWER_100MS下拉
     Set_Task_State(GET_DB_VAL,START);
 }
@@ -104,8 +104,10 @@ void LED_TASK() {
     if (RTC_flag==1) {
         io_write_pin(LED_G, 0);
         io_write_pin(LED_R, 0);
+				io_write_pin(PC01, 1);
     }
     else {
+				io_write_pin(PC01, 0);
         count++;
         if(count%20==0) {
             if(flag==1)flag=0;
@@ -715,7 +717,7 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
 uint16_t Start_Lock_Send_Task() {
     static uint16_t over_count=0;  // 超限计数
     static uint16_t count=0;  		 //
-	static uint16_t temp=0;
+		static uint16_t temp=0;
     static uint16_t i=0;
     static uint8_t step=1;
     if(Get_Task_State(START_LOCK_SEND) && AT_tset_flag==0 ) {
@@ -743,7 +745,7 @@ uint16_t Start_Lock_Send_Task() {
 											Set_Task_State(START_LOCK_SEND,STOP);  //回复错误次数>5停发
 											break;
 										}
-										UDP_Data_Send(67);		//进入发送模式
+										UDP_Data_Send(72);		//进入发送模式
                 }
             }
             break;
@@ -811,7 +813,7 @@ uint16_t Open_Lock_Send_Task() {
             break;
         case 2:                           
 								i++;
-                if(i%100==10) {
+                if(i%100==5) {
                     count++;
                     temp=NO_ASK;
             
@@ -910,7 +912,10 @@ uint16_t Open_Lock_Data_Send_Task() {
                 globle_Result=0xFF;
                 open_lock_data_reply_Result=0;
                 temp=OK_ASK;
-                Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+                
+								look_status_send_count--;
+								if( look_status_send_count==0)
+								Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
 								return temp;
 				}
 				switch (step) {
@@ -936,7 +941,7 @@ uint16_t Open_Lock_Data_Send_Task() {
             break;
         case 2:                           
 								i++;
-                if(i%100==10) {
+                if(i%100==5) {
                     count++;
                     temp=NO_ASK;
             
@@ -1017,46 +1022,50 @@ void State_Change_Task() {
     }
 
     if(last_lock_state_0 != lock_state[0]  && lock_task_flag_1==0 && lock_task_flag_2==0){   //开锁中任务中不触发     
-						
-						rfid_task_flag_1=1;    //开启一号卡扫卡/            
-						if(lock_state[0]==1) buzzer_task_flag=1;
-						
-						 last_lock_state_0=lock_state[0];
-						
-            sleep_time=0;
+						sleep_time=0;
 						LOG_I("State_Change");	
 						LOG_I("sw1:%d", lock_state[0]);
             open_lock_data_reply_Result=0;
-            Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传           
-						
+            last_lock_state_0=lock_state[0];
+						Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传           
+
 						look_status_send_count+=3;            
 						if(look_status_send_count>=3) {
                 look_status_send_count=3;
-            }									
-            
-//						user_ble_send_flag=1;						
-//            TX_DATA_BUF[0]=0x52;		// CMD
-//            TX_DATA_BUF[1]=TOKEN[0];
-//            TX_DATA_BUF[2]=TOKEN[1];
-//            TX_DATA_BUF[3]=TOKEN[2];
-//            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-//            TX_DATA_BUF[5]=0x08;    	//LEN
-//            TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
-//						TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
-//            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
-//						TX_DATA_BUF[9]=0x01;
-//						
-//						TX_DATA_BUF[10]=RFID_DATA[0];
-//						TX_DATA_BUF[11]=RFID_DATA[1];
-//						TX_DATA_BUF[12]=RFID_DATA[2];
-//						TX_DATA_BUF[13]=RFID_DATA[3];		
+            }				
+						RTC_flag=0; 
+						
+						if(lock_state[0]==1){ 
+							buzzer_task_flag=1;
+							rfid_task_flag_1=1;   					 //开启一号卡扫卡
+						}
+//						else{
+//							user_ble_send_flag=1;						
+//							TX_DATA_BUF[0]=0x52;		// CMD
+//							TX_DATA_BUF[1]=TOKEN[0];
+//							TX_DATA_BUF[2]=TOKEN[1];
+//							TX_DATA_BUF[3]=TOKEN[2];
+//							TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//							TX_DATA_BUF[5]=0x08;    	//LEN
+//							TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+//							TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+//							TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+//							TX_DATA_BUF[9]=0x01;
+//							TX_DATA_BUF[10]=RFID_DATA[0];
+//							TX_DATA_BUF[11]=RFID_DATA[1];
+//							TX_DATA_BUF[12]=RFID_DATA[2];
+//							TX_DATA_BUF[13]=RFID_DATA[3];		
+//						}          
     }
 		
     if(last_lock_state_1 != lock_state[1] && lock_task_flag_1==0 && lock_task_flag_2==0) {      //扫卡完成再上报数据
 						
 						//rfid_task_flag_2=1;    //开启二号卡扫卡
 
-            if(lock_state[1]==1) buzzer_task_flag=1;
+            if(lock_state[1]==1) {    		//关锁动作后需要读卡号
+								buzzer_task_flag=1;
+
+						}
             sleep_time=0;
 
             last_lock_state_1=lock_state[1];
@@ -1420,17 +1429,6 @@ void UDP_INIT() {
         }
     }
 }
-
-
-//void UDP_Data_Send_Task(uint8_t len,void(*func)(void)){
-//	if
-//
-//	UDP_Data_Send(len);
-//
-//	func();
-//}
-
-
 
 static  uint16_t set_sleep_time;
 //设置休眠时间

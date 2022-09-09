@@ -91,10 +91,12 @@ void Scan_Key(){
 					LOG_I("L11:%d",lock_state[0]);						
 					LOG_I("L2:%d",lock_state[1]);	
 					LOG_I("sw1:%d",Check_SW1());						
-					LOG_I("sw2:%d",Check_SW2());	
-					
+					LOG_I("sw2:%d",Check_SW2());						
 					Read_Status();
+					
+					
 					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
+					rfid_task_flag_1=1;
 					buzzer_task_flag=1;
 			}
 			if(count==100 && test_mode_flag!=0xAA){
@@ -176,10 +178,11 @@ void  ls_sleep_enter_lp2(void)
 	DELAY_US(1000*1000*6);
 	io_write_pin(PA03,0);
 	
+	io_write_pin(PA06, 1);
 	io_init();
 	io_write_pin(PC00, 0);
-	//io_write_pin(PC01, 0);
-	
+	io_write_pin(PC01, 1);
+	//io_write_pin(PA06, 1);
 	
 	
 	exitpb15_iowkup_init();

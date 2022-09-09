@@ -134,13 +134,13 @@ void UDP_Data_Send(uint8_t len){
 void Start_Lock_Send() {
     //uint8_t RX_BUF[255];
     uint8_t F_RX_BUF[255];
-    uint8_t DATA_BUF[67+2];
+    uint8_t DATA_BUF[72+2];
     uint16_t temp;
 
     DATA_BUF[0] = Frame_header[0];//帧头
     DATA_BUF[1] = Frame_header[1];//帧头
 
-    DATA_BUF[2] = 67;		//长度
+    DATA_BUF[2] = 72;		//长度
     DATA_BUF[3] = send_count++;   //send_count;     //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X01;   //功能码  启动
 
@@ -180,14 +180,18 @@ void Start_Lock_Send() {
 		
 		DATA_BUF[60] = 0x81;			//RFID
 		memcpy(&DATA_BUF[61],&RFID_DATA[0],4);
+
+		DATA_BUF[65] = 0x82;			//RFID
+		memcpy(&DATA_BUF[66],&RFID_DATA[0],4);
+
 			
-    temp=CRC16_8005Modbus(&DATA_BUF[0],65);
-    DATA_BUF[66]=(temp & 0xff00) >>8;
-    DATA_BUF[65]= temp & 0xff;
+    temp=CRC16_8005Modbus(&DATA_BUF[0],70);
+    DATA_BUF[71]=(temp & 0xff00) >>8;
+    DATA_BUF[70]= temp & 0xff;
 
 
-		DATA_BUF[67]='\r';										
-		DATA_BUF[68]='\n';
+		DATA_BUF[72]='\r';										
+		DATA_BUF[73]='\n';
 
     //hex2string(DATA_BUF,RX_BUF,60);
     //RX_BUF[60]='\0';

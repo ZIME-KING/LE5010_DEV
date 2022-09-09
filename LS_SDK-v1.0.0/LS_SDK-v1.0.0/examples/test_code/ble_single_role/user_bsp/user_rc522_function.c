@@ -31,7 +31,7 @@ void WaitCardOff(void)
     }
 }
 
-uint8_t	rfid_task_flag_1=1;
+uint8_t	rfid_task_flag_1=0;
 uint8_t	rfid_task_flag_2=0;
 
 //¶Á¿¨Ïà¹Ø²Ù×÷

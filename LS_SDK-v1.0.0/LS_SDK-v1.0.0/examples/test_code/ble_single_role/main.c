@@ -492,6 +492,7 @@ static void User_BLE_Data_Handle() {
 					
             if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
 								if(DATA_BUF[13]==0x01){
+									rfid_task_flag_1=1;   //开启读卡
 									lock_task_flag_1=1;
 								}
 								else if(DATA_BUF[13]==0x02){
@@ -1122,8 +1123,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 //        }
         last_lock_state_0=!Check_SW1();   //获取初始锁状态
 				last_lock_state_1=!Check_SW2();  //获取初始锁状态
-				
-				
+				lock_state[0]= last_lock_state_0 ;
+				lock_state[1]= last_lock_state_1 ;
 				
 
 				
@@ -1161,11 +1162,18 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 								buzzer_task_flag=1;
                 Set_Task_State(OPEN_LOCK_SEND,START);
 								KEY_ONCE=1;
+								LOG_I("key0") ;
             }
             //由锁开关唤醒
             else {
+							LOG_I("key1") ;
 							if(lock_state[0]==1) {
 								buzzer_task_flag=1;
+								LOG_I("key11")  ;
+							}
+							if(lock_state[1]==1) {
+								buzzer_task_flag=1;
+								LOG_I("key12") ;
 							}
 							Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 							look_status_send_count+=2;
@@ -1185,16 +1193,14 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 				//HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
 				
 				if(test_mode_flag!=0xAA){
-				    //Set_Task_State(GET_MODE_VAL,START);
-						//Set_Task_State(GET_EMIC_VAL,STOP);
-//					  Set_Task_State(START_LOCK_SEND,STOP);
-//					  Set_Task_State(OPEN_LOCK_SEND,STOP);
-//					  Set_Task_State(TICK_LOCK_SEND,STOP);
-//					  Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-//					  Set_Task_State(GET_DB_VAL,STOP);
-						//Set_Task_State(GET_DB_VAL,STOP);
-					
-					
+				//Set_Task_State(GET_MODE_VAL,START);
+				//Set_Task_State(GET_EMIC_VAL,STOP);
+				//Set_Task_State(START_LOCK_SEND,STOP);
+				//Set_Task_State(OPEN_LOCK_SEND,STOP);
+				//Set_Task_State(TICK_LOCK_SEND,STOP);
+				//Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+				//Set_Task_State(GET_DB_VAL,STOP);
+						//Set_Task_State(GET_DB_VAL,STOP);			
 				//START_LOCK_SEND,     		//启动数据上报
 				//OPEN_LOCK_SEND,  				//开锁数据请求
 				//TICK_LOCK_SEND, 				//心跳包发送
