@@ -244,6 +244,7 @@ static void lvl2_lvl3_mode_prepare(struct deep_sleep_wakeup *wakeup)
 {
     NVIC->ICER[0] = 0xffffffff;
     lvl2_lvl3_io_retention(LSGPIOA);
+		io_pull_write(PA06,IO_PULL_DISABLE);
     lvl2_lvl3_io_retention(LSGPIOB);
     uint8_t mode;
     if(wakeup->rtc || wakeup->wdt)

@@ -88,7 +88,7 @@ void User_Init() {
 		io_write_pin(PA06,0);	 //LED_0
 		io_write_pin(PA06,1);	 //LED_0
 		
-    HAL_IWDG_Init(32756*10);  	 //5s看门狗
+//    HAL_IWDG_Init(32756*10);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
     RTC_wkuptime_set(24*60*60*1000); //单位ms  唤醒时间3h  休眠函数在sw.c 中
     //RTC_wkuptime_set(60*1000);	 //唤醒时间60s  休眠函数在sw.c 中
@@ -543,14 +543,17 @@ void Uart_2_Data_Processing() {
 										
 										for(uint8_t i=5;i<AT_RX_DATA_BUF[2]-2;i+=2){
 												if(AT_RX_DATA_BUF[i]==0x00 && AT_RX_DATA_BUF[i+1]==0x01){
+																				LOG_I("00_OPEN");	
 												}
-												else if(AT_RX_DATA_BUF[i]==0x01 && AT_RX_DATA_BUF[i+1]==0x01){
+												if(AT_RX_DATA_BUF[i]==0x01 && AT_RX_DATA_BUF[i+1]==0x01){
 														lock_task_flag_1_temp=1;
-														open_lock_reply_Result=1;		
+														open_lock_reply_Result=1;
+														LOG_I("01_OPEN");
 												}
-												else if(AT_RX_DATA_BUF[i]==0x02 && AT_RX_DATA_BUF[i+1]==0x01){
+												if(AT_RX_DATA_BUF[i]==0x02 && AT_RX_DATA_BUF[i+1]==0x01){
 														lock_task_flag_2_temp=1;
 														open_lock_reply_Result=1;
+														LOG_I("02_OPEN");
 												}
 										}
 	               }
@@ -717,32 +720,32 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
 uint16_t Start_Lock_Send_Task() {
     static uint16_t over_count=0;  // 超限计数
     static uint16_t count=0;  		 //
-		static uint16_t temp=0;
+		static uint16_t busy=0;
     static uint16_t i=0;
     static uint8_t step=1;
-    if(Get_Task_State(START_LOCK_SEND) && AT_tset_flag==0 ) {
+    if(Get_Task_State(START_LOCK_SEND) /*&& AT_tset_flag==0 */) {
+				busy=1;		//忙碌
 				if(start_lock_reply_Result==1) {
                 globle_Result=0xFF;
                 start_lock_reply_Result=0;
-                temp=OK_ASK;
                 Set_Task_State(START_LOCK_SEND,STOP);
-								return temp;
+								busy=0;//空闲
+								return busy;
 				}
 				switch (step) {
         case 1:
             if(send_mode_Result==1) {
                 send_mode_Result=0;
-                temp=OK_ASK;
                 step++;
             }		
             else {
                 i++;
                 if(i%400==10) {
-                    temp=NO_ASK;
                     globle_Result=NO_ASK;
 										over_count++;
 										if(over_count>5){
 											Set_Task_State(START_LOCK_SEND,STOP);  //回复错误次数>5停发
+											busy=0;//空闲
 											break;
 										}
 										UDP_Data_Send(72);		//进入发送模式
@@ -753,7 +756,6 @@ uint16_t Start_Lock_Send_Task() {
                 i++;
                 if(i%400==20) {
                     count++;
-                    temp=NO_ASK;
                     globle_Result=NO_ASK;
                     Set_Task_State(START_LOCK_SEND,START);
                     Start_Lock_Send();										
@@ -768,43 +770,42 @@ uint16_t Start_Lock_Send_Task() {
 		    else {
         count=0;
 				over_count=0;
-        temp=0;
         i=0;
 				step=1;
     }
-    return temp;
+    return busy;
 }
 
 //请求开锁
 uint16_t Open_Lock_Send_Task() {		
 		static uint16_t over_count=0;  // 超限计数
     static uint16_t count=0;  		 //
-		static uint16_t temp=0;
+		static uint16_t busy=0;
     static uint16_t i=0;
     static uint8_t step=1;
-    if(Get_Task_State(OPEN_LOCK_SEND) && AT_tset_flag==0 ) {
+    if(Get_Task_State(OPEN_LOCK_SEND) /*&& AT_tset_flag==0 */) {
+				busy=1;//忙碌
 				if(open_lock_reply_Result==1) {
                 globle_Result=0xFF;
                 open_lock_reply_Result=0;
-                temp=OK_ASK;
                 Set_Task_State(OPEN_LOCK_SEND,STOP);
-								return temp;
+								busy=0;//空闲
+								return busy;
 				}
 				switch (step) {
         case 1:
             if(send_mode_Result==1) {
                 send_mode_Result=0;
-                temp=OK_ASK;
                 step++;
             }		
             else {
                 i++;
                 if(i%100==1) {
-                    temp=NO_ASK;
                     globle_Result=NO_ASK;
 										over_count++;
 										if(over_count>5){
 											Set_Task_State(OPEN_LOCK_SEND,STOP);  //回复错误次数>5停发
+											busy=0;//空闲
 											break;
 										}
 										UDP_Data_Send(37);		//进入发送模式
@@ -815,8 +816,6 @@ uint16_t Open_Lock_Send_Task() {
 								i++;
                 if(i%100==5) {
                     count++;
-                    temp=NO_ASK;
-            
                     globle_Result=NO_ASK;
                     Set_Task_State(OPEN_LOCK_SEND,START);
                     Open_Lock_Send();										
@@ -831,42 +830,41 @@ uint16_t Open_Lock_Send_Task() {
 		    else {
         count=0;
 				over_count=0;
-        temp=0;
         i=0;
 				step=1;
     }
-    return temp;
+    return busy;
 }
 //心跳包
 uint16_t Tick_Lock_Send_Task() {		
 		static uint16_t over_count=0;  // 超限计数
     static uint16_t count=0;  		 //
-		static uint16_t temp=0;
+		static uint16_t busy=0;
     static uint16_t i=0;
     static uint8_t step=1;
-    if(Get_Task_State(TICK_LOCK_SEND) && AT_tset_flag==0 ) {
+    if(Get_Task_State(TICK_LOCK_SEND) /*&& AT_tset_flag==0*/ ) {
+				busy=1;  //忙碌
 				if(tick_reply_Result==1) {
                 globle_Result=0xFF;
                 tick_reply_Result=0;
-                temp=OK_ASK;
                 Set_Task_State(TICK_LOCK_SEND,STOP);
-								return temp;
+								busy=0;//空闲
+								return busy;
 				}
 				switch (step) {
         case 1:
             if(send_mode_Result==1) {
                 send_mode_Result=0;
-                temp=OK_ASK;
                 step++;
             }		
             else {
                 i++;
                 if(i%100==1) {
-                    temp=NO_ASK;
                     globle_Result=NO_ASK;
 										over_count++;
 										if(over_count>5){
 											Set_Task_State(TICK_LOCK_SEND,STOP);  //回复错误次数>5停发
+											busy=0;//空闲	
 											break;
 										}
 										UDP_Data_Send(37);		//进入发送模式
@@ -877,8 +875,6 @@ uint16_t Tick_Lock_Send_Task() {
 								i++;
                 if(i%100==10) {
                     count++;
-                    temp=NO_ASK;
-            
                     globle_Result=NO_ASK;
                     Set_Task_State(TICK_LOCK_SEND,START);
                     Tick_Lock_Send();										
@@ -893,46 +889,44 @@ uint16_t Tick_Lock_Send_Task() {
 		    else {
         count=0;
 				over_count=0;
-        temp=0;
         i=0;
 				step=1;
     }
-    return temp;		
+    return busy;		
 }
 
 //20信息上报  锁+状态
 uint16_t Open_Lock_Data_Send_Task() {
 		static uint16_t over_count=0;  // 超限计数
     static uint16_t count=0;  		 //
-		static uint16_t temp=0;
+		static uint16_t busy=0;
     static uint16_t i=0;
     static uint8_t step=1;
-    if(Get_Task_State(OPEN_LOCK_DATA_SEND) && AT_tset_flag==0 && rfid_task_flag_1==0 && rfid_task_flag_2==0 ) {
+    if(Get_Task_State(OPEN_LOCK_DATA_SEND) /*&& AT_tset_flag==0 && rfid_task_flag_1==0 && rfid_task_flag_2==0 */) {
+				busy=1;  //忙碌
 				if(open_lock_data_reply_Result==1) {
                 globle_Result=0xFF;
                 open_lock_data_reply_Result=0;
-                temp=OK_ASK;
-                
 								look_status_send_count--;
 								if( look_status_send_count==0)
 								Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-								return temp;
+								busy=0; //空闲
+								return busy;
 				}
 				switch (step) {
         case 1:
             if(send_mode_Result==1) {
                 send_mode_Result=0;
-                temp=OK_ASK;
                 step++;
             }		
             else {
                 i++;
                 if(i%100==1) {
-                    temp=NO_ASK;
                     globle_Result=NO_ASK;
 										over_count++;
 										if(over_count>5){
 											Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);  //回复错误次数>5停发
+											busy=0;
 											break;
 										}
 										UDP_Data_Send(47);		//进入发送模式
@@ -942,9 +936,7 @@ uint16_t Open_Lock_Data_Send_Task() {
         case 2:                           
 								i++;
                 if(i%100==5) {
-                    count++;
-                    temp=NO_ASK;
-            
+                    count++;           
                     globle_Result=NO_ASK;
                     Set_Task_State(OPEN_LOCK_DATA_SEND,START);
                     Open_Lock_Data_Send();										
@@ -959,25 +951,24 @@ uint16_t Open_Lock_Data_Send_Task() {
 		    else {
         count=0;
 				over_count=0;
-        temp=0;
         i=0;
 				step=1;
     }
-    return temp;
+    return busy;
 }
 
-//5s 保持模块唤醒 查一下信号
-void NB_WAKE_Task() {
-    static uint8_t i;
+////5s 保持模块唤醒 查一下信号
+//void NB_WAKE_Task() {
+//    static uint8_t i;
 
-    if(Get_Task_State(GET_DB_VAL)==STOP) {
-        i++;
-        if(i%200==1) {
-            Set_Task_State(GET_DB_VAL,START);
-            i=1;
-        }
-    }
-}
+//    if(Get_Task_State(GET_DB_VAL)==STOP) {
+//        i++;
+//        if(i%200==1) {
+//            Set_Task_State(GET_DB_VAL,START);
+//            i=1;
+//        }
+//    }
+//}
 
 uint8_t last_lock_state_0;
 uint8_t last_lock_state_1;
@@ -990,9 +981,9 @@ void State_Change_Task() {
 		static uint8_t sw2_flag;
 		
 		
-		if(AT_tset_flag !=0 ){
-			return;
-		}
+//		if(AT_tset_flag !=0 ){
+//			return;
+//		}
 		
    if(Check_SW1()==1) {
         sw1_count++;
@@ -1037,26 +1028,28 @@ void State_Change_Task() {
 						
 						if(lock_state[0]==1){ 
 							buzzer_task_flag=1;
-							rfid_task_flag_1=1;   					 //开启一号卡扫卡
+//							rfid_task_flag_1=1;   					 //开启一号卡扫卡
 						}
-//						else{
-//							user_ble_send_flag=1;						
-//							TX_DATA_BUF[0]=0x52;		// CMD
-//							TX_DATA_BUF[1]=TOKEN[0];
-//							TX_DATA_BUF[2]=TOKEN[1];
-//							TX_DATA_BUF[3]=TOKEN[2];
-//							TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-//							TX_DATA_BUF[5]=0x08;    	//LEN
-//							TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
-//							TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
-//							TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
-//							TX_DATA_BUF[9]=0x01;
-//							TX_DATA_BUF[10]=RFID_DATA[0];
-//							TX_DATA_BUF[11]=RFID_DATA[1];
-//							TX_DATA_BUF[12]=RFID_DATA[2];
-//							TX_DATA_BUF[13]=RFID_DATA[3];		
-//						}          
+						else{
+							user_ble_send_flag=1;						
+							TX_DATA_BUF[0]=0x52;		// CMD
+							TX_DATA_BUF[1]=TOKEN[0];
+							TX_DATA_BUF[2]=TOKEN[1];
+							TX_DATA_BUF[3]=TOKEN[2];
+							TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+							TX_DATA_BUF[5]=0x08;    	//LEN
+							TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+							TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+							TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+							TX_DATA_BUF[9]=0x01;
+							TX_DATA_BUF[10]=RFID_DATA[0];
+							TX_DATA_BUF[11]=RFID_DATA[1];
+							TX_DATA_BUF[12]=RFID_DATA[2];
+							TX_DATA_BUF[13]=RFID_DATA[3];		
+						}          
     }
+		
+		
 		
     if(last_lock_state_1 != lock_state[1] && lock_task_flag_1==0 && lock_task_flag_2==0) {      //扫卡完成再上报数据
 						
@@ -1079,7 +1072,10 @@ void State_Change_Task() {
 						look_status_send_count+=3;
             if(look_status_send_count>=3) {
                 look_status_send_count=3;
-            }						
+            }	
+						RTC_flag=0; 
+
+						
             user_ble_send_flag=1;
             TX_DATA_BUF[0]=0x52;		// CMD
             TX_DATA_BUF[1]=TOKEN[0];
@@ -1351,10 +1347,12 @@ uint16_t AT_INIT() {
 //重置
 //void Start_UDP_INIT(){
 //}
-void UDP_INIT() {
+uint8_t UDP_INIT() {
+
     static int step=0;
     static int count=0;
     static int count_out=0;
+		static int done=0; 			//完成udp初始化标记
     //static int set_flag=0;
     count++;
 
@@ -1409,8 +1407,10 @@ void UDP_INIT() {
             if(Get_Uart_Data_Processing_Result()==OK_AT) {
                 globle_Result=0xff;
                 step++;
-                AT_tset_flag=0;
-                count_out=0;
+                
+								//AT_tset_flag=0;
+								done=1;							
+								count_out=0;
             }
             else {
 
@@ -1418,6 +1418,7 @@ void UDP_INIT() {
                 if(count_out>5) {
                     count_out=0	;
                     step++;
+										done=1;
                 }
                 AT_Command_Send(QIPOPEN);
                 //buzzer_task_flag=1;
@@ -1427,7 +1428,8 @@ void UDP_INIT() {
             break;
             //statement(s);
         }
-    }
+    }		
+		return  done;
 }
 
 static  uint16_t set_sleep_time;

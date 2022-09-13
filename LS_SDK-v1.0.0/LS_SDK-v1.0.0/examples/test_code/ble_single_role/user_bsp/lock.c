@@ -33,10 +33,9 @@ void Lock_task(){
 		static uint16_t count_1;
 		static uint16_t count_2;
 		static uint8_t  temp=0x10;    //µÈ´ý					 
-		 if(rfid_task_flag_1!=0  || rfid_task_flag_2!=0){
-				return;
-		 }			 		
+ 		
 		if(lock_task_flag_1==1){
+		
 					if(lock_state[0]==0){
 							 Lock_1_off();
 							 lock_task_flag_1=0;
@@ -68,6 +67,16 @@ void Lock_task(){
 		
 		
 		if(lock_task_flag_2==1){
+					
+//					TX_DATA_BUF[0]=0x50;			// CMD
+//          TX_DATA_BUF[1]=TOKEN[0];
+//          TX_DATA_BUF[2]=TOKEN[1];
+//          TX_DATA_BUF[3]=TOKEN[2];
+//          TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//          TX_DATA_BUF[5]=0x01;    	//LEN
+		
+		
+		
 					if(lock_state[1]==0){
 							 Lock_2_off();
 							 lock_task_flag_2=0;
@@ -75,6 +84,7 @@ void Lock_task(){
 							 KEY_ONCE=0;
 							 temp=0x00;         //³É¹¦
 							 TX_DATA_BUF[6]=temp;
+							  LOG_I("S11");
 							 user_ble_send_flag=1;
 					}
 					else{
@@ -87,6 +97,7 @@ void Lock_task(){
 									KEY_ONCE=0;
 									temp=0x03;       //Ê§°Ü
 									TX_DATA_BUF[6]=temp;
+									 LOG_I("S22");
 									user_ble_send_flag=1;
 							}
 					}

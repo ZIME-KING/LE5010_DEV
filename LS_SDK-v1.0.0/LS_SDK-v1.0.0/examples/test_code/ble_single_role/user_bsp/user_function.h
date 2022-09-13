@@ -62,7 +62,7 @@ void NB_WAKE_Task(void);
 void Sleep_Task(void);
 void Set_Sleep_Time(uint16_t time_s);
 void Read_Last_Data(void); 
-void UDP_INIT(void);
+uint8_t UDP_INIT(void);
 void Password_Task(void);
 void Key_Task(void);
 

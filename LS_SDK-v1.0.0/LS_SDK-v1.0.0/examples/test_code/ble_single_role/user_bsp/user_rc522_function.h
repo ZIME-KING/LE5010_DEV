@@ -19,6 +19,6 @@ extern uint8_t	rfid_task_flag_1;
 extern uint8_t	rfid_task_flag_2;
 
 
-void User_Mfrc522(Card_TypeDef *card,char snr);
+uint8_t User_Mfrc522(Card_TypeDef *card,char snr);
 
 #endif

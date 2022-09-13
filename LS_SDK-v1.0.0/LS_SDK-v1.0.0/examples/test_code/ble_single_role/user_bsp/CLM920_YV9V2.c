@@ -182,7 +182,7 @@ void Start_Lock_Send() {
 		memcpy(&DATA_BUF[61],&RFID_DATA[0],4);
 
 		DATA_BUF[65] = 0x82;			//RFID
-		memcpy(&DATA_BUF[66],&RFID_DATA[0],4);
+		memcpy(&DATA_BUF[66],&RFID_DATA_2[0],4);
 
 			
     temp=CRC16_8005Modbus(&DATA_BUF[0],70);

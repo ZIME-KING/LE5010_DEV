@@ -66,9 +66,11 @@ void Scan_Key(){
 	
 	if(KEY_ONCE==1){
 			if(lock_task_flag_1_temp==1){
+							//rfid_task_flag_1=1;        //
 							lock_task_flag_1=1; 
 			}
 			if(lock_task_flag_2_temp==1){
+							//rfid_task_flag_2=1;
 							lock_task_flag_2=1;	
 			}
 	}
@@ -80,23 +82,20 @@ void Scan_Key(){
 					sleep_time=0;
 					SYSCFG->BKD[7]=0;
 					KEY_ONCE=1;
-					
-					//测试模式下有按键按下就启动开锁任务
-				  if(test_mode_flag!=0xAA){
-						 lock_task_flag_1=1; 
-						 lock_task_flag_2=1; 
-					}
+//					rfid_task_flag_1=1; 
+//					//测试模式下有按键按下就启动开锁任务
+//				  if(test_mode_flag!=0xAA){
+//						 lock_task_flag_1=1; 
+//						 lock_task_flag_2=1; 
+//					}
 					LOG_I("Vbat:%d",VBat_value);		
 					LOG_I("Db_val:%d",Db_val);
 					LOG_I("L11:%d",lock_state[0]);						
 					LOG_I("L2:%d",lock_state[1]);	
 					LOG_I("sw1:%d",Check_SW1());						
 					LOG_I("sw2:%d",Check_SW2());						
-					Read_Status();
-					
-					
+					Read_Status();				
 					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
-					rfid_task_flag_1=1;
 					buzzer_task_flag=1;
 			}
 			if(count==100 && test_mode_flag!=0xAA){
@@ -177,12 +176,17 @@ void  ls_sleep_enter_lp2(void)
 	io_write_pin(PA03,1);
 	DELAY_US(1000*1000*6);
 	io_write_pin(PA03,0);
-	
+	DELAY_US(1000*10);
 	io_write_pin(PA06, 1);
+	DELAY_US(1000*10);
 	io_init();
+	DELAY_US(1000*10);
 	io_write_pin(PC00, 0);
+	DELAY_US(1000*10);
 	io_write_pin(PC01, 1);
-	//io_write_pin(PA06, 1);
+	//DELAY_US(1000*10);
+	io_write_pin(PA06, 1);
+	//DELAY_US(1000*10);
 	
 	
 	exitpb15_iowkup_init();
@@ -203,5 +207,5 @@ void  ls_sleep_enter_lp2(void)
 	wakeup.pb11_rising_edge = 0;			//选择边沿唤醒
 	
 	wakeup.rtc  = 1 ;
-  enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//调用唤醒函数
+  enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//调用唤醒函数         //有改动
 }
