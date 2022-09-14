@@ -38,57 +38,76 @@ uint8_t	rfid_task_flag_2=0;
 //保存卡结构体
 //读取的扇区       volatile
 uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
-    char status;
+		//static Card_TypeDef last_data;
+    static unsigned char  last_SelectedSnr[4];  //防冲撞机制下返回的卡号
+		char status;
     static uint16_t 	count;
     static uint8_t 		once_flag;
     static uint8_t 		i;
-    if(i>=4) {
+		
+    uint8_t user_test;
+		
+		if(i>=10) {											//500m找一次卡  
         i=0;
         return rfid_task_flag_1;
     }
     else {
         i++;
     }
-    if(rfid_task_flag_1) {
+		
+		//只有锁插入后会进行扫卡操作
+    if(lock_state[0]==1 && rfid_task_flag_1==0 ) {
         if(once_flag!=0xAA) {
             RC522_GPIO_INIT();
             PcdReset();
-            //DELAY_US(10*1000);
-            PcdAntennaOff();
-            //DELAY_US(10*1000);
+						
+						user_test=ReadRawRC(0x33);
+						LOG_HEX(&user_test,1);
+						
+						PcdAntennaOff();
+            DELAY_US(10*1000);
             PcdAntennaOn();
-            M500PcdConfigISOType( 'A' );
-            once_flag=0xAA;
-        }
-        if(count>20) {
-						//DELAY_US(1000*10);
-            io_write_pin(PA06,1);    // POWER_OFF();
-						io_pull_write(PA06,IO_PULL_DISABLE);
-            LOG_HEX(&SelectedSnr[0],4);
-            LOG_I("TIME_OUT");
-
-            rfid_task_flag_1=0;
-						if(KEY_ONCE==1){
-								 lock_task_flag_1=1;
+            status=M500PcdConfigISOType( 'A' );
+						
+						if(user_test==0x80){    //初始化成功，设备存在，开启扫卡任务
+									LOG_I("FIND_RFID_DRIVE");
+									rfid_task_flag_1=0;
 						}
-						               user_ble_send_flag=1;
-                            TX_DATA_BUF[0]=0x52;		// CMD
-                            TX_DATA_BUF[1]=TOKEN[0];
-                            TX_DATA_BUF[2]=TOKEN[1];
-                            TX_DATA_BUF[3]=TOKEN[2];
-                            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-                            TX_DATA_BUF[5]=0x08;    	//LEN
-                            TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
-                            TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
-                            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
-                            TX_DATA_BUF[9]=0x01;
-                            TX_DATA_BUF[10]=RFID_DATA[0];
-                            TX_DATA_BUF[11]=RFID_DATA[1];
-                            TX_DATA_BUF[12]=RFID_DATA[2];
-                            TX_DATA_BUF[13]=RFID_DATA[3];
-						
-						
-						
+						else{             		//初始化失败，设备不存在，不开启扫卡任务
+									LOG_I("NOT_FIND_RFID_DRIVE");
+									rfid_task_flag_1=1;
+						}
+            once_flag=0xAA;
+						return 1;
+        }
+        if(count>20) {						
+						count=0; 
+						last_SelectedSnr[0]=0;
+						last_SelectedSnr[1]=0;
+						last_SelectedSnr[2]=0;
+						last_SelectedSnr[3]=0;
+				
+						if((RFID_DATA[0]+RFID_DATA[1]+RFID_DATA[2]+RFID_DATA[3])!=0){
+						RFID_DATA[0]=0;RFID_DATA[1]=0;RFID_DATA[2]=0;RFID_DATA[3]=0;						
+						LOG_I("NOT_FIND_CARD");
+						LOG_HEX(&RFID_DATA[0],4);
+						Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+						user_ble_send_flag=1;                        //蓝牙数据发送开启
+            TX_DATA_BUF[0]=0x52;		// CMD
+            TX_DATA_BUF[1]=TOKEN[0];
+            TX_DATA_BUF[2]=TOKEN[1];
+            TX_DATA_BUF[3]=TOKEN[2];
+            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+            TX_DATA_BUF[5]=0x08;    	//LEN
+            TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+            TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+            TX_DATA_BUF[9]=0x01;
+            TX_DATA_BUF[10]=RFID_DATA[0];
+            TX_DATA_BUF[11]=RFID_DATA[1];
+            TX_DATA_BUF[12]=RFID_DATA[2];
+            TX_DATA_BUF[13]=RFID_DATA[3];			
+						}		
         }
         status= PcdRequest(0x52,&card->TagType[0]);
         if(!status)
@@ -104,45 +123,57 @@ uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
                     if(!status)
                     {
                         status = PcdRead(((card->snr) * 4 + 0), &card->buf[0]);  // 读卡，读取1扇区0块数据到buf[0]-buf[16]
-                        // status = PcdWrite((1*4+0), &temp_buf[0]);  // 写卡，将buf[0]-buf[16]写入1扇区0块
+												// status = PcdWrite((1*4+0), &temp_buf[0]);  // 写卡，将buf[0]-buf[16]写入1扇区0块
                         if(!status)
                         {
-                            //读写成功，点亮LED
-                            //LED_GREEN = 0;
-                            memcpy(RFID_DATA,SelectedSnr,4);
+														count=0;			//找到卡计数清0
                             //LOG_HEX(&M1_Card.buf[0],16);
-                            LOG_HEX(&SelectedSnr[0],4);
-														DELAY_US(1000*10);
-														io_pull_write(PA06,IO_PULL_DISABLE);
-                            io_write_pin(PA06,1);    // POWER_OFF();          //
-                            rfid_task_flag_1=0;
-																												
-														if(KEY_ONCE==1){
-																lock_task_flag_1=1;
-														}											
-                            user_ble_send_flag=1;
-                            TX_DATA_BUF[0]=0x52;		// CMD
-                            TX_DATA_BUF[1]=TOKEN[0];
-                            TX_DATA_BUF[2]=TOKEN[1];
-                            TX_DATA_BUF[3]=TOKEN[2];
-                            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-                            TX_DATA_BUF[5]=0x08;    	//LEN
-                            TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
-                            TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
-                            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
-                            TX_DATA_BUF[9]=0x01;
-                            TX_DATA_BUF[10]=RFID_DATA[0];
-                            TX_DATA_BUF[11]=RFID_DATA[1];
-                            TX_DATA_BUF[12]=RFID_DATA[2];
-                            TX_DATA_BUF[13]=RFID_DATA[3];
+                            //LOG_HEX(&SelectedSnr[0],4);
+														
+														if(last_SelectedSnr[0]!=SelectedSnr[0] ||last_SelectedSnr[1]!=SelectedSnr[1]||last_SelectedSnr[2]!=SelectedSnr[2]||last_SelectedSnr[3]!=SelectedSnr[3]){
+																		
+																		LOG_I("FIND_CARD");
+																		
+//
+																		last_SelectedSnr[0]=SelectedSnr[0];
+																		last_SelectedSnr[1]=SelectedSnr[1];
+																		last_SelectedSnr[2]=SelectedSnr[2];
+																		last_SelectedSnr[3]=SelectedSnr[3];
+																		
+																		RFID_DATA[0]=SelectedSnr[0];
+																		RFID_DATA[1]=SelectedSnr[1];
+																		RFID_DATA[2]=SelectedSnr[2];
+																		RFID_DATA[3]=SelectedSnr[3];		
+																		memcpy(RFID_DATA,SelectedSnr,4);																		
+																		LOG_HEX(&RFID_DATA[0],4);
+																		LOG_I("FIND_CARD");
+																		
+																		Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+																		user_ble_send_flag=1;                        //蓝牙数据发送开启
+																		
+																		TX_DATA_BUF[0]=0x52;		// CMD
+																		TX_DATA_BUF[1]=TOKEN[0];
+																		TX_DATA_BUF[2]=TOKEN[1];
+																		TX_DATA_BUF[3]=TOKEN[2];
+																		TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+																		TX_DATA_BUF[5]=0x08;    	//LEN
+																		TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
+																		TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
+																		TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+																		TX_DATA_BUF[9]=0x01;
+																		TX_DATA_BUF[10]=RFID_DATA[0];
+																		TX_DATA_BUF[11]=RFID_DATA[1];
+																		TX_DATA_BUF[12]=RFID_DATA[2];
+																		TX_DATA_BUF[13]=RFID_DATA[3];
+													}
                         }
                     }
                 }
             }
         }
-        else {
-            count++;
-        }
+				if(status){
+					 count++;
+				}
     }
     else {
         count=0;

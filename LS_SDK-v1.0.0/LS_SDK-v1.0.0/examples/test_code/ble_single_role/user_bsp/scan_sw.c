@@ -93,7 +93,21 @@ void Scan_Key(){
 					LOG_I("L11:%d",lock_state[0]);						
 					LOG_I("L2:%d",lock_state[1]);	
 					LOG_I("sw1:%d",Check_SW1());						
-					LOG_I("sw2:%d",Check_SW2());						
+					LOG_I("sw2:%d",Check_SW2());					
+
+					LOG_I("Open_Lock_Send:%d",T0_enable);		
+					LOG_I("Open_Lock_Send:%d",T1_enable);
+					LOG_I("Tick_Lock_Send:%d",T2_enable);						
+					LOG_I("Data_Send:%d",T3_enable);	
+					LOG_I("sw1:%d",Check_SW1());						
+					LOG_I("sw2:%d",Check_SW2());		
+
+//uint8_t T0_enable=0;  //启动数据上报  			c
+//uint8_t T1_enable=0;	//开锁数据请求				Open_Lock_Send
+//uint8_t T2_enable=0;	//心跳包发送					Tick_Lock_Send
+//uint8_t T3_enable=0;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state)
+
+
 					Read_Status();				
 					Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
 					buzzer_task_flag=1;
@@ -177,8 +191,13 @@ void  ls_sleep_enter_lp2(void)
 	DELAY_US(1000*1000*6);
 	io_write_pin(PA03,0);
 	DELAY_US(1000*10);
+
+
 	io_write_pin(PA06, 1);
 	DELAY_US(1000*10);
+	
+	LOG_I("sleep");	
+	
 	io_init();
 	DELAY_US(1000*10);
 	io_write_pin(PC00, 0);

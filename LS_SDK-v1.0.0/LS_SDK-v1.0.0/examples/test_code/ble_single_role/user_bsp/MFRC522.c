@@ -21,12 +21,7 @@ void RC522_GPIO_INIT(){
 		io_cfg_output(SPI_MOSI);  //
 		io_cfg_output(SPI_CLK);   //
 		io_cfg_output(POWER);   	//		
-		
 		io_write_pin(POWER,0);		
-		
-		io_write_pin(POWER,1);		
-
-		io_write_pin(POWER,0);	
 		
 		io_cfg_input(SPI_MISO);                       
     //io_pull_write(SPI_MISO, IO_PULL_UP);  
@@ -333,12 +328,12 @@ char PcdReset(void)
 //  WriteRawRC(CommandReg,PCD_RESETPHASE);
 //  _nop_();
 
-	//POWER_OFF();
+	POWER_OFF();
   RC522_RST_H();
   while(ii--);
   ii=10;
   RC522_RST_L();
-	//POWER_ON();
+	POWER_ON();
   while(ii--);
   ii=10;
   RC522_RST_H();

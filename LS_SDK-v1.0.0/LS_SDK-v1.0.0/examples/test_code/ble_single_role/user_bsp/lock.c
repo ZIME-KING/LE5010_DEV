@@ -33,8 +33,10 @@ void Lock_task(){
 		static uint16_t count_1;
 		static uint16_t count_2;
 		static uint8_t  temp=0x10;    //等待					 
- 		
-		if(lock_task_flag_1==1){
+		static uint8_t  busy_1=0;					 
+		static uint8_t  busy_2=0;	
+		
+		if(lock_task_flag_1==1 && busy_2==0){
 		
 					if(lock_state[0]==0){
 							 Lock_1_off();
@@ -43,13 +45,15 @@ void Lock_task(){
 							 KEY_ONCE=0;
 							 temp=0x00;         //成功
 							 TX_DATA_BUF[6]=temp;
-							 user_ble_send_flag=1;
-							 LOG_I("S1");
+							 user_ble_send_flag=1;							 
+							 LOG_I("LOCK1_OPEN");
+							 busy_1=0;
 					}
 					else{
 						count_1++;
-						Lock_1_on();			
-							if(count_1>50){
+						Lock_1_on();
+						busy_1=1;						
+							if(count_1>24){
 									Lock_1_off();
 									lock_task_flag_1=0;
 									lock_task_flag_1_temp=0;
@@ -57,7 +61,8 @@ void Lock_task(){
 									temp=0x03;       //失败
 									TX_DATA_BUF[6]=temp;
 									user_ble_send_flag=1;
-									LOG_I("S2");
+									LOG_I("LOCK1_TIME_OUT");
+									busy_1=0;
 							}
 					}
 		}
@@ -66,17 +71,8 @@ void Lock_task(){
 		}
 		
 		
-		if(lock_task_flag_2==1){
-					
-//					TX_DATA_BUF[0]=0x50;			// CMD
-//          TX_DATA_BUF[1]=TOKEN[0];
-//          TX_DATA_BUF[2]=TOKEN[1];
-//          TX_DATA_BUF[3]=TOKEN[2];
-//          TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-//          TX_DATA_BUF[5]=0x01;    	//LEN
-		
-		
-		
+		if(lock_task_flag_2==1 && busy_1==0){
+
 					if(lock_state[1]==0){
 							 Lock_2_off();
 							 lock_task_flag_2=0;
@@ -84,20 +80,23 @@ void Lock_task(){
 							 KEY_ONCE=0;
 							 temp=0x00;         //成功
 							 TX_DATA_BUF[6]=temp;
-							  LOG_I("S11");
+							 LOG_I("LOCK2_OPEN");
+							 busy_2=0;
 							 user_ble_send_flag=1;
 					}
 					else{
 						count_2++;
-						Lock_2_on();			
-							if(count_2>50){
+						Lock_2_on();
+						busy_2=1;						
+							if(count_2>24){
 									Lock_2_off();
 									lock_task_flag_2=0;
 									lock_task_flag_2_temp=0;
 									KEY_ONCE=0;
 									temp=0x03;       //失败
 									TX_DATA_BUF[6]=temp;
-									 LOG_I("S22");
+									LOG_I("LOCK2_TIME_OUT");
+									busy_2=0;
 									user_ble_send_flag=1;
 							}
 					}
@@ -105,4 +104,5 @@ void Lock_task(){
 		else{
 			count_2=0;
 		}
+	
 }

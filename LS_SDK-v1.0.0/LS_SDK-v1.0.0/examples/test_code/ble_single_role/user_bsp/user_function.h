@@ -88,6 +88,22 @@ extern uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1
 extern uint8_t Db_val;  
 
 extern uint8_t user_count;
+
+
+
+
+
+
+extern uint8_t T0_enable;  //启动数据上报  			Start_Lock_Send_Task
+extern uint8_t T1_enable;	//开锁数据请求				Open_Lock_Send
+extern uint8_t T2_enable;	//心跳包发送					Tick_Lock_Send
+extern uint8_t T3_enable;	//状态变更数据发送  	Open_Lock_Data_Send(uint8_t lock_ID,uint8_t lock_state)
+extern uint8_t T4_enable;  //获取信号强度				AT指令相关
+extern uint8_t T5_enable;  //电机动作完成发送包
+
+
+
+
 #endif
 
 //uint8_t open_lock_reply_Result=0;

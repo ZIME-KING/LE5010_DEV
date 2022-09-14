@@ -84,9 +84,9 @@ void User_Init() {
 		io_write_pin(PC01,1);  //
 		
 		io_cfg_output(PA06);   //LED_0
-    io_write_pin(PA06,1);	 //LED_0
+//    io_write_pin(PA06,1);	 //LED_0
 		io_write_pin(PA06,0);	 //LED_0
-		io_write_pin(PA06,1);	 //LED_0
+//		io_write_pin(PA06,1);	 //LED_0
 		
 //    HAL_IWDG_Init(32756*10);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
@@ -907,8 +907,8 @@ uint16_t Open_Lock_Data_Send_Task() {
 				if(open_lock_data_reply_Result==1) {
                 globle_Result=0xFF;
                 open_lock_data_reply_Result=0;
-								look_status_send_count--;
-								if( look_status_send_count==0)
+								//look_status_send_count--;
+								//if( look_status_send_count==0)
 								Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
 								busy=0; //空闲
 								return busy;
@@ -1030,7 +1030,6 @@ void State_Change_Task() {
 							buzzer_task_flag=1;
 //							rfid_task_flag_1=1;   					 //开启一号卡扫卡
 						}
-						else{
 							user_ble_send_flag=1;						
 							TX_DATA_BUF[0]=0x52;		// CMD
 							TX_DATA_BUF[1]=TOKEN[0];
@@ -1045,8 +1044,7 @@ void State_Change_Task() {
 							TX_DATA_BUF[10]=RFID_DATA[0];
 							TX_DATA_BUF[11]=RFID_DATA[1];
 							TX_DATA_BUF[12]=RFID_DATA[2];
-							TX_DATA_BUF[13]=RFID_DATA[3];		
-						}          
+							TX_DATA_BUF[13]=RFID_DATA[3];		         
     }
 		
 		
