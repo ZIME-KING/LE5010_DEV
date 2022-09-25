@@ -56,7 +56,7 @@ uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
     }
 		
 		//只有锁插入后会进行扫卡操作
-    if(lock_state[0]==1 && rfid_task_flag_1==0 ) {
+    if(rfid_task_flag_1==0 ) {
         if(once_flag!=0xAA) {
             RC522_GPIO_INIT();
             PcdReset();

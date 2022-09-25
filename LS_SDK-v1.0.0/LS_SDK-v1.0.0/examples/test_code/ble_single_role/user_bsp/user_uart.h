@@ -23,22 +23,30 @@ unsigned char time_out;	    	//超时计数
 
 extern Uart_Frame_Typedef uart1;
 extern Frame_Typedef frame[FRAME_QUANTITY];     		//开2个帧缓存
-
 extern unsigned char uart_frame_id;
 extern uint8_t uart_buffer[2];
-//void Uart_Data_Processing(void);
+
+extern Uart_Frame_Typedef uart_2;
+extern Frame_Typedef frame_2[FRAME_QUANTITY];     		//开2个帧缓存
+extern unsigned char uart_2_frame_id;
+extern uint8_t uart_2_buffer[2];
+
+extern Frame_Typedef frame_3[FRAME_QUANTITY];     		//开2个帧缓存
+extern unsigned char uart_3_frame_id;
+extern uint8_t uart_3_buffer[2];
+
+
 void Uart_Time_Even(void);
 void Receive_Interrupt(void);
 
 
-extern Uart_Frame_Typedef uart_2;
-extern Frame_Typedef frame_2[FRAME_QUANTITY];     		//开2个帧缓存
-
-extern unsigned char uart_2_frame_id;
-extern uint8_t uart_2_buffer[2];
 void Uart_2_Data_Processing(void);
 void Uart_2_Time_Even(void);
 void Uart_2_Receive_Interrupt(void);
+
+void Uart_3_Data_Processing(void);
+void Uart_3_Time_Even(void);
+void Uart_3_Receive_Interrupt(void);
 
 
 

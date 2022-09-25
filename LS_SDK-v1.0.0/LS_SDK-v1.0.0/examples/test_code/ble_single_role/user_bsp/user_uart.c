@@ -14,8 +14,13 @@ uint8_t uart_2_buffer[2];
 unsigned char uart_2_frame_id;
 
 
-void Uart_2_Time_Even(void) {          //串口接收用在定时器上的事件 用来判断超时
+Frame_Typedef frame_3[FRAME_QUANTITY];     		//开2个帧缓存
+Uart_Frame_Typedef uart_3;										//
+uint8_t uart_3_buffer[2];
+unsigned char uart_3_frame_id;
 
+
+void Uart_2_Time_Even(void) {          //串口接收用在定时器上的事件 用来判断超时
     if(uart_2.status !=FREE) {
         uart_2.time_out++;
 
@@ -37,7 +42,6 @@ void Uart_2_Time_Even(void) {          //串口接收用在定时器上的事件
         }
     }
 }
-
 void Uart_2_Receive_Interrupt() {     			//进一次串口中断
     if(uart_2.status!=BUSY) {
         uart_2.status=BUSY;
@@ -53,6 +57,44 @@ void Uart_2_Receive_Interrupt() {     			//进一次串口中断
     uart_2.time_out=0;
 }
 
+
+
+void Uart_3_Time_Even(void) {          //串口接收用在定时器上的事件 用来判断超时
+    if(uart_3.status !=FREE) {
+        uart_3.time_out++;
+
+        if(uart_3.time_out>=FRAME_TIMEOUT) {			//完成一帧的接收
+            uart_3.status=FREE;						//串口标记为空闲
+
+            frame_3[uart_3.frame_id].status=1;  		//当前缓存帧的状态 0以处理 1未处理
+            /*
+            此处添加帧处理程序
+            */
+            uart_3_frame_id=uart_3.frame_id;			//传出当前缓存的编号在main中处理
+            uart_3.frame_id++;
+
+            //Uart_Data_Processing();                	//数据处理 切换缓存的数组后 再处理前一个缓存中的数据避免数据覆盖
+           // Uart_2_Data_Processing();
+            if(uart_3.frame_id >= FRAME_QUANTITY) {
+                uart_3.frame_id=0;
+            }
+        }
+    }
+}
+void Uart_3_Receive_Interrupt() {     			//进一次串口中断
+    if(uart_3.status!=BUSY) {
+        uart_3.status=BUSY;
+        frame_3[uart_3.frame_id].length=0;
+    }
+    //接收一字节
+    frame_3[uart_3.frame_id].buffer[frame_3[uart_3.frame_id].length]= uart_3_buffer[0];
+
+    frame_3[uart_3.frame_id].length++;
+    if(frame_3[uart_3.frame_id].length>=UART_BUFFER_LENTH-1) {
+        frame_3[uart_3.frame_id].length=UART_BUFFER_LENTH-1;
+    }
+    uart_3.time_out=0;
+}
 
 
 
@@ -109,6 +151,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
         HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);		// 重新使能串口1接收中断
     }
     else if(huart->UARTX==UART2) {
+        Uart_2_Receive_Interrupt();
+        HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 重新使能串口1接收中断
+    }
+    else if(huart->UARTX==UART3) {
         Uart_2_Receive_Interrupt();
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 重新使能串口1接收中断
     }

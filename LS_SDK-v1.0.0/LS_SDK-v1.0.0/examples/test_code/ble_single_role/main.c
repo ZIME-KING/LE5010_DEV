@@ -107,6 +107,8 @@ static bool uart_tx_busy;
 //static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
 UART_HandleTypeDef UART_Config;
 UART_HandleTypeDef UART_Config_AT;
+UART_HandleTypeDef UART_Config;
+UART_HandleTypeDef UART_Config_RFID;
 //static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 static const uint8_t ls_uart_svc_uuid_128[] =     {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF0,0xFF,0x00,0x00};
 static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF2,0xFF,0x00,0x00};
@@ -286,6 +288,10 @@ static void ls_single_role_timer_cb(void *param)
 static void ls_user_event_timer_cb_0(void *param)
 {
     //Uart_Time_Even();
+
+    Uart_3_Time_Even();  //串口接收数据
+    Uart_3_Data_Processing();  //串口接收数据
+				
     Uart_2_Time_Even();  //串口接收数据
     Uart_2_Data_Processing();
 
@@ -364,7 +370,7 @@ static void ls_user_event_timer_cb_1(void *param)
                             }
                         }
                     }
-                    User_Mfrc522(&M1_Card,0);            //扫描卡片任务
+                    //User_Mfrc522(&M1_Card,0);            //扫描卡片任务
                     State_Change_Task();								 //扫描开关状态，改变蓝牙发送，和NB启动上报数据
 										Lock_task() ;                        //开锁任务
                 }
@@ -392,6 +398,22 @@ static void ls_uart_init(void)
     UART_Config.Init.WordLength = UART_BYTESIZE8;
     HAL_UART_Init(&UART_Config);
 }
+
+
+static void ls_uart3_init(void)
+{
+    uart3_io_init(PB02, PA12);
+    UART_Config_RFID.UARTX = UART3;
+    UART_Config_RFID.Init.BaudRate = UART_BAUDRATE_9600;
+    UART_Config_RFID.Init.MSBEN = 0;
+    UART_Config_RFID.Init.Parity = UART_NOPARITY;
+    UART_Config_RFID.Init.StopBits = UART_STOPBITS1;
+    UART_Config_RFID.Init.WordLength = UART_BYTESIZE8;
+    HAL_UART_Init(&UART_Config_RFID);
+}
+
+
+
 void AT_uart_init(void)
 {
     //uart2_io_init(PA13, PA14);
@@ -1115,11 +1137,14 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         DELAY_US(200*1000);
         Read_Last_Data();
         AT_uart_init();
+				ls_uart3_init();
         ls_app_timer_init();
         //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
+				HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 使能串口2接收中断
         User_Init();
 
+//				 HAL_UART_Transmit(&UART_Config_RFID,(uint8_t*)"UART3_OK",sizeof("UART3_OK"),100);
 //        if(Check_SW2()==1 && Check_SW1()==0 ) {
 //            lock_state[0]=1;
 //        }

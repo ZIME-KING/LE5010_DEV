@@ -649,6 +649,42 @@ void Uart_2_Data_Processing() {
         frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
+
+
+void Uart_3_Data_Processing() {
+		if(frame_3[uart_3_frame_id].status!=0) {    			//接收到数据后status=1;
+       
+				//HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
+        //接收到的数据 到uart2  透传
+				if( frame_3[uart_3_frame_id].buffer[0]==0x7f && frame_3[uart_3_frame_id].buffer[1]==0x09  && frame_3[uart_3_frame_id].length==11){
+									RFID_DATA[0]=frame_3[uart_3_frame_id].buffer[6];
+									RFID_DATA[1]=frame_3[uart_3_frame_id].buffer[7];
+									RFID_DATA[2]=frame_3[uart_3_frame_id].buffer[8];
+									RFID_DATA[3]=frame_3[uart_3_frame_id].buffer[9];
+									LOG_HEX(&RFID_DATA[0],4);
+									
+										Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+																		user_ble_send_flag=1;                        //蓝牙数据发送开启
+																		
+																		TX_DATA_BUF[0]=0x52;		// CMD
+																		TX_DATA_BUF[1]=TOKEN[0];
+																		TX_DATA_BUF[2]=TOKEN[1];
+																		TX_DATA_BUF[3]=TOKEN[2];
+																		TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+																		TX_DATA_BUF[5]=0x08;    	//LEN
+																		TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
+																		TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
+																		TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+																		TX_DATA_BUF[9]=0x01;
+																		TX_DATA_BUF[10]=RFID_DATA[0];
+																		TX_DATA_BUF[11]=RFID_DATA[1];
+																		TX_DATA_BUF[12]=RFID_DATA[2];
+																		TX_DATA_BUF[13]=RFID_DATA[3];
+				}
+			 frame[uart_frame_id].status=0;					//处理完数据后status 清0;
+    }
+}
+
 uint8_t Get_Uart_Data_Processing_Result() {
     return globle_Result;
 }
