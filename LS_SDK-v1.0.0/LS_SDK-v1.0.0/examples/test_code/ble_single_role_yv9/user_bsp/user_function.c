@@ -97,9 +97,21 @@ void User_Init() {
 }
 
 extern uint8_t RTC_flag;
+
+uint16_t uv_count;
+
 void LED_TASK() {
     static uint8_t flag;
     static uint8_t count;
+		
+		if(uv_count>0){
+		     //io_cfg_output(PC01);   //外置紫外灯		
+				 io_write_pin(PC01,0);  //
+				 uv_count--;
+		}else{
+				 //io_cfg_output(PC01);   //外置紫外灯		
+				 io_write_pin(PC01,1);  //
+		}
     //来自RTC的启动，不要亮灯
     if (RTC_flag==1) {
         io_write_pin(LED_G, 0);
@@ -107,7 +119,7 @@ void LED_TASK() {
 				io_write_pin(PC01, 1);
     }
     else {
-				io_write_pin(PC01, 0);
+				//io_write_pin(PC01, 0);
         count++;
         if(count%20==0) {
             if(flag==1)flag=0;
@@ -466,7 +478,16 @@ void Uart_Data_Processing() {
         frame[uart_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void Scan_RDIF_Task() {
+   static uint8_t i;
+	 uint8_t buf[]={0x02,0x10,0x12,0x7F,0x02,0x10,0x12};
+       i++;
+       if(i%200==1) {
+						HAL_UART_Transmit(&UART_Config_RFID,&buf[0],7,100);
+				}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void Uart_2_Data_Processing() {
     int count;
 //		int len;
@@ -655,7 +676,8 @@ void Uart_3_Data_Processing() {
 		if(frame_3[uart_3_frame_id].status!=0) {    			//接收到数据后status=1;
        
 				//HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
-        //接收到的数据 到uart2  透传
+        LOG_HEX((uint8_t*)frame_3[uart_3_frame_id].buffer,frame_3[uart_3_frame_id].length);
+				//接收到的数据 到uart2  透传
 				if( frame_3[uart_3_frame_id].buffer[0]==0x7f && frame_3[uart_3_frame_id].buffer[1]==0x09  && frame_3[uart_3_frame_id].length==11){
 									RFID_DATA[0]=frame_3[uart_3_frame_id].buffer[6];
 									RFID_DATA[1]=frame_3[uart_3_frame_id].buffer[7];
@@ -681,7 +703,33 @@ void Uart_3_Data_Processing() {
 																		TX_DATA_BUF[12]=RFID_DATA[2];
 																		TX_DATA_BUF[13]=RFID_DATA[3];
 				}
-			 frame[uart_frame_id].status=0;					//处理完数据后status 清0;
+				else if(frame_3[uart_3_frame_id].buffer[0]==0x7f && frame_3[uart_3_frame_id].buffer[1]==0x03  && frame_3[uart_3_frame_id].length==5){		
+																	 if(RFID_DATA[0]+RFID_DATA[1]+RFID_DATA[2]+RFID_DATA[3] != 0x00 ){														
+																			RFID_DATA[0]=0x00;
+																			RFID_DATA[1]=0x00;
+																			RFID_DATA[2]=0x00;
+																			RFID_DATA[3]=0x00;
+																			LOG_HEX(&RFID_DATA[0],4);
+																		 	
+																			Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+																			user_ble_send_flag=1;                        //蓝牙数据发送开启
+																			TX_DATA_BUF[0]=0x52;		// CMD
+																			TX_DATA_BUF[1]=TOKEN[0];
+																			TX_DATA_BUF[2]=TOKEN[1];
+																			TX_DATA_BUF[3]=TOKEN[2];
+																			TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+																			TX_DATA_BUF[5]=0x08;    	//LEN
+																			TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
+																			TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
+																			TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+																			TX_DATA_BUF[9]=0x01;
+																			TX_DATA_BUF[10]=RFID_DATA[0];
+																			TX_DATA_BUF[11]=RFID_DATA[1];
+																			TX_DATA_BUF[12]=RFID_DATA[2];
+																			TX_DATA_BUF[13]=RFID_DATA[3];																					
+																		}
+				}
+			 frame_3[uart_3_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
 
@@ -1010,13 +1058,10 @@ uint8_t last_lock_state_0;
 uint8_t last_lock_state_1;
 //检测状态发生变化上报数据
 void State_Change_Task() {
-
     static uint8_t sw1_count;
 		static uint8_t sw1_flag;
     static uint8_t sw2_count;
 		static uint8_t sw2_flag;
-		
-		
 //		if(AT_tset_flag !=0 ){
 //			return;
 //		}
@@ -1064,6 +1109,7 @@ void State_Change_Task() {
 						
 						if(lock_state[0]==1){ 
 							buzzer_task_flag=1;
+							uv_count=25000/50;
 //							rfid_task_flag_1=1;   					 //开启一号卡扫卡
 						}
 							user_ble_send_flag=1;						
@@ -1091,7 +1137,7 @@ void State_Change_Task() {
 
             if(lock_state[1]==1) {    		//关锁动作后需要读卡号
 								buzzer_task_flag=1;
-
+								uv_count=25000/50;
 						}
             sleep_time=0;
 

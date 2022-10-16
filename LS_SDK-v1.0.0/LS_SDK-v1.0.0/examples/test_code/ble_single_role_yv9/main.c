@@ -21,11 +21,11 @@
 uint8_t open_count;
 #endif
 uint8_t MAC_ADDR[6];
-uint8_t CIMI_DATA[15] ="460000000000000";
-uint8_t MICI_DATA[15]="860000000000000";
+uint8_t CIMI_DATA[15] =	"460000000000000";
+uint8_t MICI_DATA[15] =	"860000000000000";
 uint8_t RFID_DATA[4]	= {0x00,0x00,0x00,0x00};
 uint8_t RFID_DATA_2[4]= {0X00,0x00,0x00,0x00};
-uint8_t SHORT_NAME[10]="3141592654";
+uint8_t SHORT_NAME[10]=	"3141592654";
 
 uint8_t NEW_SHORT_NAME[10];
 uint8_t SHORT_NAME_LEN=10;
@@ -107,7 +107,6 @@ static bool uart_tx_busy;
 //static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
 UART_HandleTypeDef UART_Config;
 UART_HandleTypeDef UART_Config_AT;
-UART_HandleTypeDef UART_Config;
 UART_HandleTypeDef UART_Config_RFID;
 //static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 static const uint8_t ls_uart_svc_uuid_128[] =     {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF0,0xFF,0x00,0x00};
@@ -370,6 +369,7 @@ static void ls_user_event_timer_cb_1(void *param)
                             }
                         }
                     }
+										Scan_RDIF_Task();                      //扫描卡片任务
                     //User_Mfrc522(&M1_Card,0);            //扫描卡片任务
                     State_Change_Task();								 //扫描开关状态，改变蓝牙发送，和NB启动上报数据
 										Lock_task() ;                        //开锁任务
@@ -389,7 +389,7 @@ static void ls_user_event_timer_cb_1(void *param)
 
 static void ls_uart_init(void)
 {
-    uart1_io_init(PB00, PB01);
+    uart3_io_init(PB00, PB01);
     UART_Config.UARTX = UART1;
     UART_Config.Init.BaudRate = UART_BAUDRATE_115200;
     UART_Config.Init.MSBEN = 0;
@@ -402,8 +402,11 @@ static void ls_uart_init(void)
 
 static void ls_uart3_init(void)
 {
-    uart3_io_init(PB02, PA12);
-    UART_Config_RFID.UARTX = UART3;
+		//串口用uart1，
+    io_pull_write(PB02, IO_PULL_UP);  				//设置上拉
+    io_pull_write(PA12, IO_PULL_UP);  				//设置上拉
+    uart1_io_init(PB02, PA12);
+    UART_Config_RFID.UARTX = UART1;
     UART_Config_RFID.Init.BaudRate = UART_BAUDRATE_9600;
     UART_Config_RFID.Init.MSBEN = 0;
     UART_Config_RFID.Init.Parity = UART_NOPARITY;

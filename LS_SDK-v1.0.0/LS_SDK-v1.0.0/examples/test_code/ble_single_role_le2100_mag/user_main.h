@@ -22,15 +22,12 @@
 #include "user_uart.h"
 #include "crc.h"
 #include "aes-128.h"
-//#include "moto.h"
-#include "lock.h"
+#include "moto.h"
 #include "Buzzer.h"
 #include "scan_sw.h"
-//#include "LPM2100_N.h"
-#include "CLM920_YV9V2.h"
+#include "LPM2100_N.h"
 
-#include "mfrc522.h"
-#include "user_rc522_function.h"
+
 //#define USER_TEST 
 
 #ifdef USER_TEST 
@@ -38,8 +35,7 @@
 #endif
 
 
-#define RECORD_KEY1  1	//蓝牙名称
-#define RECORD_KEY11 12	//IMEI/设备号
+#define RECORD_KEY1  1	 //蓝牙名称
 #define RECORD_KEY2  2  //完成模块初始化标记
 #define RECORD_KEY3  3  //蓝牙开锁密码
 #define RECORD_KEY4  4  //蓝牙通信密钥 低8位
@@ -47,7 +43,7 @@
 #define RECORD_KEY6  6  //给flash里面写入初始值标记
 #define RECORD_KEY7  7  //last_Vbat
 #define RECORD_KEY8  8  //last_Vbat_max
-#define RECORD_KEY9  9  //CIMI /IMSI 卡号
+#define RECORD_KEY9  9  //CIMI
 
 #define RECORD_KEY_T  11  //测试模式标记
 
@@ -58,7 +54,6 @@
 
 
 void start_adv(void);
-void AT_uart_init(void);
 
 
 extern UART_HandleTypeDef UART_Config;
@@ -68,11 +63,8 @@ extern uint8_t user_ble_send_flag;
 
 extern uint8_t MAC_ADDR[6];
 extern uint8_t CIMI_DATA[15];
-extern uint8_t MICI_DATA[15];
 extern uint8_t SHORT_NAME[10];
 extern uint8_t NEW_SHORT_NAME[10];
-extern uint8_t RFID_DATA[4];
-extern uint8_t RFID_DATA_2[4];
 
 extern uint8_t SHORT_NAME_LEN;
 //extern uint8_t COMPLETE_NAME[7];

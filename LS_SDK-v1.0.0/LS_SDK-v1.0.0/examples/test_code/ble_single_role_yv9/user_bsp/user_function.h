@@ -104,6 +104,8 @@ extern uint8_t T5_enable;  //电机动作完成发送包
 
 
 
+void Scan_RDIF_Task(void);
+
 #endif
 
 //uint8_t open_lock_reply_Result=0;
