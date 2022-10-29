@@ -1159,12 +1159,9 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         lock_state[0]= last_lock_state_0 ;
         lock_state[1]= last_lock_state_1 ;
 
-
-
-
         uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
         LOG_I("wkup_source:%x",wkup_source) ;
-        Set_Sleep_Time(120);
+        Set_Sleep_Time(30);
 
         //来自RTC的启动，发送心跳包
         if ((RTC_WKUP & wkup_source) != 0) {

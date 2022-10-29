@@ -6,7 +6,7 @@
 #define STOP  0x00
 
 #define VER_0  0xA0
-#define VER_1  0xA0
+#define VER_1  0xA2
 
 uint8_t send_count;							 //·¢ËÍ¼ÆÊý
 uint8_t lock_state[LOCK_NUM+1];  //Ëø×´Ì¬´æ´¢

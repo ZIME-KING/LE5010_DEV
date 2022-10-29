@@ -244,7 +244,7 @@ static void lvl2_lvl3_mode_prepare(struct deep_sleep_wakeup *wakeup)
 {
     NVIC->ICER[0] = 0xffffffff;
     lvl2_lvl3_io_retention(LSGPIOA);
-		io_pull_write(PA06,IO_PULL_DISABLE);
+//		io_pull_write(PA06,IO_PULL_DISABLE);
     lvl2_lvl3_io_retention(LSGPIOB);
     uint8_t mode;
     if(wakeup->rtc || wakeup->wdt)
@@ -268,7 +268,7 @@ static void lvl2_lvl3_mode_prepare(struct deep_sleep_wakeup *wakeup)
 
 XIP_BANNED void enter_deep_sleep_mode_lvl2_lvl3(struct deep_sleep_wakeup *wakeup)
 {
-    lvl2_lvl3_mode_prepare(wakeup);
+    lvl2_lvl3_mode_prepare(wakeup);      //ÓÐ¸Ä¶¯
     spi_flash_xip_stop();
     spi_flash_deep_power_down();
     uint16_t c_oe = LSGPIOC->OE;

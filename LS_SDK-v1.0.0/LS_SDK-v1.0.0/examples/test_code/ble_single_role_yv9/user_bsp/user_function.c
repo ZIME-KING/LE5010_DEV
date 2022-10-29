@@ -68,6 +68,9 @@ void User_Init() {
     Lock_gpio_init();
     Basic_PWM_Output_Cfg();
     
+//		io_cfg_output(PB08);  //
+//    io_write_pin(PB08,0);	//
+		
 		io_cfg_output(LED_R);   //LED_0
     io_write_pin(LED_R,0);	//LED_0
 		
@@ -88,12 +91,19 @@ void User_Init() {
 		io_write_pin(PA06,0);	 //LED_0
 //		io_write_pin(PA06,1);	 //LED_0
 		
-//    HAL_IWDG_Init(32756*10);  	 //5s看门狗
+    HAL_IWDG_Init(32756*5);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
     RTC_wkuptime_set(24*60*60*1000); //单位ms  唤醒时间3h  休眠函数在sw.c 中
     //RTC_wkuptime_set(60*1000);	 //唤醒时间60s  休眠函数在sw.c 中
     WAKE_UP();                   //POWER_100MS下拉
     Set_Task_State(GET_DB_VAL,START);
+
+
+
+
+
+		ls_sleep_enter_lp2();
+
 }
 
 extern uint8_t RTC_flag;
@@ -1155,7 +1165,6 @@ void State_Change_Task() {
             }	
 						RTC_flag=0; 
 
-						
             user_ble_send_flag=1;
             TX_DATA_BUF[0]=0x52;		// CMD
             TX_DATA_BUF[1]=TOKEN[0];
@@ -1173,8 +1182,6 @@ void State_Change_Task() {
 						TX_DATA_BUF[12]=RFID_DATA_2[2];
 						TX_DATA_BUF[13]=RFID_DATA_2[3];						
 			}
-		
-		
 }
 //获取信号值
 uint16_t AT_GET_DB_TASK() {
