@@ -68,8 +68,8 @@ void User_Init() {
     Lock_gpio_init();
     Basic_PWM_Output_Cfg();
     
-//		io_cfg_output(PB08);  //
-//    io_write_pin(PB08,0);	//
+		io_cfg_output(PB08);  //
+    io_write_pin(PB08,0);	//
 		
 		io_cfg_output(LED_R);   //LED_0
     io_write_pin(LED_R,0);	//LED_0
@@ -87,27 +87,22 @@ void User_Init() {
 		io_write_pin(PC01,1);  //
 		
 		io_cfg_output(PA06);   //LED_0
-//    io_write_pin(PA06,1);	 //LED_0
 		io_write_pin(PA06,0);	 //LED_0
-//		io_write_pin(PA06,1);	 //LED_0
 		
-    HAL_IWDG_Init(32756*5);  	 //5s看门狗
+//  HAL_IWDG_Init(32756*5);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
-    RTC_wkuptime_set(24*60*60*1000); //单位ms  唤醒时间3h  休眠函数在sw.c 中
-    //RTC_wkuptime_set(60*1000);	 //唤醒时间60s  休眠函数在sw.c 中
-    WAKE_UP();                   //POWER_100MS下拉
+//	RTC_wkuptime_set(24*60*60*1000); //单位ms  唤醒时间3h  休眠函数在sw.c 中
+    RTC_wkuptime_set(20*1000);	 //唤醒时间60s  休眠函数在sw.c 中
+		Set_Sleep_Time(10);
+		
+		WAKE_UP();                   //POWER_100MS下拉
+				
     Set_Task_State(GET_DB_VAL,START);
-
-
-
-
-
-		ls_sleep_enter_lp2();
-
 }
 
 extern uint8_t RTC_flag;
 
+ 
 uint16_t uv_count;
 
 void LED_TASK() {
@@ -483,8 +478,60 @@ void Read_Last_Data() {
 void Uart_Data_Processing() {
 
     if(frame[uart_frame_id].status!=0) {    			//接收到数据后status=1;
-        HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
-        //接收到的数据 到uart2  透传
+				//HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
+        LOG_HEX((uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length);
+				//接收到的数据 到uart2  透传
+				if( frame[uart_frame_id].buffer[0]==0x7f && frame[uart_frame_id].buffer[1]==0x09  && frame[uart_frame_id].length==11){
+									RFID_DATA_2[0]=frame[uart_frame_id].buffer[6];
+									RFID_DATA_2[1]=frame[uart_frame_id].buffer[7];
+									RFID_DATA_2[2]=frame[uart_frame_id].buffer[8];
+									RFID_DATA_2[3]=frame[uart_frame_id].buffer[9];
+									LOG_HEX(&RFID_DATA_2[0],4);
+									
+										Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+																		user_ble_send_flag=1;                        //蓝牙数据发送开启
+																		
+																		TX_DATA_BUF[0]=0x52;		// CMD
+																		TX_DATA_BUF[1]=TOKEN[0];
+																		TX_DATA_BUF[2]=TOKEN[1];
+																		TX_DATA_BUF[3]=TOKEN[2];
+																		TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+																		TX_DATA_BUF[5]=0x08;    	//LEN
+																		TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
+																		TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
+																		TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+																		TX_DATA_BUF[9]=0x02;
+																		TX_DATA_BUF[10]=RFID_DATA_2[0];
+																		TX_DATA_BUF[11]=RFID_DATA_2[1];
+																		TX_DATA_BUF[12]=RFID_DATA_2[2];
+																		TX_DATA_BUF[13]=RFID_DATA_2[3];
+				}
+				else if(frame[uart_frame_id].buffer[0]==0x7f && frame[uart_frame_id].buffer[1]==0x03  && frame[uart_frame_id].length==5){		
+																	 if(RFID_DATA_2[0]+RFID_DATA_2[1]+RFID_DATA_2[2]+RFID_DATA_2[3] != 0x00 ){														
+																			RFID_DATA_2[0]=0x00;
+																			RFID_DATA_2[1]=0x00;
+																			RFID_DATA_2[2]=0x00;
+																			RFID_DATA_2[3]=0x00;
+																			LOG_HEX(&RFID_DATA[0],4);
+																		 	
+																			Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+																			user_ble_send_flag=1;                        //蓝牙数据发送开启
+																			TX_DATA_BUF[0]=0x52;		// CMD
+																			TX_DATA_BUF[1]=TOKEN[0];
+																			TX_DATA_BUF[2]=TOKEN[1];
+																			TX_DATA_BUF[3]=TOKEN[2];
+																			TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+																			TX_DATA_BUF[5]=0x08;    	//LEN
+																			TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
+																			TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
+																			TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+																			TX_DATA_BUF[9]=0x02;
+																			TX_DATA_BUF[10]=RFID_DATA_2[0];
+																			TX_DATA_BUF[11]=RFID_DATA_2[1];
+																			TX_DATA_BUF[12]=RFID_DATA_2[2];
+																			TX_DATA_BUF[13]=RFID_DATA_2[3];																					
+																		}
+				}
         frame[uart_frame_id].status=0;					//处理完数据后status 清0;
     }
 }
@@ -495,6 +542,7 @@ void Scan_RDIF_Task() {
        i++;
        if(i%200==1) {
 						HAL_UART_Transmit(&UART_Config_RFID,&buf[0],7,100);
+						HAL_UART_Transmit(&UART_Config     ,&buf[0],7,100);
 				}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1526,6 +1574,12 @@ void Set_Sleep_Time(uint16_t time_s) {
 }
 //休眠任务
 void Sleep_Task() {
+//	static uint16_t count;
+//	count++;
+//	if(count>=20){
+//		count=0;
+//		LOG_I("sleep_time:%d",sleep_time);
+//	}
     if(sleep_time*50>set_sleep_time*1000) {
         ls_sleep_enter_lp2();
     }

@@ -23,6 +23,7 @@ QIPCSGP,			//注册服务
 QIPACT, 			//激活服务
 QIPACT_ASK,		//查询激活服务
 QIPOPEN,			//启动连接
+POWER_OFF,
 }Typedef_AT;
 
 

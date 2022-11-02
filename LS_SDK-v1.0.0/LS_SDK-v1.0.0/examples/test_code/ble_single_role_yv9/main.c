@@ -294,6 +294,9 @@ static void ls_user_event_timer_cb_0(void *param)
     Uart_2_Time_Even();  //串口接收数据
     Uart_2_Data_Processing();
 
+		Uart_Time_Even();
+		Uart_Data_Processing();
+
     Scan_Key();					 //扫描按键
     Get_Vbat_Task();		 //获取电池电量 0~100
 
@@ -327,7 +330,7 @@ static void ls_user_event_timer_cb_1(void *param)
         //LOG_I("fMODE:%X",test_mode_flag);
 
         sleep_time++;			 									 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
-        if(wd_FLAG==0)HAL_IWDG_Refresh();	 	 //喂狗
+        //if(wd_FLAG==0)HAL_IWDG_Refresh();	 	 //喂狗
         LED_TASK();													 //LED显示效果
         Buzzer_Task();											 //蜂鸣器任务
         Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
@@ -389,9 +392,9 @@ static void ls_user_event_timer_cb_1(void *param)
 
 static void ls_uart_init(void)
 {
-    uart3_io_init(PB00, PB01);
+    uart3_io_init(PA12, PA13);
     UART_Config.UARTX = UART1;
-    UART_Config.Init.BaudRate = UART_BAUDRATE_115200;
+    UART_Config.Init.BaudRate = UART_BAUDRATE_9600;
     UART_Config.Init.MSBEN = 0;
     UART_Config.Init.Parity = UART_NOPARITY;
     UART_Config.Init.StopBits = UART_STOPBITS1;
@@ -403,10 +406,10 @@ static void ls_uart_init(void)
 static void ls_uart3_init(void)
 {
 		//串口用uart1，
-    io_pull_write(PB02, IO_PULL_UP);  				//设置上拉
-    io_pull_write(PA12, IO_PULL_UP);  				//设置上拉
-    uart1_io_init(PB02, PA12);
-    UART_Config_RFID.UARTX = UART1;
+    io_pull_write(PA14, IO_PULL_UP);  				//设置上拉
+    io_pull_write(PA15, IO_PULL_UP);  				//设置上拉
+    uart1_io_init(PA14, PA15);
+    UART_Config_RFID.UARTX = UART3;
     UART_Config_RFID.Init.BaudRate = UART_BAUDRATE_9600;
     UART_Config_RFID.Init.MSBEN = 0;
     UART_Config_RFID.Init.Parity = UART_NOPARITY;
@@ -1133,16 +1136,17 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif
-        //ls_uart_init();
-        //RESET_NB();
         Button_Gpio_Init();
         uint8_t button_flag=io_read_pin(PB15);
         DELAY_US(200*1000);
         Read_Last_Data();
+				
+				//ls_uart_init();
         AT_uart_init();
 				ls_uart3_init();
         ls_app_timer_init();
-        //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
+        
+			  //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
 				HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 使能串口2接收中断
         User_Init();
@@ -1161,7 +1165,6 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 
         uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
         LOG_I("wkup_source:%x",wkup_source) ;
-        Set_Sleep_Time(30);
 
         //来自RTC的启动，发送心跳包
         if ((RTC_WKUP & wkup_source) != 0) {

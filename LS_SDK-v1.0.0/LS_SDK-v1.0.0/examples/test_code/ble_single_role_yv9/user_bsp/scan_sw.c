@@ -180,7 +180,8 @@ uint8_t Check_SW2(){
 #define RECORD_KEY7 7
 void  ls_sleep_enter_lp2(void)
 {
-	//RESET_NB();	
+	AT_Command_Send(POWER_OFF);
+	
 //	tinyfs_write(ID_dir_3,RECORD_KEY7,&VBat_value,1);	
 //	#ifdef USER_TEST 
 //	tinyfs_write(ID_dir_2,RECORD_KEY10,(uint8_t*)&open_count,1);	
@@ -199,32 +200,33 @@ void  ls_sleep_enter_lp2(void)
 //	LOG_I("sleep");	
 	
 	io_init();
-//	DELAY_US(1000*10);
-//	io_write_pin(PC00, 0);
-//	DELAY_US(1000*10);
-//	io_write_pin(PC01, 1);
-//	DELAY_US(1000*10);
-//	io_write_pin(PA06, 1);
-//	DELAY_US(1000*10);
-	
+	DELAY_US(1000*10);
+	io_write_pin(PC00, 0);
+	DELAY_US(1000*10);
+	io_write_pin(PC01, 1);
+	DELAY_US(1000*10);
+	io_write_pin(PA06, 1);
+	DELAY_US(1000*10);
+//	io_read_pin(PA06) ;
+//	 DELAY_US(1000*10);
 	
 	exitpb15_iowkup_init();
-//	exitpa00_iowkup_init();
-//	exitpa07_iowkup_init();
-//	exitpb11_iowkup_init();
+	exitpa00_iowkup_init();
+	exitpa07_iowkup_init();
+	exitpb11_iowkup_init();
 	
 	
 	struct deep_sleep_wakeup wakeup;
 	memset(&wakeup,0,sizeof(wakeup));
 	wakeup.pb15 = 1 ;									//Ñ¡ÔñPB15×÷Îª»½ÐÑio
-	wakeup.pb15_rising_edge = 0;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
-//	wakeup.pa00 = 1 ;									//Ñ¡ÔñPA00×÷Îª»½ÐÑio
-//	wakeup.pa00_rising_edge = 0;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
-//	wakeup.pa07 = 1 ;									//Ñ¡ÔñPB15×÷Îª»½ÐÑio
-//	wakeup.pa07_rising_edge = 0;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
-//	wakeup.pb11 = 1 ;									//Ñ¡ÔñPA00×÷Îª»½ÐÑio
-//	wakeup.pb11_rising_edge = 0;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
+	wakeup.pb15_rising_edge = 1;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
+	wakeup.pa00 = 1 ;									//Ñ¡ÔñPA00×÷Îª»½ÐÑio
+	wakeup.pa00_rising_edge = 1;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
+	wakeup.pa07 = 1 ;									//Ñ¡ÔñPB15×÷Îª»½ÐÑio
+	wakeup.pa07_rising_edge = 1;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
+	wakeup.pb11 = 1 ;									//Ñ¡ÔñPA00×÷Îª»½ÐÑio
+	wakeup.pb11_rising_edge = 1;			//Ñ¡Ôñ±ßÑØ»½ÐÑ
 	
-	//wakeup.rtc  = 1 ;
+	wakeup.rtc  = 1 ;
   enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//µ÷ÓÃ»½ÐÑº¯Êý         //ÓÐ¸Ä¶¯
 }

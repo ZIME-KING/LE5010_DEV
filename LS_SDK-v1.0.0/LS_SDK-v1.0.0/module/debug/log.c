@@ -11,7 +11,7 @@
 #define RAM_LOG             4
 
 
-//#define LOG_BACKEND (UART_LOG)
+#define LOG_BACKEND (UART_LOG)
 
 #ifndef LOG_BACKEND
 #if __arm__

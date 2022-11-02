@@ -96,9 +96,6 @@ void Uart_3_Receive_Interrupt() {     			//进一次串口中断
     uart_3.time_out=0;
 }
 
-
-
-
 void Uart_Time_Even(void) {          //串口接收用在定时器上的事件 用来判断超时
 
     if(uart1.status !=FREE) {
@@ -124,6 +121,7 @@ void Uart_Time_Even(void) {          //串口接收用在定时器上的事件 �
 }
 
 
+
 void Receive_Interrupt() {     			//进一次串口中断
     if(uart1.status!=BUSY) {
         uart1.status=BUSY;
@@ -147,19 +145,17 @@ void Receive_Interrupt() {     			//进一次串口中断
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if(huart->UARTX==UART1) {
-        //Receive_Interrupt();
-        //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);		// 重新使能串口1接收中断
-				Uart_3_Receive_Interrupt();
-        HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 重新使能串口1接收中断
+        Receive_Interrupt();
+        HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);		// 重新使能串口1接收中断
     }
     if(huart->UARTX==UART2) {
         Uart_2_Receive_Interrupt();
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 重新使能串口1接收中断
     }
-//    else if(huart->UARTX==UART3) {
-//        Uart_3_Receive_Interrupt();
-//        HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 重新使能串口1接收中断
-//    }
+    else if(huart->UARTX==UART3) {
+				Uart_3_Receive_Interrupt();
+        HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 重新使能串口3接收中断
+    }
 }
 
 //union Data

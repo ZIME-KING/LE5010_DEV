@@ -122,6 +122,9 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 		 case QIPOPEN:   //启动连接 
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\n",sizeof("AT+QIPOPEN=1,1,\"UDP\",\"139.224.136.93\",50513,0,1\r\n"),100);
      break;	
+				case POWER_OFF:   //启动连接 
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT$MYPOWEROFF\r\n",sizeof("AT$MYPOWEROFF\r\n"),100);
+     break;	
 	}
 }
 
