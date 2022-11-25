@@ -184,7 +184,7 @@ void Open_Lock_Send() {
     DATA_BUF[2] = 0X15;		//长度
     DATA_BUF[3] = send_count++;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X10;   //功能码  请求开锁
-
+		
     DATA_BUF[5] = 0XA0;   //锁硬件版本号
     DATA_BUF[6] = VER_0;
 

@@ -32,6 +32,10 @@ TEST_GET_DB_VAL
 }Typedef_TASK_LIST;
 
 
+void RFID_INIT_1(void);
+void RFID_INIT_2(void);
+
+
  void User_Init(void);
 // void Start_Lock_Send(void);
 // void Open_Lock_Send(void);

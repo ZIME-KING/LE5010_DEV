@@ -286,7 +286,6 @@ static void ls_single_role_timer_cb(void *param)
 //5ms   做按键扫描
 static void ls_user_event_timer_cb_0(void *param)
 {
-    //Uart_Time_Even();
 
     Uart_3_Time_Even();  //串口接收数据
     Uart_3_Data_Processing();  //串口接收数据
@@ -294,13 +293,12 @@ static void ls_user_event_timer_cb_0(void *param)
     Uart_2_Time_Even();  //串口接收数据
     Uart_2_Data_Processing();
 
-		Uart_Time_Even();
-		Uart_Data_Processing();
+//		Uart_Time_Even();
+//		Uart_Data_Processing();
 
     Scan_Key();					 //扫描按键
     Get_Vbat_Task();		 //获取电池电量 0~100
 
-    //Uart_Data_Processing();
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 //uint16_t temp_count=0;
@@ -330,7 +328,7 @@ static void ls_user_event_timer_cb_1(void *param)
         //LOG_I("fMODE:%X",test_mode_flag);
 
         sleep_time++;			 									 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
-        //if(wd_FLAG==0)HAL_IWDG_Refresh();	 	 //喂狗
+        if(wd_FLAG==0)HAL_IWDG_Refresh();	 	 //喂狗
         LED_TASK();													 //LED显示效果
         Buzzer_Task();											 //蜂鸣器任务
         Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
@@ -1141,23 +1139,22 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         DELAY_US(200*1000);
         Read_Last_Data();
 				
-				//ls_uart_init();
         AT_uart_init();
-				ls_uart3_init();
         ls_app_timer_init();
-        
+				
 			  //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
-        HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-				HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 使能串口2接收中断
+        HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);			// 使能串口2接收中断
+			//HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 使能串口3接收中断
         User_Init();
 
-//				 HAL_UART_Transmit(&UART_Config_RFID,(uint8_t*)"UART3_OK",sizeof("UART3_OK"),100);
+//				HAL_UART_Transmit(&UART_Config_RFID,(uint8_t*)"UART3_OK",sizeof("UART3_OK"),100);
 //        if(Check_SW2()==1 && Check_SW1()==0 ) {
 //            lock_state[0]=1;
 //        }
 //        else {
 //            lock_state[0]=0;
 //        }
+
         last_lock_state_0=!Check_SW1();   //获取初始锁状态
         last_lock_state_1=!Check_SW2();  //获取初始锁状态
         lock_state[0]= last_lock_state_0 ;
@@ -1216,7 +1213,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
         //断电重启
         else if (wkup_source == 0) {
-//								rfid_task_flag_1=1;
+						//rfid_task_flag_1=1;
             //AT_tset_flag=2;
             reset_flag=1;
             Set_Task_State(START_LOCK_SEND,START);

@@ -3,7 +3,7 @@
 #include "test_user_function.h"
 #include <string.h>
 
-#define TUSB_CHECK   PA03
+//#define TUSB_CHECK   PA03
 //#define	TUSB_CHECK_B PB06
 
 void TEST_LED_TASK(){
@@ -49,25 +49,25 @@ void TEST_LED_TASK(){
 				}
 				else{
 					
-					io_cfg_input(TUSB_CHECK);   //PB09 config output
+//					io_cfg_input(TUSB_CHECK);   //PB09 config output
 //				io_cfg_input(TUSB_CHECK_B);   //PB09 config output										
 //				LOG_I("usb_in1%d",io_read_pin(TUSB_CHECK));
 //				LOG_I("usb_in2%d",io_read_pin(TUSB_CHECK_B));		
-					if(io_read_pin(TUSB_CHECK)==1 ){
-						
+//					if(io_read_pin(TUSB_CHECK)==1 ){
+//						
 //						io_cfg_output(TUSB_CHECK);   //PB09 config output
 //						io_cfg_output(TUSB_CHECK_B);   //PB09 config output
 //						io_write_pin(TUSB_CHECK, 0);
 //						io_write_pin(TUSB_CHECK_B, 0);
-												
-						LOG_I("usb_in");
-						//20~90 бл╣фиа
-						//if(VBat_value>20 && VBat_value<=90){
-						io_write_pin(PC00, flag);
-						io_write_pin(PC01, 0);
-						//}
-						}
-					else{
+//												
+//						LOG_I("usb_in");
+//						//20~90 бл╣фиа
+//						//if(VBat_value>20 && VBat_value<=90){
+//						io_write_pin(PC00, flag);
+//						io_write_pin(PC01, 0);
+//						//}
+//						}
+				//	else{
 						if(VBat_value>20){
 							io_write_pin(PC00, 1);
 							io_write_pin(PC01, 0);
@@ -77,7 +77,7 @@ void TEST_LED_TASK(){
 							io_write_pin(PC00, 0);
 							io_write_pin(PC01, 1);
 						}
-					}
+			//	}
 				}
 			}
 	}

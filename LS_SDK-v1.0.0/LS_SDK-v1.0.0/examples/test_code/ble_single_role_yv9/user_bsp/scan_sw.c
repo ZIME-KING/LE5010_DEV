@@ -15,7 +15,7 @@ static void exitpa00_iowkup_init(void)
 {
 	  io_cfg_input(USB_CHECK);               				//输入模式                     
     io_pull_write(USB_CHECK, IO_PULL_UP);  				//设置上拉    
-    io_exti_config(USB_CHECK,INT_EDGE_FALLING);   //下降沿触发中断 
+    io_exti_config(USB_CHECK,INT_EDGE_RISING);   //上升降沿触发中断 
     io_exti_enable(USB_CHECK,true);            		//启动中断使能    
 }
 
@@ -180,35 +180,53 @@ uint8_t Check_SW2(){
 #define RECORD_KEY7 7
 void  ls_sleep_enter_lp2(void)
 {
+	tinyfs_write(ID_dir_3,RECORD_KEY7,&VBat_value,1);	
+	#ifdef USER_TEST 
+	tinyfs_write(ID_dir_2,RECORD_KEY10,(uint8_t*)&open_count,1);	
+	#endif
+	tinyfs_write_through();
+
 	AT_Command_Send(POWER_OFF);
-	
-//	tinyfs_write(ID_dir_3,RECORD_KEY7,&VBat_value,1);	
-//	#ifdef USER_TEST 
-//	tinyfs_write(ID_dir_2,RECORD_KEY10,(uint8_t*)&open_count,1);	
-//	#endif
-//	tinyfs_write_through();
-	
-//	io_write_pin(PA03,1);
-//	DELAY_US(1000*1000*6);
-//	io_write_pin(PA03,0);
-//	DELAY_US(1000*10);
+	DELAY_US(3*1000*1000);
 
 
-//	io_write_pin(PA06, 1);
-//	DELAY_US(1000*10);
 	
-//	LOG_I("sleep");	
-	
-	io_init();
-	DELAY_US(1000*10);
-	io_write_pin(PC00, 0);
-	DELAY_US(1000*10);
-	io_write_pin(PC01, 1);
-	DELAY_US(1000*10);
-	io_write_pin(PA06, 1);
-	DELAY_US(1000*10);
-//	io_read_pin(PA06) ;
-//	 DELAY_US(1000*10);
+		io_cfg_output(PA03);     //
+		io_write_pin(PA03, 0);	 //
+		io_cfg_input(PA04);			 //
+		io_cfg_output(PA05);		 //
+		io_write_pin(PA05, 0);		
+		io_cfg_output(PC00);
+		io_write_pin(PC00, 0);	
+		io_cfg_input(PC01);	
+		io_cfg_input(PA06);	
+		io_cfg_input(PA07);	
+		io_cfg_output(PA08);	
+		io_write_pin(PA08, 0);	
+//	io_cfg_output(PA12);	
+//	io_write_pin(PA12, 0);		
+//	io_cfg_output(PA13);	
+//	io_write_pin(PA13, 0);	
+//	io_cfg_output(PA14);	
+//	io_write_pin(PA14, 0);	
+//	io_cfg_output(PA15);	
+//	io_write_pin(PA15, 0);	
+		io_cfg_input(PB03);	
+		io_cfg_input(PB04);	
+		io_cfg_input(PB07);		
+		
+		io_cfg_input(PB08);		//4G CAT1 电源				
+//		io_cfg_output(PB08);		//4G CAT1 电源				
+//		io_write_pin(PB08,0);	
+
+		io_cfg_output(PB09);			 
+		io_write_pin(PB09,0);	 
+		io_cfg_input(PB10);			 
+		io_cfg_input(PB11);			 		
+		io_cfg_input(PB15);			 
+		io_cfg_input(PA00);	
+		io_cfg_input(PA02);	
+
 	
 	exitpb15_iowkup_init();
 	exitpa00_iowkup_init();
@@ -219,13 +237,13 @@ void  ls_sleep_enter_lp2(void)
 	struct deep_sleep_wakeup wakeup;
 	memset(&wakeup,0,sizeof(wakeup));
 	wakeup.pb15 = 1 ;									//选择PB15作为唤醒io
-	wakeup.pb15_rising_edge = 1;			//选择边沿唤醒
+	wakeup.pb15_rising_edge = 0;			//选择边沿唤醒
 	wakeup.pa00 = 1 ;									//选择PA00作为唤醒io
 	wakeup.pa00_rising_edge = 1;			//选择边沿唤醒
 	wakeup.pa07 = 1 ;									//选择PB15作为唤醒io
-	wakeup.pa07_rising_edge = 1;			//选择边沿唤醒
+	wakeup.pa07_rising_edge = 0;			//选择边沿唤醒
 	wakeup.pb11 = 1 ;									//选择PA00作为唤醒io
-	wakeup.pb11_rising_edge = 1;			//选择边沿唤醒
+	wakeup.pb11_rising_edge = 0;			//选择边沿唤醒
 	
 	wakeup.rtc  = 1 ;
   enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//调用唤醒函数         //有改动

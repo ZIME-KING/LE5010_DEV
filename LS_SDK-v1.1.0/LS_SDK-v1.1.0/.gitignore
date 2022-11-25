@@ -1,0 +1,8 @@
+.sconsign.dblite
+*__pycache__/
+build/
+_build/
+*UVBuild/
+*.lst
+*.uvguix.*
+*.map

@@ -334,7 +334,7 @@ static void ls_user_event_timer_cb_1(void *param)
 	  NB_WAKE_Task();
 		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
 		if(db_flag==0xff) {
-        if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
+        if(AT_INIT()==0xff) {						 //向服务器注册消息，只在初始化后运行一次
             //名称有变化
             if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,SHORT_NAME_LEN)!=0) {
                 LOG_I("read_id");
@@ -1090,10 +1090,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif
-        //ls_uart_init();
-				//RESET_NB();
 				Button_Gpio_Init();
-				uint8_t button_flag=io_read_pin(PB15);
+				uint8_t button_flag=io_read_pin(PB15);     //唤醒后读IO状态，判断唤醒引脚
 				DELAY_US(200*1000);
         Read_Last_Data();
         AT_uart_init();

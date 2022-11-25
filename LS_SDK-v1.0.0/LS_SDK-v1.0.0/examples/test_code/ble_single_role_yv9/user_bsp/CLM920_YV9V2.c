@@ -17,10 +17,14 @@ uint8_t C0_lock_state[LOCK_NUM];  //锁状态存储 防盗锁，本版本未启�
 const uint8_t	Frame_header[2]= {0x58,0x59};
 
 void WAKE_UP(){
+
+    io_cfg_output(PB08);  //
+    io_write_pin(PB08,0);	//
+		DELAY_US(500*1000);   //开启cat1 mos管等待100ms电源稳定
+
 		io_cfg_output(PA03);               //输出模式                     
-    //io_pull_write(PA03, IO_PULL_UP);   //设置上拉  
 		io_write_pin(PA03,1);
-		DELAY_US(500*1000);
+		DELAY_US(200*1000);
 		io_write_pin(PA03,0);
 }
 
