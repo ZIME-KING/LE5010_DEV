@@ -1,0 +1,118 @@
+#define LOG_TAG "USER"
+#include "user_main.h"
+#include "user_function.h"
+
+//蓝牙启动成功跑一次
+void User_BLE_Ready(){
+		Buzzer_IO_Init();
+		Moto_IO_Init();
+		LED_Init();		
+		Moto_Task();
+		
+}
+uint8_t now_r;
+uint8_t now_g;
+uint8_t now_b;
+
+uint8_t set_r;
+uint8_t set_g;
+uint8_t set_b;
+
+uint8_t now_t0;
+uint8_t now_t1;
+uint8_t now_t2;
+uint8_t now_t3;
+
+uint8_t set_t0;
+uint8_t set_t1;
+uint8_t set_t2;
+uint8_t set_t3;
+
+uint8_t buf[12];
+
+uint8_t max_brightness=0xff;
+uint8_t min_brightness=0x00;
+
+//10ms  跑一次
+void LED_Functon(){
+	static uint8_t mode_flag=0;
+	static uint16_t count=0;
+	static uint16_t count_T1=0;
+	static uint16_t count_T3=0;
+	uint16_t temp=0;
+	count++;
+	
+	switch(mode_flag){
+	case 0:		
+			set_r= buf[0]*max_brightness/255;
+			set_g= buf[1]*max_brightness/255;
+			set_b= buf[2]*max_brightness/255;
+			temp=set_t0*10/(max_brightness-min_brightness);     //T0为协议输入值 单位100ms
+			
+			if(count%(temp)==1){
+					 temp=0;
+					if(now_r<set_r){
+							now_r++;
+							temp++;
+					 }
+					 if(now_g<set_g){
+							now_g++;
+							temp++;
+					 } 
+					 if(now_b<set_b){
+							now_b++;
+							temp++;
+					 }					 
+					 if(temp==0){
+							 mode_flag=1;
+					 }
+			}
+	break;
+	case 1:
+			set_r= buf[0]*max_brightness/255;
+			set_g= buf[1]*max_brightness/255;
+			set_b= buf[2]*max_brightness/255;					
+			count_T1++;
+			if(count_T1*10>=set_t1){
+					mode_flag=2;
+			}
+	break;	
+	case 2:
+			set_r= buf[0]*min_brightness/255;
+			set_g= buf[1]*min_brightness/255;
+			set_b= buf[2]*min_brightness/255;
+			temp=set_t2*10/(max_brightness-min_brightness);     //T0为协议输入值 单位100ms
+
+			if(count%(temp)==1){
+					 temp=0;
+					if(now_r>set_r){
+							now_r--;
+							temp++;
+					 }
+					 if(now_g>set_g){
+							now_g--;
+							temp++;
+					 } 
+					 if(now_b>set_b){
+							now_b--;
+							temp++;
+					 }					 
+					 if(temp==0){
+							 mode_flag=3;
+					 }
+			}	
+	break;
+		
+	case 3:	
+			set_r= 0 ;
+			set_g= 0 ;
+			set_b= 0 ;				
+			count_T3++;
+			if(count_T3*10>=set_t3){
+					mode_flag=0;
+			}	
+	break;
+	}
+}
+
+

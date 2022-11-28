@@ -266,7 +266,7 @@ static void ls_app_timer_init(void)
     ble_app_timer_inst = builtin_timer_create(ls_single_role_timer_cb);
     builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
 
-    builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
+//    builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
 }
 static void ls_single_role_timer_cb(void *param)
 {

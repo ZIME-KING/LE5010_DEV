@@ -867,7 +867,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         ls_uart_server_init(0xff);
         ls_uart_client_init(0xff); 
 
-				User_BLE_Ready();
+				//User_BLE_Ready();
 				
     }
     break;
@@ -968,6 +968,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 
 int main()
 {
+uint16_t i;
+while(1){
+	i++;
+}
+
     sys_init_app();
     ble_init();
     dev_manager_init(dev_manager_callback);

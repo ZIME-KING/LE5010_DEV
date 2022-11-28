@@ -1,5 +1,5 @@
-#ifndef USER_MAIN_H_
-#define USER_MAIN_H_
+#ifndef CONTROL_CMD_H_
+#define CONTROL_CMD_H_
 
 #include "ls_ble.h"
 #include "platform.h"

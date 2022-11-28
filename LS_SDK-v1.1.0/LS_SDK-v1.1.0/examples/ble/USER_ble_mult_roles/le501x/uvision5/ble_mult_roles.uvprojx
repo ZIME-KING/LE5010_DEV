@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4100</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
-          <Flash2></Flash2>
-          <Flash3></Flash3>
+          <Flash2>BIN\UL2CM3.DLL</Flash2>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -374,7 +374,7 @@
             <ScatterFile>..\..\..\..\..\soc\arm_cm\le501x\compiler\armcc\ble.ld</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc> --datacompressor=off --diag_suppress=L6314,L6329</Misc>
+            <Misc>--datacompressor=off --diag_suppress=L6314,L6329</Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
@@ -1698,6 +1698,11 @@
               <FileName>user_function.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\user_function.c</FilePath>
+            </File>
+            <File>
+              <FileName>LED_RGB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\LED_RGB.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3393,6 +3398,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\user_function.c</FilePath>
             </File>
+            <File>
+              <FileName>LED_RGB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\LED_RGB.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -5086,6 +5096,11 @@
               <FileName>user_function.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\user_function.c</FilePath>
+            </File>
+            <File>
+              <FileName>LED_RGB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\LED_RGB.c</FilePath>
             </File>
           </Files>
         </Group>
