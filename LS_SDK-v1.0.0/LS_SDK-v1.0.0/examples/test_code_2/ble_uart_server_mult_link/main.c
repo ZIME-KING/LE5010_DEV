@@ -151,7 +151,7 @@ static void ls_user_event_timer_cb_1(void *param);
 static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
 static struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
 
-#define USER_EVENT_PERIOD_0 1		 // 10ms
+#define USER_EVENT_PERIOD_0 1		 	 //1ms
 #define USER_EVENT_PERIOD_1 50     // 100ms
 
 static void ls_app_timer_init(void)
@@ -163,7 +163,7 @@ static void ls_app_timer_init(void)
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 
-//10ms
+//1ms
 static void ls_user_event_timer_cb_0(void *param){
 	 LED_Functon();
 	 builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
@@ -270,8 +270,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 }
 static void ls_uart_init(void)
 {
-    uart1_io_init(PB00, PB01);
-    io_pull_write(PB01, IO_PULL_UP);
+//    uart1_io_init(PB00, PB01);
+//    io_pull_write(PB01, IO_PULL_UP);
+	
+		uart1_io_init(PA12, PA13);
+    io_pull_write(PA13, IO_PULL_UP);
+
     UART_Server_Config.UARTX = UART1;
     UART_Server_Config.Init.BaudRate = UART_BAUDRATE_115200;
     UART_Server_Config.Init.MSBEN = 0;
@@ -526,7 +530,6 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 
     break;
     }
-    
 }
 
 int main()
