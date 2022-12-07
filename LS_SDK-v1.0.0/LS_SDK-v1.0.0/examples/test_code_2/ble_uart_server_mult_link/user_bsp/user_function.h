@@ -3,5 +3,6 @@
 #include "user_main.h"
 
 void User_BLE_Ready(void);
+void loop_task(void);
 
 #endif

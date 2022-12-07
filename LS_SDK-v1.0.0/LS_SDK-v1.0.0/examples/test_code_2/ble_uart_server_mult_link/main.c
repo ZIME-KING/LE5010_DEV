@@ -172,6 +172,8 @@ static void ls_user_event_timer_cb_0(void *param){
 //100ms
 static void ls_user_event_timer_cb_1(void *param){
 
+				loop_task();
+
 	      builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 

@@ -4,31 +4,31 @@
 
 
 
-typedef struct cavan_user_desc {
-	cavan_timer_t timer;
-	uint8_t lock_salt[16];
-	uint8_t conn_id;
-	bool login;
-	bool connected;
-	bool (*transfer)(struct cavan_user_desc *user, uint8_t *buff, uint8_t length);
-	bool (*check_passwd)(struct cavan_user_desc *user, const void *passwd);
-	bool (*check_permission)(struct cavan_user_desc *user, bool force);
-	void (*send_response)(struct cavan_user_desc *user, uint8_t address, void *buff, uint8_t length);
-} cavan_user_t;
+//typedef struct cavan_user_desc {
+//	cavan_timer_t timer;
+//	uint8_t lock_salt[16];
+//	uint8_t conn_id;
+//	bool login;
+//	bool connected;
+//	bool (*transfer)(struct cavan_user_desc *user, uint8_t *buff, uint8_t length);
+//	bool (*check_passwd)(struct cavan_user_desc *user, const void *passwd);
+//	bool (*check_permission)(struct cavan_user_desc *user, bool force);
+//	void (*send_response)(struct cavan_user_desc *user, uint8_t address, void *buff, uint8_t length);
+//} cavan_user_t;
 
 
 
 // 
-static uint8_t *command_lock_control(cavan_user_t *user, uint8_t command, uint8_t *args, uint8_t length, uint8_t *rsp)
-{
-	*rsp++ = command;
+//static uint8_t *command_lock_control(cavan_user_t *user, uint8_t command, uint8_t *args, uint8_t length, uint8_t *rsp)
+//{
+//	*rsp++ = command;
 
-	switch (command) {
-	case 0x01:
-		return cavan_process_set_lock_state(user, args, length, rsp);
+//	switch (command) {
+//	case 0x01:
+//		return cavan_process_set_lock_state(user, args, length, rsp);
 
-  	case 0x02:
-    return cavan_process_get_lock_state(user, args, length, rsp);
+//  	case 0x02:
+//    return cavan_process_get_lock_state(user, args, length, rsp);
 
 //	case 0x03:
 //		return cavan_process_find_lock(user, args, length, rsp);
@@ -76,7 +76,7 @@ static uint8_t *command_lock_control(cavan_user_t *user, uint8_t command, uint8_
 //	default:
 //		*rsp++ = CAVAN_ERR_InvalidCommand;
 //		break;
-	}
+//	}
 
-	return rsp;
-}
+//	return rsp;
+//}
