@@ -1,24 +1,13 @@
 #ifndef CONTROL_CMD_H_
 #define CONTROL_CMD_H_
 
-#include "ls_ble.h"
-#include "platform.h"
-#include "prf_diss.h"
-#include "log.h"
-#include "ls_dbg.h"
-#include "cpu.h"
-#include "lsuart.h"
-#include "builtin_timer.h"
-#include <string.h>
-#include "co_math.h"
-#include "io_config.h"
-#include "reg_base_addr.h"
+#include "user_main.h"
 
-#include "user_function.h" 
-#include "user_uart.h"
-#include "moto.h"
-#include "Buzzer.h"
-#include "LED_RGB.h"
+extern uint8_t hw_lock_status;    //锁状态 真实硬件上的 
+extern uint8_t now_lock_status;    //锁状态 当前 设置值
+extern uint8_t tag_lock_status;    //锁状态 目标
+extern uint8_t lock_mode;          //锁模式
 
+void CMD_Processing(uint8_t *p);
 
 #endif

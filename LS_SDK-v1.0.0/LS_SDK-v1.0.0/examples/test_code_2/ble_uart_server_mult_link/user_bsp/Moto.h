@@ -3,7 +3,7 @@
 
 #include "user_main.h"
 
-//extern uint8_t moro_task_flag;
+extern uint8_t moro_task_flag;
 
 void Moto_Task(void);
 void Moto_IO_Init(void);

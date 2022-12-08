@@ -23,8 +23,11 @@
 #endif
 #endif
 
-#define LOG_UART_TXD (PB00)
-#define LOG_UART_RXD (PB01)
+//#define LOG_UART_TXD (PB00)
+//#define LOG_UART_RXD (PB01)
+
+#define LOG_UART_TXD (PA12)
+#define LOG_UART_RXD (PA13)
 
 const uint8_t hex_num_tab[] = "0123456789ABCDEF";
 __attribute((weak)) void (*log_output_fn)(bool linefeed,const char *format,...);
@@ -133,7 +136,7 @@ void ls_log_init()
     #if(LOG_BACKEND&UART_LOG)
     {
         log_uart.UARTX = UART3;
-        log_uart.Init.BaudRate = UART_BAUDRATE_921600;
+        log_uart.Init.BaudRate = UART_BAUDRATE_115200;
         log_uart.Init.WordLength = UART_BYTESIZE8;
         log_uart.Init.StopBits = UART_STOPBITS1;
         log_uart.Init.Parity = UART_NOPARITY;

@@ -1714,6 +1714,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\user_uart.c</FilePath>
             </File>
+            <File>
+              <FileName>user_sw_check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_sw_check.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
