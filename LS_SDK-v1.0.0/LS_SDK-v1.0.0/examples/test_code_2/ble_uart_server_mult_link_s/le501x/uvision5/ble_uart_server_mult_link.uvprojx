@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4096</DriverSelection>
+            <DriverSelection>4100</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
-          <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3>"" ()</Flash3>
+          <Flash2></Flash2>
+          <Flash3></Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>LE501X</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..;..\..\..\..\..;..\..\..\..\..\peripheral\inc;..\..\..\..\..\peripheral\api;..\..\..\..\..\module\common;..\..\..\..\..\module\calendar;..\..\..\..\..\module\crc;..\..\..\..\..\module\debug;..\..\..\..\..\module\debug\RTT;..\..\..\..\..\module\static_buffer;..\..\..\..\..\module\tinyfs;..\..\..\..\..\module\tinycrypt\lib\include;..\..\..\..\..\module\micro-ecc;..\..\..\..\..\module\adpcm;..\..\..\..\..\module\ble;..\..\..\..\..\module\ble\prf;..\..\..\..\..\soc;..\..\..\..\..\soc\arm_cm;..\..\..\..\..\soc\arm_cm\cmsis;..\..\..\..\..\soc\arm_cm\le501x;..\..\..\..\..\soc\arm_cm\le501x\integration;..\..\user_bsp</IncludePath>
+              <IncludePath>..\..; ..\..\..\..\..; ..\..\..\..\..\peripheral\inc; ..\..\..\..\..\peripheral\api; ..\..\..\..\..\module\common; ..\..\..\..\..\module\calendar; ..\..\..\..\..\module\crc; ..\..\..\..\..\module\debug; ..\..\..\..\..\module\debug\RTT; ..\..\..\..\..\module\static_buffer; ..\..\..\..\..\module\tinyfs; ..\..\..\..\..\module\tinycrypt\lib\include; ..\..\..\..\..\module\micro-ecc; ..\..\..\..\..\module\adpcm; ..\..\..\..\..\module\ble; ..\..\..\..\..\module\ble\prf; ..\..\..\..\..\soc; ..\..\..\..\..\soc\arm_cm; ..\..\..\..\..\soc\arm_cm\cmsis; ..\..\..\..\..\soc\arm_cm\le501x; ..\..\..\..\..\soc\arm_cm\le501x\integration</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -374,7 +374,7 @@
             <ScatterFile>..\..\..\..\..\soc\arm_cm\le501x\compiler\armcc\ble.ld</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc> --datacompressor=off --diag_suppress=L6314,L6329</Misc>
+            <Misc>--datacompressor=off --diag_suppress=L6314,L6329</Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
@@ -1681,51 +1681,6 @@
             </File>
           </Files>
         </Group>
-        <Group>
-          <GroupName>bsp</GroupName>
-          <Files>
-            <File>
-              <FileName>Buzzer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\Buzzer.c</FilePath>
-            </File>
-            <File>
-              <FileName>LED_RGB.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\LED_RGB.c</FilePath>
-            </File>
-            <File>
-              <FileName>Moto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\Moto.c</FilePath>
-            </File>
-            <File>
-              <FileName>user_function.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\user_function.c</FilePath>
-            </File>
-            <File>
-              <FileName>control_cmd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\control_cmd.c</FilePath>
-            </File>
-            <File>
-              <FileName>user_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\user_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>user_sw_check.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\user_sw_check.c</FilePath>
-            </File>
-            <File>
-              <FileName>user_adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\user_adc.c</FilePath>
-            </File>
-          </Files>
-        </Group>
       </Groups>
     </Target>
   </Targets>
@@ -1735,14 +1690,5 @@
     <components/>
     <files/>
   </RTE>
-
-  <LayerInfo>
-    <Layers>
-      <Layer>
-        <LayName>ble_uart_server_mult_link</LayName>
-        <LayPrjMark>1</LayPrjMark>
-      </Layer>
-    </Layers>
-  </LayerInfo>
 
 </Project>

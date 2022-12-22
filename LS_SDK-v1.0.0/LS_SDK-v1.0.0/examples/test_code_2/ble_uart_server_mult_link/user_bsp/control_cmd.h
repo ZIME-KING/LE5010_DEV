@@ -8,6 +8,6 @@ extern uint8_t now_lock_status;    //锁状态 当前 设置值
 extern uint8_t tag_lock_status;    //锁状态 目标
 extern uint8_t lock_mode;          //锁模式
 
-void CMD_Processing(uint8_t *p);
+uint8_t* CMD_Processing(uint8_t *p);
 
 #endif

@@ -14,9 +14,7 @@
 #include "co_math.h"
 #include "io_config.h"
 
-//#define UART_SVC_ADV_NAME "LS UART Server Mult Link"
-
-
+#define UART_SVC_ADV_NAME "LS UART Server Mult Link"
 #define UART_SERVER_MAX_MTU  517
 #define UART_SERVER_MTU_DFT  23
 #define UART_SVC_RX_MAX_LEN (UART_SERVER_MAX_MTU - 3)
@@ -41,103 +39,52 @@
 #define DISCONNECTED_MSG_PATTERN 0xdead
 #define DISCONNECTED_MSG_PATTERN_LEN 2
 
-
-
-
-uint8_t user_ble_send_flag;
-uint8_t BLE_connected_flag;
-
-
-
-
-static const uint8_t CA_uuid_16[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
-static const uint8_t CB_uuid_16[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCB,0xFA,0x00,0x00};
-static const uint8_t CC_uuid_16[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCC,0xFA,0x00,0x00};
-static const uint8_t CD_uuid_16[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCD,0xFA,0x00,0x00};
-
-
-//static const uint8_t CA_uuid_16[] = {0xCA,0xFA,0x00,0x00};
-//static const uint8_t CB_uuid_16[] = {0xCB,0xFA,0x00,0x00};
-//static const uint8_t CC_uuid_16[] = {0xCC,0xFA,0x00,0x00};
-//static const uint8_t CD_uuid_16[] = {0xCD,0xFA,0x00,0x00};
-
-
-
-
-
-//static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
-//static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
-//static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
-
-
+static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
+static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
+static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
 static const uint8_t att_decl_char_array[] = {0x03,0x28};
 static const uint8_t att_desc_client_char_cfg_array[] = {0x02,0x29};
-static const uint8_t att_desc_client_char_cfg_array1[] = {0x01,0x29};
-
 enum uart_svc_att_db_handles
 {
-    SVC_CB_CHAR,
-    SVC_CB_VAL,
-    SVC_CC_CHAR,
-    SVC_CC_VAL,
-    SVC_CD_CHAR,
-    SVC_CD_VAL,
-		
-		UART_SVC_IDX_TX_NTF_CFG,
-		
+    UART_SVC_IDX_RX_CHAR,
+    UART_SVC_IDX_RX_VAL,
+    UART_SVC_IDX_TX_CHAR,
+    UART_SVC_IDX_TX_VAL,
+    UART_SVC_IDX_TX_NTF_CFG,
     UART_SVC_ATT_NUM
 };
 
 static const struct att_decl ls_uart_server_att_decl[UART_SVC_ATT_NUM] =
 {
-    [SVC_CB_CHAR] = {
+    [UART_SVC_IDX_RX_CHAR] = {
         .uuid = att_decl_char_array,
         .s.max_len = 0,
         .s.uuid_len = UUID_LEN_16BIT,
-        .s.read_indication = 1,
+        .s.read_indication = 1,   
         .char_prop.rd_en = 1,
     },
-    [SVC_CB_VAL] = {
-        .uuid = CB_uuid_16,
+    [UART_SVC_IDX_RX_VAL] = {
+        .uuid = ls_uart_rx_char_uuid_128,
         .s.max_len = UART_SVC_RX_MAX_LEN,
         .s.uuid_len = UUID_LEN_128BIT,
         .s.read_indication = 1,
         .char_prop.wr_cmd = 1,
-       // .char_prop.wr_req = 1,
+        .char_prop.wr_req = 1,
     },
-    [SVC_CC_CHAR] = {
+    [UART_SVC_IDX_TX_CHAR] = {
         .uuid = att_decl_char_array,
         .s.max_len = 0,
         .s.uuid_len = UUID_LEN_16BIT,
         .s.read_indication = 1,
-        .char_prop.rd_en = 1,
+        .char_prop.rd_en = 1, 
     },
-    [SVC_CC_VAL] = {
-        .uuid = CC_uuid_16,
+    [UART_SVC_IDX_TX_VAL] = {
+        .uuid = ls_uart_tx_char_uuid_128,
         .s.max_len = UART_SVC_TX_MAX_LEN,
         .s.uuid_len = UUID_LEN_128BIT,
         .s.read_indication = 1,
         .char_prop.ntf_en = 1,
     },
-		
-		
-		  [SVC_CD_CHAR] = {
-        .uuid = att_decl_char_array,
-        .s.max_len = 0,
-        .s.uuid_len = UUID_LEN_16BIT,
-        .s.read_indication = 1,
-        .char_prop.rd_en = 1,
-    },
-    [SVC_CD_VAL] = {
-        .uuid = CD_uuid_16,
-        .s.max_len = UART_SVC_TX_MAX_LEN,
-        .s.uuid_len = UUID_LEN_128BIT,
-        .s.read_indication = 1,
-        .char_prop.ntf_en = 1,
-    },
-		
-		
-		
     [UART_SVC_IDX_TX_NTF_CFG] = {
         .uuid = att_desc_client_char_cfg_array,
         .s.max_len = 0,
@@ -146,12 +93,10 @@ static const struct att_decl ls_uart_server_att_decl[UART_SVC_ATT_NUM] =
         .char_prop.rd_en = 1,
         .char_prop.wr_req = 1,
     },
-
-		
 };
 static const struct svc_decl ls_uart_server_svc =
 {
-    .uuid = CA_uuid_16,
+    .uuid = ls_uart_svc_uuid_128,
     .att = (struct att_decl *)ls_uart_server_att_decl,
     .nb_att = UART_SVC_ATT_NUM,
     .uuid_len = UUID_LEN_128BIT,
@@ -166,18 +111,12 @@ enum uart_rx_status
 };
 static uint8_t uart_state = UART_IDLE;
 static struct gatt_svc_env ls_uart_server_svc_env;
-static uint8_t connected_num = 0;
+static uint8_t connected_num = 0; 
 static uint8_t uart_server_rx_buf[UART_SVC_BUFFER_SIZE];
 static uint8_t uart_server_tx_buf[UART_SERVER_MASTER_NUM][UART_SVC_BUFFER_SIZE];
 static uint8_t uart_server_ble_buf_array[UART_SERVER_MASTER_NUM][UART_SVC_BUFFER_SIZE];
 static uint16_t uart_server_recv_data_length_array[UART_SERVER_MASTER_NUM];
-
-
-
-static UART_HandleTypeDef UART_Server_Config;
- 
-
-
+static UART_HandleTypeDef UART_Server_Config; 
 static bool uart_server_tx_busy;
 static uint8_t current_uart_tx_idx;
 static bool uart_server_ntf_done_array[UART_SERVER_MASTER_NUM];
@@ -213,7 +152,7 @@ static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
 static struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
 
 #define USER_EVENT_PERIOD_0 1		 	 //1ms
-#define USER_EVENT_PERIOD_1 100     // 100ms
+#define USER_EVENT_PERIOD_1 50     // 100ms
 
 static void ls_app_timer_init(void)
 {
@@ -225,20 +164,26 @@ static void ls_app_timer_init(void)
 }
 
 //1ms
-static void ls_user_event_timer_cb_0(void *param) {
-    LED_Functon();
-		Uart_2_Time_Even();
-		Uart_Time_Even();
-    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+static void ls_user_event_timer_cb_0(void *param){
+	 LED_Functon();
+	 builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 
 //100ms
-static void ls_user_event_timer_cb_1(void *param) {
+static void ls_user_event_timer_cb_1(void *param){
 
-    loop_task();
+				loop_task();
 
-    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+	      builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
+
+
+
+
+
+
+
+
 
 
 static uint8_t search_conidx(uint8_t con_idx)
@@ -264,7 +209,7 @@ static void ls_uart_server_init(void)
         uart_server_ntf_done_array[i] = true;
         uart_server_mtu_array[i] = UART_SERVER_MTU_DFT;
         uart_server_recv_data_length_array[i] = 0;
-    }
+    }    
 }
 static void ls_uart_server_timer_cb(void *param)
 {
@@ -272,7 +217,7 @@ static void ls_uart_server_timer_cb(void *param)
     ls_uart_server_uart_tx();
     if(uart_server_timer_inst)
     {
-        builtin_timer_start(uart_server_timer_inst, UART_SERVER_TIMEOUT, NULL);
+        builtin_timer_start(uart_server_timer_inst, UART_SERVER_TIMEOUT, NULL); 
     }
 }
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
@@ -283,16 +228,55 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if(huart->UARTX==UART1) {
-        Receive_Interrupt();
-        HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
+					uint16_t len;
+    uint8_t con_idx, array_idx;
+    bool restart = true;
+    switch (uart_state)
+    {
+    case UART_IDLE:
+        if(uart_server_rx_buf[0] == UART_SYNC_BYTE)
+        {
+            uart_state = UART_SYNC;
+            HAL_UART_Receive_IT(&UART_Server_Config, &uart_server_rx_buf[UART_SYNC_BYTE_LEN], UART_LEN_LEN + UART_LINK_ID_LEN);
+            restart = false;
+        }
+        break;
+    case UART_SYNC:
+        memcpy((void*)&len, (void*)&uart_server_rx_buf[UART_SYNC_BYTE_LEN], UART_LEN_LEN);
+        con_idx = uart_server_rx_buf[UART_SYNC_BYTE_LEN + UART_LEN_LEN];
+        if(len > 0 && len <= UART_RX_PAYLOAD_LEN_MAX && search_conidx(con_idx) != 0xff)
+        {
+            uart_state = UART_RECEIVING;
+            HAL_UART_Receive_IT(&UART_Server_Config, &uart_server_rx_buf[UART_HEADER_LEN], len);
+            restart = false;
+        }
+        break;
+    case UART_RECEIVING:
+        memcpy((void*)&len, (void*)&uart_server_rx_buf[UART_SYNC_BYTE_LEN], UART_LEN_LEN);
+        con_idx = uart_server_rx_buf[UART_SYNC_BYTE_LEN + UART_LEN_LEN];
+        array_idx = search_conidx(con_idx);
+        if(array_idx != 0xff && uart_server_recv_data_length_array[array_idx] == 0)
+        {
+            memcpy((void*)&uart_server_ble_buf_array[array_idx][0], (void*)&uart_server_rx_buf[UART_HEADER_LEN], len);  // discard UART_HEADER_LEN bytes uart header
+            uart_server_recv_data_length_array[array_idx] = len;
+        }        
+        // restart = false;
+        break;
+    default:
+        break;
     }
-		
+    if(restart)
+    {
+        uart_state = UART_IDLE;
+        HAL_UART_Receive_IT(&UART_Server_Config, &uart_server_rx_buf[0], UART_SYNC_BYTE_LEN);
+    }	
+		}
     else if(huart->UARTX==UART2) {
         Uart_2_Receive_Interrupt();
-        HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+        //HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 重新使能串口1接收中断
     }
     else if(huart->UARTX==UART3) {
-        //Uart_3_Receive_Interrupt();
+				Uart_3_Receive_Interrupt();
         //HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);		// 重新使能串口3接收中断
     }
 }
@@ -300,7 +284,27 @@ static void ls_uart_init(void)
 {
     uart1_io_init(PB00, PB01);
     io_pull_write(PB01, IO_PULL_UP);
+	
+//	uart1_io_init(PA12, PA13);
+//  io_pull_write(PA13, IO_PULL_UP);
 
+    UART_Server_Config.UARTX = UART1;
+    UART_Server_Config.Init.BaudRate = UART_BAUDRATE_115200;
+    UART_Server_Config.Init.MSBEN = 0;
+    UART_Server_Config.Init.Parity = UART_NOPARITY;
+    UART_Server_Config.Init.StopBits = UART_STOPBITS1;
+    UART_Server_Config.Init.WordLength = UART_BYTESIZE8;
+    HAL_UART_Init(&UART_Server_Config);
+}
+
+
+UART_HandleTypeDef UART2_Config
+
+static void ls_uart2_init(void)
+{
+    uart1_io_init(PB00, PB01);
+    io_pull_write(PB01, IO_PULL_UP);
+	
 //	uart1_io_init(PA12, PA13);
 //  io_pull_write(PA13, IO_PULL_UP);
 
@@ -316,6 +320,8 @@ static void ls_uart_init(void)
 
 
 
+
+
 static void ls_uart_server_read_req_ind(uint8_t att_idx, uint8_t con_idx)
 {
     uint16_t handle = 0;
@@ -327,99 +333,51 @@ static void ls_uart_server_read_req_ind(uint8_t att_idx, uint8_t con_idx)
         gatt_manager_server_read_req_reply(con_idx, handle, 0, (void*)&cccd_config_array[array_idx], 2);
     }
 }
-
-
-//蓝牙数据写入，数据处理
-static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *value)
+static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length, uint8_t const *value)
 {
-
-    uint8_t RX_DATA_BUF[100];
-    if(att_idx == SVC_CB_VAL)// && uart_server_tx_buf[0] != UART_SYNC_BYTE)
-    {
- //       sleep_time=0;
+    uint8_t array_idx = search_conidx(con_idx);
+    LS_ASSERT(array_idx != 0xff);
+    if(att_idx == UART_SVC_IDX_RX_VAL && uart_server_tx_buf[array_idx][0] != UART_SYNC_BYTE)
+    { 
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
-        memcpy(&RX_DATA_BUF[0],value,16);
-
-
-
- //       User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
-        LOG_I("接收到的");
-        LOG_HEX(&RX_DATA_BUF[0],length);
-				
-				CMD_Processing(&RX_DATA_BUF[0]);
-				user_ble_send_flag=1;
-				
-				
-				
- //       LOG_HEX(&DATA_BUF[0],16);
- //       LOG_I("%d",user_ble_send_flag);
- //       User_BLE_Data_Handle();
-  //      LOG_I("%d",user_ble_send_flag);
-        //memcpy(&buf[0],&RX_DATA_BUF[0],16);
-        //memcpy(&buf[16],&DATA_BUF[0],16);
-        //HAL_UART_Transmit_IT(&UART_Config, &buf[0],32);
+        uart_server_tx_buf[array_idx][0] = UART_SYNC_BYTE;
+        uart_server_tx_buf[array_idx][1] = length & 0xff;
+        uart_server_tx_buf[array_idx][2] = (length >> 8) & 0xff;
+        uart_server_tx_buf[array_idx][3] = con_idx; // what uart will receive should be the real connection index. array_idx is internal.
+        memcpy((void*)&uart_server_tx_buf[array_idx][UART_HEADER_LEN], value, length);
+        uint32_t cpu_stat = enter_critical();
+        if(!uart_server_tx_busy)
+        {
+            uart_server_tx_busy = true;
+            current_uart_tx_idx = array_idx;
+            HAL_UART_Transmit_IT(&UART_Server_Config, &uart_server_tx_buf[array_idx][0], length + UART_HEADER_LEN);
+        } 
+        exit_critical(cpu_stat);
     }
     else if (att_idx == UART_SVC_IDX_TX_NTF_CFG)
     {
         LS_ASSERT(length == 2);
-        //memcpy(&cccd_config, value, length);
+        memcpy(&cccd_config_array[array_idx], value, length);
     }
+        
 }
-
-//static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length, uint8_t const *value)
-//{
-//    uint8_t array_idx = search_conidx(con_idx);
-//    LS_ASSERT(array_idx != 0xff);
-//    if(att_idx == SVC_CB_VAL && uart_server_tx_buf[array_idx][0] != UART_SYNC_BYTE)
-//    {
-//        LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
-//        uart_server_tx_buf[array_idx][0] = UART_SYNC_BYTE;
-//        uart_server_tx_buf[array_idx][1] = length & 0xff;
-//        uart_server_tx_buf[array_idx][2] = (length >> 8) & 0xff;
-//        uart_server_tx_buf[array_idx][3] = con_idx; // what uart will receive should be the real connection index. array_idx is internal.
-//        memcpy((void*)&uart_server_tx_buf[array_idx][UART_HEADER_LEN], value, length);
-//        uint32_t cpu_stat = enter_critical();
-//        if(!uart_server_tx_busy)
-//        {
-//            uart_server_tx_busy = true;
-//            current_uart_tx_idx = array_idx;
-//           // HAL_UART_Transmit_IT(&UART_Server_Config, &uart_server_tx_buf[array_idx][0], length + UART_HEADER_LEN);
-//        }
-//        exit_critical(cpu_stat);
-//    }
-//    else if (att_idx == UART_SVC_IDX_TX_NTF_CFG)
-//    {
-//        LS_ASSERT(length == 2);
-//        memcpy(&cccd_config_array[array_idx], value, length);
-//    }
-
-//}
 static void ls_uart_server_send_notification(void)
 {
-		uint8_t *p;
-
     for(uint8_t idx = 0; idx < UART_SERVER_MASTER_NUM; idx++)
     {
         uint8_t con_idx = con_idx_array[idx];
         uint32_t cpu_stat = enter_critical();
-       // if(con_idx != CON_IDX_INVALID_VAL && uart_server_recv_data_length_array[idx] != 0 && uart_server_ntf_done_array[idx])
-       
-			if(user_ble_send_flag==1 && BLE_connected_flag==1)
-			 {
+        if(con_idx != CON_IDX_INVALID_VAL && uart_server_recv_data_length_array[idx] != 0 && uart_server_ntf_done_array[idx])
+        {
             // LS_ASSERT(con_idx < UART_SERVER_MASTER_NUM);
             uart_server_ntf_done_array[idx] = false;
-						user_ble_send_flag=0;
-            uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, SVC_CC_VAL);
-//          uint16_t tx_len = uart_server_recv_data_length_array[idx] > co_min(UART_SERVER_MAX_DATA_LEN(idx), UART_SVC_TX_MAX_LEN) ?
-//          co_min(UART_SERVER_MAX_DATA_LEN(idx), UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length_array[idx];
-//          uart_server_recv_data_length_array[idx] -= tx_len;
-						//memcpy((void*)&uart_server_ble_buf_array[idx][0], (void*)&uart_server_ble_buf_array[idx][tx_len], uart_server_recv_data_length_array[idx]);       
-						p=CMD_Processing(0x00);		
-						gatt_manager_server_send_notification(con_idx, handle, p+1, *p, NULL);
-
-						LOG_I("发送的");
-						LOG_HEX(p+1,*p);		
-				}
+            uint16_t handle = gatt_manager_get_svc_att_handle(&ls_uart_server_svc_env, UART_SVC_IDX_TX_VAL);
+            uint16_t tx_len = uart_server_recv_data_length_array[idx] > co_min(UART_SERVER_MAX_DATA_LEN(idx), UART_SVC_TX_MAX_LEN) ? 
+                            co_min(UART_SERVER_MAX_DATA_LEN(idx), UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length_array[idx];
+            uart_server_recv_data_length_array[idx] -= tx_len;
+            gatt_manager_server_send_notification(con_idx, handle, &uart_server_ble_buf_array[idx][0], tx_len, NULL);         
+            memcpy((void*)&uart_server_ble_buf_array[idx][0], (void*)&uart_server_ble_buf_array[idx][tx_len], uart_server_recv_data_length_array[idx]);
+        }
         exit_critical(cpu_stat);
     }
 }
@@ -435,7 +393,7 @@ static void ls_uart_server_uart_tx(void)
                 uint16_t length = (uart_server_tx_buf[array_idx][2] << 8) | uart_server_tx_buf[array_idx][1];
                 uart_server_tx_busy = true;
                 current_uart_tx_idx = array_idx;
-                //HAL_UART_Transmit_IT(&UART_Server_Config, &uart_server_tx_buf[array_idx][0], length + UART_HEADER_LEN);
+                HAL_UART_Transmit_IT(&UART_Server_Config, &uart_server_tx_buf[array_idx][0], length + UART_HEADER_LEN);
             }
             exit_critical(cpu_stat);
             break;
@@ -475,34 +433,32 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
         LS_ASSERT(search_idx == 0xff); // new con_idx should be not found
         search_idx = search_conidx(CON_IDX_INVALID_VAL); // search the first idle idx
         LS_ASSERT(search_idx != 0xff);
-        con_idx_array[search_idx] = con_idx;
-        connect_pattern_send_prepare(con_idx);
+        con_idx_array[search_idx] = con_idx;   
+        connect_pattern_send_prepare(con_idx); 
         LOG_I("connected! new con_idx = %d", con_idx);
-				BLE_connected_flag=1;
-        break;
+    break;
     case DISCONNECTED:
         connected_num--;
         search_idx = search_conidx(con_idx);
         LS_ASSERT(search_idx != 0xff);
         disconnect_pattern_send_prepare(con_idx);
-        con_idx_array[search_idx] = CON_IDX_INVALID_VAL;
+        con_idx_array[search_idx] = CON_IDX_INVALID_VAL;        
         uart_server_mtu_array[search_idx] = UART_SERVER_MTU_DFT;
         if (connected_num == UART_SERVER_MASTER_NUM - 1)
         {
             start_adv();
         }
         LOG_I("disconnected! delete con_idx = %d", con_idx);
-				BLE_connected_flag=0;
-        break;
+    break;
     case CONN_PARAM_REQ:
         //LOG_I
-        break;
+    break;
     case CONN_PARAM_UPDATED:
 
-        break;
+    break;
     default:
 
-        break;
+    break;
     }
 }
 
@@ -516,19 +472,18 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
     case SERVER_READ_REQ:
         LOG_I("read req");
         ls_uart_server_read_req_ind(evt->server_read_req.att_idx, con_idx);
-        break;
+    break;
     case SERVER_WRITE_REQ:
         LOG_I("write req");
-        user_write_req_ind(evt->server_write_req.att_idx,evt->server_write_req.length, evt->server_write_req.value);
-				//ls_uart_server_write_req_ind(evt->server_write_req.att_idx, con_idx, evt->server_write_req.length, evt->server_write_req.value);
-        break;
+        ls_uart_server_write_req_ind(evt->server_write_req.att_idx, con_idx, evt->server_write_req.length, evt->server_write_req.value);
+    break;
     case SERVER_NOTIFICATION_DONE:
         uart_server_ntf_done_array[array_idx] = true;
         LOG_I("ntf done");
-        break;
+    break;
     case MTU_CHANGED_INDICATION:
         uart_server_mtu_array[array_idx] = evt->mtu_changed_ind.mtu;
-        break;
+    break;
     default:
         LOG_I("Event not handled!");
         break;
@@ -555,11 +510,8 @@ static void create_adv_obj()
 }
 static void start_adv(void)
 {
-		uint8_t TEMP[2]={0xCA,0XFA}; 
-
-
     LS_ASSERT(adv_obj_hdl != 0xff);
-    uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 2,GAP_ADV_TYPE_COMPLETE_LIST_16_BIT_UUID, &TEMP[0], 2, GAP_ADV_TYPE_COMPLETE_NAME, &lockid[0], 18);
+    uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 1, GAP_ADV_TYPE_SHORTENED_NAME, UART_SVC_ADV_NAME, sizeof(UART_SVC_ADV_NAME));
     dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
     LOG_I("adv start");
 }
@@ -584,43 +536,37 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         LOG_I("type:%d,addr:",type);
         LOG_HEX(addr,sizeof(addr));
         dev_manager_add_service((struct svc_decl *)&ls_uart_server_svc);
+        ls_uart_init(); 
+        HAL_UART_Receive_IT(&UART_Server_Config, &uart_server_rx_buf[0], UART_SYNC_BYTE_LEN);
+        ls_uart_server_init();   
 
- //       ls_uart_init();
- //       HAL_UART_Receive_IT(&UART_Server_Config, &uart_server_rx_buf[0], UART_SYNC_BYTE_LEN);
-        ls_uart_server_init();
-      
-			ls_app_timer_init();
+				ls_app_timer_init();
+				User_BLE_Ready();
 				
-				
-				
-				
-				
-        User_BLE_Ready();
-
     }
     break;
     case SERVICE_ADDED:
         gatt_manager_svc_register(evt->service_added.start_hdl, UART_SVC_ATT_NUM, &ls_uart_server_svc_env);
         create_adv_obj();
-        break;
+    break;
     case ADV_OBJ_CREATED:
         LS_ASSERT(evt->obj_created.status == 0);
         adv_obj_hdl = evt->obj_created.handle;
         start_adv();
-        break;
+    break;
     case ADV_STOPPED:
         LOG_I("adv stopped");
         if(connected_num < UART_SERVER_MASTER_NUM)
         {
             start_adv();
         }
-        break;
+    break;
     case SCAN_STOPPED:
-
-        break;
+    
+    break;
     default:
 
-        break;
+    break;
     }
 }
 

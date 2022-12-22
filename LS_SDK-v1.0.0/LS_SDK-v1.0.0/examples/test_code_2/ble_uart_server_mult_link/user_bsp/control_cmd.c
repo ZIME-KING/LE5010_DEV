@@ -12,25 +12,33 @@ uint8_t tag_lock_status;    //锁状态 目标
 uint8_t lock_mode;          //锁模式
 uint8_t ble_close_atc_flag; //
 
-uint8_t err_val; //
-uint8_t vbat_val;
+uint8_t err_val=0xff; //
+uint8_t vbat_val=0xff;
 uint8_t car_val;
-uint8_t distance_val;
+//uint8_t distance_val;
+
+//uint8_t buzzer_open_val;
+//uint8_t buzzer_close_val;
+//uint8_t buzzer_count_val;
+
+
+
+
 
 //收到命令处理
 //传入接收到的命令数据buf
-void CMD_Processing(uint8_t *p){
+uint8_t* CMD_Processing(uint8_t *p){
 //uint8_t len;
 
-uint8_t send_buf[64];
+static uint8_t send_buf[64];
 uint8_t command;
 uint8_t data;
 if(*p==0x17){
 	command= *(p+1);
 switch(command){
-	case 0x01:
+	case 0x01:    //升降地锁
 			data= *(p+2);
-			switch(data){
+			switch(data){     
 						case 0x01:
 								tag_lock_status=POS_0;
 								lock_mode= 0x00;
@@ -57,30 +65,55 @@ switch(command){
 								ble_close_atc_flag=1;
 						break;
 			}
-			send_buf[0]= 0x17;
-			send_buf[1]= 0x01;
-			send_buf[2]= err_val;
-			send_buf[3]= tag_lock_status;
-			send_buf[4]= vbat_val;
-			send_buf[5]= '\0';			
+			send_buf[1]= 0x17;
+			send_buf[2]= 0x01;
+			send_buf[3]= err_val;
+			send_buf[4]= tag_lock_status;
+			send_buf[5]= vbat_val;
+			send_buf[0]= 0x05;			
 	break;
 
-	case 0x02:
-			send_buf[0]= 0x17;
-			send_buf[1]= 0x02;
-			send_buf[2]= err_val;          //错误码
-			send_buf[3]= hw_lock_status;   //检测开关状态
-			send_buf[4]= vbat_val;         //电量
-			send_buf[5]= car_val;          //是否有车
-			send_buf[6]= distance_val;          //超声波距离
-			send_buf[7]= '\0';          	
+	case 0x02:      //读地锁状态
+			
+			DYP_distance=DYP_distance/10;
+			if(DYP_distance>=250) DYP_distance=250;
+	
+	
+			send_buf[1]= 0x17;
+			send_buf[2]= 0x02;
+			send_buf[3]= err_val;          //错误码
+			send_buf[4]= hw_lock_status;   //检测开关状态
+			send_buf[5]= vbat_val;         //电量
+			send_buf[6]= car_val;          //是否有车
+			send_buf[7]= DYP_distance;     //超声波距离
+			send_buf[0]= 0x07;          	
 	break;
 
 	case 0x03:
 	
+			 Set_buzzer_Task_val(*(p+2),*(p+3),*(p+4));			 
+			 buzzer_task_flag=1;   //启动			 
+			 send_buf[1]= 0x17;
+			 send_buf[2]= 0x03;
+			 send_buf[3]= err_val;          //错误码
+			 send_buf[4]= *(p+2);   				//状态
+			 send_buf[5]= vbat_val;         //电量
+			 send_buf[0]= 0x05;          	
 	break;
 
 	case 0x04:
+			
+			 Set_LED_Function_val(*(p+2),*(p+3),*(p+4),
+														*(p+5),*(p+6),
+														*(p+7),*(p+8),*(p+9),*(p+10));
+																
+			 send_buf[1]= 0x17;
+			 send_buf[2]= 0x03;
+			 send_buf[3]= err_val;          //错误码
+			 send_buf[4]= *(p+2);   				//状态
+			 send_buf[5]= vbat_val;         //电量
+			 send_buf[0]= 0x05;          	
+
 	
 	break;
 
@@ -127,8 +160,7 @@ switch(command){
 	break;
 }
 }
-
-
+			return &send_buf[0];
 }
 
 

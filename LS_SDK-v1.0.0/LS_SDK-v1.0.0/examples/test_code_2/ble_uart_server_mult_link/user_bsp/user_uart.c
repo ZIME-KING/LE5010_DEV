@@ -195,10 +195,10 @@ void Receive_Interrupt() {     			//进一次串口中断
 void UART_Transmit_Str(UART_HandleTypeDef *huart,uint8_t *p)
 {
     uint8_t temp=0;
-    while(*p!='\0') {
+    while(*p!=0xfe) {
         p++;
         temp++;
     }
     //HAL_UART_Transmit(huart,p-temp,temp,10); 	//非中断方式
-    HAL_UART_Transmit_IT(huart,p-temp,temp+1);  //+1把\0发出去
+    HAL_UART_Transmit_IT(huart,p-temp,temp);  //+1把\0发出去
 }

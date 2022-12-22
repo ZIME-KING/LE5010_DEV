@@ -23,5 +23,7 @@
 #include "control_cmd.h"
 #include "crc16.h"
 
+#include "lsadc.h"
+#include "user_adc.h"
 
 #endif
