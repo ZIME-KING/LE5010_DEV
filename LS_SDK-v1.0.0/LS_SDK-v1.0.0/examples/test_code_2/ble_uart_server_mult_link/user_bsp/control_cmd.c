@@ -6,7 +6,7 @@
 
 
 
-uint8_t hw_lock_status;    //锁状态 真实硬件上的 
+uint8_t hw_lock_status;    //锁状态 真实硬件上的
 //0x00 初始位置 ，0x01 上升中 ， 0x00 90度 ， 0x11 超出 0xff 放到
 uint8_t tag_lock_status;    //锁状态 目标
 uint8_t lock_mode;          //锁模式
@@ -16,151 +16,233 @@ uint8_t err_val=0xff; //
 uint8_t vbat_val=0xff;
 uint8_t car_val;
 //uint8_t distance_val;
-
 //uint8_t buzzer_open_val;
 //uint8_t buzzer_close_val;
 //uint8_t buzzer_count_val;
 
-
-
-
-
 //收到命令处理
 //传入接收到的命令数据buf
-uint8_t* CMD_Processing(uint8_t *p){
+uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
 //uint8_t len;
 
-static uint8_t send_buf[64];
-uint8_t command;
-uint8_t data;
-if(*p==0x17){
-	command= *(p+1);
-switch(command){
-	case 0x01:    //升降地锁
-			data= *(p+2);
-			switch(data){     
-						case 0x01:
-								tag_lock_status=POS_0;
-								lock_mode= 0x00;
-						break;
+    static uint8_t send_buf[64];
+    uint16_t temp;
+    uint16_t *p1;
 
-						case 0x02:
-								tag_lock_status=POS_0_90;
-								lock_mode= 0x00;
-						break;
+    uint8_t command;
+    uint8_t data;
+    if(*p==0x17) {
+        command= *(p+1);
+        switch(command) {
+        case 0x01:    //升降地锁
+            if(length==3) {
+                data= *(p+2);
+                switch(data) {
+                case 0x01:
+                    tag_lock_status=POS_0;
+                    lock_mode= 0x00;
+                    break;
 
-						case 0x03:
-								tag_lock_status=POS_0;
-								lock_mode= 0x01;
-						break;
+                case 0x02:
+                    tag_lock_status=POS_0_90;
+                    lock_mode= 0x00;
+                    break;
 
-						case 0x04:
-								tag_lock_status=POS_90;
-								lock_mode= 0x00;
-						break;
+                case 0x03:
+                    tag_lock_status=POS_0;
+                    lock_mode= 0x01;
+                    break;
 
-						case 0x05:
-								tag_lock_status=POS_0;
-								lock_mode= 0x00;
-								ble_close_atc_flag=1;
-						break;
-			}
-			send_buf[1]= 0x17;
-			send_buf[2]= 0x01;
-			send_buf[3]= err_val;
-			send_buf[4]= tag_lock_status;
-			send_buf[5]= vbat_val;
-			send_buf[0]= 0x05;			
-	break;
+                case 0x04:
+                    tag_lock_status=POS_90;
+                    lock_mode= 0x00;
+                    break;
 
-	case 0x02:      //读地锁状态
-			
-			DYP_distance=DYP_distance/10;
-			if(DYP_distance>=250) DYP_distance=250;
-	
-	
-			send_buf[1]= 0x17;
-			send_buf[2]= 0x02;
-			send_buf[3]= err_val;          //错误码
-			send_buf[4]= hw_lock_status;   //检测开关状态
-			send_buf[5]= vbat_val;         //电量
-			send_buf[6]= car_val;          //是否有车
-			send_buf[7]= DYP_distance;     //超声波距离
-			send_buf[0]= 0x07;          	
-	break;
+                case 0x05:
+                    tag_lock_status=POS_0;
+                    lock_mode= 0x00;
+                    ble_close_atc_flag=1;
+                    break;
+                }
+            } else {
+                err_val=0x05; //长度错误
+            }
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x01;
+            send_buf[3]= err_val;
+            send_buf[4]= tag_lock_status;
+            send_buf[5]= vbat_val;
+            send_buf[0]= 0x05;
+            break;
 
-	case 0x03:
-	
-			 Set_buzzer_Task_val(*(p+2),*(p+3),*(p+4));			 
-			 buzzer_task_flag=1;   //启动			 
-			 send_buf[1]= 0x17;
-			 send_buf[2]= 0x03;
-			 send_buf[3]= err_val;          //错误码
-			 send_buf[4]= *(p+2);   				//状态
-			 send_buf[5]= vbat_val;         //电量
-			 send_buf[0]= 0x05;          	
-	break;
+        case 0x02:      //读地锁状态
 
-	case 0x04:
-			
-			 Set_LED_Function_val(*(p+2),*(p+3),*(p+4),
-														*(p+5),*(p+6),
-														*(p+7),*(p+8),*(p+9),*(p+10));
-																
-			 send_buf[1]= 0x17;
-			 send_buf[2]= 0x03;
-			 send_buf[3]= err_val;          //错误码
-			 send_buf[4]= *(p+2);   				//状态
-			 send_buf[5]= vbat_val;         //电量
-			 send_buf[0]= 0x05;          	
+            if(length==2) {
+                DYP_distance=DYP_distance/10;
+                if(DYP_distance>=250) DYP_distance=250;
+            } else {
+                err_val=0x05;
+            }
 
-	
-	break;
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x02;
+            send_buf[3]= err_val;          //错误码
+            send_buf[4]= hw_lock_status;   //检测开关状态
+            send_buf[5]= vbat_val;         //电量
+            send_buf[6]= car_val;          //是否有车
+            send_buf[7]= DYP_distance;     //超声波距离
+            send_buf[0]= 0x07;
+            break;
 
-	case 0x05:
-	
-	break;
+        case 0x03:
 
-	case 0x06:
-	
-	break;
+            if(length==5) {
+                Set_buzzer_Task_val(*(p+2),*(p+3),*(p+4));
+                buzzer_task_flag=1;   //启动蜂鸣器
+            } else {
+                err_val=0x05;
+            }
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x03;
+            send_buf[3]= err_val;          //错误码
+            send_buf[4]= *(p+2);   				//状态
+            send_buf[5]= vbat_val;         //电量
+            send_buf[0]= 0x05;
+            break;
 
-	case 0x07:
-	
-	break;
+        case 0x04:                           //LED
+            if(length==12) {
+                Set_LED_Function_val(*(p+2),
+                                     *(p+3),*(p+4),*(p+5),
+                                     *(p+6),*(p+7),
+                                     *(p+8),*(p+9),*(p+10),*(p+11));
+            } else {
+                err_val=0x05;
+            }
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x04;
+            send_buf[3]= err_val;          //错误码
+            send_buf[4]= *(p+2);   				//状态
+            send_buf[5]= vbat_val;         //电量
+            send_buf[0]= 0x05;
+            break;
 
-	case 0x08:
-	
-	break;
-		
-	case 0x09:
-	
-	break;
-	
-	case 0x0A:
-	
-	break;
-	
-	
-	case 0x0B:
-	
-	break;
-	
-	
-	case 0x0C:
-	
-	break;
-	
-	case 0x0D:
-	
-	break;
-	
-	case 0x10:
-	
-	break;
-}
-}
-			return &send_buf[0];
+        case 0x05:                         //获取随机密码
+            if(length==2) {
+						for(uint8_t i; i<16; i++) {
+                srand (time_count+i);
+                rand_password[i]=rand(); 				//锁16位随机密码
+            }
+						}else{
+							 err_val=0x05;
+						}
+						
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x05;
+            memcpy(&send_buf[3],&rand_password[0],16);
+            send_buf[0]= 18;
+            break;
+
+        case 0x06:      //鉴权
+
+            break;
+
+        case 0x07:    //设置485地址
+            if(length==3) {
+						address=*(p+2);
+						 }else{
+							err_val=0x05;
+						 }
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x07;
+            send_buf[3]= err_val;          //错误码
+            send_buf[0]= 0x03;
+            break;
+
+        case 0x08:     //写预置密码
+				if(length==18){
+            for(uint8_t i; i<16; i++) {
+                def_password[i]=*(p+2+i);
+            }         
+					}else{
+						 err_val=0x05;
+					}
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x08;
+            send_buf[3]= err_val;          //错误码
+            send_buf[0]= 0x03;
+            break;
+
+        case 0x09:    //写锁ID
+            for(uint8_t i; i<16; i++) {
+                lockid[i+2]=*(p+2+i);
+            }
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x09;
+            send_buf[3]= err_val;          //错误码
+            send_buf[0]= 0x03;
+
+            break;
+
+        case 0x0A:   //读锁ID
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x0A;
+            memcpy(&send_buf[3],&lockid[2],16);
+            send_buf[0]= 18;
+            break;
+
+
+        case 0x0B:    //读MAC
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x0B;
+            memcpy(&send_buf[3],&lock_mac[0],6);
+            send_buf[0]= 8;
+            break;
+
+
+        case 0x0C:    //读485 address
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x0C;
+            send_buf[3]= address;
+            send_buf[0]= 3;
+
+            break;
+
+        case 0x0D:    //写SN号
+
+            for(uint8_t i; i<16; i++) {
+                lock_sn[i]=*(p+2+i);
+            }
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x0D;
+            memcpy(&send_buf[3],&lock_sn[0],16);
+            send_buf[0]= 18;
+            break;
+
+        case 0x0E:    //读SN号
+
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x0E;
+            memcpy(&send_buf[3],&lock_sn[0],16);
+            send_buf[0]= 18;
+            break;
+
+        case 0x0F:    //设置扫描开关
+
+            break;
+
+        case 0x10:  //重启设备
+
+            reset_flag=1;
+
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x10;
+            send_buf[3]= err_val;          //错误码
+            send_buf[0]= 0x03;
+            break;
+        }
+    }
+    return &send_buf[0];
 }
 
 

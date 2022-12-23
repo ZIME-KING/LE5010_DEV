@@ -5,11 +5,19 @@
 UART_HandleTypeDef UART2_Config;
 UART_HandleTypeDef UART1_Config;
 
+uint32_t time_count=0x00;
 
 
 uint8_t address=0x00;  //485通信地址
 uint8_t lockid[18]={'I','N',0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x31}; //锁16位id号
+uint8_t rand_password[16]={0}; //锁16位随机密码
+uint8_t def_password[16]={0};  //锁16位预置密码
 
+uint8_t lock_sn[16]={0};  //
+
+uint8_t lock_mac[6]={0};  //
+
+uint8_t	reset_flag=0;
 
 uint8_t cmd_buf[64]; //接收到的命令缓存
 
@@ -27,7 +35,7 @@ uint8_t *p;
 						frame[uart_frame_id].buffer[frame[uart_frame_id].length-1]==0xF6)
 				{				
 						//if(crc16_ccitt(frame[uart_frame_id].buffer, frame[uart_frame_id].length-2)==0x00){
-								p=CMD_Processing(&frame[uart_frame_id].buffer[3]);     //第4位开始是应用数据
+								p=CMD_Processing(&frame[uart_frame_id].buffer[3],(frame[uart_frame_id].length-6));     //第4位开始是应用数据
 								//UART_Transmit_Str(&UART1_Config,p);
 								HAL_UART_Transmit_IT(&UART1_Config,p,*p);
 						
@@ -145,7 +153,17 @@ void User_BLE_Ready() {
 		
 		power_io_init();	
 		tag_lock_status=POS_90;
-
+		
+		
+		
+////////////获取mac////////////////////		
+		uint8_t addr[6];
+    bool type;
+    dev_manager_get_identity_bdaddr(addr,&type);
+    LOG_I("type:%d,addr:",type);
+    LOG_HEX(addr,sizeof(addr));
+    memcpy(&lock_mac[0],&addr[0],6);
+////////////////////////////////		
 }
 
 
