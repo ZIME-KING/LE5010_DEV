@@ -1,7 +1,7 @@
 #include "user_main.h"
 #include "moto.h"
 
-uint8_t moro_task_flag;
+uint8_t moro_task_flag=0;;
 
 
 void Moto_IO_Init()
@@ -30,33 +30,21 @@ void Moto_NULL() {
 
 void Moto_Task() {
     static uint16_t time_out;
-
-    if(moro_task_flag==1) {
-        check_sw();
+    	//check_sw();
+		if(moro_task_flag==1) {
+				
         time_out++;
         if(time_out>=80) { //
             Moto_S();
             moro_task_flag=0;
+						return;
         }
         if(hw_lock_status!=tag_lock_status) {
             if(tag_lock_status==POS_0) {
-                switch(hw_lock_status) {
-                case  POS_0:
-                    Moto_S();
-                    moro_task_flag=0;
-                    break;
-
-                default:
                     Moto_P();
                 }
-            }
             else if(tag_lock_status==POS_90) {
                 switch(hw_lock_status) {
-                case  POS_90:
-                    Moto_S();
-                    moro_task_flag=0;
-                    break;
-
                 case  POS_0:
                     Moto_N();
                     break;
@@ -74,7 +62,11 @@ void Moto_Task() {
                     break;
                 }
             }
-        }
+        }else{
+				
+						 Moto_S();
+						 moro_task_flag=0;
+				}
     }
     else {
         time_out=0;

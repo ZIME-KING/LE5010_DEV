@@ -1,24 +1,23 @@
 #include "control_cmd.h"
 #include "user_main.h"
 
-//uint8_t address;  //485通信地址
-//uint8_t lockid[16]={0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30}; //锁16位id号
+uint8_t address=0x00;  //485通信地址
+uint8_t lockid[18]={'I','N',0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x31,0x32,0x33,0x34,0x35,0x36};  //锁16位id号
+uint8_t def_password[16]  ={0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff};  //锁16位随机密码
+uint8_t rand_password[16] ={0x01,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff};  //锁16位预置密码
+uint8_t lock_sn[16]={0};  // SN
+uint8_t lock_mac[6]={0};  // MAC
+uint8_t reset_flag;
 
-
-
-uint8_t hw_lock_status;    //锁状态 真实硬件上的
-//0x00 初始位置 ，0x01 上升中 ， 0x00 90度 ， 0x11 超出 0xff 放到
+uint8_t hw_lock_status;     //锁状态 真实硬件上的  //0x00 初始位置 ，0x01 上升中 ， 0x00 90度 ， 0x11 超出 0xff 放到
 uint8_t tag_lock_status;    //锁状态 目标
-uint8_t lock_mode;          //锁模式
+uint8_t lock_mode;          //锁模式 自动，手动
 uint8_t ble_close_atc_flag; //
 
-uint8_t err_val=0xff; //
+uint8_t err_val=0x00; //
 uint8_t vbat_val=0xff;
 uint8_t car_val;
-//uint8_t distance_val;
-//uint8_t buzzer_open_val;
-//uint8_t buzzer_close_val;
-//uint8_t buzzer_count_val;
+uint8_t lock_success_flag=0;   //锁鉴权成功标记
 
 //收到命令处理
 //传入接收到的命令数据buf
@@ -28,44 +27,52 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
     static uint8_t send_buf[64];
     uint16_t temp;
     uint16_t *p1;
-
-    uint8_t command;
+		
+		uint8_t err_val=0x00;
+    
+		uint8_t command;
     uint8_t data;
     if(*p==0x17) {
         command= *(p+1);
         switch(command) {
         case 0x01:    //升降地锁
-            if(length==3) {
+            if(length==3 && lock_success_flag==1) {
                 data= *(p+2);
                 switch(data) {
                 case 0x01:
                     tag_lock_status=POS_0;
-                    lock_mode= 0x00;
+                    lock_mode= 0x00; 
+										moro_task_flag=1;
                     break;
 
                 case 0x02:
-                    tag_lock_status=POS_0_90;
+                    tag_lock_status=POS_90;
                     lock_mode= 0x00;
+										moro_task_flag=1;
                     break;
 
                 case 0x03:
                     tag_lock_status=POS_0;
                     lock_mode= 0x01;
+										moro_task_flag=1;
                     break;
 
                 case 0x04:
                     tag_lock_status=POS_90;
-                    lock_mode= 0x00;
+                    lock_mode= 0x01;
+										moro_task_flag=1;
                     break;
 
                 case 0x05:
                     tag_lock_status=POS_0;
                     lock_mode= 0x00;
+										moro_task_flag=1;
                     ble_close_atc_flag=1;
                     break;
                 }
             } else {
                 err_val=0x05; //长度错误
+                if(lock_success_flag==0)  err_val=0x0B;
             }
             send_buf[1]= 0x17;
             send_buf[2]= 0x01;
@@ -77,7 +84,8 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
 
         case 0x02:      //读地锁状态
 
-            if(length==2) {
+            if(length==2 ) {
+								check_sw();check_sw();     //一定要2次
                 DYP_distance=DYP_distance/10;
                 if(DYP_distance>=250) DYP_distance=250;
             } else {
@@ -96,47 +104,49 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
 
         case 0x03:
 
-            if(length==5) {
+            if(length==5 && lock_success_flag==1 ) {
                 Set_buzzer_Task_val(*(p+2),*(p+3),*(p+4));
                 buzzer_task_flag=1;   //启动蜂鸣器
             } else {
                 err_val=0x05;
+                if(lock_success_flag==0)  err_val=0x0B;
             }
             send_buf[1]= 0x17;
             send_buf[2]= 0x03;
             send_buf[3]= err_val;          //错误码
-            send_buf[4]= *(p+2);   				//状态
+            send_buf[4]= *(p+2);   				 //状态
             send_buf[5]= vbat_val;         //电量
             send_buf[0]= 0x05;
             break;
 
         case 0x04:                           //LED
-            if(length==12) {
+            if(length==12 && lock_success_flag==1 ) {
                 Set_LED_Function_val(*(p+2),
                                      *(p+3),*(p+4),*(p+5),
                                      *(p+6),*(p+7),
                                      *(p+8),*(p+9),*(p+10),*(p+11));
             } else {
                 err_val=0x05;
+                if(lock_success_flag==0)  err_val=0x0B;
             }
             send_buf[1]= 0x17;
             send_buf[2]= 0x04;
             send_buf[3]= err_val;          //错误码
-            send_buf[4]= *(p+2);   				//状态
+            send_buf[4]= *(p+2);   				 //状态
             send_buf[5]= vbat_val;         //电量
             send_buf[0]= 0x05;
             break;
 
         case 0x05:                         //获取随机密码
             if(length==2) {
-						for(uint8_t i; i<16; i++) {
-                srand (time_count+i);
-                rand_password[i]=rand(); 				//锁16位随机密码
+                for(uint8_t i; i<16; i++) {
+                    srand (time_count+i);
+                    rand_password[i]=rand(); 				//锁16位随机密码
+                }
+            } else {
+                err_val=0x05;
             }
-						}else{
-							 err_val=0x05;
-						}
-						
+
             send_buf[1]= 0x17;
             send_buf[2]= 0x05;
             memcpy(&send_buf[3],&rand_password[0],16);
@@ -145,14 +155,28 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
 
         case 0x06:      //鉴权
 
+            if(Check_Password(p+2)) {
+                lock_success_flag=1;
+                Set_buzzer_Task_val(1,1,1);
+                buzzer_task_flag=1;   //启动蜂鸣器
+            } else {
+                Set_buzzer_Task_val(3,1,1);
+								buzzer_task_flag=1;   //启动蜂鸣器
+            }
+            send_buf[1]= 0x17;
+            send_buf[2]= 0x06;
+            send_buf[3]= err_val;
+            send_buf[0]= 3;
+
             break;
 
         case 0x07:    //设置485地址
-            if(length==3) {
-						address=*(p+2);
-						 }else{
-							err_val=0x05;
-						 }
+            if(length==3 && lock_success_flag==1) {
+                address=*(p+2);
+            } else {
+                err_val=0x05;
+                if(lock_success_flag==0)  err_val=0x0B;
+            }
             send_buf[1]= 0x17;
             send_buf[2]= 0x07;
             send_buf[3]= err_val;          //错误码
@@ -160,13 +184,15 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             break;
 
         case 0x08:     //写预置密码
-				if(length==18){
-            for(uint8_t i; i<16; i++) {
-                def_password[i]=*(p+2+i);
-            }         
-					}else{
-						 err_val=0x05;
-					}
+            if(length==18 && lock_success_flag==1) {
+                for(uint8_t i; i<16; i++) {
+                    def_password[i]=*(p+2+i);
+                }
+            } else {
+                err_val=0x05;
+                if(lock_success_flag==0)  err_val=0x0B;
+
+            }
             send_buf[1]= 0x17;
             send_buf[2]= 0x08;
             send_buf[3]= err_val;          //错误码
@@ -174,14 +200,18 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             break;
 
         case 0x09:    //写锁ID
-            for(uint8_t i; i<16; i++) {
-                lockid[i+2]=*(p+2+i);
+            if(length==18 && lock_success_flag==1) {
+                for(uint8_t i; i<16; i++) {
+                    lockid[i+2]=*(p+2+i);
+                }
+            } else {
+                err_val=0x05;
+                if(lock_success_flag==0)  err_val=0x0B;
             }
             send_buf[1]= 0x17;
             send_buf[2]= 0x09;
             send_buf[3]= err_val;          //错误码
             send_buf[0]= 0x03;
-
             break;
 
         case 0x0A:   //读锁ID
@@ -209,9 +239,14 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             break;
 
         case 0x0D:    //写SN号
+            if(length==18 && lock_success_flag==1) {
+                for(uint8_t i; i<16; i++) {
+                    lock_sn[i]=*(p+2+i);
+                }
+            } else {
+                err_val=0x05;
+                if(lock_success_flag==0)  err_val=0x0B;
 
-            for(uint8_t i; i<16; i++) {
-                lock_sn[i]=*(p+2+i);
             }
             send_buf[1]= 0x17;
             send_buf[2]= 0x0D;
@@ -232,8 +267,12 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             break;
 
         case 0x10:  //重启设备
-
-            reset_flag=1;
+            if(length==2 && lock_success_flag==1) {
+                reset_flag=1;
+            } else {
+                err_val=0x05;
+                if(lock_success_flag==0)  err_val=0x0B;
+            }
 
             send_buf[1]= 0x17;
             send_buf[2]= 0x10;

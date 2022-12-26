@@ -234,6 +234,7 @@ static void ls_app_timer_init(void)
 
 //1ms
 static void ls_user_event_timer_cb_0(void *param) {
+		check_sw();
     LED_Functon();
 		Uart_2_Time_Even();
 		Uart_Time_Even();
@@ -353,7 +354,7 @@ static void ls_uart_server_send_notification(void)
 					//uart_server_recv_data_length_array[idx] -= tx_len;
 					//memcpy((void*)&uart_server_b	le_buf_array[idx][0], (void*)&uart_server_ble_buf_array[idx][tx_len], uart_server_recv_data_length_array[idx]);       
 
-						p=CMD_Processing(0x00);		
+						p=CMD_Processing(0x00,1);		
 						gatt_manager_server_send_notification(con_idx_server, handle, p+1, *p, NULL);
 						//LOG_I("con_idx:%d",con_idx);
 
@@ -372,7 +373,7 @@ static void user_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length
     if(att_idx == UART_SVC_IDX_RX_VAL)// && uart_server_tx_buf[0] != UART_SYNC_BYTE)
     {
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
-        memcpy(&RX_DATA_BUF[0],value,16);				
+        memcpy(&RX_DATA_BUF[0],value,length);				
         LOG_I("接收到的");
         LOG_HEX(&RX_DATA_BUF[0],length);			
 				CMD_Processing(&RX_DATA_BUF[0],length);

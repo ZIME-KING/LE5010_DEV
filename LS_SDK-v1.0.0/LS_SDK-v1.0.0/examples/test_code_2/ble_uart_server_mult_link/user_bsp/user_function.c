@@ -7,20 +7,7 @@ UART_HandleTypeDef UART1_Config;
 
 uint32_t time_count=0x00;
 
-
-uint8_t address=0x00;  //485通信地址
-uint8_t lockid[18]={'I','N',0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x31}; //锁16位id号
-uint8_t rand_password[16]={0}; //锁16位随机密码
-uint8_t def_password[16]={0};  //锁16位预置密码
-
-uint8_t lock_sn[16]={0};  //
-
-uint8_t lock_mac[6]={0};  //
-
-uint8_t	reset_flag=0;
-
 uint8_t cmd_buf[64]; //接收到的命令缓存
-
 
 //每接收成功一包处理一次数据
 void Uart_Data_Processing() {
@@ -80,7 +67,7 @@ void	power_io_init(){
 
 void loop_task(){
   Moto_Task();	
-	moro_task_flag=1;
+//moro_task_flag=1;
 	
 	
 	static uint16_t count;
@@ -95,13 +82,17 @@ void loop_task(){
 	Uart_Data_Processing();   //RS485数据处理
 	//Get_ADC_value();
 	Buzzer_Task_100();
+		
+	static uint8_t last_hw_lock_status;
 	
-	
-//	LOG_I("OTP1:%d",lock_sw.opt1);
-//	LOG_I("OTP2:%d",lock_sw.opt2);	
-//	LOG_I("OTP3:%d",lock_sw.opt3);	
-//	LOG_I("status:%x",hw_lock_status);	
-//	LOG_I("DYP_distance:%d",DYP_distance);	
+	if(last_hw_lock_status!=hw_lock_status){
+		last_hw_lock_status=hw_lock_status;
+		LOG_I("OTP1:%d",lock_sw.opt1);
+		LOG_I("OTP2:%d",lock_sw.opt2);	
+		LOG_I("OTP3:%d",lock_sw.opt3);	
+		LOG_I("status:%x",hw_lock_status);	
+		LOG_I("DYP_distance:%d",DYP_distance);	
+	}
 	
 }
 
@@ -136,6 +127,27 @@ static void ls_uart1_init(void)
 }
 
 
+
+
+//检测密码，传入密码
+bool Check_Password(uint8_t *password)
+{
+	static struct cavan_sha_context context;
+	u8 digest[MD5_DIGEST_SIZE];
+	cavan_md5_init_context(&context);
+	cavan_sha_init(&context);
+	cavan_sha_update(&context, def_password, 16);
+	cavan_sha_update(&context, rand_password, 16);
+	cavan_sha_update(&context, &lockid[2], 16);
+	cavan_sha_finish(&context, digest);
+	
+	LOG_I("password:");
+	LOG_HEX(digest,16);
+
+	return memcmp(digest, password, MD5_DIGEST_SIZE) == 0;
+}
+
+
 //蓝牙启动成功跑一次
 void User_BLE_Ready() {
     Buzzer_IO_Init();
@@ -149,12 +161,9 @@ void User_BLE_Ready() {
 		HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
 
 		HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
-
 		
 		power_io_init();	
 		tag_lock_status=POS_90;
-		
-		
 		
 ////////////获取mac////////////////////		
 		uint8_t addr[6];
@@ -165,6 +174,8 @@ void User_BLE_Ready() {
     memcpy(&lock_mac[0],&addr[0],6);
 ////////////////////////////////		
 }
+
+
 
 
 

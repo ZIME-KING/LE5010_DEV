@@ -20,11 +20,14 @@ extern uint8_t lock_sn[16];  //
 extern uint8_t lock_mac[6];  //
 extern uint8_t reset_flag;
 
-extern uint8_t address ;
+extern uint8_t  address ;
 extern uint32_t time_count;
 
 
 void User_BLE_Ready(void);
 void loop_task(void);
+
+bool Check_Password(uint8_t *password);
+
 
 #endif

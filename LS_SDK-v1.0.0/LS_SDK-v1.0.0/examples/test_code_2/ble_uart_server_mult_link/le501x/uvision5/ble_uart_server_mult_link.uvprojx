@@ -374,7 +374,7 @@
             <ScatterFile>..\..\..\..\..\soc\arm_cm\le501x\compiler\armcc\ble.ld</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc> --datacompressor=off --diag_suppress=L6314,L6329</Misc>
+            <Misc>--datacompressor=off --diag_suppress=L6314,L6329</Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
@@ -1723,6 +1723,11 @@
               <FileName>user_adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\user_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>md5..c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\md5..c</FilePath>
             </File>
           </Files>
         </Group>
