@@ -88,7 +88,7 @@ uint8_t set_t3=0;
 
 uint8_t LED_status=1;
 
-uint8_t buf[3]= {0xff,0x00,0x00};
+uint8_t buf[3]= {0x00,0x00,0x00};
 
 uint8_t max_brightness=0xff;
 uint8_t min_brightness=0x00;
@@ -100,7 +100,7 @@ void Set_LED_Function_val(uint8_t status,
 {
 	LED_status=status;
 	if(LED_status==1){
-				buf[0]=r; buf[1]=g;buf[2]=b;
+				buf[0]=g; buf[1]=r;buf[2]=b;
 	}
 	else{
 			 buf[0]=0; buf[1]=0;buf[2]=0;                        

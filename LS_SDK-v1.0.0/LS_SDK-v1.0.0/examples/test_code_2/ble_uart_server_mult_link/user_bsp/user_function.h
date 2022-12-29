@@ -3,10 +3,6 @@
 #include "user_main.h"
 
 
-#define __USER_FUNCTION_H
-#define __USER_FUNCTION_H
-#define __USER_FUNCTION_H
-
 
 extern UART_HandleTypeDef UART2_Config;
 extern UART_HandleTypeDef UART1_Config;
@@ -23,6 +19,10 @@ extern uint8_t reset_flag;
 extern uint8_t  address ;
 extern uint32_t time_count;
 
+extern uint8_t ble_adv_data[6];
+
+extern tinyfs_dir_t ID_dir_1;
+//extern tinyfs_dir_t ID_dir_2;
 
 void User_BLE_Ready(void);
 void loop_task(void);

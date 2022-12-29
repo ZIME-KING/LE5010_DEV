@@ -18,7 +18,7 @@ static void lsadc_init(void)
     hadc.Init.NbrOfDiscConversion   = 1;                             /* Parameter discarded because sequencer is disabled */
     hadc.Init.ContinuousConvMode    = DISABLE;                        /* Continuous mode to have maximum conversion speed (no delay between conversions) */
     hadc.Init.TrigType      = ADC_INJECTED_SOFTWARE_TRIGT;            /* The reference voltage uses an internal reference */
-    hadc.Init.Vref          = ADC_VREF_INSIDE;//ADC_VREF_INSIDE ADC_VREF_VCC
+    hadc.Init.Vref          = ADC_VREF_VCC;//ADC_VREF_INSIDE ADC_VREF_VCC
     hadc.Init.AdcCkDiv = ADC_CLOCK_DIV32;
 
     hadc.Init.AdcDriveType=EINBUF_DRIVE_ADC;
@@ -59,15 +59,21 @@ void  User_ADC_Init(){
 }
 
 
-void Get_ADC_value(){
-
+uint16_t Get_ADC_value(){
+		static uint16_t mV;
 		if(recv_flag == 1) 
 		{
             //DELAY_US(200*1000); //delay 200ms
             recv_flag = 0;
-            LOG_I("Vbat_vol: %d mv",(4*1400*adc_value/4095));  //By default, 1/8 of the power supply is used to collect
+						mV=4*3300*adc_value/4095;
+            
+						LOG_I("Vbat_vol: %d mv",mV);  //By default, 1/8 of the power supply is used to collect
+						
+						
 						HAL_ADCEx_InjectedStart_IT(&hadc);
+						return  mV;
 		}
+		return  mV;
 }
 
 

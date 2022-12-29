@@ -408,12 +408,12 @@ static void create_adv_obj()
 static void start_adv(void)
 {
 		uint8_t TEMP[2]={0xCA,0XFA}; 
-		uint8_t TEMP1[2]={0xFF,0XFF}; 
+		//uint8_t TEMP1[2]={0xFF,0XFF}; 
 
     LS_ASSERT(adv_obj_hdl != 0xff);
     uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 3,GAP_ADV_TYPE_COMPLETE_LIST_16_BIT_UUID, &TEMP[0], 2, 
 																																GAP_ADV_TYPE_COMPLETE_NAME, &lockid[0], 18,
-																																GAP_ADV_TYPE_APPEARANCE,&TEMP1[0],2);
+																																GAP_ADV_TYPE_APPEARANCE,&ble_adv_data[0],2);
     dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
     LOG_I("adv start");
 }
@@ -853,11 +853,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
     break;
     case STACK_READY:
     {
-        uint8_t addr[6];
-        bool type;
-        dev_manager_get_identity_bdaddr(addr,&type);
-        LOG_I("type:%d,addr:",type);
-        LOG_HEX(addr,sizeof(addr));
+//        uint8_t addr[6];
+//        bool type;
+//        dev_manager_get_identity_bdaddr(addr,&type);
+//        LOG_I("type:%d,addr:",type);
+//        LOG_HEX(addr,sizeof(addr));
 #if SLAVE_SERVER_ROLE == 1
         dev_manager_add_service((struct svc_decl *)&ls_uart_server_svc);
         ls_uart_server_init();

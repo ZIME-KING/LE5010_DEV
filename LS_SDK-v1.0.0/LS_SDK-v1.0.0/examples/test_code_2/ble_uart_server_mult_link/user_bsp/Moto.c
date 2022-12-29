@@ -30,19 +30,21 @@ void Moto_NULL() {
 
 void Moto_Task() {
     static uint16_t time_out;
-    	//check_sw();
-		if(moro_task_flag==1) {
-				
+    static uint16_t count=0;
+    static uint16_t stop_flag=0;
+
+    //check_sw();
+    if(moro_task_flag==1) {
         time_out++;
-        if(time_out>=80) { //
+        if(time_out>=80) { 
             Moto_S();
             moro_task_flag=0;
-						return;
+            return;
         }
         if(hw_lock_status!=tag_lock_status) {
             if(tag_lock_status==POS_0) {
-                    Moto_P();
-                }
+                Moto_P();
+            }
             else if(tag_lock_status==POS_90) {
                 switch(hw_lock_status) {
                 case  POS_0:
@@ -62,13 +64,28 @@ void Moto_Task() {
                     break;
                 }
             }
-        }else{
+        } else {
 				
-						 Moto_S();
-						 moro_task_flag=0;
-				}
+						if(hw_lock_status==POS_0){
+							 Moto_S();
+						}else{
+							stop_flag=1;
+						}
+            //Moto_S();
+            moro_task_flag=0;
+        }
     }
     else {
         time_out=0;
     }
+
+    if(stop_flag==1) {
+        count++;
+        if(count>5) {
+            count=0;
+						stop_flag=0;
+            Moto_S();
+        }
+    }
+
 }

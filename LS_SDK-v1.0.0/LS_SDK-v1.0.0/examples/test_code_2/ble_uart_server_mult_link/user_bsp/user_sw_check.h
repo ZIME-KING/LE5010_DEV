@@ -11,9 +11,9 @@
 #define SW_IN_3  PA07    //ªÙ∂˚   ‰»Î
 
 #define POS_0      0x11
-#define POS_0_90   0x01
+#define POS_0_90   0x10
 #define POS_90     0x00
-#define POS_90_180 0x10
+#define POS_90_180 0x01
 #define POS_OUT    0xFF
 
 
@@ -26,5 +26,5 @@ bool opt3;
 
 extern SW_TypeDef lock_sw;
 void	check_sw(void);
-
+void	check_sw_(void);
 #endif
