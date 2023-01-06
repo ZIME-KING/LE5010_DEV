@@ -1,0 +1,117 @@
+T4C7C 000:200.695   SEGGER J-Link V7.64 Log File
+T4C7C 000:200.843   DLL Compiled: Apr  1 2022 16:04:43
+T4C7C 000:200.849   Logging started @ 2022-11-01 11:30
+T4C7C 000:200.854 - 200.857ms
+T4C7C 000:200.865 JLINK_SetWarnOutHandler(...)
+T4C7C 000:200.872 - 0.008ms
+T4C7C 000:200.878 JLINK_OpenEx(...)
+T4C7C 000:204.609   Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+T4C7C 000:204.996   Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+T4C7C 000:207.133   Hardware: V7.00
+T4C7C 000:207.145   S/N: 20090929
+T4C7C 000:207.152   OEM: SEGGER
+T4C7C 000:207.160   Feature(s): RDI,FlashDL,FlashBP,JFlash,GDBFull
+T4C7C 000:215.906   TELNET listener socket opened on port 19021
+T4C7C 000:216.072   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T4C7C 000:216.146   WEBSRV Failed to put socket into listener state (port 19080)
+T4C7C 000:216.263   WEBSRV Webserver running on local port 19081
+T4C7C 000:221.041 - 20.172ms returns "O.K."
+T4C7C 000:221.073 JLINK_GetEmuCaps()
+T4C7C 000:221.079 - 0.009ms returns 0x88EA5833
+T4C7C 000:221.090 JLINK_TIF_GetAvailable(...)
+T4C7C 000:221.302 - 0.221ms
+T4C7C 000:221.318 JLINK_SetErrorOutHandler(...)
+T4C7C 000:221.324 - 0.009ms
+T4C7C 000:221.353 JLINK_ExecCommand("ProjectFile = "D:\Developmentfolder\LE5010_DEV\LS_SDK-v1.0.0\LS_SDK-v1.0.0\examples\test_code\ble_single_role_yv9\le501x\uvision5\JLinkSettings.ini"", ...). 
+T4C7C 000:228.191   Ref file found at: C:\Keil_v5\ARM\Segger\JLinkDevices.ref
+T4C7C 000:228.274   XML referenced by ref file: C:\Program Files (x86)\SEGGER\JLink\JLinkDevices.xml
+T4C7C 000:228.386   C:\Program Files (x86)\SEGGER\JLink\JLinkDevices.xml evaluated successfully.
+T4C7C 000:228.400     Device entry created:  LE501X
+T4C7C 000:228.405       ChipInfo:
+T4C7C 000:228.411         Vendor:        LinkedSemi
+T4C7C 000:228.419         Name:          LE501X
+T4C7C 000:228.431         Core:          JLINK_CORE_CORTEX_M0
+T4C7C 000:228.439         WorkRAMAddr:   0x20000000
+T4C7C 000:228.446         WorkRAMSize:   0x0000C000
+T4C7C 000:228.484         Script:        C:\Program Files (x86)\SEGGER\JLink\LinkedSemi\LE501X.jlinkscript
+T4C7C 000:228.493       FlashBankInfo:
+T4C7C 000:228.498         Name:          QSPI Flash
+T4C7C 000:228.506         BaseAddr:      0x18000000
+T4C7C 000:228.513         MaxSize:       0x00080000
+T4C7C 000:228.571         Loader:        C:\Program Files (x86)\SEGGER\JLink\LinkedSemi\le501x_flash_algo.elf
+T4C7C 000:228.580         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T4C7C 000:228.598     Device entry created:  SAGI
+T4C7C 000:228.604       ChipInfo:
+T4C7C 000:228.609         Vendor:        LinkedSemi
+T4C7C 000:228.616         Name:          SAGI
+T4C7C 000:228.624         Core:          JLINK_CORE_CORTEX_M3
+T4C7C 000:228.632         WorkRAMAddr:   0x00400000
+T4C7C 000:228.639         WorkRAMSize:   0x00010000
+T4C7C 000:228.646       FlashBankInfo:
+T4C7C 000:228.651         Name:          QSPI Flash
+T4C7C 000:228.658         BaseAddr:      0x00800000
+T4C7C 000:228.666         MaxSize:       0x00080000
+T4C7C 000:228.724         Loader:        C:\Program Files (x86)\SEGGER\JLink\LinkedSemi\sagi_flash_algo.elf
+T4C7C 000:228.733         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T4C7C 000:228.813 - 7.464ms returns 0x00
+T4C7C 000:228.828 JLINK_ExecCommand("Device = ARMCM0", ...). 
+T4C7C 000:228.854   Device "CORTEX-M0" selected.
+T4C7C 000:229.094 - 0.264ms returns 0x00
+T4C7C 000:229.104 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T4C7C 000:229.111 - 0.003ms returns 0x01
+T4C7C 000:229.118 JLINK_GetHardwareVersion()
+T4C7C 000:229.123 - 0.007ms returns 70000
+T4C7C 000:229.131 JLINK_GetDLLVersion()
+T4C7C 000:229.136 - 0.007ms returns 76400
+T4C7C 000:229.142 JLINK_GetOEMString(...)
+T4C7C 000:229.148 JLINK_GetFirmwareString(...)
+T4C7C 000:229.153 - 0.007ms
+T4C7C 000:229.161 JLINK_GetDLLVersion()
+T4C7C 000:229.166 - 0.007ms returns 76400
+T4C7C 000:229.171 JLINK_GetCompileDateTime()
+T4C7C 000:229.176 - 0.007ms
+T4C7C 000:229.183 JLINK_GetFirmwareString(...)
+T4C7C 000:229.187 - 0.007ms
+T4C7C 000:229.193 JLINK_GetHardwareVersion()
+T4C7C 000:229.231 - 0.039ms returns 70000
+T4C7C 000:229.237 JLINK_GetSN()
+T4C7C 000:229.242 - 0.007ms returns 20090929
+T4C7C 000:229.249 JLINK_GetOEMString(...)
+T4C7C 000:229.256 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T4C7C 000:229.757 - 0.507ms returns 0x00
+T4C7C 000:229.769 JLINK_HasError()
+T4C7C 000:229.781 JLINK_SetSpeed(1000)
+T4C7C 000:229.935 - 0.161ms
+T4C7C 000:230.224 JLINK_HasError()
+T4C7C 000:230.236 JLINK_SetResetType(JLINKARM_RESET_TYPE_NORMAL)
+T4C7C 000:230.242 - 0.009ms returns JLINKARM_RESET_TYPE_NORMAL
+T4C7C 000:230.249 JLINK_Reset()
+T4C7C 000:232.032   ConfigTargetSettings() start
+T4C7C 000:232.044    J-Link Script File: Executing ConfigTargetSettings()
+T4C7C 000:232.071   ConfigTargetSettings() end
+T4C7C 000:393.127   ConfigTargetSettings() start
+T4C7C 000:393.152    J-Link Script File: Executing ConfigTargetSettings()
+T4C7C 000:393.162   ConfigTargetSettings() end
+T4C7C 000:497.934 - 267.706ms
+T4C7C 000:497.969 JLINK_GetId()
+T4C7C 000:498.359   ConfigTargetSettings() start
+T4C7C 000:498.382    J-Link Script File: Executing ConfigTargetSettings()
+T4C7C 000:498.396   ConfigTargetSettings() end
+T4C7C 000:659.372   ConfigTargetSettings() start
+T4C7C 000:659.397    J-Link Script File: Executing ConfigTargetSettings()
+T4C7C 000:659.408   ConfigTargetSettings() end
+T4C7C 000:764.190 - 266.239ms returns 0x00000000
+T4C7C 000:764.223 JLINK_GetId()
+T4C7C 000:764.403   ConfigTargetSettings() start
+T4C7C 000:764.419    J-Link Script File: Executing ConfigTargetSettings()
+T4C7C 000:764.432   ConfigTargetSettings() end
+T4C7C 000:925.546   ConfigTargetSettings() start
+T4C7C 000:925.573    J-Link Script File: Executing ConfigTargetSettings()
+T4C7C 000:925.585   ConfigTargetSettings() end
+T4C7C 001:030.430 - 266.235ms returns 0x00000000
+T4C7C 001:040.381 JLINK_GetFirmwareString(...)
+T4C7C 001:040.398 - 0.020ms
+T4C7C 002:340.721 JLINK_Close()
+T4C7C 002:344.777 - 4.064ms
+T4C7C 002:344.789   
+T4C7C 002:344.794   Closed

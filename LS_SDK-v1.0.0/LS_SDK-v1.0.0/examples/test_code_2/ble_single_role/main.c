@@ -12,7 +12,11 @@
 #include "io_config.h"
 #include "ble_common_api.h"
 
-#define SLAVE_SERVER_ROLE 1
+#include "user_main.h"
+
+
+
+#define SLAVE_SERVER_ROLE 0
 #define MASTER_CLIENT_ROLE 1
 
 #define UART_SVC_ADV_NAME "LS Single Role"
@@ -66,10 +70,23 @@ static uint8_t uart_rx_buf[UART_SVC_BUFFER_SIZE];
 static UART_HandleTypeDef UART_Config; 
 static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 
-static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
-static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
-static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
+//static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
+//static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
+//static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
+//static const uint8_t att_desc_client_char_cfg_array[] = {0x02,0x29};
+
+static const uint8_t user_uuid_16_A[]={0xCA,0XFA};
+static const uint8_t user_uuid_16_B[]={0xCC,0XFA};
+static const uint8_t user_uuid_16_C[]={0xCB,0XFA};
+
+
+static const uint8_t ls_uart_svc_uuid_128[] =     {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
+static const uint8_t ls_uart_rx_char_uuid_128[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCB,0xFA,0x00,0x00};
+static const uint8_t ls_uart_tx_char_uuid_128[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCC,0xFA,0x00,0x00};
 static const uint8_t att_desc_client_char_cfg_array[] = {0x02,0x29};
+
+
+
 
 #if SLAVE_SERVER_ROLE == 1
 /************************************************data for Server*****************************************************/
@@ -168,7 +185,9 @@ enum scan_status
 
 static struct dev_addr specified_slave_addr;
 // static const uint8_t peer_slave_addr0[BLE_ADDR_LEN] = {0x01,0xcc,0xcc,0xcc,0xcc,0xcc};
-static uint8_t con_idx_client;
+
+uint8_t con_idx_client;
+
 static bool uart_client_wr_cmd_done;
 static uint16_t uart_client_mtu;
 static uint8_t uart_client_tx_buf[UART_SVC_BUFFER_SIZE];
@@ -177,9 +196,13 @@ static uint16_t uart_client_recv_data_length;
 static uint16_t uart_client_svc_attribute_handle; // handle for primary service attribute handle
 static uint16_t uart_client_svc_end_handle;
 static uint16_t uart_client_tx_attribute_handle;
-static uint16_t uart_client_tx_pointer_handle;
+
+ uint16_t uart_client_tx_pointer_handle;
+
 static uint16_t uart_client_rx_attribute_handle;
-static uint16_t uart_client_rx_pointer_handle;
+
+ uint16_t uart_client_rx_pointer_handle;
+
 static uint16_t uart_client_cccd_handle;
 static uint8_t *next_connect_addr;
 
@@ -196,14 +219,121 @@ static void ls_uart_client_char_desc_dis(uint8_t con_idx);
 static void ls_uart_client_send_write_req(void);
 static void start_scan(void);
 #endif
+
+static void ls_user_event_timer_cb_0(void *param);
+static void ls_user_event_timer_cb_1(void *param);
+
+static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
+static struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
+
+#define USER_EVENT_PERIOD_0 5		 	 // 5ms
+#define USER_EVENT_PERIOD_1 50     // 50ms
+
+static void ls_app_timer_init(void)
+{
+    user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+
+    user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+}
+
+//5ms
+static void ls_user_event_timer_cb_0(void *param) {
+	scan_touch_key();
+	scan_key();
+	globle_count++;
+	no_act_count++;
+	
+	if(led_open_flag){
+		led_open_count++;
+	}	
+	if((no_act_count>400 && led_open_flag==0) ||
+				(no_act_count>400 && led_open_count>=12000)){	
+				LOG_I("no_act_count%d",no_act_count);		
+				LOG_I("ls_sleep_enter_LP3");	
+				ls_sleep_enter_LP3();
+		}
+    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+}
+
+//50ms
+static void ls_user_event_timer_cb_1(void *param) {
+	/**
+user_code	
+*/
+	 if(led_open_flag){
+			io_write_pin(PB08,1);	
+	 }
+	 else{
+			io_write_pin(PB08,0);	
+		  led_open_count=0;
+	 }
+	if(touch_key_staus==SHORT && touch_key_busy){
+		LOG_I("touch_key_staus=%x",touch_key_staus);
+		led_open_count=0;
+		//sprintf((char*)buf,"KEY=%d",touch_key_staus);
+		//HAL_UART_Transmit_IT(&UART_Server_Config, (uint8_t*)buf, sizeof(buf));
+		touch_key_busy=0;
+	}
+	if(touch_key_staus==DOUBLE && touch_key_busy){
+		LOG_I("touch_key_staus=%x",touch_key_staus);
+		led_open_flag=!led_open_flag;
+		led_open_count=0;
+		//sprintf((char*)buf,"KEY=%d",touch_key_staus);
+		//HAL_UART_Transmit_IT(&UART_Server_Config, (uint8_t*)buf, sizeof(buf));
+		touch_key_busy=0;
+	}
+	if(touch_key_staus==LONG && touch_key_busy){
+		LOG_I("touch_key_staus=%x",touch_key_staus);
+
+		touch_key_busy=0;
+	}
+	
+	
+	if(key_status==SHORT && key_busy  && link_flag) 
+   {
+		LOG_I("key_status=%x",key_status);
+		user_send_sign_in();
+		//user_send_led_on();
+		//user_send_lock_down();
+		user_send_lock_up();
+		 
+		 
+		 
+		key_busy=0;
+	}
+	if(key_status==LONG_NO_RELEASE && key_busy && link_flag){
+		LOG_I("key_status=%x",key_status);
+		user_send_sign_in();
+		//user_send_led_off();
+		user_send_lock_down();
+
+		key_busy=0;
+	}
+	if(key_status==LONG && key_busy && link_flag){
+		LOG_I("key_status=%x",key_status);
+
+		//user_send_sign_in();
+		//user_send_led_off();
+		//user_send_lock_down();
+		key_busy=0;
+	}
+//    loop_task();
+//		ls_uart_server_send_notification();   
+		builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+}
+
 static void ls_uart_server_client_uart_tx(void);
 static void ls_single_role_timer_cb(void *param);
 static struct builtin_timer *ble_app_timer_inst = NULL;
-static void ls_app_timer_init(void)
+
+static void ls_app_timer_init_(void)
 {
     ble_app_timer_inst = builtin_timer_create(ls_single_role_timer_cb);
     builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
 }
+
 static void ls_single_role_timer_cb(void *param)
 {
 #if SLAVE_SERVER_ROLE == 1    
@@ -699,7 +829,9 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
 #if MASTER_CLIENT_ROLE == 1          
         case CLIENT_RECV_NOTIFICATION:
             ls_uart_client_recv_ntf_ind(evt->client_recv_notify_indicate.handle, con_idx, evt->client_recv_notify_indicate.length, evt->client_recv_notify_indicate.value);
-            LOG_I("svc dis notification, length = %d", evt->client_recv_notify_indicate.length);
+						
+						LOG_I  ("svc dis notification, length = %d", evt->client_recv_notify_indicate.length);
+						LOG_HEX(evt->client_recv_notify_indicate.value, evt->client_recv_notify_indicate.length);
         break;
         case CLIENT_PRIMARY_SVC_DIS_IND:
             if (!memcmp(evt->client_svc_disc_indicate.uuid, ls_uart_svc_uuid_128, sizeof(ls_uart_svc_uuid_128)))
@@ -708,6 +840,8 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
                 uart_client_svc_end_handle = evt->client_svc_disc_indicate.handle_range.end_handle;
                 ls_uart_client_char_tx_dis(con_idx);
                 LOG_I("svc dis success, attribute_handle = %d, end_handle = %d", uart_client_svc_attribute_handle, uart_client_svc_end_handle);
+								
+								link_flag=1;
             }    
             else
             {
@@ -715,14 +849,17 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
             }    
         break;
         case CLIENT_CHAR_DIS_BY_UUID_IND:
-            if (!memcmp(evt->client_disc_char_indicate.uuid, ls_uart_tx_char_uuid_128, sizeof(ls_uart_tx_char_uuid_128)))
+						
+						//LOG_HEX(evt->client_disc_char_desc_indicate.uuid,16);
+				
+            if (!memcmp(evt->client_disc_char_indicate.uuid, user_uuid_16_B, sizeof(user_uuid_16_B)))
             {
                 uart_client_tx_attribute_handle = evt->client_disc_char_indicate.attr_handle;
                 uart_client_tx_pointer_handle = evt->client_disc_char_indicate.pointer_handle;
                 ls_uart_client_char_rx_dis(con_idx);
                 LOG_I("tx dis success, attribute handle = %d, pointer handler = %d", uart_client_tx_attribute_handle, uart_client_tx_pointer_handle);
             }
-            else if (!memcmp(evt->client_disc_char_indicate.uuid, ls_uart_rx_char_uuid_128, sizeof(ls_uart_rx_char_uuid_128)))
+            else if (!memcmp(evt->client_disc_char_indicate.uuid, user_uuid_16_C, sizeof(user_uuid_16_C)))
             {
                 uart_client_rx_attribute_handle = evt->client_disc_char_indicate.attr_handle;
                 uart_client_rx_pointer_handle = evt->client_disc_char_indicate.pointer_handle;
@@ -777,6 +914,7 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
     else
     {
         LOG_I("receive gatt msg when disconnected!");
+				link_flag=0;
     } 
 }
 static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
@@ -799,6 +937,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         dev_manager_get_identity_bdaddr(addr,&type);
         LOG_I("type:%d,addr:",type);
         LOG_HEX(addr,sizeof(addr));
+				user_init();
 #if SLAVE_SERVER_ROLE == 1
         dev_manager_add_service((struct svc_decl *)&ls_uart_server_svc);
         ls_uart_server_init();
@@ -848,31 +987,33 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
     break;
     case ADV_REPORT:
-    {
-        #if 0
-        LOG_I("adv received, addr: %2x:%2x:%2x:%2x:%2x:%2x", evt->adv_report.adv_addr->addr[5],
+    {                                                                  
+        #if 1
+				
+				if(!memcmp(evt->adv_report.data+9,&lockid[0],18)){
+										LOG_HEX(evt->adv_report.data,32);
+										//LOG_I("FIND_OK");
+										LOG_I("adv received, addr: %2x:%2x:%2x:%2x:%2x:%2x", evt->adv_report.adv_addr->addr[5],
                                                        evt->adv_report.adv_addr->addr[4],
                                                        evt->adv_report.adv_addr->addr[3],
                                                        evt->adv_report.adv_addr->addr[2],
                                                        evt->adv_report.adv_addr->addr[1],
                                                        evt->adv_report.adv_addr->addr[0]);
-        #endif
-        // if (!memcmp(peer_slave_addr0, evt->adv_report.adv_addr->addr, BLE_ADDR_LEN))
-        struct adv_payload_struct adv_data_name;
-        if (dev_manager_adv_report_parse(GAP_ADV_TYPE_SHORTENED_NAME, &evt->adv_report, &adv_data_name))
-        {
-            if (adv_data_name.size == sizeof(UART_SVC_ADV_NAME) &&
-                0 == memcmp((void*)adv_data_name.p_data, UART_SVC_ADV_NAME, sizeof(UART_SVC_ADV_NAME)))
-            {
-                if (init_obj_hdl != 0xff && init_status == INIT_IDLE)
+																											 
+										memcpy((void*)&specified_slave_addr.addr[0], (void*)&evt->adv_report.adv_addr->addr[0], BLE_ADDR_LEN);																 
+														//	memcpy(peer_slave_addr0,evt->adv_report.adv_addr->addr,BLE_ADDR_LEN);
+				
+				
+				
+								if (init_obj_hdl != 0xff && init_status == INIT_IDLE)
                 {
                     dev_addr_type = evt->adv_report.adv_addr_type;
-                    memcpy((void*)&specified_slave_addr.addr[0], (void*)&evt->adv_report.adv_addr->addr[0], BLE_ADDR_LEN);
+                    //memcpy((void*)&specified_slave_addr.addr[0], (void*)&evt->adv_report.adv_addr->addr[0], BLE_ADDR_LEN);
                     next_connect_addr = &specified_slave_addr.addr[0];
                     dev_manager_stop_scan(scan_obj_hdl);
-                }  
-            }
-        }
+                }
+				}
+           #endif
     }
     break;
     case INIT_OBJ_CREATED:
@@ -894,9 +1035,13 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 
 int main()
 {
+
     sys_init_app();
     ble_init();
-    dev_manager_init(dev_manager_callback);
+		
+///		user_init();
+    
+		dev_manager_init(dev_manager_callback);
     gap_manager_init(gap_manager_callback);
     gatt_manager_init(gatt_manager_callback);
     ble_loop();

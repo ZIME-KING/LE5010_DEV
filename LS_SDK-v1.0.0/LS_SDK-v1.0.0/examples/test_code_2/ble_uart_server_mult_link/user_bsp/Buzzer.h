@@ -4,12 +4,12 @@
 #include "user_main.h"
 #include "Buzzer.h"
 extern uint8_t buzzer_task_flag;
-extern uint8_t buzzer_task_flag_2;
+//extern uint8_t buzzer_task_flag_2;
 
 
 
 
-void Set_buzzer_Task_val(uint8_t a,uint8_t b,uint8_t c);
+void Set_buzzer_Task_val(uint16_t a,uint8_t b,uint8_t c);
 
 
 void Buzzer_Task_100(void);

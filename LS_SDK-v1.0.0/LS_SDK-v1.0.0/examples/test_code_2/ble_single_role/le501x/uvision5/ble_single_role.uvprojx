@@ -10,6 +10,7 @@
       <TargetName>ble_single_role</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -259,17 +260,17 @@
                 <Size>0x0</Size>
               </XRAM>
               <OCR_RVCT1>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT1>
               <OCR_RVCT2>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT2>
               <OCR_RVCT3>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT3>
@@ -279,7 +280,7 @@
                 <Size>0x80000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT5>
@@ -339,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>LE501X</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..; ..\..\..\..\..; ..\..\..\..\..\peripheral\inc; ..\..\..\..\..\peripheral\api; ..\..\..\..\..\module\common; ..\..\..\..\..\module\calendar; ..\..\..\..\..\module\crc; ..\..\..\..\..\module\debug; ..\..\..\..\..\module\debug\RTT; ..\..\..\..\..\module\static_buffer; ..\..\..\..\..\module\tinyfs; ..\..\..\..\..\module\tinycrypt\lib\include; ..\..\..\..\..\module\micro-ecc; ..\..\..\..\..\module\adpcm; ..\..\..\..\..\module\ble; ..\..\..\..\..\module\ble\prf; ..\..\..\..\..\soc; ..\..\..\..\..\soc\arm_cm; ..\..\..\..\..\soc\arm_cm\cmsis; ..\..\..\..\..\soc\arm_cm\le501x; ..\..\..\..\..\soc\arm_cm\le501x\integration</IncludePath>
+              <IncludePath>..\..;..\..\..\..\..;..\..\..\..\..\peripheral\inc;..\..\..\..\..\peripheral\api;..\..\..\..\..\module\common;..\..\..\..\..\module\calendar;..\..\..\..\..\module\crc;..\..\..\..\..\module\debug;..\..\..\..\..\module\debug\RTT;..\..\..\..\..\module\static_buffer;..\..\..\..\..\module\tinyfs;..\..\..\..\..\module\tinycrypt\lib\include;..\..\..\..\..\module\micro-ecc;..\..\..\..\..\module\adpcm;..\..\..\..\..\module\ble;..\..\..\..\..\module\ble\prf;..\..\..\..\..\soc;..\..\..\..\..\soc\arm_cm;..\..\..\..\..\soc\arm_cm\cmsis;..\..\..\..\..\soc\arm_cm\le501x;..\..\..\..\..\soc\arm_cm\le501x\integration;..\..\user_bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1680,6 +1681,31 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>user_bsp</GroupName>
+          <Files>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\key.c</FilePath>
+            </File>
+            <File>
+              <FileName>md5..c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\md5..c</FilePath>
+            </File>
+            <File>
+              <FileName>user_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_function.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
@@ -1689,5 +1715,14 @@
     <components/>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>ble_single_role</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

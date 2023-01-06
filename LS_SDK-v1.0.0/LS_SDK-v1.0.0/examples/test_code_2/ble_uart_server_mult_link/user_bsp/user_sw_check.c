@@ -8,7 +8,7 @@ SW_TypeDef lock_sw;
 void	check_sw(){ 
 static uint8_t count;
 
-if(moro_task_flag){
+//if(moro_task_flag){
 		count++;
 	if(count%2==0){
 				io_write_pin(SW_EN_1,1);  
@@ -28,7 +28,7 @@ if(moro_task_flag){
 			io_write_pin(SW_EN_1,0);  
 			io_write_pin(SW_EN_2,0);	
 	}
-}
+//}
 
 }
 void	check_sw_(){ 

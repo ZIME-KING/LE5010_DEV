@@ -2,7 +2,14 @@
 #include "moto.h"
 
 uint8_t moro_task_flag=0;;
+///////////////////////////////////////////
 
+uint8_t test_moro_task_flag=0;
+
+
+//#define TEST_DEBUG
+
+///////////////////////////////////////////
 
 void Moto_IO_Init()
 {
@@ -10,22 +17,58 @@ void Moto_IO_Init()
     io_write_pin(PB03,0);
     io_cfg_output(PB04);   //PB10 config output
     io_write_pin(PB04,0);  //PB10 write low power
+
+    io_cfg_output(PC01);   //
+    io_write_pin(PC01,0);  // PC01 jw3651 NE使能 高有效
 }
 void Moto_N() {
+
+    io_write_pin(PC01,1);
+
     io_write_pin(PB03,1);
     io_write_pin(PB04,0);
+
+#ifdef TEST_DEBUG
+    LOG_I("Moto_N");
+#endif
+
 }
 void Moto_P() {
+    io_write_pin(PC01,1);
     io_write_pin(PB03,0);
     io_write_pin(PB04,1);
+
+
+#ifdef TEST_DEBUG
+    LOG_I("Moto_P");
+#endif
+
+
 }
 void Moto_S() {
+    io_write_pin(PC01,1);
+
     io_write_pin(PB03,1);
     io_write_pin(PB04,1);
+
+
+#ifdef TEST_DEBUG
+    LOG_I("Moto_S");
+#endif
+
 }
 void Moto_NULL() {
+    io_write_pin(PC01,0);
+
     io_write_pin(PB03,0);
     io_write_pin(PB04,0);
+
+
+
+#ifdef TEST_DEBUG
+    LOG_I("Moto_NULL");
+#endif
+
 }
 
 void Moto_Task() {
@@ -33,12 +76,18 @@ void Moto_Task() {
     static uint16_t count=0;
     static uint16_t stop_flag=0;
 
+    static uint8_t offset_time=0;
+
+
     //check_sw();
     if(moro_task_flag==1) {
         time_out++;
-        if(time_out>=80) { 
+        if(time_out>=80) {
+            LOG_I("MOTO_TIME_OUT");
             Moto_S();
+            Moto_NULL();
             moro_task_flag=0;
+						time_out=0;
             return;
         }
         if(hw_lock_status!=tag_lock_status) {
@@ -49,28 +98,33 @@ void Moto_Task() {
                 switch(hw_lock_status) {
                 case  POS_0:
                     Moto_N();
+										offset_time=4;
                     break;
 
                 case  POS_0_90:
                     Moto_N();
-                    break;
+                    offset_time=4;
+										break;
 
                 case  POS_90_180:
                     Moto_P();
+										offset_time=0;
                     break;
 
                 case  POS_OUT:
                     Moto_P();
+										offset_time=0;
                     break;
                 }
             }
         } else {
-				
-						if(hw_lock_status==POS_0){
-							 Moto_S();
-						}else{
-							stop_flag=1;
-						}
+
+            if(hw_lock_status==POS_0) {
+                Moto_S();
+                Moto_NULL();
+            } else {
+                stop_flag=1;
+            }
             //Moto_S();
             moro_task_flag=0;
         }
@@ -81,11 +135,39 @@ void Moto_Task() {
 
     if(stop_flag==1) {
         count++;
-        if(count>5) {
+        if(count>offset_time) {
             count=0;
-						stop_flag=0;
+            stop_flag=0;
             Moto_S();
+            Moto_NULL();
         }
     }
 
 }
+
+
+void Test_Moto_Task() {
+
+    static uint16_t count;
+
+    if(test_moro_task_flag!=0) {
+        count++;
+        if(test_moro_task_flag==1) {
+            Moto_P();
+        }
+        else if(test_moro_task_flag==2) {
+            Moto_N();
+        }
+
+        if(count>=5) {
+            Moto_S();
+            Moto_NULL();
+            test_moro_task_flag=0;
+        }
+    }
+    else {
+        count=0;
+    }
+}
+
+

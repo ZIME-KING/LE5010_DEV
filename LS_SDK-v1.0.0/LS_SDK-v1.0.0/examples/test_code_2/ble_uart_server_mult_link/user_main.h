@@ -14,6 +14,25 @@
 
 #define RECORD_KEY5  5  //初始化完成标记
 
+#define RECORD_KEY6  6   //上升时间1
+#define RECORD_KEY7  7   //上升时间2
+#define RECORD_KEY8  8   //
+
+#define RECORD_KEY9  9   //
+#define RECORD_KEY10  10   //
+#define RECORD_KEY11  11   //
+#define RECORD_KEY12  12   //
+#define RECORD_KEY13  13   //
+
+
+
+
+
+
+#define USER_SET 0
+#define USER_RUN 1
+
+
 #include "tinyfs.h"
 #include "ls_ble.h"
 #include "platform.h"

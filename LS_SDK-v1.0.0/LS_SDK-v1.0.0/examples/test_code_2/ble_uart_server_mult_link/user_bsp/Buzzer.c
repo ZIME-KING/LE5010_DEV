@@ -5,7 +5,7 @@
 #define BUZZER_EN  PA06
 
 uint8_t buzzer_task_flag=0;         //Ò»Éù
-uint8_t buzzer_task_flag_2=0;        //Á½Éù
+//uint8_t buzzer_task_flag_2=0;        //Á½Éù
 
 void Buzzer_IO_Init(){
 		io_cfg_output(BUZZER_PIN);   //PB09 config output
@@ -61,10 +61,10 @@ void Buzzer_IO_Init(){
 
 uint8_t buzzer_open_val;
 uint8_t buzzer_close_val;
-uint8_t buzzer_count_val;
+uint16_t buzzer_count_val;
 
 
-void Set_buzzer_Task_val(uint8_t a,uint8_t b,uint8_t c){
+void Set_buzzer_Task_val(uint16_t a,uint8_t b,uint8_t c){
  
  buzzer_count_val=a;
  buzzer_open_val=b;

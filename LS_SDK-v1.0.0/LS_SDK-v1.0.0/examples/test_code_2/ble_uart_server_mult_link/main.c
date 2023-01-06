@@ -680,6 +680,7 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             uart_server_mtu = UART_SERVER_MTU_DFT;
             start_adv();
 						BLE_connected_flag=0;
+						lock_success_flag=0;
 #endif            
         }      
         else if (CONNECTION_IS_CLIENT(con_idx))
@@ -871,11 +872,9 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
 #endif       
         //ls_uart_init(); 
-        ls_app_timer_init();
+         ls_app_timer_init();
         //HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[0], UART_SYNC_BYTE_LEN); 
-				
 				 User_BLE_Ready();
-				
     }
     break;
 #if SLAVE_SERVER_ROLE == 1    

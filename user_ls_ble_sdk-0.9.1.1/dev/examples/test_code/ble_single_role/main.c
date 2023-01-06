@@ -1074,8 +1074,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
                                                        evt->adv_report.adv_addr->addr[3],
                                                        evt->adv_report.adv_addr->addr[2],
                                                        evt->adv_report.adv_addr->addr[1],
-                                                       evt->adv_report.adv_addr->addr[0]);
-					
+                                                       evt->adv_report.adv_addr->addr[0]);					
 					memcpy(peer_slave_addr0,evt->adv_report.adv_addr->addr,BLE_ADDR_LEN);
 				}
         #endif

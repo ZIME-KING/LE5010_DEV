@@ -75,8 +75,7 @@ uint8_t Moto_Task(){
 //							else{
 //									lock_state[0]=1;
 //							}
-
-							
+	
 							if(Check_SW1()==1) {
 								lock_state[0]=1;
 							}

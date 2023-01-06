@@ -19,7 +19,7 @@ extern uint8_t reset_flag;
 extern uint8_t  address ;
 extern uint32_t time_count;
 
-extern uint8_t ble_adv_data[6];
+extern uint8_t ble_adv_data[2];
 
 extern tinyfs_dir_t ID_dir_1;
 //extern tinyfs_dir_t ID_dir_2;
@@ -28,6 +28,7 @@ void User_BLE_Ready(void);
 void loop_task(void);
 
 bool Check_Password(uint8_t *password);
+void auto_mode_function(uint8_t mode);
 
 
 #endif

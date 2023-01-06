@@ -125,10 +125,21 @@ void LED_Functon() {
     static uint16_t time=1;
     static uint16_t temp=1;
     count++;
-    TimHandle.Instance->CCR1=now_g;
-    TimHandle.Instance->CCR2=now_r;
-    TimHandle.Instance->CCR3=now_b;
+		
+		if(LED_status==0x01){
+			TimHandle.Instance->CCR1=now_g;
+			TimHandle.Instance->CCR2=now_r;
+			TimHandle.Instance->CCR3=now_b;
+		}
+    
+		else if(LED_status==0x02){
+				TimHandle.Instance->CCR1=0;
+				TimHandle.Instance->CCR2=0;
+				TimHandle.Instance->CCR3=0;
+				return;
+		}
 
+		
     switch(mode_flag) {
     case 0:
         set_r= buf[0]*max_brightness/256;
