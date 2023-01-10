@@ -2,7 +2,7 @@
 #include "user_main.h"
 #include "user_function.h"
 
-uint8_t busy_flag=0;
+
 uint8_t sign_flag=0;   // 启动数据交互标记
 
 uint8_t lockid[18]= {'I','N',0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x31,0x32,0x33,0x34,0x35,0x36}; //锁16位id号
@@ -89,23 +89,16 @@ void User_Processing_data(const uint8_t *p,uint8_t lenght){
 	 if(*p==0x17){
 				 switch(*(p+1)){
 						case 0x01:    //升降回复
-							busy_flag=0;
+						
 						break;
 						
 						case 0x02:    //读设备状态
 							 hw_lock_status= (*(p+3));
-							 busy_flag=0;
 						break;
 						
 						case 0x05:    //读随机密码
 						memcpy (&rand_password[0], p+2,sizeof(rand_password));
-						busy_flag=0;
 						break;
-						
-						case 0x06:    //发密码成功					
-						busy_flag=0;
-						break;
-						
 				 }
 	 }
 }
@@ -129,44 +122,27 @@ void Calculate_Password()
 		memcpy (&SIGN_IN_DATA[2], &digest[0], 16);
 }
 
-
+uint8_t busy_flag;
 
 void user_send_sign_in(){
 		 uint8_t buf[64];
 		 uint8_t temp_len;
 
+		 static uint16_t count=0;
 		 static uint8_t mode_flag=0;
-		 static uint8_t count=0;
-
-
-
-
+		 
+		 count++;		 
 	if(sign_flag==1){
 		 sign_flag=0;
 		 mode_flag=1;	
-		 busy_flag=0;
 	}	 
-	
-		if(busy_flag==1){
-		 count++;
-		 if(count>200){
-				count=0;
-				LOG_I("time_out");
-		 }
-	
-		return;
-	}
-	
-	
-	
 	
 	switch(mode_flag){		
 		case 0x01:           //读随机密码
 			buf[0]=0x17;
 			buf[1]=0x05;
 			temp_len=2;
-			mode_flag++; 
-			busy_flag=1;			
+			mode_flag++;     
 		break;
 		
 		case 0x02:				//计算密码
@@ -174,14 +150,12 @@ void user_send_sign_in(){
 			memcpy (&buf[0], &SIGN_IN_DATA[0],sizeof(SIGN_IN_DATA));
 			temp_len=18;
 			mode_flag++;
-			busy_flag=1;
 		break;
 		case 0x03:			 //读状态
 			buf[0]=0x17;
 			buf[1]=0x02;
 			temp_len=2;
 			mode_flag++;
-			busy_flag=1;
 		break;
 
 		case 0x04:			 //升降锁
@@ -198,17 +172,12 @@ void user_send_sign_in(){
 			}
 			temp_len=3;
 			mode_flag=0;
-			busy_flag=1;
 		break;	
-		
-		
-		
 		default:
 		 return;
 		}
-
-
-		LOG_HEX(&buf[0],temp_len);
+		
+		
 		uint32_t cpu_stat = enter_critical();
 
 		if(con_idx_client != 0xff ) 

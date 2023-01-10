@@ -138,8 +138,8 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
         case 0x02:      //读地锁状态
 
             if(length==2 ) {
-                check_sw_();
-                check_sw_();     //一定要2次
+                //check_sw_();
+                //check_sw_();     //一定要2次
                 DYP_distance=DYP_distance/10;
                 if(DYP_distance>=250) DYP_distance=250;
             } else {
@@ -247,9 +247,11 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
                 lock_success_flag=1;
                 Set_buzzer_Task_val(1,1,1);
                 buzzer_task_flag=1;   //启动蜂鸣器
-            } else {
+								err_val=0x00;
+						} else {
                 Set_buzzer_Task_val(3,1,1);
                 buzzer_task_flag=1;   //启动蜂鸣器
+								err_val=0x06;
             }
             send_buf[1]= 0x17;
             send_buf[2]= 0x06;

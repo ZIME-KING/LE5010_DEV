@@ -248,12 +248,29 @@ static void ls_user_event_timer_cb_0(void *param) {
 	if(led_open_flag){
 		led_open_count++;
 	}	
-	if((no_act_count>400 && led_open_flag==0) ||
-				(no_act_count>400 && led_open_count>=12000)){	
-				LOG_I("no_act_count%d",no_act_count);		
-				LOG_I("ls_sleep_enter_LP3");	
-				ls_sleep_enter_LP3();
+	
+	if(no_act_count>500 ){
+		if(led_open_flag==0){
+		
+		}  
+		else{
+			if(led_open_count>=12000){
+					ls_sleep_enter_LP3();
+			}else{
+			
+				 gap_manager_disconnect(con_idx_client,0x13);
+			}
+		
+		
 		}
+	}
+	
+//	if((no_act_count>500 && led_open_flag==0) ||
+//				(no_act_count>500 && led_open_count>=12000)){	
+//				LOG_I("no_act_count%d",no_act_count);		
+//				LOG_I("ls_sleep_enter_LP3");	
+//				ls_sleep_enter_LP3();
+//		}
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 
@@ -290,14 +307,17 @@ user_code
 		touch_key_busy=0;
 	}
 	
+	user_send_sign_in();
+	
 	
 	if(key_status==SHORT && key_busy  && link_flag) 
    {
 		LOG_I("key_status=%x",key_status);
-		user_send_sign_in();
+		 sign_flag=1;
+		//user_send_sign_in();
 		//user_send_led_on();
 		//user_send_lock_down();
-		user_send_lock_up();
+		//user_send_lock_up();
 		 
 		 
 		 
@@ -305,9 +325,9 @@ user_code
 	}
 	if(key_status==LONG_NO_RELEASE && key_busy && link_flag){
 		LOG_I("key_status=%x",key_status);
-		user_send_sign_in();
+		//user_send_sign_in();
 		//user_send_led_off();
-		user_send_lock_down();
+		//user_send_lock_down();
 
 		key_busy=0;
 	}
@@ -760,7 +780,7 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             disconnect_pattern_send_prepare(con_idx, LS_BLE_ROLE_MASTER);
             con_idx_client = CON_IDX_INVALID_VAL;        
             uart_client_mtu = UART_SERVER_MTU_DFT;
-            start_scan();
+//            start_scan();
             init_status = INIT_IDLE;   
 #endif                
         }
@@ -832,6 +852,10 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
 						
 						LOG_I  ("svc dis notification, length = %d", evt->client_recv_notify_indicate.length);
 						LOG_HEX(evt->client_recv_notify_indicate.value, evt->client_recv_notify_indicate.length);
+						
+						User_Processing_data(evt->client_recv_notify_indicate.value,evt->client_recv_notify_indicate.length);
+						
+						
         break;
         case CLIENT_PRIMARY_SVC_DIS_IND:
             if (!memcmp(evt->client_svc_disc_indicate.uuid, ls_uart_svc_uuid_128, sizeof(ls_uart_svc_uuid_128)))

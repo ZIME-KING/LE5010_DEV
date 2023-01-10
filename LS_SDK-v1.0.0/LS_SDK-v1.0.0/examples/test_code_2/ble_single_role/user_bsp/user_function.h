@@ -3,19 +3,31 @@
 #include "user_main.h"
 
 
+#define POS_0      0x11
+#define POS_0_90   0x10
+#define POS_90     0x00
+#define POS_90_180 0x01
+#define POS_OUT    0xFF
+
+
+
 
 extern uint8_t lockid[18] ;//Ëø16Î»idºÅ
 extern uint8_t def_password[16] ; //Ëø16Î»Ëæ»úÃÜÂë
 extern uint8_t rand_password[16]; //Ëø16Î»Ô¤ÖÃÃÜÂë
 extern uint32_t no_act_count;
 
-
-extern uint32_t no_act_count;
 extern uint32_t led_open_count;
 extern uint8_t  led_open_flag;
 extern uint32_t globle_count;
 extern uint8_t link_flag;
 
+extern uint8_t sign_flag ;
+
+
+
+
+void User_Processing_data(const uint8_t *p,uint8_t lenght);
 
 
  void ls_sleep_enter_LP3(void);

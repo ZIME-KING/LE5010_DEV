@@ -25,6 +25,7 @@ void scan_key(){
 	}
 	else{
 		//io_write_pin(PB09,1) ;
+		
 		no_act_count=0;
 	}
 		  edge_flag=edge_flag<<1;
