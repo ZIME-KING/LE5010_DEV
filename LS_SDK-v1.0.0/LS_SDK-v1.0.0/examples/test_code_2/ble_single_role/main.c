@@ -249,28 +249,26 @@ static void ls_user_event_timer_cb_0(void *param) {
 		led_open_count++;
 	}	
 	
-	if(no_act_count>500 ){
-		if(led_open_flag==0){
-		
-		}  
-		else{
-			if(led_open_count>=12000){
-					ls_sleep_enter_LP3();
-			}else{
-			
-				 gap_manager_disconnect(con_idx_client,0x13);
-			}
-		
-		
-		}
-	}
-	
-//	if((no_act_count>500 && led_open_flag==0) ||
-//				(no_act_count>500 && led_open_count>=12000)){	
-//				LOG_I("no_act_count%d",no_act_count);		
-//				LOG_I("ls_sleep_enter_LP3");	
-//				ls_sleep_enter_LP3();
+//	if(no_act_count>500 ){
+//		if(led_open_flag==0){
+//		
+//		}  
+//		else{
+//			if(led_open_count>=12000){
+//					ls_sleep_enter_LP3();
+//			}else{
+//			
+//				 gap_manager_disconnect(con_idx_client,0x13);
+//			}
 //		}
+//	}
+	
+	if((no_act_count>500 && led_open_flag==0) ||
+				(no_act_count>500 && led_open_count>=12000)){	
+				LOG_I("no_act_count%d",no_act_count);		
+				LOG_I("ls_sleep_enter_LP3");	
+				ls_sleep_enter_LP3();
+		}
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 
