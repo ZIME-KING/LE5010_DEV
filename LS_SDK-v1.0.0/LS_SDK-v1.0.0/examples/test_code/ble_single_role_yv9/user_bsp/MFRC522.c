@@ -6,7 +6,7 @@
 
 #define SPI_NSS	    PB02
 
-//#define SPI_NSS_2   PA11
+#define SPI_NSS_2   PA11
 #define SPI_MOSI    PA13
 #define SPI_MISO    PA14
 #define SPI_CLK     PA12
