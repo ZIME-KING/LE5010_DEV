@@ -332,7 +332,7 @@ void Reply_send(){
 
 //3.2 上报设备当前状态
 void Open_Lock_Data_Send(){
-	uint8_t F_RX_BUF[500];
+		uint8_t F_RX_BUF[500];
 		uint8_t T_RX_BUF[400];
 		uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
 

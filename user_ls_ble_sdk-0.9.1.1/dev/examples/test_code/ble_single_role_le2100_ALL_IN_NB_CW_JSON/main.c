@@ -81,9 +81,9 @@ uint16_t send_time_delay=0; //说明nb模块收到数据后，发送过程中功率与信号强度相关
 uint8_t globle_Result;  //接受数据处理结果
 uint8_t user_ble_send_flag=0;
 
-uint8_t TX_DATA_BUF[16]; //BEL
-uint8_t RX_DATA_BUF[16];
-uint8_t DATA_BUF[16];
+uint8_t TX_DATA_BUF[100]; //BEL 发送数据 全局
+uint8_t RX_DATA_BUF[50]; //BEL 接收数据 
+uint8_t DATA_BUF[50];    //BEL 接收数据处理后的数据 ps 这个版本没有处理直接使用原始数据，RX_DATA_BUF复制到 DATA_BUF
 uint8_t TOKEN[4]= {0xf1,0xf2,0xf3,0xf4};
 uint8_t PASSWORD[6]= {0x30,0x30,0x30,0x30,0x30,0x30};
 
@@ -156,7 +156,7 @@ static const struct att_decl ls_uart_server_att_decl[UART_SVC_ATT_NUM] =
         .s.max_len = UART_SVC_RX_MAX_LEN,
         .s.uuid_len = UUID_LEN_128BIT,
         .s.read_indication = 1,
-        .char_prop.wr_cmd = 1,
+        //.char_prop.wr_cmd = 1,
         .char_prop.wr_req = 1,
     },
     [UART_SVC_IDX_TX_CHAR] = {
@@ -367,16 +367,15 @@ static void ls_user_event_timer_cb_1(void *param)
                 LOG_I("%s",tmp);
                 wd_FLAG=1;
             }
-						AT_User_Set_Task();
-						AT_User_Reply_Task();
-						
-//						Open_Lock_Data_Send_Moto_Task();	 	 
-            State_Change_Task();							   //状态改变,,,,蓝牙发送，和NB启动上报数据
-            Start_Lock_Send_Task();			 				 //启动信息上报
-            Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-            Open_Lock_Data_Send_Task();  			   //信息上报
-            Tick_Lock_Send_Task();							 //心跳包
-						Reply_send_Task();									 //3.5收到数据回复任务
+					//	AT_User_Set_Task();
+					//	AT_User_Reply_Task();
+ 
+          //  State_Change_Task();							   //状态改变,,,,蓝牙发送，和NB启动上报数据
+          //  Start_Lock_Send_Task();			 				 //启动信息上报
+          //  Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
+          //  Open_Lock_Data_Send_Task();  			   //信息上报
+          //  Tick_Lock_Send_Task();							 //心跳包
+					//	Reply_send_Task();									 //3.5收到数据回复任务
         }
     }
 		//蓝牙连接下
@@ -441,22 +440,45 @@ void Set_TOKEN(uint8_t TOKEN_0,uint8_t TOKEN_1,uint8_t TOKEN_2,uint8_t TOKEN_3) 
     TOKEN[3]=TOKEN_3;
 }
 
+uint8_t ble_send_len=0;
+
 static void User_BLE_Data_Handle() {
-    switch(DATA_BUF[0]) {
-    //接收到GET_TOKEN命令发送TOKEN
-    case 0x01:
+
+		
+		if(DATA_BUF[0]==0x61 
+		&& DATA_BUF[1]==0x78 
+		&& DATA_BUF[2]==0x73
+		&& DATA_BUF[3]==0x62){
+		
+		
+		switch(DATA_BUF[4]) {
+    //接收到查询设备信息命令，
+    case 0x03:
         user_ble_send_flag=1;
-        TX_DATA_BUF[0]=0x01;		// CMD
-        TX_DATA_BUF[1]=TOKEN[0];
-        TX_DATA_BUF[2]=TOKEN[1];
-        TX_DATA_BUF[3]=TOKEN[2];
-        TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-        TX_DATA_BUF[5]=0x05;    //LEN
-        TX_DATA_BUF[6]=0xA0;		//VER1
-        TX_DATA_BUF[7]=0xA1;		//VER2
-        TX_DATA_BUF[8]=0x00;   	//STA
-        TX_DATA_BUF[9]=0x00;   	//CNT[2]
-        TX_DATA_BUF[10]=0xFF;   	//CNT[2]
+				
+				
+				for(uint16_t i;i<sizeof(TX_DATA_BUF);i++){
+					 TX_DATA_BUF[i]=0x00;
+				}
+				TX_DATA_BUF[0]=0x61;		 //
+        TX_DATA_BUF[1]=0x78;
+        TX_DATA_BUF[2]=0x73;
+        TX_DATA_BUF[3]=0x62;
+        TX_DATA_BUF[4]=0x04;  
+				
+        TX_DATA_BUF[5]=0x00;			//
+				
+				memcpy (&TX_DATA_BUF[6], &IMEI_DATA,15);
+				memcpy (&TX_DATA_BUF[38], &CCID_DATA,20);
+				
+				TX_DATA_BUF[70]=0x77;			//
+				TX_DATA_BUF[71]=0x88;			//
+				TX_DATA_BUF[72]=0x55;			//
+				TX_DATA_BUF[73]=0xaa;			//
+				
+				ble_send_len=74;
+				
+				
         break;
     case 0x10:
         if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
@@ -587,6 +609,8 @@ static void User_BLE_Data_Handle() {
 				}
         break;
 			}
+
+		}
 }
 
 //蓝牙数据写入，数据处理
@@ -597,21 +621,22 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
     {
         sleep_time=0;
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
-        memcpy(&RX_DATA_BUF[0],value,16);
-				
+       
+			 memcpy(&DATA_BUF[0],value,length);
 			#ifdef USER_TEST
 					if(RX_DATA_BUF[0]=='A' && RX_DATA_BUF[1]=='T'){
 						if(AT_tset_flag==0) AT_tset_flag=RX_DATA_BUF[2]-'0';
 					}
 			#endif
 				
-				User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
-        LOG_I("接收到的");
-        LOG_HEX(&RX_DATA_BUF[0],16);
-        LOG_HEX(&DATA_BUF[0],16);
-        LOG_I("%d",user_ble_send_flag);
+				//User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
+        
+				LOG_I("接收到的");
+        LOG_HEX(value,length);
+        //LOG_HEX(&DATA_BUF[0],16);
+        //LOG_I("%d",user_ble_send_flag);
         User_BLE_Data_Handle();
-        LOG_I("%d",user_ble_send_flag);
+        //LOG_I("%d",user_ble_send_flag);
         //memcpy(&buf[0],&RX_DATA_BUF[0],16);
         //memcpy(&buf[16],&DATA_BUF[0],16);
         //HAL_UART_Transmit_IT(&UART_Config, &buf[0],32);
@@ -628,8 +653,8 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
 #define RECORD_KEY5  5  //蓝牙通信密钥 高8位
 static void ls_uart_server_send_notification(void)
 {
-    uint8_t AF_TX_DATA_BUF[16];
-    User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
+    //uint8_t AF_TX_DATA_BUF[16];
+    //User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
 	
 		if(key_task_flag==0xff){
 					key_task_flag=0;
@@ -657,10 +682,9 @@ static void ls_uart_server_send_notification(void)
         //uint16_t tx_len = uart_server_recv_data_length > co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) ?
         //co_min(UART_SERVER_MAX_DATA_LEN, UART_SVC_TX_MAX_LEN) : uart_server_recv_data_length;
         //uart_server_recv_data_length -= tx_len;
-        gatt_manager_server_send_notification(con_idx_server, handle, &AF_TX_DATA_BUF[0], 16, NULL);
+        gatt_manager_server_send_notification(con_idx_server, handle, &TX_DATA_BUF[0], ble_send_len, NULL);
         LOG_I("发送的");
-        LOG_HEX(&TX_DATA_BUF[0],16);
-        LOG_HEX(&AF_TX_DATA_BUF[0],16);
+        LOG_HEX(&TX_DATA_BUF[0],ble_send_len);
 			
 
 			

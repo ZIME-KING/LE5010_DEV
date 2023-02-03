@@ -75,7 +75,7 @@ extern uint8_t CCID_DATA[20];
 
 extern uint8_t SHORT_NAME_LEN;
 //extern uint8_t COMPLETE_NAME[7];
-extern uint8_t TX_DATA_BUF[16]; //BEL
+extern uint8_t TX_DATA_BUF[100]; //BEL
 extern uint8_t TOKEN[4];
 extern uint16_t sleep_time;
 extern uint8_t KEY_FLAG;
