@@ -26,6 +26,7 @@ CIMI,
 CEREG_R,
 CPSMS_R,
 CEREG,
+CTM2MUPDATE,	
 CCID
 //CPSMS_SET,
 //AECPMUCFG,
@@ -42,7 +43,7 @@ void Open_Lock_Send(void);
 void Tick_Lock_Send(void);
 void Open_Lock_Data_Send(void);
 void Open_Lock_Data_Send_Moto(void);
-
+void Reply_send(void);
 
 extern uint8_t send_count;							 //·¢ËÍ¼ÆÊý
 extern uint8_t lock_state[LOCK_NUM+1];  //Ëø×´Ì¬´æ´¢

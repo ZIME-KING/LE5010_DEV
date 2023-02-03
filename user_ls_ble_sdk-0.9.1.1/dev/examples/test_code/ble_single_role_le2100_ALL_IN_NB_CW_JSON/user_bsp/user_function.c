@@ -52,14 +52,14 @@ uint8_t T5_enable=0;  //电机动作完成发送包
 uint8_t T6_enable=0;  //
 uint8_t T7_enable=0;  //
 uint8_t T8_enable=0;  //
-
+uint8_t T9_enable=0;  //
 
 uint8_t open_lock_reply_Result=0;
 uint8_t tick_reply_Result=0;
 uint8_t open_lock_data_reply_Result=0;
 uint8_t open_lock_data_moto_reply_Result=0;
 uint8_t start_lock_reply_Result=0;
-
+uint8_t reply_send_Result=0;
 
 uint32_t adc_value = 0;						//
 uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
@@ -738,6 +738,9 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
 		case TEST_GET_DB_VAL:
         temp=	T8_enable;
         break;
+		case REPLY_SEND:
+        temp=	T9_enable;
+        break;
     }
     return temp;
 }
@@ -769,6 +772,9 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
         break;
 		case TEST_GET_DB_VAL:
         T8_enable=state;
+        break;
+		case REPLY_SEND:
+        T9_enable=state;
         break;
     }
 }
@@ -807,7 +813,7 @@ uint16_t Start_Lock_Send_Task(){
     }
     return temp;
 }
-//请求开锁
+//请求开锁 向服务器查询数据
 uint16_t Open_Lock_Send_Task() {
     static uint8_t count;
     static uint16_t temp;
@@ -823,7 +829,7 @@ uint16_t Open_Lock_Send_Task() {
             }
             else {
 						i++;
-						if(i%user_time==1) {
+						if(i%100==1) {
 								count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
@@ -831,7 +837,7 @@ uint16_t Open_Lock_Send_Task() {
 
                 Open_Lock_Send();
 
-                if(count==user_count) {
+							if(count==user_count) {
 									count=0;
                     Set_Task_State(OPEN_LOCK_SEND,STOP);
                     temp=TIME_OUT;
@@ -974,6 +980,50 @@ uint16_t Open_Lock_Data_Send_Moto_Task(){
     return temp;
 }
 
+//收到开锁命令后 开锁成功或开锁失败后回复数据
+uint16_t Reply_send_Task(){
+    static uint8_t count;
+    static uint16_t temp;
+    static uint16_t i;
+//		static uint8_t once_flag;
+    
+   if(Get_Task_State(REPLY_SEND)){
+		 
+		 if(reply_send_Result==1) {
+							  LOG_I("5_REPLY_SEND_REPLY_OK");
+								globle_Result=0xFF;
+								reply_send_Result=0;
+//                send_count++;
+                temp=OK_ASK;
+                Set_Task_State(REPLY_SEND,STOP);
+								i=0;
+				}
+				else {
+					i++;
+					//LOG_I("I:%d",i);
+					if(i%20==10){
+						count++;
+						//LOG_I("Ii:%d",i);
+                temp=NO_ASK;
+                globle_Result=NO_ASK;
+                Set_Task_State(REPLY_SEND,START);
+							  Reply_send();
+                if(count==2) {
+									count=0;
+                    Set_Task_State(REPLY_SEND,STOP);
+                    temp=TIME_OUT;
+                }
+            }
+        }
+    }
+	 	else{
+			count=0;
+			temp=0;
+			i=0;
+		}
+    return temp;
+}
+
 
 
 
@@ -1028,12 +1078,11 @@ void State_Change_Task(){
 //			}
 //			else sw1_count=0;
 
-			
-			if(Check_SW2()==1 && Check_SW1()==0){
+			if(Check_SW1()==1 /*&& Check_SW1()==0*/){
 			//if( Check_SW1()==0){
 					sw_count++;
-					if(sw_count>10) sw_count=10;
-					if(sw_count==3){
+					if(sw_count>50) sw_count=50;
+					if(sw_count==10){
 					sw_flag=1;
 						lock_state[0]=1;
 				}
@@ -1043,10 +1092,10 @@ void State_Change_Task(){
 				sw_count=0;
 			}
 			
-			if( Check_SW2()==0){
+			if( Check_SW1()==1){
 					sw_count_2++;
-					if(sw_count_2>10) sw_count_2=10;
-					if(sw_count_2==3){
+					if(sw_count_2>50) sw_count_2=50;
+					if(sw_count_2==10){
 					sw_flag_2=1;
 						C0_lock_state[0]=1;
 				}
@@ -1054,7 +1103,8 @@ void State_Change_Task(){
 			else{
 				C0_lock_state[0]=0;
 				sw_count_2=0;
-			}
+			}			
+
 			
 		
 			
@@ -1085,9 +1135,9 @@ void State_Change_Task(){
 							open_lock_data_reply_Result=0;
 						
 							Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
-							look_status_send_count+=3;
-						  if(look_status_send_count>=3){
-									look_status_send_count=3;
+							look_status_send_count+=4;
+						  if(look_status_send_count>=4){
+									look_status_send_count=4;
 							}
 							user_ble_send_flag=1;
 							TX_DATA_BUF[0]=0x52;		// CMD
@@ -1145,6 +1195,14 @@ uint16_t AT_GET_DB_TASK(){
 			i=0;
 		}
     return temp;
+}
+
+uint16_t AT_CTM2MUPDATE_Task(){
+	static uint8_t count=0;
+	count++;
+	if(count%20==1){
+		AT_Command_Send(CTM2MUPDATE);
+	}
 }
 
 //查询模块设置

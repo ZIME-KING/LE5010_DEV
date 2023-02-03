@@ -74,6 +74,14 @@ void Scan_Key(){
 					//		buzzer_task_flag=1;
 					//}
 					//else{
+					
+							Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传				
+							look_status_send_count+=4;
+						  if(look_status_send_count>=4){
+									look_status_send_count=4;
+							}
+					
+					
 							Set_Task_State(OPEN_LOCK_SEND,START); //开锁数据请求
 							buzzer_task_flag=1;
 					//}

@@ -108,11 +108,12 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 		case CEREG: //设置psm数据上报
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CEREG=0\r\n",sizeof("AT+CEREG=0\r\n"),100);
      break;
-
-
 		case CCID: 
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECICCID\r\n",sizeof("AT+ECICCID\r\n"),100);
      break;			 
+		case CTM2MUPDATE: 
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CTM2MUPDATE\r\n",sizeof("AT+CTM2MUPDATE\r\n"),100);
+     break;				
 				
 //		case CPSMS_SET:
 ////        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=1,,,,\"00100010\"\r\n",sizeof("AT+CPSMS?\r\n"),50);
@@ -190,79 +191,10 @@ void Start_Lock_Send() {
 			cJSON_Delete(cjson_test);
 			LOG_I("03_SEND");
 }
-//3.2 上报设备当前状态
+//按键按下向服务器请求消息更新
 void Open_Lock_Send(){
-		uint8_t F_RX_BUF[500];
-		uint8_t T_RX_BUF[400];
-		uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
-
-		char lock_status[3]="000";
-		 lock_status[2]='\0';
-		if(lock_state[0]==0){
-				lock_status[0]='0';
-				lock_status[1]='0';
-		}else{
-				lock_status[0]='1';
-				lock_status[1]='1';
-		}
-		
-		
-    cJSON* cjson_test = NULL;
-    cJSON* cjson_address = NULL;
-    cJSON* cjson_skill = NULL;
-    char* str = NULL;		
-
-
-			
-    /* 创建一个JSON数据对象(链表头结点) */
-    cjson_test = cJSON_CreateObject();
-
-    /* 添加一条整数类型的JSON数据(添加一个链表节点) */
-		/* 添加一条字符串类型的JSON数据(添加一个链表节点) */
-    cJSON_AddNumberToObject(cjson_test, "decodeid", 2);
-		cJSON_AddStringToObject(cjson_test, "status", &lock_status[0]);
-    cJSON_AddNumberToObject(cjson_test, "shake", 1);
-		cJSON_AddNumberToObject(cjson_test, "water",1);		
-		cJSON_AddStringToObject(cjson_test, "angle","0,0,0");		
-		cJSON_AddStringToObject(cjson_test, "laglati","0.000000,0.000000");				
-
-
-    /* 打印JSON对象(整条链表)的所有数据 */
-    str = cJSON_Print(cjson_test);
-    LOG_I("%s\n", str);
-		
-		memcpy(T_RX_BUF,str,strlen(str));
-
-		uint16_t head_len=0;
-		uint16_t data_len=4;
-		uint16_t json_len=0;
-		json_len=strlen(str);
-		
-		USER_DATE_BUF[0]=0x00;
-		USER_DATE_BUF[1]=0x01;   //上报标记
-		USER_DATE_BUF[2]=0x00;
-		USER_DATE_BUF[3]=json_len;
-		
-//		LOG_I("josn_len:%d",json_len);
-		head_len=strlen("AT+CTM2MSEND=");  		
-
-//发送数据内容	
-		hex2string(&USER_DATE_BUF[0],&F_RX_BUF[head_len],USER_DATE_BUF_LEN);
-    hex2string(&T_RX_BUF[0],&F_RX_BUF[head_len+(USER_DATE_BUF_LEN*2)],json_len);
-//发送数据头尾		
-		memcpy(&F_RX_BUF[head_len+(json_len*2)+(USER_DATE_BUF_LEN*2)],",1\r\n",4);
-    memcpy(F_RX_BUF,"AT+CTM2MSEND=",head_len);
-		
-		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],head_len+(USER_DATE_BUF_LEN*2)+(json_len*2)+4,400);	
-		
-//		LOG_I("%s\n",F_RX_BUF);
-//		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],head_len+json_len+3,500);	
-//		HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)str,50,500);	
-//		HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)str,50,500);	
-//		HAL_UART_Transmit_IT(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF));
-
-			cJSON_Delete(cjson_test);
-			LOG_I("02_SEND");
+			AT_Command_Send(CTM2MUPDATE);
+			LOG_I("__CTM2MUPDATE__");
 }
 
 //3.1 上报设备当前状态 rtc task
@@ -320,7 +252,7 @@ void Tick_Lock_Send(){
 		USER_DATE_BUF[2]=0x00;
 		USER_DATE_BUF[3]=json_len;
 		
-//		LOG_I("josn_len:%d",json_len);
+//LOG_I("josn_len:%d",json_len);
 		head_len=strlen("AT+CTM2MSEND=");  		
 
 //发送数据内容	
@@ -340,10 +272,138 @@ void Tick_Lock_Send(){
 
 			cJSON_Delete(cjson_test);
 			LOG_I("01_SEND");
-
 }
 
+//3.5 开锁指令回应   在电机动作后发一包
+void Reply_send(){
+		uint8_t F_RX_BUF[500];
+		uint8_t T_RX_BUF[400];
+		uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
+		
+    cJSON* cjson_test = NULL;
+    cJSON* cjson_address = NULL;
+    cJSON* cjson_skill = NULL;
+    char* str = NULL;		
+	
+	/* 创建一个JSON数据对象(链表头结点) */
+    cjson_test = cJSON_CreateObject();
 
+    /* 添加一条整数类型的JSON数据(添加一个链表节点) */
+    cJSON_AddNumberToObject(cjson_test, "decodeid", 5);
+    cJSON_AddNumberToObject(cjson_test, "status",lock_state[0]);  //这里根据锁状态判断开锁成功开锁失败
+
+    /* 打印JSON对象(整条链表)的所有数据 */
+    str = cJSON_Print(cjson_test);
+    LOG_I("%s\n", str);
+		
+		memcpy(T_RX_BUF,str,strlen(str));
+
+		uint16_t head_len=0;
+		uint16_t data_len=4;
+		uint16_t json_len=0;
+		json_len=strlen(str);
+		
+		USER_DATE_BUF[0]=0x00;
+		USER_DATE_BUF[1]=0x01;   //上报标记
+		USER_DATE_BUF[2]=0x00;
+		USER_DATE_BUF[3]=json_len;
+		
+//		LOG_I("josn_len:%d",json_len);
+		head_len=strlen("AT+CTM2MSEND=");  		
+
+//发送数据内容	
+		hex2string(&USER_DATE_BUF[0],&F_RX_BUF[head_len],USER_DATE_BUF_LEN);
+    hex2string(&T_RX_BUF[0],&F_RX_BUF[head_len+(USER_DATE_BUF_LEN*2)],json_len);
+//发送数据头尾		
+		memcpy(&F_RX_BUF[head_len+(json_len*2)+(USER_DATE_BUF_LEN*2)],",1\r\n",4);
+    memcpy(F_RX_BUF,"AT+CTM2MSEND=",head_len);
+		
+		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],head_len+(USER_DATE_BUF_LEN*2)+(json_len*2)+4,400);	
+		
+//		LOG_I("%s\n",F_RX_BUF);
+//		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],head_len+json_len+3,500);	
+//		HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)str,50,500);	
+//		HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)str,50,500);	
+//		HAL_UART_Transmit_IT(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF));
+
+			cJSON_Delete(cjson_test);
+			LOG_I("05_SEND");
+}
+
+//3.2 上报设备当前状态
+void Open_Lock_Data_Send(){
+	uint8_t F_RX_BUF[500];
+		uint8_t T_RX_BUF[400];
+		uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
+
+		char lock_status_temp[3]="000";
+		 lock_status_temp[2]='\0';
+		if(lock_state[0]==0){
+				lock_status_temp[0]='0';
+				lock_status_temp[1]='0';
+		}else{
+				lock_status_temp[0]='1';
+				lock_status_temp[1]='1';
+		}
+		
+		
+    cJSON* cjson_test = NULL;
+    cJSON* cjson_address = NULL;
+    cJSON* cjson_skill = NULL;
+    char* str = NULL;		
+
+
+			
+    /* 创建一个JSON数据对象(链表头结点) */
+    cjson_test = cJSON_CreateObject();
+
+    /* 添加一条整数类型的JSON数据(添加一个链表节点) */
+		/* 添加一条字符串类型的JSON数据(添加一个链表节点) */
+    cJSON_AddNumberToObject(cjson_test, "decodeid", 2);
+		cJSON_AddStringToObject(cjson_test, "status", &lock_status_temp[0]);
+    cJSON_AddNumberToObject(cjson_test, "shake", 1);
+		cJSON_AddNumberToObject(cjson_test, "water",1);		
+		cJSON_AddStringToObject(cjson_test, "angle","0,0,0");		
+		cJSON_AddStringToObject(cjson_test, "laglati","0.000000,0.000000");				
+
+
+    /* 打印JSON对象(整条链表)的所有数据 */
+    str = cJSON_Print(cjson_test);
+    LOG_I("%s\n", str);
+		
+		memcpy(T_RX_BUF,str,strlen(str));
+
+		uint16_t head_len=0;
+		uint16_t data_len=4;
+		uint16_t json_len=0;
+		json_len=strlen(str);
+		
+		USER_DATE_BUF[0]=0x00;
+		USER_DATE_BUF[1]=0x01;   //上报标记
+		USER_DATE_BUF[2]=0x00;
+		USER_DATE_BUF[3]=json_len;
+		
+//		LOG_I("josn_len:%d",json_len);
+		head_len=strlen("AT+CTM2MSEND=");  		
+
+//发送数据内容	
+		hex2string(&USER_DATE_BUF[0],&F_RX_BUF[head_len],USER_DATE_BUF_LEN);
+    hex2string(&T_RX_BUF[0],&F_RX_BUF[head_len+(USER_DATE_BUF_LEN*2)],json_len);
+//发送数据头尾		
+		memcpy(&F_RX_BUF[head_len+(json_len*2)+(USER_DATE_BUF_LEN*2)],",1\r\n",4);
+    memcpy(F_RX_BUF,"AT+CTM2MSEND=",head_len);
+		
+		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],head_len+(USER_DATE_BUF_LEN*2)+(json_len*2)+4,400);	
+		
+//		LOG_I("%s\n",F_RX_BUF);
+//		HAL_UART_Transmit(&UART_Config_AT,&F_RX_BUF[0],head_len+json_len+3,500);	
+//		HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)str,50,500);	
+//		HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)str,50,500);	
+//		HAL_UART_Transmit_IT(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF));
+
+			cJSON_Delete(cjson_test);
+			LOG_I("02_SEND");
+}
 
 
 
@@ -569,7 +629,7 @@ void Open_Lock_Data_Send_Moto() {
 
 
 //20 信息上报输入 锁ID号，锁更新状态
-void Open_Lock_Data_Send() {
+void Open_Lock_Data_Send_() {
     uint8_t RX_BUF[50];
     uint8_t F_RX_BUF[100];
     uint8_t DATA_BUF[17+2+2];

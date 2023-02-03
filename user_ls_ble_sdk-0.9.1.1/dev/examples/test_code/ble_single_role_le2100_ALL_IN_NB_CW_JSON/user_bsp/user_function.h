@@ -26,7 +26,7 @@ TICK_LOCK_SEND, 				//心跳包发送
 OPEN_LOCK_DATA_SEND,    // 20信息上报
 GET_DB_VAL,   				 	//获取信号强度
 OPEN_LOCK_DATA_SEND_MOTO,
-	
+REPLY_SEND,		
 GET_MODE_VAL,  //获取模式（测试程序用任务）
 GET_EMIC_VAL,  //获取EMIC任务（测试程序用任务）
 TEST_GET_DB_VAL
@@ -51,6 +51,9 @@ uint16_t Open_Lock_Send_Task(void);
 uint16_t Tick_Lock_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Moto_Task(void);
+uint16_t Reply_send_Task(void);
+
+uint16_t AT_CTM2MUPDATE_Task(void);
 
 uint16_t AT_GET_DB_TASK(void);
 
