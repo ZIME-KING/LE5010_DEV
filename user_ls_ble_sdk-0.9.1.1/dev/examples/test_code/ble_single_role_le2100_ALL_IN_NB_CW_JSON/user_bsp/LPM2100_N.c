@@ -128,8 +128,8 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 
 //3.3 上报设备基础信息
 void Start_Lock_Send() {
-		uint8_t F_RX_BUF[500];
-		uint8_t T_RX_BUF[400];
+		uint8_t F_RX_BUF[300];
+		uint8_t T_RX_BUF[255];
 		uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
 		
     cJSON* cjson_test = NULL;
@@ -332,8 +332,8 @@ void Reply_send(){
 
 //3.2 上报设备当前状态
 void Open_Lock_Data_Send(){
-		uint8_t F_RX_BUF[500];
-		uint8_t T_RX_BUF[400];
+		uint8_t F_RX_BUF[300];
+		uint8_t T_RX_BUF[255];
 		uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
 
 		char lock_status_temp[3]="000";
@@ -345,15 +345,12 @@ void Open_Lock_Data_Send(){
 				lock_status_temp[0]='1';
 				lock_status_temp[1]='1';
 		}
-		
-		
+		  
     cJSON* cjson_test = NULL;
     cJSON* cjson_address = NULL;
     cJSON* cjson_skill = NULL;
     char* str = NULL;		
 
-
-			
     /* 创建一个JSON数据对象(链表头结点) */
     cjson_test = cJSON_CreateObject();
 
@@ -372,7 +369,6 @@ void Open_Lock_Data_Send(){
     LOG_I("%s\n", str);
 		
 		memcpy(T_RX_BUF,str,strlen(str));
-
 		uint16_t head_len=0;
 		uint16_t data_len=4;
 		uint16_t json_len=0;
@@ -404,17 +400,6 @@ void Open_Lock_Data_Send(){
 			cJSON_Delete(cjson_test);
 			LOG_I("02_SEND");
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

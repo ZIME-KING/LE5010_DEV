@@ -802,7 +802,7 @@ uint16_t Start_Lock_Send_Task(){
                 Set_Task_State(START_LOCK_SEND,START);
                 Start_Lock_Send();
              
-                if(count==2) {
+                if(count==1) {
 									count=0;
                     Set_Task_State(START_LOCK_SEND,STOP);
 										
@@ -876,7 +876,7 @@ uint16_t Tick_Lock_Send_Task() {
                 Set_Task_State(TICK_LOCK_SEND,START);
                 Tick_Lock_Send();
 
-                if(count==2) {
+                if(count==1) {
 									count=0;
                     Set_Task_State(TICK_LOCK_SEND,STOP);
                     temp=TIME_OUT;
@@ -910,7 +910,7 @@ uint16_t Open_Lock_Data_Send_Task(){
 				}
 				else {
 					i++;		
-					if(i%user_time==1){
+					if(i%user_time==1  ||look_status_send_count==4){
 								if(look_status_send_count)
 								look_status_send_count--;
 								LOG_I("send_count_20=%d",look_status_send_count);

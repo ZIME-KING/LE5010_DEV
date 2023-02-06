@@ -367,21 +367,21 @@ static void ls_user_event_timer_cb_1(void *param)
                 LOG_I("%s",tmp);
                 wd_FLAG=1;
             }
-					//	AT_User_Set_Task();
-					//	AT_User_Reply_Task();
+						AT_User_Set_Task();
+						AT_User_Reply_Task();
  
-          //  State_Change_Task();							   //状态改变,,,,蓝牙发送，和NB启动上报数据
-          //  Start_Lock_Send_Task();			 				 //启动信息上报
-          //  Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-          //  Open_Lock_Data_Send_Task();  			   //信息上报
-          //  Tick_Lock_Send_Task();							 //心跳包
-					//	Reply_send_Task();									 //3.5收到数据回复任务
+            State_Change_Task();							   //状态改变,,,,蓝牙发送，和NB启动上报数据
+            Start_Lock_Send_Task();			 				 //启动信息上报
+            Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
+            Open_Lock_Data_Send_Task();  			   //信息上报
+            Tick_Lock_Send_Task();							 //心跳包
+//						Reply_send_Task();									 //3.5收到数据回复任务
         }
     }
 		//蓝牙连接下
     if(BLE_connected_flag==1){
-				Password_Task();//改开锁的密码
-				Key_Task();     //改aes128的密钥
+				//Password_Task();//改开锁的密码
+				//Key_Task();     //改aes128的密钥
 				sleep_time=0;   //不休眠
 		}
 	}
