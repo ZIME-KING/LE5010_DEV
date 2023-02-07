@@ -125,6 +125,8 @@ void AT_Command_Send(Typedef_AT AT_COM) {
 
 #define USER_DATE_BUF_LEN 4
 
+const char software_ver[]="1.0";
+const char hardware_ver[]="1.0";
 
 //3.3 上报设备基础信息
 void Start_Lock_Send() {
@@ -330,9 +332,9 @@ void Reply_send(){
 
 //3.2 上报设备当前状态
 void Open_Lock_Data_Send(){
-		uint8_t F_RX_BUF[300];
-		uint8_t T_RX_BUF[255];
-		uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
+		auto uint8_t F_RX_BUF[300];
+		auto uint8_t T_RX_BUF[255];
+		auto uint8_t USER_DATE_BUF[USER_DATE_BUF_LEN];
 
 		char lock_status_temp[3]="000";
 		 lock_status_temp[2]='\0';
@@ -344,10 +346,10 @@ void Open_Lock_Data_Send(){
 				lock_status_temp[1]='1';
 		}
 		  
-    cJSON* cjson_test = NULL;
-    cJSON* cjson_address = NULL;
-    cJSON* cjson_skill = NULL;
-    char* str = NULL;		
+    auto cJSON* cjson_test = NULL;
+    auto cJSON* cjson_address = NULL;
+    auto cJSON* cjson_skill = NULL;
+    auto char* str = NULL;		
 
     /* 创建一个JSON数据对象(链表头结点) */
     cjson_test = cJSON_CreateObject();
@@ -364,11 +366,9 @@ void Open_Lock_Data_Send(){
 
     /* 打印JSON对象(整条链表)的所有数据 */
     str = cJSON_Print(cjson_test);
-		
 		cJSON_Delete(cjson_test);
-    
-		LOG_I("%s\n", str);
-    LOG_HEX(str, strlen(str));
+    //LOG_I("%s\n", str);
+    //LOG_HEX(str, strlen(str));
 
 		memcpy(T_RX_BUF,str,strlen(str));
 		uint16_t head_len=0;
@@ -399,6 +399,7 @@ void Open_Lock_Data_Send(){
 //		HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)str,50,500);	
 //		HAL_UART_Transmit_IT(&UART_Config_AT,&F_RX_BUF[0],strlen((char*)F_RX_BUF));
 
+//			cJSON_Delete(cjson_test);
 
 			LOG_I("02_SEND");
 }

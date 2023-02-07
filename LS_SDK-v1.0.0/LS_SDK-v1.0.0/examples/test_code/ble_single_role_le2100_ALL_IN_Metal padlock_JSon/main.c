@@ -25,19 +25,16 @@ uint8_t MAC_ADDR[6];
 uint8_t CIMI_DATA[15]="460000000000000";
 
 uint8_t IMEI_DATA[15]="860000000000000";
-
 uint8_t CCID_DATA[20]="89012345678901234567";
-
 uint8_t COMPLETE_NAME[10]="DTU-BleDev";
 
 uint8_t SHORT_NAME[10]="3141592654";
-
-
 uint8_t NEW_SHORT_NAME[10];
 uint8_t SHORT_NAME_LEN=10;
 
 uint16_t send_time_delay=0; //说明nb模块收到数据后，发送过程中功率与信号强度相关，造成电压骤降，每次发送后延时一段时间再去采集电压
 
+uint16_t VBat_value_mV=0;
 
 //uint8_t COMPLETE_NAME[7]= "0123456";
 //#define UART_SVC_ADV_NAME "LS Single Role"
@@ -81,9 +78,9 @@ uint16_t send_time_delay=0; //说明nb模块收到数据后，发送过程中功率与信号强度相关
 uint8_t globle_Result;  //接受数据处理结果
 uint8_t user_ble_send_flag=0;
 
-uint8_t TX_DATA_BUF[100]; //BEL 发送数据 全局
-uint8_t RX_DATA_BUF[50]; //BEL 接收数据 
-uint8_t DATA_BUF[50];    //BEL 接收数据处理后的数据 ps 这个版本没有处理直接使用原始数据，RX_DATA_BUF复制到 DATA_BUF
+uint8_t TX_DATA_BUF[100]; //BEL
+uint8_t RX_DATA_BUF[50];
+uint8_t DATA_BUF[50];
 uint8_t TOKEN[4]= {0xf1,0xf2,0xf3,0xf4};
 uint8_t PASSWORD[6]= {0x30,0x30,0x30,0x30,0x30,0x30};
 
@@ -99,8 +96,6 @@ uint8_t	reset_flag=0;			 //掉电启动标记
 
 uint8_t BLE_connected_flag=0;
 uint8_t VBat_value=0;
-uint16_t VBat_value_mV=0;
-
 
 //enum uart_rx_status
 //{
@@ -117,12 +112,14 @@ static bool uart_tx_busy;
 UART_HandleTypeDef UART_Config;
 UART_HandleTypeDef UART_Config_AT;
 //static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
+//static const uint8_t ls_uart_svc_uuid_128[] =     {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF0,0xFF,0x00,0x00};
+//static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF2,0xFF,0x00,0x00};
+//static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF1,0xFF,0x00,0x00};
+
+
 static const uint8_t ls_uart_svc_uuid_128[] =     {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF0,0xFF,0x00,0x00};
 static const uint8_t ls_uart_rx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF6,0xFF,0x00,0x00};
 static const uint8_t ls_uart_tx_char_uuid_128[] = {0xFB,0x34,0x9B,0x5F,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xF7,0xFF,0x00,0x00};
-
-
-
 
 
 //static const uint8_t ls_uart_svc_uuid_128[] =     {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xB0,0x00,0x40,0x51,0x04,0xC0,0xFF,0x00,0xF0};
@@ -156,7 +153,7 @@ static const struct att_decl ls_uart_server_att_decl[UART_SVC_ATT_NUM] =
         .s.max_len = UART_SVC_RX_MAX_LEN,
         .s.uuid_len = UUID_LEN_128BIT,
         .s.read_indication = 1,
-        //.char_prop.wr_cmd = 1,
+        .char_prop.wr_cmd = 1,
         .char_prop.wr_req = 1,
     },
     [UART_SVC_IDX_TX_CHAR] = {
@@ -348,7 +345,7 @@ static void ls_user_event_timer_cb_1(void *param)
 	  NB_WAKE_Task();
 		db_flag=AT_GET_DB_TASK();						 //获取信号强度	
 		if(db_flag==0xff) {
-        if(AT_INIT()==0xff) {						 //向服务器注册消息，只在初始化后运行一次
+        if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
             //名称有变化
             if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,SHORT_NAME_LEN)!=0) {
                 LOG_I("read_id");
@@ -369,7 +366,7 @@ static void ls_user_event_timer_cb_1(void *param)
             }
 						AT_User_Set_Task();
 						AT_User_Reply_Task();
- 
+						
             State_Change_Task();							   //状态改变,,,,蓝牙发送，和NB启动上报数据
             Start_Lock_Send_Task();			 				 //启动信息上报
             Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
@@ -380,8 +377,8 @@ static void ls_user_event_timer_cb_1(void *param)
     }
 		//蓝牙连接下
     if(BLE_connected_flag==1){
-				//Password_Task();//改开锁的密码
-				//Key_Task();     //改aes128的密钥
+//				Password_Task();//改开锁的密码
+//				Key_Task();     //改aes128的密钥
 				sleep_time=0;   //不休眠
 		}
 	}
@@ -511,6 +508,155 @@ static void User_BLE_Data_Handle(uint16_t len) {
 		}
 }
 
+
+//static void User_BLE_Data_Handle() {
+//    switch(DATA_BUF[0]) {
+//    //接收到GET_TOKEN命令发送TOKEN
+//    case 0x01:
+//        user_ble_send_flag=1;
+//        TX_DATA_BUF[0]=0x01;		// CMD
+//        TX_DATA_BUF[1]=TOKEN[0];
+//        TX_DATA_BUF[2]=TOKEN[1];
+//        TX_DATA_BUF[3]=TOKEN[2];
+//        TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//        TX_DATA_BUF[5]=0x05;    //LEN
+//        TX_DATA_BUF[6]=0xA0;		//VER1
+//        TX_DATA_BUF[7]=0xA1;		//VER2
+//        TX_DATA_BUF[8]=0x00;   	//STA
+//        TX_DATA_BUF[9]=0x00;   	//CNT[2]
+//        TX_DATA_BUF[10]=0xFF;   	//CNT[2]
+//        break;
+//    case 0x10:
+//        if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
+//            //if(DATA_BUF[5]==0x01 && DATA_BUF[6]==0x00){
+//            user_ble_send_flag=1;
+//            TX_DATA_BUF[0]=0x10;		// CMD
+//            TX_DATA_BUF[1]=TOKEN[0];
+//            TX_DATA_BUF[2]=TOKEN[1];
+//            TX_DATA_BUF[3]=TOKEN[2];
+//            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//            TX_DATA_BUF[5]=0x01;    //LEN
+//            TX_DATA_BUF[6]=VBat_value;    //LV 电量
+//            //}
+//        }
+//        break;
+
+//    case 0x51: //关锁
+//        if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
+//            user_ble_send_flag=1;
+//            TX_DATA_BUF[0]=0x51;		// CMD
+//            TX_DATA_BUF[1]=TOKEN[0];
+//            TX_DATA_BUF[2]=TOKEN[1];
+//            TX_DATA_BUF[3]=TOKEN[2];
+//            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//            TX_DATA_BUF[5]=0x01;    //LEN
+
+//            if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
+
+//                //TX_DATA_BUF[6]=Open_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
+//            }
+//            else {
+//                TX_DATA_BUF[6]=0x01;    		//RET 00为开锁成功，01为密码错误
+//            }
+//        }
+//        break;
+
+//    case 0x50:  //开锁
+//        if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
+//            //user_ble_send_flag=1;
+//            TX_DATA_BUF[0]=0x50;			// CMD
+//            TX_DATA_BUF[1]=TOKEN[0];
+//            TX_DATA_BUF[2]=TOKEN[1];
+//            TX_DATA_BUF[3]=TOKEN[2];
+//            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//            TX_DATA_BUF[5]=0x01;    	//LEN
+//					
+//            if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
+//                moro_task_flag=1;                    ////密码正确 开启电机动作
+//                //TX_DATA_BUF[6]=Close_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
+//            }
+//            else {
+//                TX_DATA_BUF[6]=0x01;    		//RET 00为开锁成功，01为密码错误
+//                user_ble_send_flag=1;				//密码错误直接回复
+//            }
+//        }
+//        break;
+////		case 0x52:
+////		break;
+//    //查询锁状态
+//    case 0x55:
+//        if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
+//            user_ble_send_flag=1;
+//            //这里0x55查询锁状态 回复没有更新，用0x52上报锁信息可以更新
+//            //TX_DATA_BUF[0]=0x55;		// CMD
+//            TX_DATA_BUF[0]=0x55;		// CMD
+//            TX_DATA_BUF[1]=TOKEN[0];
+//            TX_DATA_BUF[2]=TOKEN[1];
+//            TX_DATA_BUF[3]=TOKEN[2];
+//            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//            TX_DATA_BUF[5]=0x01;    //LEN
+//            TX_DATA_BUF[6]=lock_state[0];    //锁状态
+//            //TX_DATA_BUF[7]=0x00;    //ONLINE
+//            //TX_DATA_BUF[8]=0x00;    //STATUS
+//            //}
+//        }
+//        break;
+//    //修改广播名称
+//    case 0xA0:
+//        if(strncmp((char*)TOKEN,(char*)&DATA_BUF[1],4)==0) {
+//            //user_ble_send_flag=1;
+//            //SHORT_NAME_LEN=DATA_BUF[6];
+//            //for(uint8_t i=0;i<10;i++){
+//            //	SHORT_NAME[i]=0;
+//            //}
+//						
+//						
+//						SHORT_NAME_LEN=DATA_BUF[5];
+//						NEW_SHORT_NAME[0]=0x00;
+//						NEW_SHORT_NAME[1]=0x00;
+//						NEW_SHORT_NAME[2]=0x00;
+//						NEW_SHORT_NAME[3]=0x00;
+//						NEW_SHORT_NAME[4]=0x00;
+//						NEW_SHORT_NAME[5]=0x00;
+//						NEW_SHORT_NAME[6]=0x00;
+//						NEW_SHORT_NAME[7]=0x00;
+//						NEW_SHORT_NAME[8]=0x00;
+//						NEW_SHORT_NAME[9]=0x00;
+//						
+//            memcpy (&NEW_SHORT_NAME[0], &DATA_BUF[6], SHORT_NAME_LEN);
+//						buzzer_task_flag=1;
+//            //wd_FLAG=1;
+//        }
+
+//        break;
+//    //修改密码
+//    case 0xA1:
+//				memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
+//				psaaword_task_flag=0xA1;
+//        break;
+//		
+//    case 0xA2:
+//				memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
+//				if(psaaword_task_flag==0xA1){
+//						psaaword_task_flag=0xA2;
+//				}
+//        break;
+
+//    //修改秘钥
+//    case 0xA5:
+//				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
+//				key_task_flag=0xA5;
+//        break;
+//    
+//    case 0xA6:
+//				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
+//				if(key_task_flag==0xA5){
+//						key_task_flag=0xA6;
+//				}
+//        break;
+//			}
+//}
+
 //蓝牙数据写入，数据处理
 static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *value)
 {
@@ -519,25 +665,17 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
     {
         sleep_time=0;
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
-       
-			 memcpy(&DATA_BUF[0],value,length);
+        memcpy(&RX_DATA_BUF[0],value,16);
+				
 			#ifdef USER_TEST
 					if(RX_DATA_BUF[0]=='A' && RX_DATA_BUF[1]=='T'){
 						if(AT_tset_flag==0) AT_tset_flag=RX_DATA_BUF[2]-'0';
 					}
 			#endif
 				
-				//User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
-        
 				LOG_I("接收到的");
         LOG_HEX(value,length);
-        //LOG_HEX(&DATA_BUF[0],16);
-        //LOG_I("%d",user_ble_send_flag);
         User_BLE_Data_Handle(length);
-        //LOG_I("%d",user_ble_send_flag);
-        //memcpy(&buf[0],&RX_DATA_BUF[0],16);
-        //memcpy(&buf[16],&DATA_BUF[0],16);
-        //HAL_UART_Transmit_IT(&UART_Config, &buf[0],32);
     }
     else if (att_idx == UART_SVC_IDX_TX_NTF_CFG)
     {
@@ -551,8 +689,8 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
 #define RECORD_KEY5  5  //蓝牙通信密钥 高8位
 static void ls_uart_server_send_notification(void)
 {
-    //uint8_t AF_TX_DATA_BUF[16];
-    //User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
+//    uint8_t AF_TX_DATA_BUF[16];
+//    User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
 	
 		if(key_task_flag==0xff){
 					key_task_flag=0;
@@ -583,6 +721,7 @@ static void ls_uart_server_send_notification(void)
         gatt_manager_server_send_notification(con_idx_server, handle, &TX_DATA_BUF[0], ble_send_len, NULL);
         LOG_I("发送的");
         LOG_HEX(&TX_DATA_BUF[0],ble_send_len);
+			
 			
 
 			
@@ -616,16 +755,17 @@ static void create_adv_obj()
 void start_adv(void)
 {
   //  uint8_t FF_NAME[]= {0xff,0xFF};
-//		uint8_t temp_len;
-//    temp_len=strlen((char*)&SHORT_NAME[0]);
-//		if(temp_len>=10){
-//			 temp_len=10;
-//		}
+		uint8_t temp_len;
+    temp_len=strlen((char*)&SHORT_NAME[0]);
+		if(temp_len>=10){
+			 temp_len=10;
+		}
     LS_ASSERT(adv_obj_hdl != 0xff);
     uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 1, GAP_ADV_TYPE_COMPLETE_NAME,     &COMPLETE_NAME[0], 10                                           
                                            // ,GAP_ADV_TYPE_MANU_SPECIFIC_DATA, &FF_NAME[0], sizeof(FF_NAME)
                                            );
     dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
+
 }
 #endif
 #if MASTER_CLIENT_ROLE == 1
@@ -1026,8 +1166,10 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif
+        //ls_uart_init();
+				//RESET_NB();
 				Button_Gpio_Init();
-				uint8_t button_flag=io_read_pin(PB15);     //唤醒后读IO状态，判断唤醒引脚
+				uint8_t button_flag=io_read_pin(PB15);
 				DELAY_US(200*1000);
         Read_Last_Data();
         AT_uart_init();
@@ -1050,9 +1192,10 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 				
         //来自RTC的启动，发送心跳包
         if ((RTC_WKUP & wkup_source) != 0) {
+					  LOG_I("from_rtc");
 						RTC_flag=1;
 						SYSCFG->BKD[7]++;
-						if(SYSCFG->BKD[7]<1){
+						if(SYSCFG->BKD[7]<7){
 							Set_Sleep_Time(1);
 							//RESET_NB();
 						}
@@ -1091,9 +1234,6 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 					  AT_tset_flag=2;
 						reset_flag=1;
             Set_Task_State(START_LOCK_SEND,START);
-						
-						Set_Task_State(TICK_LOCK_SEND,START);
-						
         }
 				HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
 				if(test_mode_flag!=0xAA){
@@ -1185,9 +1325,6 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
     }
 }
 
-const char software_ver[]="1.0";
-const char hardware_ver[]="1.0";
-
 int main()
 {
     sys_init_app();
@@ -1195,6 +1332,5 @@ int main()
     dev_manager_init(dev_manager_callback);
     gap_manager_init(gap_manager_callback);
     gatt_manager_init(gatt_manager_callback);
-	
     ble_loop();
 }

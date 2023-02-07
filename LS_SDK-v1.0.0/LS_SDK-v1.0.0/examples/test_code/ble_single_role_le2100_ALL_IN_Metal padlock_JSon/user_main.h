@@ -28,6 +28,7 @@
 #include "LPM2100_N.h"
 #include "cJSON.h"
 
+
 //#define USER_TEST 
 
 #ifdef USER_TEST 
@@ -46,8 +47,6 @@
 #define RECORD_KEY9  9  //CIMI
 #define RECORD_KEYA  10 //CCID
 #define RECORD_KEYB  12 //IMEI  
-
-
 
 #define RECORD_KEY_T  11  //测试模式标记
 
@@ -73,6 +72,7 @@ extern uint8_t NEW_SHORT_NAME[10];
 extern uint8_t CCID_DATA[20];
 extern uint8_t IMEI_DATA[15];
 
+
 extern uint8_t SHORT_NAME_LEN;
 //extern uint8_t COMPLETE_NAME[7];
 extern uint8_t TX_DATA_BUF[100]; //BEL
@@ -93,9 +93,6 @@ extern uint8_t NEW_KEY_BUF[8];      //暂存改key的数据，分两次接收
 extern uint8_t	psaaword_task_flag;  //改密码任务开始标记
 extern uint8_t	key_task_flag;			 //改密钥任务开始标记
 
-
-
-
 extern uint8_t  reset_flag;
 
 extern uint16_t send_time_delay;
@@ -103,10 +100,5 @@ extern uint16_t send_time_delay;
 extern uint8_t test_mode_flag;
 
 extern uint8_t look_status_send_count;
-
-
-extern const char software_ver[];
-extern const char hardware_ver[];
-
 
 #endif

@@ -96,7 +96,7 @@ void User_Init() {
 		//io_write_pin(PC00, 1);
 		//io_write_pin(PC01, 0);
 	
-		HAL_IWDG_Init(32756);  //1s看门狗
+//		HAL_IWDG_Init(32756);  //1s看门狗
  		HAL_RTC_Init(2);    	 //RTC内部时钟源
 		RTC_wkuptime_set(4*60*60*1000);	//唤醒时间4h   *2传一包数据
 		//RTC_wkuptime_set(60);	    //唤醒时间30s  休眠函数在sw.c 中
