@@ -29,7 +29,7 @@ uint8_t temp_[20];
 uint8_t moro_task_flag;
 
 uint8_t Moto_Task(){
-	uint8_t temp=0x03;
+	uint8_t temp=0x01;
 	static unsigned int count=0;
 	static unsigned int step=0x10;
 	if(moro_task_flag==1){
@@ -83,7 +83,7 @@ uint8_t Moto_Task(){
 							}
 							
 							else {
-								temp=0;  		//00 打开成功  0x03 失败
+								temp=0;  		//00 打开成功  0x01 失败
 								lock_state[0]=0;
 							}
 

@@ -96,7 +96,7 @@ void User_Init() {
 		//io_write_pin(PC00, 1);
 		//io_write_pin(PC01, 0);
 	
-//		HAL_IWDG_Init(32756);  //1s看门狗
+		HAL_IWDG_Init(32756);  //1s看门狗
  		HAL_RTC_Init(2);    	 //RTC内部时钟源
 		RTC_wkuptime_set(4*60*60*1000);	//唤醒时间4h   *2传一包数据
 		//RTC_wkuptime_set(60);	    //唤醒时间30s  休眠函数在sw.c 中
@@ -829,7 +829,7 @@ uint16_t Open_Lock_Send_Task() {
             }
             else {
 						i++;
-						if(i%100==1) {
+						if(i%40==1) {
 								count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
@@ -893,7 +893,7 @@ uint16_t Tick_Lock_Send_Task() {
 }
 //20信息上报  锁+状态
 uint16_t Open_Lock_Data_Send_Task(){
-    static uint8_t count;
+ //   static uint8_t count;
     static uint16_t temp;
     static uint16_t i;
 		//static uint16_t send_count_20=2;
@@ -913,14 +913,14 @@ uint16_t Open_Lock_Data_Send_Task(){
 					if(i%user_time==1  ||look_status_send_count==4){
 								if(look_status_send_count)
 								look_status_send_count--;
+								
 								LOG_I("send_count_20=%d",look_status_send_count);
-                count++;
+                //count++;
                 temp=NO_ASK;
                 globle_Result=NO_ASK;
                 Set_Task_State(OPEN_LOCK_DATA_SEND,START);
 							  Open_Lock_Data_Send();
-                if(count==user_count){
-										count=0;
+                if(look_status_send_count==0){
                     Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
                     temp=TIME_OUT;
                 }
@@ -928,7 +928,6 @@ uint16_t Open_Lock_Data_Send_Task(){
         }
     }
 	 	else{
-			count=0;
 			temp=0;
 			i=0;
 		}
@@ -1140,7 +1139,7 @@ void State_Change_Task(){
 						  if(look_status_send_count>=4){
 									look_status_send_count=4;
 							}
-							user_ble_send_flag=1;
+							//user_ble_send_flag=1;
 							TX_DATA_BUF[0]=0x52;		// CMD
 							TX_DATA_BUF[1]=TOKEN[0];TX_DATA_BUF[2]=TOKEN[1];TX_DATA_BUF[3]=TOKEN[2];TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
 							TX_DATA_BUF[5]=0x01;    //LEN
@@ -1204,6 +1203,7 @@ uint16_t AT_CTM2MUPDATE_Task(){
 	if(count%20==1){
 		AT_Command_Send(CTM2MUPDATE);
 	}
+	return 1;
 }
 
 //查询模块设置
@@ -1315,7 +1315,7 @@ uint16_t AT_INIT(){
 	count++;	
 	static uint8_t tmp[10];
 	uint16_t length = 10; 
-	const static uint8_t no_wirt_data[10]="3141592654";
+//	const static uint8_t no_wirt_data[10]="3141592654";
 
 	
 	tinyfs_read(ID_dir_2,RECORD_KEY2,tmp,&length);//读到tmp中

@@ -6,7 +6,7 @@
 
 #define SPI_NSS	    PB02
 
-//#define SPI_NSS_2   PA11
+#define SPI_NSS_2   PA12
 #define SPI_MOSI    PA14
 #define SPI_MISO    PA15
 #define SPI_CLK     PA13
@@ -14,10 +14,12 @@
 #define POWER       PA06
 
 
+uint8_t rfid_flag =1;
+
 void RC522_GPIO_INIT(){
 
     io_cfg_output(SPI_NSS); //
-		//io_cfg_output(SPI_NSS_2); //
+//		io_cfg_output(SPI_NSS_2); //
 		io_cfg_output(SPI_MOSI);  //
 		io_cfg_output(SPI_CLK);   //
 		io_cfg_output(POWER);   	//		
@@ -25,7 +27,44 @@ void RC522_GPIO_INIT(){
 		
 		io_cfg_input(SPI_MISO);                       
     //io_pull_write(SPI_MISO, IO_PULL_UP);  
+		rfid_flag=1;
 }
+
+void RC522_GPIO_INIT_2(){
+
+//    io_cfg_output(SPI_NSS); //
+		io_cfg_output(SPI_NSS_2); //
+		io_cfg_output(SPI_MOSI);  //
+		io_cfg_output(SPI_CLK);   //
+		io_cfg_output(POWER);   	//		
+		io_write_pin(POWER,0);		
+		
+		io_cfg_input(SPI_MISO);                       
+    rfid_flag=2;
+		
+		//io_pull_write(SPI_MISO, IO_PULL_UP);  
+}
+
+void SPI_NSS_L(){
+	if(rfid_flag==1){
+			io_write_pin(SPI_NSS,0) ;
+	}
+	else if(rfid_flag==2){
+		 io_write_pin(SPI_NSS_2,0)  ;
+	}
+}
+
+void SPI_NSS_H(){
+		if(rfid_flag==1){
+		io_write_pin(SPI_NSS,1)  ;
+	}
+	else if(rfid_flag==2){
+		io_write_pin(SPI_NSS_2,1)   ;
+	
+	}
+}
+
+
 #define SPI_MISO_READ()  io_read_pin(SPI_MISO)	 //
 #define SPI_MOSI_L()     io_write_pin(SPI_MOSI,0)	 //
 #define SPI_MOSI_H()     io_write_pin(SPI_MOSI,1) //
@@ -33,11 +72,11 @@ void RC522_GPIO_INIT(){
 #define SPI_SCK_L()    	 io_write_pin(SPI_CLK,0)	 //
 #define SPI_SCK_H()  	 	 io_write_pin(SPI_CLK,1)	 //
 
-#define SPI_NSS_L()  	 io_write_pin(SPI_NSS,0)	 //
-#define SPI_NSS_H()  	 io_write_pin(SPI_NSS,1)	 //
+//#define SPI_NSS_L()  	 io_write_pin(SPI_NSS,0)	 //
+//#define SPI_NSS_H()  	 io_write_pin(SPI_NSS,1)	 //
 
-#define SPI_NSS_L_2()  	 io_write_pin(SPI_NSS_2,0)	 //
-#define SPI_NSS_H_2()  	 io_write_pin(SPI_NSS_2,1)	 //
+//#define SPI_NSS_L_2()  	 io_write_pin(SPI_NSS_2,0)	 //
+//#define SPI_NSS_H_2()  	 io_write_pin(SPI_NSS_2,1)	 //
 
 #define RC522_RST_L()  	
 #define RC522_RST_H()  	 

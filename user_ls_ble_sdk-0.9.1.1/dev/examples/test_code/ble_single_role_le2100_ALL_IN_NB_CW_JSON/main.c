@@ -1085,6 +1085,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 							if(look_status_send_count>=3)  look_status_send_count=3;
                 //启动锁数据上报命令
             }
+						Set_Task_State(TICK_LOCK_SEND,START);
         }
         //断电重启
         else if (wkup_source == 0) {

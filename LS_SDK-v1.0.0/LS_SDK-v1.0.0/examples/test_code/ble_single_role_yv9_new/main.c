@@ -910,6 +910,7 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             LS_ASSERT(con_idx_server == 0xff);
             con_idx_server = con_idx;
             connect_pattern_send_prepare(con_idx);
+						//gatt_manager_client_mtu_exch_send(con_idx);
         }
 #endif
 #if MASTER_CLIENT_ROLE == 1
@@ -1168,19 +1169,6 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             AT_tset_flag=2;
             RTC_flag=1;
             Set_Task_State(TICK_LOCK_SEND,START);
-//SYSCFG->BKD[7]++;
-//if(SYSCFG->BKD[7]<7){
-//Set_Sleep_Time(1);
-////RESET_NB();
-//}
-//else if(SYSCFG->BKD[7]==8){
-//SYSCFG->BKD[7]=0;
-//Set_Sleep_Time(150);
-//RESET_NB();
-//Set_Task_State(TICK_LOCK_SEND,START);
-//AT_tset_flag=1;
-//}
-
         }
         //来自按键和锁开关唤醒
         else if ((PB15_IO_WKUP & wkup_source) != 0) {

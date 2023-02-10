@@ -33,6 +33,8 @@ CCID
 }Typedef_AT;
 
 
+void Json_init();
+
 void AT_Command_Send(Typedef_AT AT_COM);
 
 void WAKE_UP(void);
