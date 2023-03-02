@@ -5,7 +5,7 @@
 
 void TEST_LED_TASK(void);
 uint16_t TEST_AT_GET_DB_TASK(void);
-uint16_t TEST_AT_GET_MODE_TASK(void);
-uint16_t TEST_AT_GET_CIMI_TASK(void);
+uint16_t TEST_AT_GET_IMEI_TASK(void);
+uint16_t TEST_AT_GET_IMSI_TASK(void);
 
 #endif

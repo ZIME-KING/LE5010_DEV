@@ -114,7 +114,9 @@ void Scan_Key(){
 						
 							AT_Command_Send(POWER_OFF);										
 							DELAY_US(1000*100);
-							io_cfg_input(PB08);		//4G CAT1 电源		
+							//										io_cfg_input(PB08);		//4G CAT1 电源		
+										io_cfg_output(PB08);		//4G CAT1 电源				
+										io_write_pin(PB08,0);	
               DELAY_US(1000*1000*3);
 							platform_reset(0); 	
 			}			
@@ -127,7 +129,9 @@ void Scan_Key(){
 							
 							AT_Command_Send(POWER_OFF);										
 							DELAY_US(1000*100);
-							io_cfg_input(PB08);		//4G CAT1 电源		
+							//										io_cfg_input(PB08);		//4G CAT1 电源		
+										io_cfg_output(PB08);		//4G CAT1 电源				
+										io_write_pin(PB08,0);	
               DELAY_US(1000*1000*3);
 							platform_reset(0); 						
 			}

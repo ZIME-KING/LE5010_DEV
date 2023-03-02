@@ -28,7 +28,8 @@ void Moto_NULL(){
 uint8_t temp_[20];
 uint8_t moro_task_flag;
 
-/* ËÜÁÏËø
+//ËÜÁÏËø
+//*
 uint8_t Moto_Task(){
 	uint8_t temp=0x03;
 	static unsigned int count=0;
@@ -158,12 +159,13 @@ uint8_t Moto_Task(){
 	}
 	return temp;
 }
- */
+// */
 
 
 
 
-/* ½ğÊôËø
+//* ½ğÊôËø_¸Ö°åËø
+/*
 uint8_t Moto_Task(){
 	uint8_t temp=0x03;
 	static unsigned int count=0;
@@ -298,7 +300,10 @@ uint8_t Moto_Task(){
 	return temp;
 }
 */
+//*/
 
+/*¹ÒËø*/
+/*
 uint8_t Moto_Task(){
 	uint8_t temp=0x03;
 	static unsigned int count=0;
@@ -428,5 +433,6 @@ uint8_t Moto_Task(){
 	}
 	return temp;
 }
-
+*/
+/**/
 

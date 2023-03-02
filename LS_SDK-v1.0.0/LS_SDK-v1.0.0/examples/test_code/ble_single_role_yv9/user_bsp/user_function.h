@@ -26,8 +26,8 @@ OPEN_LOCK_DATA_SEND,    // 20信息上报
 GET_DB_VAL,   				 	//获取信号强度
 OPEN_LOCK_DATA_SEND_MOTO,
 	
-GET_MODE_VAL,  //获取模式（测试程序用任务）
-GET_EMIC_VAL,  //获取EMIC任务（测试程序用任务）
+TEST_GET_IMEI_VAL,  //获取模式（测试程序用任务）
+TEST_GET_IMSI_VAL,  //获取EMIC任务（测试程序用任务）
 TEST_GET_DB_VAL
 }Typedef_TASK_LIST;
 
@@ -69,6 +69,8 @@ void Read_Last_Data(void);
 uint8_t UDP_INIT(void);
 void Password_Task(void);
 void Key_Task(void);
+
+void Delay_test_task(void);
 
 void Once_Send(void);
 

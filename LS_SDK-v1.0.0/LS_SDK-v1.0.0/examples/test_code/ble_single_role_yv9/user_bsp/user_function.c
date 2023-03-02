@@ -82,10 +82,10 @@ void User_Init() {
     io_write_pin(PB07,1);  //
 
     io_cfg_output(PC01);   //外置紫外灯
-    io_write_pin(PC01,1);  //
+    io_write_pin(PC01,0);  //
 
-    io_cfg_output(PA06);   //LED_0
-    io_write_pin(PA06,0);	 //LED_0
+    io_cfg_output(PA06);   //
+    io_write_pin(PA06,1);	 //
 
 		HAL_IWDG_Init(32756*5);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
@@ -107,17 +107,17 @@ void LED_TASK() {
 
     if(uv_count>0) {
         //io_cfg_output(PC01);   //外置紫外灯
-        io_write_pin(PC01,0);  //
+        io_write_pin(PC01,1);  //
         uv_count--;
     } else {
         //io_cfg_output(PC01);   //外置紫外灯
-        io_write_pin(PC01,1);  //
+        io_write_pin(PC01,0);  //
     }
     //来自RTC的启动，不要亮灯
     if (RTC_flag==1) {
         io_write_pin(LED_G, 0);
         io_write_pin(LED_R, 0);
-        io_write_pin(PC01, 1);
+        io_write_pin(PC01, 0);
     }
     else {
         //io_write_pin(PC01, 0);
@@ -713,13 +713,45 @@ void Uart_2_Data_Processing() {
 }
 
 
-void Uart_3_Data_Processing() {
+void Uart_3_Data_Processing() {                     
+	static uint8_t send_flag;
     if(frame_3[uart_3_frame_id].status!=0) {    			//接收到数据后status=1;
         LOG_HEX((uint8_t*)frame_3[uart_3_frame_id].buffer,frame_3[uart_3_frame_id].length);
         //接收到的数据打印透传
-        if( frame_3[uart_3_frame_id].buffer[0]==0x7f && frame_3[uart_3_frame_id].buffer[1]==0x09  && frame_3[uart_3_frame_id].length==11) {
+//        if(lock_state[0]==0){
+//					
+//					
+//					if(RFID_DATA[0]+RFID_DATA[1]+RFID_DATA[2]+RFID_DATA[3]!=0){
+//						RFID_DATA[0]=0x00;
+//						RFID_DATA[1]=0x00;
+//						RFID_DATA[2]=0x00;
+//						RFID_DATA[3]=0x00;
+//						TX_DATA_BUF[9]=0x01;
+//						TX_DATA_BUF[10]=RFID_DATA[0];
+//						TX_DATA_BUF[11]=RFID_DATA[1];
+//						TX_DATA_BUF[12]=RFID_DATA[2];
+//						TX_DATA_BUF[13]=RFID_DATA[3];						
+//						Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+//						user_ble_send_flag=1;                        //蓝牙数据发送开启
+//						TX_DATA_BUF[0]=0x52;		// CMD
+//						TX_DATA_BUF[1]=TOKEN[0];
+//            TX_DATA_BUF[2]=TOKEN[1];
+//            TX_DATA_BUF[3]=TOKEN[2];
+//            TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+//            TX_DATA_BUF[5]=0x08;    	//LEN
+//            TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
+//            TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
+//            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //		
+//					}
+//					 frame_3[uart_3_frame_id].status=0;					//处理完数据后status 清0;
+//					 return;
+//				}
+			
+			if( frame_3[uart_3_frame_id].buffer[0]==0x7f && frame_3[uart_3_frame_id].buffer[1]==0x09  && frame_3[uart_3_frame_id].length==11) {
 
-            if(scan_card_flag==1) {
+						send_flag=(RFID_DATA[0]+RFID_DATA[1]+RFID_DATA[2]+RFID_DATA[3]);
+				
+            if(scan_card_flag==1 ) {
                 RFID_DATA[0]=frame_3[uart_3_frame_id].buffer[6];
                 RFID_DATA[1]=frame_3[uart_3_frame_id].buffer[7];
                 RFID_DATA[2]=frame_3[uart_3_frame_id].buffer[8];
@@ -744,7 +776,9 @@ void Uart_3_Data_Processing() {
                 LOG_HEX(&RFID_DATA_2[0],4);
             }
 
-            Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
+						
+						if(send_flag==0){
+								            Set_Task_State(OPEN_LOCK_DATA_SEND,START);   //数据上传服务器任务
             user_ble_send_flag=1;                        //蓝牙数据发送开启
             TX_DATA_BUF[0]=0x52;		// CMD
             TX_DATA_BUF[1]=TOKEN[0];
@@ -755,6 +789,8 @@ void Uart_3_Data_Processing() {
             TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
             TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
             TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+						}
+
             //TX_DATA_BUF[9]=0x01;
             //TX_DATA_BUF[10]=RFID_DATA[0];
             //TX_DATA_BUF[11]=RFID_DATA[1];
@@ -859,25 +895,30 @@ void Scan_RDIF_Task() {
     static uint8_t i;
     static uint8_t once_flag ;
     uint8_t buf[]= {0x02,0x10,0x12,0x7F,0x02,0x10,0x12};
-//    if(once_flag!=0xaa) {
-//        once_flag=0xaa;
-//        RFID_INIT_1();
-//        HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);
-//    }
+    if(once_flag!=0xaa) {
+        once_flag=0xaa;
+        RFID_INIT_1();
+        HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);
+				HAL_UART_Transmit(&UART_Config_RFID,&buf[0],7,100);		
+		}
+		
     i++;
-    if(i%200==1) {
-        temp=!temp;
-        if(temp) {
-						uart1_io_deinit();
-            RFID_INIT_1();
-            HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);
-        }
-        else {
-						uart1_io_deinit();
-            RFID_INIT_2();
-            HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);
-        }
-        HAL_UART_Transmit(&UART_Config_RFID,&buf[0],7,100);
+    if(i%50==1) {
+			
+			HAL_UART_Transmit(&UART_Config_RFID,&buf[0],sizeof(buf),500);
+			
+//        temp=!temp;
+//        if(temp) {
+//						uart1_io_deinit();
+//            RFID_INIT_1();
+//            HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);
+//        }
+//        else {
+//						uart1_io_deinit();
+//            RFID_INIT_2();
+//            HAL_UART_Receive_IT(&UART_Config_RFID,uart_3_buffer,1);
+//        }
+//        HAL_UART_Transmit(&UART_Config_RFID,&buf[0],7,100);
     }
 }
 
@@ -910,10 +951,10 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
     case OPEN_LOCK_DATA_SEND_MOTO:
         temp=	T5_enable;
         break;
-    case GET_MODE_VAL:
+    case TEST_GET_IMEI_VAL:
         temp=	T6_enable;
         break;
-    case GET_EMIC_VAL:
+    case TEST_GET_IMSI_VAL:
         temp=	T7_enable;
         break;
     case TEST_GET_DB_VAL:
@@ -942,10 +983,10 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
     case OPEN_LOCK_DATA_SEND_MOTO:
         T5_enable=state;
         break;
-    case GET_MODE_VAL:
+    case TEST_GET_IMEI_VAL:
         T6_enable=state;
         break;
-    case GET_EMIC_VAL:
+    case TEST_GET_IMSI_VAL:
         T7_enable=state;
         break;
     case TEST_GET_DB_VAL:
@@ -1194,19 +1235,45 @@ uint16_t Open_Lock_Data_Send_Task() {
     return busy;
 }
 
-////5s 保持模块唤醒 查一下信号
-//void NB_WAKE_Task() {
-//    static uint8_t i;
 
-//    if(Get_Task_State(GET_DB_VAL)==STOP) {
-//        i++;
-//        if(i%200==1) {
-//            Set_Task_State(GET_DB_VAL,START);
-//            i=1;
-//        }
-//    }
-//}
 
+
+
+uint8_t delay_task_flag=0;
+//延时发送任务
+void Delay_test_task(){
+static uint16_t count;
+	
+	if(delay_task_flag==1){
+	count++;
+		if(count>100){
+			delay_task_flag=0;
+					Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+					look_status_send_count+=3;
+					if(look_status_send_count>=3) {
+							look_status_send_count=3;
+					}
+					user_ble_send_flag=1;
+					TX_DATA_BUF[0]=0x52;		// CMD
+					TX_DATA_BUF[1]=TOKEN[0];
+					TX_DATA_BUF[2]=TOKEN[1];
+					TX_DATA_BUF[3]=TOKEN[2];
+					TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+					TX_DATA_BUF[5]=0x08;    	//LEN
+					TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+					TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+					TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+					TX_DATA_BUF[9]=0x01;
+					TX_DATA_BUF[10]=RFID_DATA[0];
+					TX_DATA_BUF[11]=RFID_DATA[1];
+					TX_DATA_BUF[12]=RFID_DATA[2];
+					TX_DATA_BUF[13]=RFID_DATA[3];		
+		}
+	}
+	else{
+		count=0;
+	}
+}
 uint8_t last_lock_state_0;
 uint8_t last_lock_state_1;
 //检测状态发生变化上报数据
@@ -1252,38 +1319,39 @@ void State_Change_Task() {
         LOG_I("sw1:%d", lock_state[0]);
         open_lock_data_reply_Result=0;
         last_lock_state_0=lock_state[0];
-        Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+			  RTC_flag=0;
 
-        look_status_send_count+=3;
-        if(look_status_send_count>=3) {
-            look_status_send_count=3;
-        }
-        RTC_flag=0;
-
+				//关锁延时发送，等待刷卡数据更新
         if(lock_state[0]==1) {
             buzzer_task_flag=1;
             uv_count=25000/50;
-//							rfid_task_flag_1=1;   					 //开启一号卡扫卡
+						delay_task_flag=1;
         }
-        user_ble_send_flag=1;
-        TX_DATA_BUF[0]=0x52;		// CMD
-        TX_DATA_BUF[1]=TOKEN[0];
-        TX_DATA_BUF[2]=TOKEN[1];
-        TX_DATA_BUF[3]=TOKEN[2];
-        TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-        TX_DATA_BUF[5]=0x08;    	//LEN
-        TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
-        TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
-        TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
-        TX_DATA_BUF[9]=0x01;
-        TX_DATA_BUF[10]=RFID_DATA[0];
-        TX_DATA_BUF[11]=RFID_DATA[1];
-        TX_DATA_BUF[12]=RFID_DATA[2];
-        TX_DATA_BUF[13]=RFID_DATA[3];
+				//开锁立刻发送
+				else{
+					Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+					look_status_send_count+=3;
+					if(look_status_send_count>=3) {
+							look_status_send_count=3;
+					}
+					user_ble_send_flag=1;
+					TX_DATA_BUF[0]=0x52;		// CMD
+					TX_DATA_BUF[1]=TOKEN[0];
+					TX_DATA_BUF[2]=TOKEN[1];
+					TX_DATA_BUF[3]=TOKEN[2];
+					TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+					TX_DATA_BUF[5]=0x08;    	//LEN
+					TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+					TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+					TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+					TX_DATA_BUF[9]=0x01;
+					TX_DATA_BUF[10]=RFID_DATA[0];
+					TX_DATA_BUF[11]=RFID_DATA[1];
+					TX_DATA_BUF[12]=RFID_DATA[2];
+					TX_DATA_BUF[13]=RFID_DATA[3];		
+				}
     }
-
-
-
+		
     if(last_lock_state_1 != lock_state[1] && lock_task_flag_1==0 && lock_task_flag_2==0) {      //扫卡完成再上报数据
 
         //rfid_task_flag_2=1;    //开启二号卡扫卡
@@ -1546,8 +1614,12 @@ uint16_t AT_INIT() {
 								
 										AT_Command_Send(POWER_OFF);										
 										DELAY_US(1000*100);
-										io_cfg_input(PB08);		//4G CAT1 电源		
-                    DELAY_US(1000*1000*3);
+										
+										//io_cfg_input(PB08);		//4G CAT1 电源		
+                    io_cfg_output(PB08);  //
+										io_write_pin(PB08,0);	//
+									
+										DELAY_US(1000*1000*3);
 										platform_reset(0); 						//初始化成功写入成功标记位，重启
                 }
                 else {
@@ -1556,8 +1628,13 @@ uint16_t AT_INIT() {
 	
 										AT_Command_Send(POWER_OFF);										
 										DELAY_US(1000*100);
-										io_cfg_input(PB08);		//4G CAT1 电源		
-                    DELAY_US(1000*1000*3);
+
+//										io_cfg_input(PB08);		//4G CAT1 电源		
+                    io_cfg_output(PB08);  //
+										io_write_pin(PB08,0);	//
+                    
+									
+										DELAY_US(1000*1000*3);
 										platform_reset(0); 						//初始化成功写入成功标记位，重启
                 }
             }

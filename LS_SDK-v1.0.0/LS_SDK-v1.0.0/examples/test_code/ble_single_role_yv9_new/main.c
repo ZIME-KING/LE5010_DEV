@@ -311,18 +311,15 @@ uint8_t test_mode_flag;
 static void ls_user_event_timer_cb_1(void *param)
 {
     //第一次上电从flash读出默认值不为aa进入测试代码
-    if(0/*test_mode_flag!=0xAA*/) {
+    if(test_mode_flag!=0xAA) {
         if(wd_FLAG==0)HAL_IWDG_Refresh();	  //喂狗
         TEST_LED_TASK();										//LED显示效果
         Buzzer_Task();											//蜂鸣器任务
-        TEST_AT_GET_MODE_TASK();
-        TEST_AT_GET_CIMI_TASK();
+        TEST_AT_GET_IMEI_TASK();
+        TEST_AT_GET_IMSI_TASK();
         TEST_AT_GET_DB_TASK();
         State_Change_Task();
-
-        //LOG_I("tMODE:%X",test_mode_flag);
-        //if(){
-        //}
+				Lock_task() ;                        //开锁任务
     }
     else {
         //LOG_I("fMODE:%X",test_mode_flag);
@@ -371,8 +368,10 @@ static void ls_user_event_timer_cb_1(void *param)
                         }
                     }
 //										Scan_RDIF_Task();                      //扫描卡片任务
+
+										User_Mfrc522_2(&M1_Card_2,0);
                     User_Mfrc522(&M1_Card,0);            //扫描卡片任务
-                    State_Change_Task();								 //扫描开关状态，改变蓝牙发送，和NB启动上报数据
+										State_Change_Task();								 //扫描开关状态，改变蓝牙发送，和NB启动上报数据
 										Lock_task() ;                        //开锁任务
                 }
             }
@@ -383,9 +382,9 @@ static void ls_user_event_timer_cb_1(void *param)
                 sleep_time=0;   //不休眠
             }
         }
-        ls_uart_server_send_notification();  //蓝牙数据发送
-        builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
     }
+		        ls_uart_server_send_notification();  //蓝牙数据发送
+        builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 
 static void ls_uart_init(void)
@@ -522,11 +521,11 @@ static void User_BLE_Data_Handle() {
             TX_DATA_BUF[5]=0x01;    	//LEN
 
             if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
-                if(DATA_BUF[13]==0x01) {
+                if(DATA_BUF[12]==0x01) {
                     lock_task_flag_1=1;   //
                     //lock_task_flag_1=1;   //
                 }
-                else if(DATA_BUF[13]==0x02) {
+                else if(DATA_BUF[12]==0x02) {
                     lock_task_flag_2=1;
                 }
                 //moro_task_flag=1;                    ////密码正确 开启电机动作
@@ -1212,22 +1211,23 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         //HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
 
         if(test_mode_flag!=0xAA) {
-            //Set_Task_State(GET_MODE_VAL,START);
-            //Set_Task_State(GET_EMIC_VAL,STOP);
-            //Set_Task_State(START_LOCK_SEND,STOP);
-            //Set_Task_State(OPEN_LOCK_SEND,STOP);
-            //Set_Task_State(TICK_LOCK_SEND,STOP);
-            //Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-            //Set_Task_State(GET_DB_VAL,STOP);
-            //Set_Task_State(GET_DB_VAL,STOP);
+            Set_Task_State(TEST_GET_IMEI_VAL,START);
+            Set_Task_State(TEST_GET_IMSI_VAL,STOP);
+            Set_Task_State(TEST_GET_DB_VAL,STOP);
+					
+            Set_Task_State(START_LOCK_SEND,STOP);
+            Set_Task_State(OPEN_LOCK_SEND,STOP);
+            Set_Task_State(TICK_LOCK_SEND,STOP);
+            Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+            Set_Task_State(GET_DB_VAL,STOP);
+					
             //START_LOCK_SEND,     		//启动数据上报
             //OPEN_LOCK_SEND,  				//开锁数据请求
             //TICK_LOCK_SEND, 				//心跳包发送
             //OPEN_LOCK_DATA_SEND,    // 20信息上报
             //GET_DB_VAL,   				 	//获取信号强度
-            //OPEN_LOCK_DATA_SEND_MOTO,
-            //GET_MODE_VAL,  //获取模式（测试程序用任务）
-            //GET_EMIC_VAL,  //获取EMIC任务（测试程序用任务）
+
+
         }
     }
     break;

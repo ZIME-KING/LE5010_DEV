@@ -887,10 +887,10 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
     case OPEN_LOCK_DATA_SEND_MOTO:
         temp=	T5_enable;
         break;
-    case GET_MODE_VAL:
+    case TEST_GET_IMEI_VAL:
         temp=	T6_enable;
         break;
-    case GET_EMIC_VAL:
+    case TEST_GET_IMSI_VAL:
         temp=	T7_enable;
         break;
     case TEST_GET_DB_VAL:
@@ -919,10 +919,10 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
     case OPEN_LOCK_DATA_SEND_MOTO:
         T5_enable=state;
         break;
-    case GET_MODE_VAL:
+    case TEST_GET_IMEI_VAL:
         T6_enable=state;
         break;
-    case GET_EMIC_VAL:
+    case TEST_GET_IMSI_VAL:
         T7_enable=state;
         break;
     case TEST_GET_DB_VAL:
@@ -1598,8 +1598,10 @@ uint16_t AT_INIT() {
 								
 										AT_Command_Send(POWER_OFF);										
 										DELAY_US(1000*100);
-										io_cfg_input(PB08);		//4G CAT1 电源		
-                    DELAY_US(1000*1000*3);
+//										io_cfg_input(PB08);		//4G CAT1 电源		
+										io_cfg_output(PB08);		//4G CAT1 电源				
+										io_write_pin(PB08,0);	
+									DELAY_US(1000*1000*3);
 										platform_reset(0); 						//初始化成功写入成功标记位，重启
                 }
                 else {
@@ -1608,7 +1610,9 @@ uint16_t AT_INIT() {
 	
 										AT_Command_Send(POWER_OFF);										
 										DELAY_US(1000*100);
-										io_cfg_input(PB08);		//4G CAT1 电源		
+//										io_cfg_input(PB08);		//4G CAT1 电源		
+										io_cfg_output(PB08);		//4G CAT1 电源				
+										io_write_pin(PB08,0);	
                     DELAY_US(1000*1000*3);
 										platform_reset(0); 						//初始化成功写入成功标记位，重启
                 }

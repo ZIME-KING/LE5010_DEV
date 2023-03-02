@@ -319,11 +319,9 @@ static void ls_user_event_timer_cb_1(void *param)
 				TEST_LED_TASK();										//LED显示效果
         Buzzer_Task();											//蜂鸣器任务
         State_Change_Task();
-				if(AT_GET_DB_TASK()==0xff){
-				
-				}else{
-						Set_Task_State(GET_DB_VAL,START);
-				}	
+        TEST_AT_GET_IMEI_TASK();
+        TEST_AT_GET_IMSI_TASK();
+        TEST_AT_GET_DB_TASK();
     }
     else {
         sleep_time++;			 									 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
@@ -379,8 +377,6 @@ static void ls_user_event_timer_cb_1(void *param)
                 sleep_time=0;   //不休眠
             }
         }
-//        ls_uart_server_send_notification();  //蓝牙数据发送
-//        builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
     }
 		
 		 ls_uart_server_send_notification();  //蓝牙数据发送
@@ -1205,22 +1201,21 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 				LOG_I("MODE:%X",test_mode_flag);
 
         if(test_mode_flag!=0xAA) {
-            //Set_Task_State(GET_MODE_VAL,START);
-            //Set_Task_State(GET_EMIC_VAL,STOP);
-            //Set_Task_State(START_LOCK_SEND,STOP);
-            //Set_Task_State(OPEN_LOCK_SEND,STOP);
-            //Set_Task_State(TICK_LOCK_SEND,STOP);
-            //Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-            //Set_Task_State(GET_DB_VAL,STOP);
-            //Set_Task_State(GET_DB_VAL,STOP);
+            Set_Task_State(TEST_GET_IMEI_VAL,START);
+            Set_Task_State(TEST_GET_IMSI_VAL,STOP);
+            Set_Task_State(TEST_GET_DB_VAL,STOP);
+					
+            Set_Task_State(START_LOCK_SEND,STOP);
+            Set_Task_State(OPEN_LOCK_SEND,STOP);
+            Set_Task_State(TICK_LOCK_SEND,STOP);
+            Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+            Set_Task_State(GET_DB_VAL,STOP);
+					
             //START_LOCK_SEND,     		//启动数据上报
             //OPEN_LOCK_SEND,  				//开锁数据请求
             //TICK_LOCK_SEND, 				//心跳包发送
             //OPEN_LOCK_DATA_SEND,    // 20信息上报
             //GET_DB_VAL,   				 	//获取信号强度
-            //OPEN_LOCK_DATA_SEND_MOTO,
-            //GET_MODE_VAL,  //获取模式（测试程序用任务）
-            //GET_EMIC_VAL,  //获取EMIC任务（测试程序用任务）
         }
     }
     break;

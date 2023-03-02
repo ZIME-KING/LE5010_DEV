@@ -1085,7 +1085,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
         User_Init();
 
-        if(Check_SW2()==1 && Check_SW1()==0 ) {
+        if(Check_SW1()==1 /*&& Check_SW1()==0 */) {
             lock_state[0]=1;
         }
         else {
@@ -1102,11 +1102,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 					  LOG_I("from_rtc");
 						RTC_flag=1;
 						SYSCFG->BKD[7]++;
-						if(SYSCFG->BKD[7]<7){
+						if(SYSCFG->BKD[7]<=1){
 							Set_Sleep_Time(1);
 							//RESET_NB();
 						}
-						else if(SYSCFG->BKD[7]==8){
+						else if(SYSCFG->BKD[7]==2){
 							SYSCFG->BKD[7]=0;
 							Set_Sleep_Time(30);
 							RESET_NB();
@@ -1131,8 +1131,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 								buzzer_task_flag=1;
 							}
 							Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-							look_status_send_count+=2;
-							if(look_status_send_count>=3)  look_status_send_count=3;
+							look_status_send_count+=4;
+							if(look_status_send_count>=4)  look_status_send_count=4;
                 //启动锁数据上报命令
             }
 												Set_Task_State(TICK_LOCK_SEND,START);

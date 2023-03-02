@@ -5,8 +5,8 @@
 #define START 0x01
 #define STOP  0x00
 
-#define VER_0  0xB0
-#define VER_1  0xB0
+#define VER_0  0xC0
+#define VER_1  0xC3
 
 uint8_t send_count;							    //发送计数
 uint8_t lock_state[LOCK_NUM];     //锁状态存储
@@ -19,7 +19,7 @@ const uint8_t	Frame_header[2]= {0x58,0x59};
 void WAKE_UP(){
 
     io_cfg_output(PB08);  //
-    io_write_pin(PB08,0);	//
+    io_write_pin(PB08,1);	//
 		DELAY_US(500*1000);   //开启cat1 mos管等待100ms电源稳定
 
 		io_cfg_output(PA03);               //输出模式                     
@@ -27,35 +27,6 @@ void WAKE_UP(){
 		DELAY_US(200*1000);
 		io_write_pin(PA03,0);
 }
-
-//void POWER_OFF(){
-//		if(power_off_flag==1){
-//			count++;
-//			
-//		
-//		
-//		
-//		
-//		
-//		}
-//		io_cfg_output(PA03);               //输出模式                     
-//    //io_pull_write(PA03, IO_PULL_UP);   //设置上拉  
-//		io_write_pin(PA03,1);
-//		DELAY_US(500*1000);
-//		io_write_pin(PA03,0);
-//}
-
-
-void RESET_NB(){
-//		io_cfg_output(PA05);               //输出模式                     
-//    io_pull_write(PA05, IO_PULL_UP);   //设置上拉  
-//		io_write_pin(PA05,0);
-//		DELAY_US(10*1000);
-//		io_write_pin(PA05,1);             
-//		DELAY_US(10*1000);
-//		io_write_pin(PA05,0);
-}
-
 
 void Read_Status(){
 	 uint8_t temp_val;

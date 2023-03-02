@@ -84,10 +84,12 @@ void Scan_Key(){
 					KEY_ONCE=1;
 //					rfid_task_flag_1=1; 
 //					//测试模式下有按键按下就启动开锁任务
-//				  if(test_mode_flag!=0xAA){
-//						 lock_task_flag_1=1; 
-//						 lock_task_flag_2=1; 
-//					}
+				  
+				 if(test_mode_flag!=0xAA){
+						 lock_task_flag_1=1; 
+						 lock_task_flag_2=1; 
+					}
+					
 					LOG_I("Vbat:%d",VBat_value);		
 					LOG_I("Db_val:%d",Db_val);
 					LOG_I("L11:%d",lock_state[0]);						
@@ -117,15 +119,25 @@ void Scan_Key(){
 						//uint16_t length_one = 1;
 						tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
 						tinyfs_write_through();
-						RESET_NB();
+
+				
+						AT_Command_Send(POWER_OFF);										
+						DELAY_US(1000*100);
+
+						//io_cfg_input(PB08);		//4G CAT1 电源		
+
+				    io_cfg_output(PB08);  //
+						io_write_pin(PB08,0);	//
+						
+						DELAY_US(1000*1000*3);
+				
 						platform_reset(0);
 			}			
 			if(count==1500){
 							buzzer_task_flag=1;
 							//模块重新配置服务器
 							tinyfs_write(ID_dir_2,RECORD_KEY2,(uint8_t*)"SET_NO",sizeof("SET_NO"));	
-							tinyfs_write_through();
-							RESET_NB();
+							tinyfs_write_through();				
 							platform_reset(0);
 			}
 			
@@ -198,8 +210,16 @@ void  ls_sleep_enter_lp2(void)
 		io_write_pin(PA05, 0);		
 		io_cfg_output(PC00);
 		io_write_pin(PC00, 0);	
-		io_cfg_input(PC01);	
-		io_cfg_input(PA06);	
+
+//	io_cfg_input(PC01);	
+		io_cfg_output(PC01);		//4G CAT1 电源				
+		io_write_pin(PC01,0);	
+		//io_cfg_input(PA06);	
+		
+		io_cfg_output(PA06);		//4G CAT1 电源				
+		io_write_pin(PA06,0);	
+
+	
 		io_cfg_input(PA07);	
 		io_cfg_output(PA08);	
 		io_write_pin(PA08, 0);	
@@ -215,9 +235,9 @@ void  ls_sleep_enter_lp2(void)
 		io_cfg_input(PB04);	
 		io_cfg_input(PB07);		
 		
-		io_cfg_input(PB08);		//4G CAT1 电源				
-//		io_cfg_output(PB08);		//4G CAT1 电源				
-//		io_write_pin(PB08,0);	
+//		io_cfg_input(PB08);		//4G CAT1 电源				
+		io_cfg_output(PB08);		//4G CAT1 电源				
+		io_write_pin(PB08,0);	
 
 		io_cfg_output(PB09);			 
 		io_write_pin(PB09,0);	 

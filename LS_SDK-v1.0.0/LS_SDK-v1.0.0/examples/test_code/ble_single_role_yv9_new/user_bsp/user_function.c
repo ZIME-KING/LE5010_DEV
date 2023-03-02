@@ -82,10 +82,10 @@ void User_Init() {
     io_write_pin(PB07,1);  //
 
     io_cfg_output(PC01);   //外置紫外灯
-    io_write_pin(PC01,1);  //
+    io_write_pin(PC01,0);  //
 
-    io_cfg_output(PA06);   //LED_0
-    io_write_pin(PA06,0);	 //LED_0
+    io_cfg_output(PA06);   //
+    io_write_pin(PA06,1);	 //
 
 		HAL_IWDG_Init(32756*5);  	 //5s看门狗
     HAL_RTC_Init(2);    				 //RTC内部时钟源
@@ -107,17 +107,17 @@ void LED_TASK() {
 
     if(uv_count>0) {
         //io_cfg_output(PC01);   //外置紫外灯
-        io_write_pin(PC01,0);  //
+        io_write_pin(PC01,1);  //
         uv_count--;
     } else {
         //io_cfg_output(PC01);   //外置紫外灯
-        io_write_pin(PC01,1);  //
+        io_write_pin(PC01,0);  //
     }
     //来自RTC的启动，不要亮灯
     if (RTC_flag==1) {
         io_write_pin(LED_G, 0);
         io_write_pin(LED_R, 0);
-        io_write_pin(PC01, 1);
+        io_write_pin(PC01, 0);
     }
     else {
         //io_write_pin(PC01, 0);
@@ -881,11 +881,6 @@ void Scan_RDIF_Task() {
     }
 }
 
-
-
-
-
-
 uint8_t Get_Uart_Data_Processing_Result() {
     return globle_Result;
 }
@@ -910,10 +905,10 @@ uint8_t Get_Task_State(Typedef_TASK_LIST TASK_LIST) {
     case OPEN_LOCK_DATA_SEND_MOTO:
         temp=	T5_enable;
         break;
-    case GET_MODE_VAL:
+    case TEST_GET_IMEI_VAL:
         temp=	T6_enable;
         break;
-    case GET_EMIC_VAL:
+    case TEST_GET_IMSI_VAL:
         temp=	T7_enable;
         break;
     case TEST_GET_DB_VAL:
@@ -942,10 +937,10 @@ void Set_Task_State(Typedef_TASK_LIST TASK_LIST,uint8_t state) {
     case OPEN_LOCK_DATA_SEND_MOTO:
         T5_enable=state;
         break;
-    case GET_MODE_VAL:
+    case TEST_GET_IMEI_VAL:
         T6_enable=state;
         break;
-    case GET_EMIC_VAL:
+    case TEST_GET_IMSI_VAL:
         T7_enable=state;
         break;
     case TEST_GET_DB_VAL:
@@ -1546,7 +1541,9 @@ uint16_t AT_INIT() {
 								
 										AT_Command_Send(POWER_OFF);										
 										DELAY_US(1000*100);
-										io_cfg_input(PB08);		//4G CAT1 电源		
+										//io_cfg_input(PB08);		//4G CAT1 电源		
+                    io_cfg_output(PB08);  //
+										io_write_pin(PB08,0);	//
                     DELAY_US(1000*1000*3);
 										platform_reset(0); 						//初始化成功写入成功标记位，重启
                 }
@@ -1556,7 +1553,9 @@ uint16_t AT_INIT() {
 	
 										AT_Command_Send(POWER_OFF);										
 										DELAY_US(1000*100);
-										io_cfg_input(PB08);		//4G CAT1 电源		
+										//io_cfg_input(PB08);		//4G CAT1 电源		
+                    io_cfg_output(PB08);  //
+										io_write_pin(PB08,0);	//
                     DELAY_US(1000*1000*3);
 										platform_reset(0); 						//初始化成功写入成功标记位，重启
                 }

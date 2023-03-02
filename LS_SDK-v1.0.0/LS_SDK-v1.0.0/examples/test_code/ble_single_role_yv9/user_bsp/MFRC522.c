@@ -20,8 +20,9 @@ void RC522_GPIO_INIT(){
 		//io_cfg_output(SPI_NSS_2); //
 		io_cfg_output(SPI_MOSI);  //
 		io_cfg_output(SPI_CLK);   //
+	
 		io_cfg_output(POWER);   	//		
-		io_write_pin(POWER,0);		
+		io_write_pin(POWER,1);		
 		
 		io_cfg_input(SPI_MISO);                       
     //io_pull_write(SPI_MISO, IO_PULL_UP);  
@@ -44,8 +45,8 @@ void RC522_GPIO_INIT(){
 #define RC522_RST_L()  	
 #define RC522_RST_H()  	 
 
-#define POWER_ON()  	 	io_write_pin(POWER,0);
-#define POWER_OFF()  	 	io_write_pin(POWER,1);
+#define POWER_ON()  	 	io_write_pin(POWER,1);
+#define POWER_OFF()  	 	io_write_pin(POWER,0);
 
 #define MAXRLEN 18  
 //#define UART
