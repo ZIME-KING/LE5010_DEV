@@ -312,7 +312,7 @@ static void ls_user_event_timer_cb_1(void *param)
 {
 	Buzzer_Task();
 				
-	User_Mfrc522_2(&M1_Card_2,0);
+	//User_Mfrc522_2(&M1_Card_2,0);
   
 	User_Mfrc522(&M1_Card,0);            //É¨Ãè¿¨Æ¬ÈÎÎñ
 			
@@ -1235,9 +1235,22 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 int main()
 {
     sys_init_app();
-    ble_init();
+    
+		
+		
+		
+		
+		
+		ble_init();
     dev_manager_init(dev_manager_callback);
     gap_manager_init(gap_manager_callback);
     gatt_manager_init(gatt_manager_callback);
+	
+		
+		
     ble_loop();
+		
+		
+		
+		
 }

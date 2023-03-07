@@ -70,6 +70,8 @@ uint8_t UDP_INIT(void);
 void Password_Task(void);
 void Key_Task(void);
 
+void Delay_test_task(void);
+
 void Once_Send(void);
 
 uint16_t AT_INIT(void);

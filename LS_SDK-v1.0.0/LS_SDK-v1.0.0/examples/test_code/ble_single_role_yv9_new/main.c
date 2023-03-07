@@ -369,7 +369,7 @@ static void ls_user_event_timer_cb_1(void *param)
                     }
 //										Scan_RDIF_Task();                      //扫描卡片任务
 
-										User_Mfrc522_2(&M1_Card_2,0);
+										//User_Mfrc522_2(&M1_Card_2,0);
                     User_Mfrc522(&M1_Card,0);            //扫描卡片任务
 										State_Change_Task();								 //扫描开关状态，改变蓝牙发送，和NB启动上报数据
 										Lock_task() ;                        //开锁任务

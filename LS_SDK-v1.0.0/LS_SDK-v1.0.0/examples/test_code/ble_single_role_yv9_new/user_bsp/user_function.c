@@ -1202,6 +1202,43 @@ uint16_t Open_Lock_Data_Send_Task() {
 //    }
 //}
 
+uint8_t delay_task_flag=0;
+//延时发送任务
+void Delay_test_task(){
+static uint16_t count;
+	
+	if(delay_task_flag==1){
+	count++;
+		if(count>100){
+			delay_task_flag=0;
+					Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+					look_status_send_count+=3;
+					if(look_status_send_count>=3) {
+							look_status_send_count=3;
+					}
+					user_ble_send_flag=1;
+					TX_DATA_BUF[0]=0x52;		// CMD
+					TX_DATA_BUF[1]=TOKEN[0];
+					TX_DATA_BUF[2]=TOKEN[1];
+					TX_DATA_BUF[3]=TOKEN[2];
+					TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+					TX_DATA_BUF[5]=0x08;    	//LEN
+					TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+					TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+					TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+					TX_DATA_BUF[9]=0x01;
+					TX_DATA_BUF[10]=RFID_DATA[0];
+					TX_DATA_BUF[11]=RFID_DATA[1];
+					TX_DATA_BUF[12]=RFID_DATA[2];
+					TX_DATA_BUF[13]=RFID_DATA[3];		
+		}
+	}
+	else{
+		count=0;
+	}
+}
+
+
 uint8_t last_lock_state_0;
 uint8_t last_lock_state_1;
 //检测状态发生变化上报数据
@@ -1247,34 +1284,37 @@ void State_Change_Task() {
         LOG_I("sw1:%d", lock_state[0]);
         open_lock_data_reply_Result=0;
         last_lock_state_0=lock_state[0];
-        Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+			  RTC_flag=0;
 
-        look_status_send_count+=3;
-        if(look_status_send_count>=3) {
-            look_status_send_count=3;
-        }
-        RTC_flag=0;
-
+				//关锁延时发送，等待刷卡数据更新
         if(lock_state[0]==1) {
             buzzer_task_flag=1;
             uv_count=25000/50;
-						//rfid_task_flag_1=1;   					 //开启一号卡扫卡
+						delay_task_flag=1;
         }
-        user_ble_send_flag=1;
-        TX_DATA_BUF[0]=0x52;		// CMD
-        TX_DATA_BUF[1]=TOKEN[0];
-        TX_DATA_BUF[2]=TOKEN[1];
-        TX_DATA_BUF[3]=TOKEN[2];
-        TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
-        TX_DATA_BUF[5]=0x08;    	//LEN
-        TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
-        TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
-        TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
-        TX_DATA_BUF[9]=0x01;
-        TX_DATA_BUF[10]=RFID_DATA[0];
-        TX_DATA_BUF[11]=RFID_DATA[1];
-        TX_DATA_BUF[12]=RFID_DATA[2];
-        TX_DATA_BUF[13]=RFID_DATA[3];
+				//开锁立刻发送
+				else{
+					Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
+					look_status_send_count+=3;
+					if(look_status_send_count>=3) {
+							look_status_send_count=3;
+					}
+					user_ble_send_flag=1;
+					TX_DATA_BUF[0]=0x52;		// CMD
+					TX_DATA_BUF[1]=TOKEN[0];
+					TX_DATA_BUF[2]=TOKEN[1];
+					TX_DATA_BUF[3]=TOKEN[2];
+					TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
+					TX_DATA_BUF[5]=0x08;    	//LEN
+					TX_DATA_BUF[6]=0x01;			//主锁无，关闭模式
+					TX_DATA_BUF[7]=0x06;    // 在线情况  1，2全在线，具体见协议文档
+					TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+					TX_DATA_BUF[9]=0x01;
+					TX_DATA_BUF[10]=RFID_DATA[0];
+					TX_DATA_BUF[11]=RFID_DATA[1];
+					TX_DATA_BUF[12]=RFID_DATA[2];
+					TX_DATA_BUF[13]=RFID_DATA[3];		
+				}
     }
 
 

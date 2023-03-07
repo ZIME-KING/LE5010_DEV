@@ -57,12 +57,19 @@ uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
 		
 //		rfid_task_flag_1=0;
 		RC522_GPIO_INIT();
+		
+	//	ReadRawRC(0x33);
+		//return 0;
+		
     if(rfid_task_flag_1==0 ) {
         if(once_flag!=0xAA) {
             //RC522_GPIO_INIT();
             PcdReset();
+					
+							user_test=ReadRawRC(0x33);
+
 						
-						user_test=ReadRawRC(0x33);
+						
 						LOG_HEX(&user_test,1);
 						
 						PcdAntennaOff();
