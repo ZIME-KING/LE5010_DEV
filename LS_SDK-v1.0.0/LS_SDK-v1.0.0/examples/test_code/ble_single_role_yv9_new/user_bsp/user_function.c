@@ -1209,7 +1209,7 @@ static uint16_t count;
 	
 	if(delay_task_flag==1){
 	count++;
-		if(count>100){
+		if(count>60){
 			delay_task_flag=0;
 					Set_Task_State(OPEN_LOCK_DATA_SEND,1); //状态改变数据上传
 					look_status_send_count+=3;

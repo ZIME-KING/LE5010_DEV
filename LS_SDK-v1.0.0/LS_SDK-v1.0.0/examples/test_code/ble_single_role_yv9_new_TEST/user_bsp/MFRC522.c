@@ -4,7 +4,7 @@
 #include "user_main.h"
 #include "mfrc522.h"
 
-#define SPI_NSS	    PB11
+#define SPI_NSS	    PB02
 
 #define SPI_NSS_2   PA12
 #define SPI_MOSI    PA14

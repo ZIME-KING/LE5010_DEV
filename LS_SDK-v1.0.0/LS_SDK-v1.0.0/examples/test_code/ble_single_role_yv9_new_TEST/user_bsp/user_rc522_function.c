@@ -88,7 +88,7 @@ uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
             once_flag=0xAA;
 						return 1;
         }
-        if(count>20) {						
+        if(count>3) {						
 						count=0; 
 						last_SelectedSnr[0]=0;
 						last_SelectedSnr[1]=0;
