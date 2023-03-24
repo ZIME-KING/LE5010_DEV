@@ -10,17 +10,17 @@
 #define SW_IN_2  PA00    //∫ÏÕ‚2  ‰»Î
 #define SW_IN_3  PA07    //ªÙ∂˚   ‰»Î
 
-#define POS_0      0x11
-#define POS_0_90   0x10
-#define POS_90     0x00
-#define POS_90_180 0x01
+#define POS_0      0x01
+#define POS_0_90   0x11
+#define POS_90     0x10
+#define POS_90_180 0x00
 #define POS_OUT    0xFF
 
 
 
 typedef struct{
 bool opt1;
-bool opt2;
+bool opt2;  
 bool opt3;
 }SW_TypeDef;
 

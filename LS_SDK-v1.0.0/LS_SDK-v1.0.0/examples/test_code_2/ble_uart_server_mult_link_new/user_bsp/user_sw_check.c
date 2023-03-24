@@ -4,7 +4,12 @@
  
 SW_TypeDef lock_sw;
 
- 
+__attribute__((constructor)) void init_lock_sw(){
+		
+		lock_sw.opt1=0;
+	  lock_sw.opt2=1;
+}
+
 void	check_sw(){ 
 static uint8_t count;
 

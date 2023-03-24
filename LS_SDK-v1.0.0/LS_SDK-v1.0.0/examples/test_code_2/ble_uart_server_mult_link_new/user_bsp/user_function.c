@@ -320,7 +320,7 @@ void loop_task() {
 
     User_Print_Log();
 		LED_Auto_close();
-   // Moto_Task();              //电机任务
+    Moto_Task();              //电机任务
     Test_Moto_Task();
 
     Uart2_Data_Processing();  //超声波数据
