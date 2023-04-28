@@ -155,7 +155,7 @@ static uint16_t uart_server_mtu;
 static uint8_t con_idx_server;
 static uint16_t cccd_config;
 
-static uint8_t adv_obj_hdl;
+ uint8_t adv_obj_hdl;
 static uint8_t advertising_data[28];
 static uint8_t scan_response_data[31];
 
@@ -165,7 +165,7 @@ static void ls_uart_server_client_uart_tx(void);
 static void ls_uart_server_read_req_ind(uint8_t att_idx, uint8_t con_idx);
 static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length, uint8_t const *value);
 static void ls_uart_server_send_notification(void);
-static void start_adv(void);
+ void start_adv(void);
 #endif
 /************************************************data for client*****************************************************/
 #if MASTER_CLIENT_ROLE == 1
@@ -327,11 +327,6 @@ static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint1
     }
 }
 
-
-
-
-
-
 static void ls_uart_server_send_notification(void)
 {
 		uint8_t *p;
@@ -386,11 +381,13 @@ static void user_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length
     }
 }
 
+//const uint16_t adv_int_arr[6] = {80, 160, 320, 800, 1600, 3200};
+
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
-        .adv_intv_min = 0x80,
-        .adv_intv_max = 0x80,
+        .adv_intv_min = 160,
+        .adv_intv_max = 160,
         .own_addr_type = PUBLIC_OR_RANDOM_STATIC_ADDR,
         .filter_policy = 0,
         .ch_map = 0x7,
@@ -405,7 +402,7 @@ static void create_adv_obj()
     dev_manager_create_legacy_adv_object(&adv_param);
 }
 
-static void start_adv(void)
+void start_adv(void)
 {
 		uint8_t TEMP[2]={0xCA,0XFA}; 
 		//uint8_t TEMP1[2]={0xFF,0XFF}; 
@@ -862,6 +859,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 #if SLAVE_SERVER_ROLE == 1
         dev_manager_add_service((struct svc_decl *)&ls_uart_server_svc);
         ls_uart_server_init();
+
 #endif     
 
 #if MASTER_CLIENT_ROLE == 1
@@ -871,10 +869,10 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif       
-        //ls_uart_init(); 
-         ls_app_timer_init();
-        //HAL_UART_Receive_IT(&UART_Config, &uart_rx_buf[0], UART_SYNC_BYTE_LEN); 
-				 User_BLE_Ready();
+         
+				 //ls_app_timer_init();
+				 
+				 //User_BLE_Ready();
     }
     break;
 #if SLAVE_SERVER_ROLE == 1    
@@ -953,9 +951,73 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
     }   
 }
 
+
+
+
+
+
 int main()
 {
+//		io_cfg_output(PB13);     //
+//		io_write_pin(PB13, 1);	 //
+//	
+//		io_cfg_input(PA04);			 //
+
+//		io_cfg_output(PA05);		 //
+//		io_write_pin(PA05, 0);		
+//				
+//		io_cfg_output(PC00);
+//		io_cfg_output(PC01);
+//		io_cfg_output(PA06);
+//		
+//		io_write_pin(PC00, 0);	
+//		io_write_pin(PC01,0);	
+//		io_write_pin(PA06,0);	
+//		
+//		io_cfg_input(PB03);	
+//		io_cfg_input(PB04);	
+//		
+//		
+//		io_cfg_output(PB08);		//4G CAT1 电源				
+//		io_write_pin(PB08,0);	
+//	
+//	    
+		LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;		
+		LSGPIOA->OT = 0;				
+		LSGPIOA->PUPD = 0;
+
+    LSGPIOB->MODE &= 0x3c00;  //3C00				
+		LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+		LSGPIOA->OT = 0;
+    LSGPIOB->PUPD = 0x2800;
+
+//	
+//		struct deep_sleep_wakeup wakeup;
+//	memset(&wakeup,0,sizeof(wakeup));
+////	wakeup.pb15 = 1 ;									//选择PB15作为唤醒io
+////	wakeup.pb15_rising_edge = 0;			//选择边沿唤醒
+////	wakeup.pa00 = 1 ;									//选择PA00作为唤醒io
+////	wakeup.pa00_rising_edge = 0;			//选择边沿唤醒
+////	wakeup.rtc  = 1 ;
+//  enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//调用唤醒函数         //有改动
+
     sys_init_app();
+		
+		LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;		
+		LSGPIOA->OT = 0;				
+		LSGPIOA->PUPD = 0xAAAAAAAA;
+
+    LSGPIOB->MODE &= 0x3c00;  //3C00				
+		LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+		LSGPIOA->OT = 0;
+   // LSGPIOB->PUPD = 0x2800;
+		LSGPIOB->PUPD =  0xAAA96AAA;								//		 AAA9 6AAA
     ble_init();
     dev_manager_init(dev_manager_callback);
     gap_manager_init(gap_manager_callback);

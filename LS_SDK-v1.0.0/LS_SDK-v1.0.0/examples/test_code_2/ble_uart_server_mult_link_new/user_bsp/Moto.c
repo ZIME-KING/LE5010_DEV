@@ -11,7 +11,7 @@
 uint8_t moro_task_flag=0;;
 ///////////////////////////////////////////
 
-uint8_t test_moro_task_flag=1;
+uint8_t test_moro_task_flag=0;
 
 
 //#define TEST_DEBUG
@@ -90,19 +90,15 @@ void Moto_IO_Init()
 
     M_TimHandle.Instance->CCR1=0;
     M_TimHandle.Instance->CCR2=0;
- //   M_TimHandle.Instance->CCR3=30;
 	
 	
 }
 void Moto_N() {
 
 //    io_write_pin(PB03,1);
-//    io_write_pin(PB04,0);
-	
-	    M_TimHandle.Instance->CCR1=230;
+//    io_write_pin(PB04,0);	
+	  M_TimHandle.Instance->CCR1=254;
     M_TimHandle.Instance->CCR2=0;
-	
-	
 
 #ifdef TEST_DEBUG
     LOG_I("Moto_N");
@@ -113,8 +109,8 @@ void Moto_P() {
     //io_write_pin(PC01,1);
 //    io_write_pin(PB03,0);
 //    io_write_pin(PB04,1);
-	    M_TimHandle.Instance->CCR1=0;
-    M_TimHandle.Instance->CCR2=230;
+	  M_TimHandle.Instance->CCR1=0;
+    M_TimHandle.Instance->CCR2=254;
 
 
 #ifdef TEST_DEBUG
@@ -124,13 +120,12 @@ void Moto_P() {
 
 }
 void Moto_S() {
-		//io_write_pin(PC01,1);
-
+//		io_write_pin(PC01,1);
 //    io_write_pin(PB03,1);
 //    io_write_pin(PB04,1);
 
-	    M_TimHandle.Instance->CCR1=255;
-    M_TimHandle.Instance->CCR2=255;
+	    M_TimHandle.Instance->CCR1=254;
+      M_TimHandle.Instance->CCR2=254;
 	
 
 #ifdef TEST_DEBUG

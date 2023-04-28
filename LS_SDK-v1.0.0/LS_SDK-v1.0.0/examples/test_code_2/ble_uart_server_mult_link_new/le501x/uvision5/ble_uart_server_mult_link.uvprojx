@@ -1729,6 +1729,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\md5..c</FilePath>
             </File>
+            <File>
+              <FileName>ble_uart_server_mult_link.map</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UVBuild\ble_uart_server_mult_link.map</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

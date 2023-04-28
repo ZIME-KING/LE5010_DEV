@@ -37,6 +37,8 @@ uint8_t	rfid_task_flag_2=0;
 //读卡相关操作
 //保存卡结构体
 //读取的扇区       volatile
+
+#define TEST_RC522
 uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
 		//static Card_TypeDef last_data;
     static unsigned char  last_SelectedSnr[4];  //防冲撞机制下返回的卡号
@@ -66,10 +68,7 @@ uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
             //RC522_GPIO_INIT();
             PcdReset();
 					
-							user_test=ReadRawRC(0x33);
-
-						
-						
+						user_test=ReadRawRC(0x33);
 						LOG_HEX(&user_test,1);
 						
 						PcdAntennaOff();
@@ -85,6 +84,23 @@ uint8_t User_Mfrc522(Card_TypeDef *card,char snr) {
 									LOG_I("NOT_FIND_RFID_DRIVE");
 									rfid_task_flag_1=1;
 						}
+						user_test=ReadRawRC(0x16);		
+						LOG_I("TxSelReg register:");
+						LOG_HEX(&user_test,1);			
+
+
+						#ifdef TEST_RC522
+						WriteRawRC(TxSelReg,0X14);						
+						LOG_I("TxSelReg write_OK:");		
+						user_test=ReadRawRC(0x16);		
+						LOG_I("TxSelReg register:");
+						LOG_HEX(&user_test,1);			
+						rfid_task_flag_1=1;
+						#endif
+						
+						
+						
+						
             once_flag=0xAA;
 						return 1;
         }

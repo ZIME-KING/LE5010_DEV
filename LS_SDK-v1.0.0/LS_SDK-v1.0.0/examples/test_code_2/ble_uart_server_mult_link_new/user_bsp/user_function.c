@@ -7,12 +7,18 @@
 UART_HandleTypeDef UART2_Config;
 UART_HandleTypeDef UART1_Config;
 
+void Enter_Low_Power_Mode(void);
+
 uint32_t time_count=0x00;
 uint8_t ble_adv_data[2]= {VER,0xFF};
 
 //uint8_t cmd_buf[64]; //接收到的命令缓存
 
 uint16_t check_DYP_time_out=0;
+
+uint8_t VIN_12=0;
+
+
 
 #define RISE_TIME 300
 
@@ -334,12 +340,15 @@ void loop_task() {
     if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
 
     vbat_val=Get_ADC_value()*20/1000;
+		
+//		Enter_Low_Power_Mode();
+		
 }
 
 static void ls_uart2_init(void)
 {
-    uart2_io_init(PA14, PA15);
-    io_pull_write(PA15, IO_PULL_UP);
+    uart2_io_init(PA15, PA14);
+    io_pull_write(PA14, IO_PULL_UP);
 
     UART2_Config.UARTX = UART2;
     UART2_Config.Init.BaudRate = UART_BAUDRATE_9600;
@@ -522,7 +531,7 @@ void User_BLE_Ready() {
     Moto_IO_Init();
     LED_Init();
 
-    User_ADC_Init();
+    //User_ADC_Init();
     ls_uart2_init();
     ls_uart1_init();
 
@@ -531,11 +540,10 @@ void User_BLE_Ready() {
     HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
     power_io_init();
 
+   //HAL_IWDG_Init(32756*1);  	 //5s看门狗
 
-//    HAL_IWDG_Init(32756*1);  	 //5s看门狗
-
-
-//    tag_lock_status=POS_90;
+    tag_lock_status=POS_90;
+		hw_lock_status= POS_90;
 
 ////////////获取mac////////////////////
     uint8_t addr[6];
@@ -546,8 +554,36 @@ void User_BLE_Ready() {
     memcpy(&lock_mac[0],&addr[0],6);
 
 ////////////////////////////////
+
+//Enter_Low_Power_Mode();
+
+}
+		
+//extern UART_HandleTypeDef log_uart;
+
+
+
+extern uint8_t adv_obj_hdl;
+void update_adv_intv(uint32_t new_adv_intv)
+{
+    LOG_I("adv_intv:%d",new_adv_intv);
+    dev_manager_update_adv_interval(adv_obj_hdl,new_adv_intv,new_adv_intv);
+ 
 }
 
+//测试进入LP0模式
+void Enter_Low_Power_Mode(void){
+
+
+		HAL_UART_DeInit(&UART1_Config);
+		HAL_UART_DeInit(&UART2_Config);
+		HAL_ADC_DeInit(&hadc);
+		uart1_io_deinit();
+		uart2_io_deinit();
+		io_init();
+		update_adv_intv(1600);  //广播包 实际*0.625       https://ls-doc.readthedocs.io/zh_CN/latest/src/sdk/demo/ble/ble_advertiser.html#rtt
+		start_adv();
+}
 
 
 

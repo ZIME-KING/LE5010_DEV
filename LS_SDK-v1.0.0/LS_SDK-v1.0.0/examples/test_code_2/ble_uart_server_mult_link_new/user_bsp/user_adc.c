@@ -3,7 +3,7 @@
 #include "user_main.h"
 
 
-static ADC_HandleTypeDef hadc;
+ADC_HandleTypeDef hadc;
 static volatile uint8_t recv_flag = 0;
 
 uint16_t aRxBuffer[2];

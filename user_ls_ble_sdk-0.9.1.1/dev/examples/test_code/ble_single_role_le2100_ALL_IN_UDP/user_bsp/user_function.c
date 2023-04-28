@@ -76,6 +76,9 @@ void User_Init() {
 		Button_Gpio_Init();
 	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
+		
+		io_write_pin(PA12,1);
+		
 		//Read_Last_Data();
 	  io_cfg_output(PC01);   //PB09 config output
     io_write_pin(PC01,0);  

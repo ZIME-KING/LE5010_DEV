@@ -46,6 +46,13 @@
 #include "co_math.h"
 #include "io_config.h"
 #include "reg_base_addr.h"
+#include "sleep.h"
+
+#include "reg_lsgpio.h"
+#include "reg_rcc.h"
+
+
+
 
 #include "user_sw_check.h"
 #include "user_function.h" 
@@ -61,6 +68,7 @@
 #include "md5.h"
 #include "lsiwdg.h"
 
+void start_adv(void);
 
 
 

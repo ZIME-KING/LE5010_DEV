@@ -9,8 +9,8 @@ uint8_t lock_sn[16]= 				{0xff,0xee,0xdd,0xcc,0xbb,0xaa,0x99,0x88,0x77,0x66,0x55
 uint8_t lock_mac[6]= {0}; // MAC
 uint8_t reset_flag;
 
-uint8_t hw_lock_status;     //锁状态 真实硬件上的  //0x00 初始位置 ，0x01 上升中 ， 0x00 90度 ， 0x11 超出 0xff 放到
-uint8_t tag_lock_status=0x00;    //锁状态 目标
+uint8_t hw_lock_status=POS_90;     //锁状态 真实硬件上的  //0x00 初始位置 ，0x01 上升中 ， 0x00 90度 ， 0x11 超出 0xff 放到
+uint8_t tag_lock_status=POS_90;    //锁状态 目标
 uint8_t lock_mode;          //锁模式 1自动，0手动(空闲) ，2异常（撞击）
 uint8_t ble_close_atc_flag; //
 

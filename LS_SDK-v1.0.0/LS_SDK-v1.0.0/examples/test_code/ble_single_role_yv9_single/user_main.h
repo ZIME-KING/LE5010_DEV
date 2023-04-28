@@ -33,6 +33,11 @@
 //#include "user_rc522_function.h"
 //#define USER_TEST 
 
+#define DEF                   //Ä¬ÈÏËÜÁÏËø
+//#define MAG                   //¸Ö°åËø
+//#define METAL_PADLOCK         //½ğÊô¹ÒËø
+
+
 
 #ifdef USER_TEST 
  extern uint8_t open_count;

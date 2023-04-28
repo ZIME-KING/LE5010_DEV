@@ -138,9 +138,6 @@ void user_send_sign_in(){
 		 static uint8_t mode_flag=0;
 		 static uint8_t count=0;
 
-
-
-
 	if(sign_flag==1){
 		 sign_flag=0;
 		 mode_flag=1;	
@@ -156,9 +153,6 @@ void user_send_sign_in(){
 	
 		return;
 	}
-	
-	
-	
 	
 	switch(mode_flag){		
 		case 0x01:           //¶ÁËæ»úÃÜÂë

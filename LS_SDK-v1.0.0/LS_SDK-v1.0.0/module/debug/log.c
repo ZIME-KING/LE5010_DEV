@@ -11,7 +11,7 @@
 #define RAM_LOG             4
 
 
-#define LOG_BACKEND (UART_LOG)
+#define LOG_BACKEND (JLINK_RTT)
 
 #ifndef LOG_BACKEND
 #if __arm__
@@ -34,7 +34,7 @@ __attribute((weak)) void (*log_output_fn)(bool linefeed,const char *format,...);
 __attribute((weak)) void (*log_hex_output_fn)(const void * data_pointer , uint16_t data_length);
 
 #if (LOG_BACKEND&UART_LOG)
-static UART_HandleTypeDef log_uart;
+UART_HandleTypeDef log_uart;
 
 static void log_uart_tx(char *ptr,int len)
 {

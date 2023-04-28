@@ -5,8 +5,20 @@
 #define START 0x01
 #define STOP  0x00
 
+
 #define VER_0  0xB0
-#define VER_1  0xB0
+
+#ifdef DEF                   //默认塑料锁
+	 #define VER_1  0xB0
+#endif
+
+#ifdef MAG                   //钢板锁
+		#define VER_1  0xB1
+#endif
+#ifdef METAL_PADLOCK         //金属挂锁
+		#define VER_1  0xB2
+#endif
+
 
 uint8_t send_count;							    //发送计数
 uint8_t lock_state[LOCK_NUM];     //锁状态存储

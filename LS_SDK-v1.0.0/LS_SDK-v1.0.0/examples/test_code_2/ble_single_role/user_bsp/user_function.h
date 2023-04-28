@@ -3,13 +3,20 @@
 #include "user_main.h"
 
 
-#define POS_0      0x11
-#define POS_0_90   0x10
-#define POS_90     0x00
-#define POS_90_180 0x01
+//#define POS_0      0x11
+//#define POS_0_90   0x10
+//#define POS_90     0x00
+//#define POS_90_180 0x01
+//#define POS_OUT    0xFF
+
+
+
+
+#define POS_0      0x01
+#define POS_0_90   0x11
+#define POS_90     0x10
+#define POS_90_180 0x00
 #define POS_OUT    0xFF
-
-
 
 
 extern uint8_t lockid[18] ;//Ëø16Î»idºÅ

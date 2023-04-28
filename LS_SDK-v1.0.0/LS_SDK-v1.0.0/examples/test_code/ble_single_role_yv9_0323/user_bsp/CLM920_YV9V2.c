@@ -6,7 +6,7 @@
 #define STOP  0x00
 
 #define VER_0  0xC0
-#define VER_1  0xC1
+#define VER_1  0xC3
 
 uint8_t send_count;							    //发送计数
 uint8_t lock_state[LOCK_NUM];     //锁状态存储
@@ -175,7 +175,7 @@ void Start_Lock_Send() {
 		DATA_BUF[19] = 0x02; 	  //lock_ID
     DATA_BUF[20] = !lock_state[1];	//lock_state
 		
-		DATA_BUF[21] = 0XC0;	//
+		DATA_BUF[21] = 0XC1;	//
 		DATA_BUF[22] = !C0_lock_state[0];	//lock_state
 		
 		
@@ -248,7 +248,7 @@ void Open_Lock_Send() {
 		DATA_BUF[17] = 0x02; 	  //lock_ID
     DATA_BUF[18] = !lock_state[1];	//lock_state
 
-		DATA_BUF[19] = 0xC0;	//
+		DATA_BUF[19] = 0XC1;	//
 		DATA_BUF[20] = !C0_lock_state[0];	//lock_state
 
 		DATA_BUF[21] = 0xA9;			//MICI 
@@ -302,7 +302,7 @@ void Tick_Lock_Send() {
 		DATA_BUF[17] = 0x02; 	  //lock_ID
     DATA_BUF[18] = !lock_state[1];	//lock_state
 
-		DATA_BUF[19] = 0xC0;	//
+		DATA_BUF[19] = 0XC1;	//
 		DATA_BUF[20] = !C0_lock_state[0];	//lock_state
 
 		DATA_BUF[21] = 0xA9;			//MICI 卡号
@@ -364,7 +364,7 @@ void Open_Lock_Data_Send() {
 		DATA_BUF[17] = 0x02; 	  //lock_ID
     DATA_BUF[18] = !lock_state[1];	//lock_state
 
-		DATA_BUF[19] = 0xC0;	//
+		DATA_BUF[19] = 0XC1;	//
 		DATA_BUF[20] = !C0_lock_state[0];	//lock_state
 
 		DATA_BUF[21] = 0xA9;			//MICI 

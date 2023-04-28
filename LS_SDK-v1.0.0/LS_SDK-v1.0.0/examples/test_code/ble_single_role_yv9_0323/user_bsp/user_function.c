@@ -980,7 +980,7 @@ uint16_t Start_Lock_Send_Task() {
                         busy=0;//空闲
                         break;
                     }
-                    UDP_Data_Send(72);		//进入发送模式
+                    UDP_Data_Send(74);		//进入发送模式
                 }
             }
             break;
@@ -1040,7 +1040,7 @@ uint16_t Open_Lock_Send_Task() {
                         busy=0;//空闲
                         break;
                     }
-                    UDP_Data_Send(37);		//进入发送模式
+                    UDP_Data_Send(39);		//进入发送模式
                 }
             }
             break;
@@ -1099,7 +1099,7 @@ uint16_t Tick_Lock_Send_Task() {
                         busy=0;//空闲
                         break;
                     }
-                    UDP_Data_Send(37);		//进入发送模式
+                    UDP_Data_Send(39);		//进入发送模式
                 }
             }
             break;
@@ -1161,7 +1161,7 @@ uint16_t Open_Lock_Data_Send_Task() {
                         busy=0;
                         break;
                     }
-                    UDP_Data_Send(47);		//进入发送模式
+                    UDP_Data_Send(49);		//进入发送模式
                 }
             }
             break;
@@ -1255,15 +1255,18 @@ void State_Change_Task() {
 //			return;
 //		}
 
-			if(Check_C_SW()==1){
+		if(Check_C_SW()==1){
 				c_sw_count++;
         if(c_sw_count>10) c_sw_count=10;
         if(c_sw_count==3) {
             C0_lock_state[0]=0;
+						 //LOG_I("C0_lock_state0");
         }
     }
     else {
         C0_lock_state[0]=1;
+				 //LOG_I("C0_lock_state1");
+				 c_sw_count=0;
     }
 
 
