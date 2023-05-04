@@ -16,14 +16,20 @@
 
 TIM_HandleTypeDef TimHandle;
 
+reg_timer_t temp_time_val_B;
+
+void save_timer_config_B(){
+	memcpy(&temp_time_val_B,LSGPTIMB, sizeof(temp_time_val_B));
+}
+
 static void Basic_PWM_Output_Cfg(void)
 {
-    TIM_OC_InitTypeDef sConfig = {0};
-
+		save_timer_config_B();
+		TIM_OC_InitTypeDef sConfig = {0};
     gptimb1_ch1_io_init(PA10, true, 0);
     gptimb1_ch2_io_init(PA11, true, 0);
     gptimb1_ch3_io_init(PA09, true, 0);
-//    gptimb1_ch4_io_init(PB15, true, 0);
+		//gptimb1_ch4_io_init(PB15, true, 0);
     /*##-1- Configure the TIM peripheral #######################################*/
     TimHandle.Instance = LSGPTIMB;
     TimHandle.Init.Prescaler = TIM_PRESCALER;
@@ -31,7 +37,8 @@ static void Basic_PWM_Output_Cfg(void)
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
     TimHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    HAL_TIM_Init(&TimHandle);
+    
+		HAL_TIM_Init(&TimHandle);
 
     /*##-2- Configure the PWM channels #########################################*/
     sConfig.OCMode = TIM_OCMODE_PWM1;
@@ -41,37 +48,65 @@ static void Basic_PWM_Output_Cfg(void)
     sConfig.Pulse = TIM_PULSE1;
     HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1);
 
-    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfig.Pulse = TIM_PULSE2;
-    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_2);
+//    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
+//    sConfig.Pulse = TIM_PULSE2;
+//    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_2);
 
-    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfig.Pulse = TIM_PULSE3;
-    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_3);
+//    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
+//    sConfig.Pulse = TIM_PULSE3;
+//    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_3);
 
 //    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
 //    sConfig.Pulse = TIM_PULSE4;
 //    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_4);
 
     /*##-3- Start PWM signals generation #######################################*/
+
     HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_3);
-//    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_4);
+//    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_2);
+//    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_3);
+
+
+   // HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_4);
 }
 
 void LED_Init(void)
 {
+    static uint8_t once_flag=0;
 
     io_cfg_output(PB13);   //PB09 config output
     io_write_pin(PB13,1);
 
     Basic_PWM_Output_Cfg();
 
-    TimHandle.Instance->CCR1=10;
-    TimHandle.Instance->CCR2=20;
-    TimHandle.Instance->CCR3=30;
+    if(once_flag!=0xAA) {
+        once_flag=0xAA;
+        TimHandle.Instance->CCR1=10;
+        TimHandle.Instance->CCR2=20;
+        TimHandle.Instance->CCR3=30;
+    }
 }
+
+void LED_DeInit(void)
+{
+	//memcpy(LSGPTIMB,&temp_time_val_B, sizeof(temp_time_val_B));	
+	//memset(LSGPTIMB,0x00, sizeof(temp_time_val_B));
+	
+	HAL_TIM_DeInit(&TimHandle);
+	
+	
+	
+//	
+////TIM_OC_InitTypeDef sConfig = {0};
+//gptimb1_ch1_io_deinit();
+//gptimb1_ch2_io_deinit();
+//gptimb1_ch3_io_deinit();
+//HAL_TIM_DeInit(&TimHandle);	
+}
+
+
+
+
 
 uint8_t now_r;
 uint8_t now_g;
@@ -94,24 +129,28 @@ uint8_t max_brightness=0xff;
 uint8_t min_brightness=0x00;
 
 void Set_LED_Function_val(uint8_t status,
-													uint8_t r,uint8_t g,uint8_t b,
-													uint8_t max,uint8_t min,
-													uint8_t T0,uint8_t T1,uint8_t T2,uint8_t T3)
+                          uint8_t r,uint8_t g,uint8_t b,
+                          uint8_t max,uint8_t min,
+                          uint8_t T0,uint8_t T1,uint8_t T2,uint8_t T3)
 {
-	LED_status=status;
-	if(LED_status==1){
-				buf[0]=g; buf[1]=r;buf[2]=b;
-	}
-	else{
-			 buf[0]=0; buf[1]=0;buf[2]=0;                        
-	}
-	
-	max_brightness = max;
-	min_brightness=  min;
-	set_t0=T0;
-	set_t1=T1;
-	set_t2=T2;
-	set_t3=T3;
+    LED_status=status;
+    if(LED_status==1) {
+        buf[0]=g;
+        buf[1]=r;
+        buf[2]=b;
+    }
+    else {
+        buf[0]=0;
+        buf[1]=0;
+        buf[2]=0;
+    }
+
+    max_brightness = max;
+    min_brightness=  min;
+    set_t0=T0;
+    set_t1=T1;
+    set_t2=T2;
+    set_t3=T3;
 }
 
 
@@ -125,21 +164,21 @@ void LED_Functon() {
     static uint16_t time=1;
     static uint16_t temp=1;
     count++;
-		
-		if(LED_status==0x01){
-			TimHandle.Instance->CCR1=now_g;
-			TimHandle.Instance->CCR2=now_r;
-			TimHandle.Instance->CCR3=now_b;
-		}
-    
-		else if(LED_status==0x02){
-				TimHandle.Instance->CCR1=0;
-				TimHandle.Instance->CCR2=0;
-				TimHandle.Instance->CCR3=0;
-				return;
-		}
 
-		
+    if(LED_status==0x01) {
+        TimHandle.Instance->CCR1=now_g;
+        TimHandle.Instance->CCR2=now_r;
+        TimHandle.Instance->CCR3=now_b;
+    }
+
+    else if(LED_status==0x02) {
+        TimHandle.Instance->CCR1=0;
+        TimHandle.Instance->CCR2=0;
+        TimHandle.Instance->CCR3=0;
+        return;
+    }
+
+
     switch(mode_flag) {
     case 0:
         set_r= buf[0]*max_brightness/256;

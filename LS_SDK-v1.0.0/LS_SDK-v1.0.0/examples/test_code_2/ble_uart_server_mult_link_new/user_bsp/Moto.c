@@ -28,8 +28,16 @@ uint8_t test_moro_task_flag=0;
 
 TIM_HandleTypeDef M_TimHandle;
 
+reg_timer_t temp_time_val;
+
+void save_timer_config(){
+	memcpy(&temp_time_val,LSGPTIMC, sizeof(temp_time_val));
+}
+
 static void M_Basic_PWM_Output_Cfg(void)
 {
+		save_timer_config();
+
     TIM_OC_InitTypeDef sConfig = {0};
 
     gptimc1_ch1_io_init(PB03, true, 0);
@@ -90,9 +98,17 @@ void Moto_IO_Init()
 
     M_TimHandle.Instance->CCR1=0;
     M_TimHandle.Instance->CCR2=0;
-	
-	
 }
+
+//主要是关闭定时器
+void Moto_IO_DeInit()
+{
+    HAL_TIM_DeInit(&M_TimHandle);
+
+	//memcpy(LSGPTIMC,&temp_time_val, sizeof(temp_time_val));   
+}
+
+
 void Moto_N() {
 
 //    io_write_pin(PB03,1);

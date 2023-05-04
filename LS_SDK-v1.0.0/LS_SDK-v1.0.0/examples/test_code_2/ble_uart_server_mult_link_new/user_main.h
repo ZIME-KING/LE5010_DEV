@@ -24,11 +24,6 @@
 #define RECORD_KEY12  12   //
 #define RECORD_KEY13  13   //
 
-
-
-
-
-
 #define USER_SET 0
 #define USER_RUN 1
 
@@ -47,6 +42,7 @@
 #include "io_config.h"
 #include "reg_base_addr.h"
 #include "sleep.h"
+#include "sys_stat.h"
 
 #include "reg_lsgpio.h"
 #include "reg_rcc.h"
@@ -67,6 +63,17 @@
 #include "user_adc.h"
 #include "md5.h"
 #include "lsiwdg.h"
+
+
+#define USER_EVENT_PERIOD_0 1		 	 //1ms
+#define USER_EVENT_PERIOD_1 100     // 100ms
+
+void ls_user_event_timer_cb_0(void *param);
+void ls_user_event_timer_cb_1(void *param);
+
+extern struct builtin_timer_0 *user_event_timer_inst_0 ;
+extern struct builtin_timer_1 *user_event_timer_inst_1 ;
+
 
 void start_adv(void);
 

@@ -4,10 +4,19 @@
 
 #define VER 0x01
 
+
+
+// 0竖立低功耗模式，1竖立正常功耗模式，2放倒低功耗模式 ，3放倒正常功耗模式
+uint8_t user_status=1;             //上电后设置为竖立模式
+
+
 UART_HandleTypeDef UART2_Config;
 UART_HandleTypeDef UART1_Config;
 
-void Enter_Low_Power_Mode(void);
+void Enter_Power_Mode_NL(void);
+void Enter_Power_Mode_NH(void);
+void Enter_Power_Mode_LL(void);
+void Enter_Power_Mode_LH(void);
 
 uint32_t time_count=0x00;
 uint8_t ble_adv_data[2]= {VER,0xFF};
@@ -91,16 +100,48 @@ void Check_DYP_distance() {
     }
 }
 
+//阻塞方式查询超声波数据
+void Check_DYP_distance_wait() {
+    static uint16_t count;
 
-void LED_Auto_close(){
-		if(LED_status==0x01){
-			user_time_cont++;
-			if(user_time_cont>=led_sleep_time*10){
-				 LED_status=0x02;
+    HAL_UART_Transmit(&UART2_Config,(uint8_t*)"123456789",10,10);   
+		for(int i=0;i<50;i++){
+			DELAY_US(1000);
+			if(frame_2[uart_frame_id].status!=0) {   			//接收到数据后status=1;
+        //HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
+        if(frame_2[uart_frame_id].buffer[0] != 0xff) {
+            car_val=0x02;   //模块没有找到
+						break;
+        }
+        DYP_distance= (frame_2[uart_frame_id].buffer[1]<<8) +  (frame_2[uart_frame_id].buffer[2]);
+        LOG_I("DYP_distance:%d",DYP_distance);
+        if(DYP_distance<=500) {
+            car_val=0x01;
+        }
+        else {
+            car_val=0xff;
+        }
+        frame_2[uart_frame_id].status=0;					//处理完数据后status 清0;
 			}
-		}else{
-			 user_time_cont=0;
 		}
+		
+
+
+		
+}
+
+
+
+
+void LED_Auto_close() {
+    if(LED_status==0x01) {
+        user_time_cont++;
+        if(user_time_cont>=led_sleep_time*10) {
+            LED_status=0x02;
+        }
+    } else {
+        user_time_cont=0;
+    }
 }
 
 
@@ -112,13 +153,13 @@ void auto_mode_function(uint8_t mode) {
     static uint16_t rise_time;
 
     static uint8_t once_flag=0xff;
-		
-		if(once_flag==0xff){
-				once_flag=0xAA;
-				rise_time= second_rise_time*10;
-		}
-    
-		if(mode==USER_SET) {
+
+    if(once_flag==0xff) {
+        once_flag=0xAA;
+        rise_time= second_rise_time*10;
+    }
+
+    if(mode==USER_SET) {
         rise_time=first_rise_time*10;
     }
 
@@ -132,36 +173,33 @@ void auto_mode_function(uint8_t mode) {
         if(car_val==0xff) {
             find_car_time=0;
             no_car_time++;
-						
-
         }
         //有车
         else if(car_val==0x01) {
             find_car_time++;
-						 no_car_time=0;
+            no_car_time=0;
 
-						if(find_car_time>=100){
-								rise_time=	second_rise_time*10;
-
-						}
+            if(find_car_time>=100) {
+                rise_time=	second_rise_time*10;
+            }
         }
 
         if(no_car_time>=rise_time) {
             tag_lock_status=POS_90;
             moro_task_flag=1;
             lock_mode=0x00;
-						
-						LOG_I("no cat_time_out");
-						
+
+            LOG_I("no cat_time_out");
+
         }
     } else {
         //rise_time=0;
-				no_car_time=0;
-				find_car_time=0;
+        no_car_time=0;
+        find_car_time=0;
     }
 }
 
-//外力按压时的情况  
+//外力按压时的情况
 void err_mode_function() {
 
     static uint16_t count;
@@ -170,12 +208,12 @@ void err_mode_function() {
 //	static uint8_t last_lock_mode=0x01;
     count++;
 
-		//1s
+    //1s
     if(count%2==1) {
-				if(count>=65535){
-					 count=51;
-				}
-		
+        if(count>=65535) {
+            count=51;
+        }
+
         //电机未动作
         if(moro_task_flag==0) {
             if(hw_lock_status!=tag_lock_status ) {
@@ -190,20 +228,20 @@ void err_mode_function() {
 
     if(lock_mode==0x02) {
 
-			//	LOG_I("time_out:%d",time_out);
-				if(hw_lock_status==tag_lock_status){						
-						    if(time_out>=hw_err_out_time*10  && count>=100) {                 
-										lock_mode=0x01;       
-                }
-								else{
-										lock_mode=0x00;
-								}
-								time_out=0;
-				}	
-				if(time_out>=(hw_err_out_time*10)+1  && count>=100) {
-             tag_lock_status=POS_0;                   
-         }
-				
+        //	LOG_I("time_out:%d",time_out);
+        if(hw_lock_status==tag_lock_status) {
+            if(time_out>=hw_err_out_time*10  && count>=100) {
+                lock_mode=0x01;
+            }
+            else {
+                lock_mode=0x00;
+            }
+            time_out=0;
+        }
+        if(time_out>=(hw_err_out_time*10)+1  && count>=100) {
+            tag_lock_status=POS_0;
+        }
+
         //开始报警
         Set_buzzer_Task_val( hw_err_buzzer_all_time,hw_err_buzzer_on_time,hw_err_buzzer_off_time);
         buzzer_task_flag=1;   //启动蜂鸣器
@@ -211,32 +249,32 @@ void err_mode_function() {
 
         if(tag_lock_status ==POS_90) {
 
-            
-           // LOG_I("time_out:%d",time_out);
+
+            // LOG_I("time_out:%d",time_out);
 
             switch(hw_lock_status) {
 
             case POS_0_90:
-								time_out++;
-								//LOG_I("time_out:%d",time_out);
+                time_out++;
+                //LOG_I("time_out:%d",time_out);
                 moro_task_flag=1;
                 break;
 
             case POS_0:
-								time_out++;
+                time_out++;
                 moro_task_flag=1;
 
                 break;
-						
-						case POS_90_180:
-								time_out=0;
+
+            case POS_90_180:
+                time_out=0;
                 moro_task_flag=1;
 
                 break;
-								
+
 
             case POS_OUT:
-								time_out=0;
+                time_out=0;
                 moro_task_flag=1;
 
                 break;
@@ -272,9 +310,9 @@ void err_mode_function() {
 
             }
         }
-				else{
-					time_out=0;
-				}
+        else {
+            time_out=0;
+        }
     }
 }
 
@@ -289,11 +327,35 @@ void power_io_init() {
 
     io_cfg_output(SW_EN_2);   	//
     io_write_pin(SW_EN_2,1);
-
-    io_cfg_input(PA00);   			//
-    io_cfg_input(PB15);
+							 
+    io_cfg_input(SW_IN_1);   			//
+    io_cfg_input(SW_IN_2);
     io_cfg_input(PA07);
 }
+
+
+void power_io_deinit() {
+
+    io_cfg_disable (PA05);
+    //io_cfg_input(PA05);   //  超声波
+    //io_write_pin(PA05,1);
+    io_pull_write(PA05,IO_PULL_DOWN);
+
+    io_cfg_disable (SW_EN_1);
+    //io_cfg_input(SW_EN_1);   	//
+    //io_write_pin(SW_EN_1,1);
+    io_pull_write(SW_EN_1,IO_PULL_DOWN);
+
+    io_cfg_disable (SW_EN_2);
+    //io_cfg_input(SW_EN_2);   	//
+    //io_write_pin(SW_EN_2,1);
+    io_pull_write(SW_EN_2,IO_PULL_DOWN);
+
+    io_cfg_disable(PA00);   			//
+    io_cfg_disable(PB15);
+    io_cfg_disable(PA07);
+}
+
 
 void User_Print_Log() {
     static uint8_t last_hw_lock_status;
@@ -322,27 +384,57 @@ void User_Print_Log() {
 
 
 }
+
+
+
+
+// 0竖立低功耗模式，1竖立正常功耗模式，2放倒低功耗模式 ，3放倒正常功耗模式
+
+
 void loop_task() {
+	
+	static uint16_t count;
+	count++;
 
     User_Print_Log();
-		LED_Auto_close();
-    Moto_Task();              //电机任务
-    Test_Moto_Task();
+    switch(user_status) {
+    case 0 :
+			if(count%100==1){
+					check_sw_wait();      //10s测试一次红外
+			}
+        break;
 
-    Uart2_Data_Processing();  //超声波数据
-    Uart_Data_Processing();   //RS485数据处理
-    Buzzer_Task_100();
-    Check_DYP_distance();    //超声波发送
+    case 1 :
 
-    auto_mode_function(USER_RUN);
-    err_mode_function();
+        break;
 
-    if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+    case 2 :
+			if(count%100==1){
+					Check_DYP_distance();
+					//check_sw_wait();      //10s测试一次红外
+			}
+        break;
 
-    vbat_val=Get_ADC_value()*20/1000;
-		
+    case 3 :
+
+        break;
+    }
+
+//    User_Print_Log();
+//    LED_Auto_close();
+//    Moto_Task();              //电机任务
+//    Test_Moto_Task();
+//    Uart2_Data_Processing();  //超声波数据
+//    Uart_Data_Processing();   //RS485数据处理
+//    Buzzer_Task_100();
+//    Check_DYP_distance();    //超声波发送
+//    auto_mode_function(USER_RUN);
+//    err_mode_function();
+//    if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+//    vbat_val=Get_ADC_value()*20/1000;
+
 //		Enter_Low_Power_Mode();
-		
+
 }
 
 static void ls_uart2_init(void)
@@ -414,8 +506,8 @@ void Read_Last_Data() {
     uint16_t length_10 = 1;
     uint16_t length_11 = 1;
     uint16_t length_12 = 1;
-		
-		uint16_t length_13 = 1;
+
+    uint16_t length_13 = 1;
 
     tinyfs_mkdir(&ID_dir_1,ROOT_DIR,53);  //创建目录
 
@@ -449,7 +541,7 @@ void Read_Last_Data() {
         //p=(uint8_t*)&hw_err_buzzer_off_time;
         tinyfs_write(ID_dir_1,RECORD_KEY12,&hw_err_buzzer_off_time,1);
 
-				tinyfs_write(ID_dir_1,RECORD_KEY13,&led_sleep_time,1);
+        tinyfs_write(ID_dir_1,RECORD_KEY13,&led_sleep_time,1);
 
         tinyfs_write_through();
     }
@@ -511,39 +603,50 @@ void Read_Last_Data() {
     memcpy (&hw_err_buzzer_off_time, &tmp[0], 1);
     LOG_I("hw_err_buzzer_off_time:");
     LOG_I("%d",hw_err_buzzer_off_time);
-		
-		tinyfs_read(ID_dir_1,RECORD_KEY13,tmp,&length_12);//读到tmp中
+
+    tinyfs_read(ID_dir_1,RECORD_KEY13,tmp,&length_12);//读到tmp中
     memcpy (&led_sleep_time, &tmp[0], 1);
     LOG_I("led_sleep_time:");
     LOG_I("%d",led_sleep_time);
-		
-		
-		
+
+
+
 }
 
+
+
+void User_io_Init() {
+    LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;
+    LSGPIOA->OT = 0;
+    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOB->MODE &= 0x3c00;  //3C00
+    LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+    LSGPIOB->OT = 0;
+    // LSGPIOB->PUPD = 0x2800;
+    LSGPIOB->PUPD =  0x2AA96AAA;								//	PB15 浮空	 AAA9 6AAA
+}
 //蓝牙启动成功跑一次
 void User_BLE_Ready() {
 
     Read_Last_Data();
-
-
     Buzzer_IO_Init();
+    power_io_init();
     Moto_IO_Init();
     LED_Init();
-
-    //User_ADC_Init();
+    User_ADC_Init();
     ls_uart2_init();
     ls_uart1_init();
 
     HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
-
     HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
-    power_io_init();
 
-   //HAL_IWDG_Init(32756*1);  	 //5s看门狗
+    //HAL_IWDG_Init(32756*1);  	 //5s看门狗
 
     tag_lock_status=POS_90;
-		hw_lock_status= POS_90;
+    hw_lock_status= POS_90;
 
 ////////////获取mac////////////////////
     uint8_t addr[6];
@@ -555,12 +658,25 @@ void User_BLE_Ready() {
 
 ////////////////////////////////
 
-//Enter_Low_Power_Mode();
+		Enter_Power_Mode_LH();
+		user_status=0;
 
+    //		_NL
 }
-		
+
 //extern UART_HandleTypeDef log_uart;
 
+
+reg_lsgpio_t  *GPIOA_Instance=LSGPIOA;
+reg_lsgpio_t  *GPIOB_Instance=LSGPIOB;
+reg_lsgpio_t  *GPIOC_Instance=LSGPIOC;
+
+__attribute__((constructor)) void AAAA() {
+
+    GPIOA_Instance=LSGPIOA;
+    GPIOB_Instance=LSGPIOB;
+    GPIOC_Instance=LSGPIOC;
+}
 
 
 extern uint8_t adv_obj_hdl;
@@ -568,24 +684,59 @@ void update_adv_intv(uint32_t new_adv_intv)
 {
     LOG_I("adv_intv:%d",new_adv_intv);
     dev_manager_update_adv_interval(adv_obj_hdl,new_adv_intv,new_adv_intv);
- 
+
 }
 
-//测试进入LP0模式
-void Enter_Low_Power_Mode(void){
+//进入正常状态放倒模式
+void Enter_Power_Mode_NL(void) {
 
 
-		HAL_UART_DeInit(&UART1_Config);
-		HAL_UART_DeInit(&UART2_Config);
-		HAL_ADC_DeInit(&hadc);
-		uart1_io_deinit();
-		uart2_io_deinit();
-		io_init();
-		update_adv_intv(1600);  //广播包 实际*0.625       https://ls-doc.readthedocs.io/zh_CN/latest/src/sdk/demo/ble/ble_advertiser.html#rtt
-		start_adv();
+}
+
+//进入正常状态立起模式
+void Enter_Power_Mode_NH(void) {
+
+
+
+
+}
+
+//低功耗立起
+void Enter_Power_Mode_LH(void) {
+
+    gptimerb1_status_set(0);
+    gptimerc1_status_set(0);
+    User_io_Init();
+
+    HAL_UART_DeInit(&UART1_Config);
+    HAL_UART_DeInit(&UART2_Config);
+    HAL_ADC_DeInit(&hadc);
+    uart1_io_deinit();
+    uart2_io_deinit();
+		
+				
+		io_cfg_output(SW_EN_1);   	//
+    io_write_pin(SW_EN_1,1);
+
+    io_cfg_output(SW_EN_2);   		//
+    io_write_pin(SW_EN_2,1);
+		
+		io_cfg_input(SW_IN_1);   			//
+    io_cfg_input(SW_IN_2);
+		
 }
 
 
+//低功耗放倒
+void Enter_Power_Mode_LL(void) {
+    gptimerb1_status_set(0);
+    gptimerc1_status_set(0);
+    User_io_Init();
 
-
+//    HAL_UART_DeInit(&UART1_Config);
+//    HAL_UART_DeInit(&UART2_Config);
+			HAL_ADC_DeInit(&hadc);
+//    uart1_io_deinit();
+//    uart2_io_deinit();
+}
 

@@ -11,6 +11,7 @@ void Test_Moto_Task(void);
 
 
 void Moto_IO_Init(void);
+void Moto_IO_DeInit(void);
 
 #endif 
 

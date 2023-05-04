@@ -214,14 +214,14 @@ static void start_scan(void);
 
 
 
-static void ls_user_event_timer_cb_0(void *param);
-static void ls_user_event_timer_cb_1(void *param);
+ void ls_user_event_timer_cb_0(void *param);
+ void ls_user_event_timer_cb_1(void *param);
 
-static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
-static struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
+ struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
+ struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
 
-#define USER_EVENT_PERIOD_0 1		 	 //1ms
-#define USER_EVENT_PERIOD_1 100     // 100ms
+//#define USER_EVENT_PERIOD_0 1		 	 //1ms
+//#define USER_EVENT_PERIOD_1 500     // 100ms
 
 static void ls_app_timer_init(void)
 {
@@ -386,8 +386,8 @@ static void user_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
-        .adv_intv_min = 160,
-        .adv_intv_max = 160,
+        .adv_intv_min = 800,
+        .adv_intv_max = 800,
         .own_addr_type = PUBLIC_OR_RANDOM_STATIC_ADDR,
         .filter_policy = 0,
         .ch_map = 0x7,
@@ -834,7 +834,7 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
     else
     {
         LOG_I("receive gatt msg when disconnected!");
-    } 
+    }
 }
 static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 {
@@ -870,9 +870,10 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
 #endif       
          
-				 //ls_app_timer_init();
+				 ls_app_timer_init();
+				 builtin_timer_stop(user_event_timer_inst_0);
 				 
-				 //User_BLE_Ready();
+				 User_BLE_Ready();
     }
     break;
 #if SLAVE_SERVER_ROLE == 1    
@@ -883,8 +884,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
     case ADV_OBJ_CREATED:
         LS_ASSERT(evt->obj_created.status == 0);
         adv_obj_hdl = evt->obj_created.handle;
-        start_adv();
-        LOG_I("adv start");
+       
+				
+				start_adv();
+        
+				LOG_I("adv start");
     break;
     case ADV_STOPPED:
         LOG_I("adv stopped");
@@ -958,66 +962,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 
 int main()
 {
-//		io_cfg_output(PB13);     //
-//		io_write_pin(PB13, 1);	 //
-//	
-//		io_cfg_input(PA04);			 //
-
-//		io_cfg_output(PA05);		 //
-//		io_write_pin(PA05, 0);		
-//				
-//		io_cfg_output(PC00);
-//		io_cfg_output(PC01);
-//		io_cfg_output(PA06);
-//		
-//		io_write_pin(PC00, 0);	
-//		io_write_pin(PC01,0);	
-//		io_write_pin(PA06,0);	
-//		
-//		io_cfg_input(PB03);	
-//		io_cfg_input(PB04);	
-//		
-//		
-//		io_cfg_output(PB08);		//4G CAT1 电源				
-//		io_write_pin(PB08,0);	
-//	
-//	    
-		LSGPIOA->MODE = 0;
-    LSGPIOA->IE = 0;
-    LSGPIOA->OE = 0;		
-		LSGPIOA->OT = 0;				
-		LSGPIOA->PUPD = 0;
-
-    LSGPIOB->MODE &= 0x3c00;  //3C00				
-		LSGPIOB->IE = 0;
-    LSGPIOB->OE = 0;
-		LSGPIOA->OT = 0;
-    LSGPIOB->PUPD = 0x2800;
-
-//	
-//		struct deep_sleep_wakeup wakeup;
-//	memset(&wakeup,0,sizeof(wakeup));
-////	wakeup.pb15 = 1 ;									//选择PB15作为唤醒io
-////	wakeup.pb15_rising_edge = 0;			//选择边沿唤醒
-////	wakeup.pa00 = 1 ;									//选择PA00作为唤醒io
-////	wakeup.pa00_rising_edge = 0;			//选择边沿唤醒
-////	wakeup.rtc  = 1 ;
-//  enter_deep_sleep_mode_lvl2_lvl3(&wakeup);//调用唤醒函数         //有改动
-
     sys_init_app();
-		
-		LSGPIOA->MODE = 0;
-    LSGPIOA->IE = 0;
-    LSGPIOA->OE = 0;		
-		LSGPIOA->OT = 0;				
-		LSGPIOA->PUPD = 0xAAAAAAAA;
-
-    LSGPIOB->MODE &= 0x3c00;  //3C00				
-		LSGPIOB->IE = 0;
-    LSGPIOB->OE = 0;
-		LSGPIOA->OT = 0;
-   // LSGPIOB->PUPD = 0x2800;
-		LSGPIOB->PUPD =  0xAAA96AAA;								//		 AAA9 6AAA
     ble_init();
     dev_manager_init(dev_manager_callback);
     gap_manager_init(gap_manager_callback);

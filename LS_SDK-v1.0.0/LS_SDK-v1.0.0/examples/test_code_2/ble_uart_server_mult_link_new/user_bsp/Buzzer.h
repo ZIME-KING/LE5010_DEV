@@ -17,6 +17,7 @@ void Buzzer_Task_100(void);
 void Buzzer_ON(void);
 void Buzzer_OFF(void);
 void Buzzer_IO_Init(void);
+void Buzzer_IO_DeInit(void);
 
 #endif 
 

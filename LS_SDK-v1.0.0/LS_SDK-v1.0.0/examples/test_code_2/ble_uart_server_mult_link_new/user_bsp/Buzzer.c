@@ -15,6 +15,15 @@ void Buzzer_IO_Init(){
     io_write_pin(BUZZER_EN,0);  
 }
 
+void Buzzer_IO_DeInit(){
+		io_cfg_disable (BUZZER_PIN);
+		io_pull_write(BUZZER_PIN,IO_PULL_DOWN);
+
+ 		io_cfg_disable (BUZZER_EN);
+		io_pull_write(BUZZER_EN,IO_PULL_DOWN);
+}
+
+
 
 ////50ms ≈‹“ª¥Œ
 //void Buzzer_Task(){

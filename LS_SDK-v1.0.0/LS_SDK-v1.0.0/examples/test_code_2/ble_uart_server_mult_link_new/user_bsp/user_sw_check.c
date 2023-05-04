@@ -49,10 +49,6 @@ static uint8_t count;
 		}
 	}
 }
-
-
-
-
  
 void	check_sw_(){ 
 static uint8_t count;
@@ -77,3 +73,47 @@ static uint8_t count;
 			io_write_pin(SW_EN_2,0);	
 	}
 }
+
+
+
+
+
+
+//阻塞方式测量红外状态
+void	check_sw_wait(){ 
+//static uint8_t count;
+//			count++;
+//		io_cfg_output(SW_EN_1);   	//
+//    io_write_pin(SW_EN_1,1);
+
+//    io_cfg_output(SW_EN_2);   	//
+//    io_write_pin(SW_EN_2,1);
+//		
+//		io_cfg_input(SW_IN_1);   			//
+//    io_cfg_input(SW_IN_2);
+		
+			
+			io_write_pin(SW_EN_1,1);  
+			io_write_pin(SW_EN_2,1);  
+			DELAY_US(5000);
+			lock_sw.opt1= io_read_pin(SW_IN_1);
+			lock_sw.opt2 =io_read_pin(SW_IN_2) ;
+			lock_sw.opt3 =io_read_pin(SW_IN_3);
+			hw_lock_status=(lock_sw.opt1<<4) + lock_sw.opt2;		
+			io_write_pin(SW_EN_1,0);  
+			io_write_pin(SW_EN_2,0);		
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

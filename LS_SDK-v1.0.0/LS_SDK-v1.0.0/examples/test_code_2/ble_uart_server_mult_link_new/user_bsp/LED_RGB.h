@@ -5,6 +5,7 @@
 
 void LED_Functon(void);
 void LED_Init(void);
+void LED_DeInit(void);
 
  void Set_LED_Function_val(uint8_t status,uint8_t r,uint8_t g,uint8_t b,
 													uint8_t min,uint8_t max,
