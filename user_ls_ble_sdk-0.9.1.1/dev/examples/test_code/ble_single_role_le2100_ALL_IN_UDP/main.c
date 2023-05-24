@@ -71,7 +71,7 @@ uint16_t send_time_delay=0; //说明nb模块收到数据后，发送过程中功率与信号强度相关
 #define DISCONNECTED_MSG_PATTERN_LEN 2
 
 
-uint8_t globle_Result;  //接受数据处理结果
+uint8_t globle_Result=0xFF;  //接受数据处理结果
 uint8_t user_ble_send_flag=0;
 
 uint8_t TX_DATA_BUF[16]; //BEL
@@ -1091,7 +1091,9 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif
+
         //ls_uart_init();
+
 				//RESET_NB();
 				Button_Gpio_Init();
 				uint8_t button_flag=io_read_pin(PB15);

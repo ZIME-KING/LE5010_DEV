@@ -3,9 +3,14 @@
 #include "user_function.h"
 #include <string.h>
 
-//#define USB_CHECK PA03
-#define USB_CHECK   PA03
-//#define	USB_CHECK_B PB06
+
+//#define USB_CHECK PA03  //3_17版本
+
+
+//3_17 版本5V检测在PA03上，6_23版本在PA07上，做兼容处理
+
+#define USB_CHECK   PA07
+#define	USB_CHECK_B PA03
 
 uint8_t look_status_send_count;
 
@@ -76,7 +81,9 @@ void User_Init() {
 		Button_Gpio_Init();
 	  moto_gpio_init();
 		Basic_PWM_Output_Cfg();
-		
+	
+
+	  io_cfg_output(PA12);   //PB09 config output	
 		io_write_pin(PA12,1);
 		
 		//Read_Last_Data();
@@ -131,9 +138,9 @@ void LED_TASK(){
 	else{
 	//5V接入
 		io_cfg_input(USB_CHECK);   //PB09 config output
-//  	io_cfg_input(USB_CHECK_B);   //PB09 config output
+  	io_cfg_input(USB_CHECK_B);   //PB09 config output
 		
-	if(io_read_pin(USB_CHECK)==1){
+	if(io_read_pin(USB_CHECK)==1 ||io_read_pin(USB_CHECK_B)==1){
 		//LOG_I("usb_in");
 		//20~90 绿灯闪
 		if(VBat_value>20 && VBat_value<=90){
@@ -215,7 +222,7 @@ void Get_Vbat_Task(){
 	
 	
 		io_cfg_input(USB_CHECK);   //PB09 config output
-//  	io_cfg_input(USB_CHECK_B);   //PB09 config output
+  	io_cfg_input(USB_CHECK_B);   //PB09 config output
 	
 	
 		//采集实时的电压
@@ -237,9 +244,9 @@ void Get_Vbat_Task(){
 						}
 						i++;
 			}
-		}
-		//在启动2s且未插电的时候记录一下电量，另外在休眠的时候也会记录一次 作为
-		if(io_read_pin(USB_CHECK)!=1 ){
+		}		
+		
+		if(io_read_pin(USB_CHECK)!=1  && io_read_pin(USB_CHECK_B)!=1 ){
 								if(ADC_Count==2){
 									//once_flag=0;			
 									//LOG_I("1_Vbat:%d %",VBat_value);
@@ -269,7 +276,7 @@ void Get_Vbat_Task(){
 	
 		//2200mha 电池360ma充电电流预计6h小时充满 216s 加1% 这里5ms进一次
 		//为冲电时电量显示
-		if(io_read_pin(USB_CHECK)==1 ){
+		if(io_read_pin(USB_CHECK)==1 || io_read_pin(USB_CHECK_B)==1){
 			change_time++;
 			sleep_time=0;
 //			if(count%200==1  && ADC_Count>1 && true_VBat_value<=global_vbat_max-100){  //大于4.1v都算涓流算时间看电量
@@ -615,6 +622,12 @@ void Uart_2_Data_Processing() {
             //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
             globle_Result=OK_AT;
         }
+				
+				else if( strncmp("ATE1\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("ATE1\r\nOK"))==0){
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }
+				
 				else if( strncmp("AT+CTM2MREG\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CTM2MREG\r\nOK"))==0){
             //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
             globle_Result=OK_AT;

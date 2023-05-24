@@ -5,8 +5,22 @@
 #define START 0x01
 #define STOP  0x00
 
-#define VER_0  0xA0
-#define VER_1  0xB0
+
+#define VER_0  0xA0          //Ó²¼þ°æ±¾
+
+#ifdef DEF                   //Ä¬ÈÏËÜÁÏËø
+	 #define VER_1  0xA0
+#endif
+
+#ifdef MAG                   //¸Ö°åËø
+		#define VER_1  0xA3      //A1->A3
+#endif
+#ifdef METAL_PADLOCK         //½ðÊô¹ÒËø
+		#define VER_1  0xA2
+#endif
+
+//#define VER_0  0xA0
+//#define VER_1  0xB0
 
 uint8_t send_count;							 //·¢ËÍ¼ÆÊý
 uint8_t lock_state[LOCK_NUM+1];  //Ëø×´Ì¬´æ´¢
@@ -46,9 +60,15 @@ void hex2string(uint8_t *IN_DATA,uint8_t *OUT_DATA,uint16_t len) {
         memcpy( OUT_DATA+i*2, &newchar[0], 2);
     }
 }
+
 //ATÃüÁî·¢ËÍ
 void AT_Command_Send(Typedef_AT AT_COM) {
     switch(AT_COM) {
+		
+		case ATE1:
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
+    break;
+		
 		case AT:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT\r\n",sizeof("AT\r\n"),100);
         break;

@@ -19,8 +19,9 @@ CTM2MREG,
 //ECPCFG,
 CPSMS,
 ECPMUCFG,
-CSQ,    //信号
-CGSN,		//设备号
+ATE1,    //开启回显
+CSQ,     //信号
+CGSN,		 //设备号
 AT_SLEEP,
 CIMI,
 CEREG_R,

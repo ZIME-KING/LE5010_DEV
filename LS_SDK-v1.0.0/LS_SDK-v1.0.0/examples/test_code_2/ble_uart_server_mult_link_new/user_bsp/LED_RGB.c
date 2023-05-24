@@ -24,7 +24,7 @@ void save_timer_config_B(){
 
 static void Basic_PWM_Output_Cfg(void)
 {
-		save_timer_config_B();
+		////save_timer_config_B();
 		TIM_OC_InitTypeDef sConfig = {0};
     gptimb1_ch1_io_init(PA10, true, 0);
     gptimb1_ch2_io_init(PA11, true, 0);
@@ -48,13 +48,13 @@ static void Basic_PWM_Output_Cfg(void)
     sConfig.Pulse = TIM_PULSE1;
     HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1);
 
-//    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
-//    sConfig.Pulse = TIM_PULSE2;
-//    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_2);
+    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfig.Pulse = TIM_PULSE2;
+    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_2);
 
-//    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
-//    sConfig.Pulse = TIM_PULSE3;
-//    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_3);
+    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfig.Pulse = TIM_PULSE3;
+    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_3);
 
 //    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
 //    sConfig.Pulse = TIM_PULSE4;
@@ -63,8 +63,8 @@ static void Basic_PWM_Output_Cfg(void)
     /*##-3- Start PWM signals generation #######################################*/
 
     HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1);
-//    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_2);
-//    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_3);
 
 
    // HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_4);
@@ -74,9 +74,10 @@ void LED_Init(void)
 {
     static uint8_t once_flag=0;
 
-    io_cfg_output(PB13);   //PB09 config output
-    io_write_pin(PB13,1);
-
+//    io_cfg_output(PB13);   //PB09 config output
+//    io_write_pin(PB13,1);
+//		io_pull_write(PB13,IO_PULL_UP);
+  
     Basic_PWM_Output_Cfg();
 
     if(once_flag!=0xAA) {
@@ -89,19 +90,7 @@ void LED_Init(void)
 
 void LED_DeInit(void)
 {
-	//memcpy(LSGPTIMB,&temp_time_val_B, sizeof(temp_time_val_B));	
-	//memset(LSGPTIMB,0x00, sizeof(temp_time_val_B));
-	
 	HAL_TIM_DeInit(&TimHandle);
-	
-	
-	
-//	
-////TIM_OC_InitTypeDef sConfig = {0};
-//gptimb1_ch1_io_deinit();
-//gptimb1_ch2_io_deinit();
-//gptimb1_ch3_io_deinit();
-//HAL_TIM_DeInit(&TimHandle);	
 }
 
 

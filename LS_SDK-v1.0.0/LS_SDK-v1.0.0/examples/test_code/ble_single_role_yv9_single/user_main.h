@@ -33,8 +33,8 @@
 //#include "user_rc522_function.h"
 //#define USER_TEST 
 
-#define DEF                   //默认塑料锁
-//#define MAG                   //钢板锁
+//#define DEF                   //默认塑料锁
+#define MAG                   //钢板锁
 //#define METAL_PADLOCK         //金属挂锁
 
 

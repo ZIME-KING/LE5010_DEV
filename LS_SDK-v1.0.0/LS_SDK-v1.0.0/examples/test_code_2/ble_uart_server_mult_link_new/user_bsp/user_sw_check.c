@@ -13,12 +13,6 @@ __attribute__((constructor)) void init_lock_sw(){
 void	check_sw(){ 
 static uint8_t count;
 
-//			io_write_pin(SW_EN_1,0);  
-//			io_write_pin(SW_EN_2,0);	
-
-
-
-
 	count++;
 	if(moro_task_flag==1){	
 				if(count%2==0){

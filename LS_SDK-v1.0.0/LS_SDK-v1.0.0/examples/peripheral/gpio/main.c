@@ -27,11 +27,16 @@ int main(void)
     sys_init_none();
     gpio_init();
     exti_test();
+		
+		
+		
     while (1)
     {
+		
+					io_write_pin(PB09,io_read_pin(PB11));
           //io_write_pin(PA01,0);  //
 				
-			    io_write_pin(PA01,1);  //
+			    //io_write_pin(PA01,1);  //
 
     }
 }

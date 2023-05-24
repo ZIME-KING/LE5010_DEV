@@ -234,8 +234,10 @@ static void ls_app_timer_init(void)
 
 //1ms
 static void ls_user_event_timer_cb_0(void *param) {
+		
 		check_sw();
-    LED_Functon();
+    
+		LED_Functon();
 		Uart_2_Time_Even();
 		Uart_Time_Even();
 		time_count++;
@@ -871,7 +873,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 #endif       
          
 				 ls_app_timer_init();
-				 builtin_timer_stop(user_event_timer_inst_0);
+				 //builtin_timer_stop(user_event_timer_inst_0);
 				 
 				 User_BLE_Ready();
     }

@@ -235,7 +235,6 @@ void Get_Vbat_Task(){
 						i++;
 			}
 		}
-		//在启动2s且未插电的时候记录一下电量，另外在休眠的时候也会记录一次 作为
 		if(io_read_pin(USB_CHECK)!=1 ){
 								if(ADC_Count==2){
 									//once_flag=0;			

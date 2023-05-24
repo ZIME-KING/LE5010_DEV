@@ -1,0 +1,2963 @@
+T3A14 000:170.884   SEGGER J-Link V7.64 Log File
+T3A14 000:170.969   DLL Compiled: Apr  1 2022 16:04:43
+T3A14 000:170.974   Logging started @ 2023-05-08 01:57
+T3A14 000:170.978 - 170.981ms
+T3A14 000:170.986 JLINK_SetWarnOutHandler(...)
+T3A14 000:170.992 - 0.008ms
+T3A14 000:170.998 JLINK_OpenEx(...)
+T3A14 000:175.782   Firmware: J-Link V9 compiled May  7 2021 16:26:12
+T3A14 000:176.433   Firmware: J-Link V9 compiled May  7 2021 16:26:12
+T3A14 000:176.541   Decompressing FW timestamp took 88 us
+T3A14 000:185.184   Hardware: V9.40
+T3A14 000:185.199   S/N: 69406889
+T3A14 000:185.207   OEM: SEGGER
+T3A14 000:185.215   Feature(s): RDI, GDB, FlashDL, FlashBP, JFlash
+T3A14 000:191.322   TELNET listener socket opened on port 19021
+T3A14 000:191.551   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T3A14 000:191.599   WEBSRV Failed to put socket into listener state (port 19080)
+T3A14 000:191.703   WEBSRV Webserver running on local port 19081
+T3A14 000:207.947 - 36.956ms returns "O.K."
+T3A14 000:207.979 JLINK_GetEmuCaps()
+T3A14 000:207.986 - 0.008ms returns 0xB9FF7BBF
+T3A14 000:207.994 JLINK_TIF_GetAvailable(...)
+T3A14 000:208.431 - 0.444ms
+T3A14 000:208.460 JLINK_SetErrorOutHandler(...)
+T3A14 000:208.467 - 0.009ms
+T3A14 000:208.487 JLINK_ExecCommand("ProjectFile = "D:\Developmentfolder\LE5010_DEV\LS_SDK-v1.0.0\LS_SDK-v1.0.0\examples\test_code\ble_single_role_le2100_ALL_IN\mdk\JLinkSettings.ini"", ...). 
+T3A14 000:215.124   Ref file found at: C:\Keil_v5\ARM\Segger\JLinkDevices.ref
+T3A14 000:215.315   XML referenced by ref file: C:\Program Files (x86)\SEGGER\JLink\JLinkDevices.xml
+T3A14 000:215.789   C:\Program Files (x86)\SEGGER\JLink\JLinkDevices.xml evaluated successfully.
+T3A14 000:215.802     Device entry created:  MM32F0010AIN
+T3A14 000:215.807       ChipInfo:
+T3A14 000:215.812         Vendor:        MindMotion
+T3A14 000:215.820         Name:          MM32F0010AIN
+T3A14 000:215.827         WorkRAMAddr:   0x20000000
+T3A14 000:215.834         WorkRAMSize:   0x00000800
+T3A14 000:215.844         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:215.920         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:215.929       FlashBankInfo:
+T3A14 000:215.934         Name:          Main Flash
+T3A14 000:215.941         BaseAddr:      0x08000000
+T3A14 000:215.948         MaxSize:       0x00004000
+T3A14 000:216.081         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0010\MM32F0010_16.FLM
+T3A14 000:216.091         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:216.098         AlwaysPresent: 1
+T3A14 000:216.114     Device entry created:  MM32F0010AIT
+T3A14 000:216.119       ChipInfo:
+T3A14 000:216.124         Vendor:        MindMotion
+T3A14 000:216.131         Name:          MM32F0010AIT
+T3A14 000:216.138         WorkRAMAddr:   0x20000000
+T3A14 000:216.145         WorkRAMSize:   0x00000800
+T3A14 000:216.152         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:216.220         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:216.231       FlashBankInfo:
+T3A14 000:216.236         Name:          Main Flash
+T3A14 000:216.243         BaseAddr:      0x08000000
+T3A14 000:216.250         MaxSize:       0x00004000
+T3A14 000:216.373         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0010\MM32F0010_16.FLM
+T3A14 000:216.382         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:216.390         AlwaysPresent: 1
+T3A14 000:216.399     Device entry created:  MM32F0131C4N
+T3A14 000:216.403       ChipInfo:
+T3A14 000:216.408         Vendor:        MindMotion
+T3A14 000:216.415         Name:          MM32F0131C4N
+T3A14 000:216.422         WorkRAMAddr:   0x20000000
+T3A14 000:216.429         WorkRAMSize:   0x00004000
+T3A14 000:216.436         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:216.501         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:216.510       FlashBankInfo:
+T3A14 000:216.514         Name:          Main Flash
+T3A14 000:216.562         BaseAddr:      0x08000000
+T3A14 000:216.569         MaxSize:       0x00010000
+T3A14 000:216.704         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:216.713         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:216.720         AlwaysPresent: 1
+T3A14 000:216.729     Device entry created:  MM32F0131C4P
+T3A14 000:216.734       ChipInfo:
+T3A14 000:216.738         Vendor:        MindMotion
+T3A14 000:216.745         Name:          MM32F0131C4P
+T3A14 000:216.752         WorkRAMAddr:   0x20000000
+T3A14 000:216.759         WorkRAMSize:   0x00004000
+T3A14 000:216.766         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:216.832         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:216.841       FlashBankInfo:
+T3A14 000:216.845         Name:          Main Flash
+T3A14 000:216.852         BaseAddr:      0x08000000
+T3A14 000:216.859         MaxSize:       0x00010000
+T3A14 000:216.979         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:216.989         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:216.996         AlwaysPresent: 1
+T3A14 000:217.005     Device entry created:  MM32F0131C6P
+T3A14 000:217.010       ChipInfo:
+T3A14 000:217.015         Vendor:        MindMotion
+T3A14 000:217.022         Name:          MM32F0131C6P
+T3A14 000:217.029         WorkRAMAddr:   0x20000000
+T3A14 000:217.035         WorkRAMSize:   0x00004000
+T3A14 000:217.043         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:217.107         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:217.116       FlashBankInfo:
+T3A14 000:217.121         Name:          Main Flash
+T3A14 000:217.128         BaseAddr:      0x08000000
+T3A14 000:217.135         MaxSize:       0x00010000
+T3A14 000:217.255         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:217.264         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:217.271         AlwaysPresent: 1
+T3A14 000:217.280     Device entry created:  MM32F0131C7P
+T3A14 000:217.285       ChipInfo:
+T3A14 000:217.289         Vendor:        MindMotion
+T3A14 000:217.296         Name:          MM32F0131C7P
+T3A14 000:217.303         WorkRAMAddr:   0x20000000
+T3A14 000:217.310         WorkRAMSize:   0x00004000
+T3A14 000:217.317         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:217.382         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:217.391       FlashBankInfo:
+T3A14 000:217.396         Name:          Main Flash
+T3A14 000:217.403         BaseAddr:      0x08000000
+T3A14 000:217.410         MaxSize:       0x00010000
+T3A14 000:217.538         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:217.547         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:217.555         AlwaysPresent: 1
+T3A14 000:217.563     Device entry created:  MM32F0132B4N
+T3A14 000:217.568       ChipInfo:
+T3A14 000:217.573         Vendor:        MindMotion
+T3A14 000:217.580         Name:          MM32F0132B4N
+T3A14 000:217.587         WorkRAMAddr:   0x20000000
+T3A14 000:217.594         WorkRAMSize:   0x00002000
+T3A14 000:217.601         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:217.669         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:217.677       FlashBankInfo:
+T3A14 000:217.682         Name:          Main Flash
+T3A14 000:217.689         BaseAddr:      0x08000000
+T3A14 000:217.696         MaxSize:       0x00008000
+T3A14 000:217.819         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xB_32.FLM
+T3A14 000:217.828         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:217.835         AlwaysPresent: 1
+T3A14 000:217.844     Device entry created:  MM32F0132B4P
+T3A14 000:217.851       ChipInfo:
+T3A14 000:217.856         Vendor:        MindMotion
+T3A14 000:217.863         Name:          MM32F0132B4P
+T3A14 000:217.870         WorkRAMAddr:   0x20000000
+T3A14 000:217.877         WorkRAMSize:   0x00002000
+T3A14 000:217.884         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:217.951         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:217.960       FlashBankInfo:
+T3A14 000:217.965         Name:          Main Flash
+T3A14 000:217.971         BaseAddr:      0x08000000
+T3A14 000:217.978         MaxSize:       0x00008000
+T3A14 000:218.098         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xB_32.FLM
+T3A14 000:218.107         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:218.114         AlwaysPresent: 1
+T3A14 000:218.123     Device entry created:  MM32F0132C4N
+T3A14 000:218.127       ChipInfo:
+T3A14 000:218.132         Vendor:        MindMotion
+T3A14 000:218.139         Name:          MM32F0132C4N
+T3A14 000:218.146         WorkRAMAddr:   0x20000000
+T3A14 000:218.153         WorkRAMSize:   0x00004000
+T3A14 000:218.160         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:218.225         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:218.234       FlashBankInfo:
+T3A14 000:218.238         Name:          Main Flash
+T3A14 000:218.245         BaseAddr:      0x08000000
+T3A14 000:218.254         MaxSize:       0x00010000
+T3A14 000:218.373         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:218.382         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:218.389         AlwaysPresent: 1
+T3A14 000:218.397     Device entry created:  MM32F0132C4P
+T3A14 000:218.402       ChipInfo:
+T3A14 000:218.407         Vendor:        MindMotion
+T3A14 000:218.413         Name:          MM32F0132C4P
+T3A14 000:218.420         WorkRAMAddr:   0x20000000
+T3A14 000:218.427         WorkRAMSize:   0x00004000
+T3A14 000:218.434         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:218.498         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:218.507       FlashBankInfo:
+T3A14 000:218.512         Name:          Main Flash
+T3A14 000:218.518         BaseAddr:      0x08000000
+T3A14 000:218.527         MaxSize:       0x00010000
+T3A14 000:218.649         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:218.658         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:218.666         AlwaysPresent: 1
+T3A14 000:218.674     Device entry created:  MM32F0132C6P
+T3A14 000:218.679       ChipInfo:
+T3A14 000:218.683         Vendor:        MindMotion
+T3A14 000:218.690         Name:          MM32F0132C6P
+T3A14 000:218.697         WorkRAMAddr:   0x20000000
+T3A14 000:218.704         WorkRAMSize:   0x00004000
+T3A14 000:218.711         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:218.775         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:218.784       FlashBankInfo:
+T3A14 000:218.789         Name:          Main Flash
+T3A14 000:218.796         BaseAddr:      0x08000000
+T3A14 000:218.803         MaxSize:       0x00010000
+T3A14 000:218.921         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:218.930         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:218.937         AlwaysPresent: 1
+T3A14 000:218.946     Device entry created:  MM32F0132C7P
+T3A14 000:218.951       ChipInfo:
+T3A14 000:218.955         Vendor:        MindMotion
+T3A14 000:218.962         Name:          MM32F0132C7P
+T3A14 000:218.969         WorkRAMAddr:   0x20000000
+T3A14 000:218.976         WorkRAMSize:   0x00004000
+T3A14 000:218.983         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:219.047         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:219.058       FlashBankInfo:
+T3A14 000:219.063         Name:          Main Flash
+T3A14 000:219.070         BaseAddr:      0x08000000
+T3A14 000:219.077         MaxSize:       0x00010000
+T3A14 000:219.196         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:219.205         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:219.212         AlwaysPresent: 1
+T3A14 000:219.221     Device entry created:  MM32F0133C4N
+T3A14 000:219.225       ChipInfo:
+T3A14 000:219.230         Vendor:        MindMotion
+T3A14 000:219.237         Name:          MM32F0133C4N
+T3A14 000:219.244         WorkRAMAddr:   0x20000000
+T3A14 000:219.251         WorkRAMSize:   0x00004000
+T3A14 000:219.258         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:219.322         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:219.330       FlashBankInfo:
+T3A14 000:219.335         Name:          Main Flash
+T3A14 000:219.342         BaseAddr:      0x08000000
+T3A14 000:219.349         MaxSize:       0x00010000
+T3A14 000:219.467         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:219.476         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:219.483         AlwaysPresent: 1
+T3A14 000:219.492     Device entry created:  MM32F0133C4P
+T3A14 000:219.496       ChipInfo:
+T3A14 000:219.501         Vendor:        MindMotion
+T3A14 000:219.508         Name:          MM32F0133C4P
+T3A14 000:219.515         WorkRAMAddr:   0x20000000
+T3A14 000:219.523         WorkRAMSize:   0x00004000
+T3A14 000:219.530         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:219.594         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:219.603       FlashBankInfo:
+T3A14 000:219.607         Name:          Main Flash
+T3A14 000:219.614         BaseAddr:      0x08000000
+T3A14 000:219.621         MaxSize:       0x00010000
+T3A14 000:219.739         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:219.748         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:219.755         AlwaysPresent: 1
+T3A14 000:219.763     Device entry created:  MM32F0133C6P
+T3A14 000:219.768       ChipInfo:
+T3A14 000:219.773         Vendor:        MindMotion
+T3A14 000:219.780         Name:          MM32F0133C6P
+T3A14 000:219.787         WorkRAMAddr:   0x20000000
+T3A14 000:219.793         WorkRAMSize:   0x00004000
+T3A14 000:219.800         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:219.867         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:219.876       FlashBankInfo:
+T3A14 000:219.880         Name:          Main Flash
+T3A14 000:219.887         BaseAddr:      0x08000000
+T3A14 000:219.894         MaxSize:       0x00010000
+T3A14 000:220.015         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:220.025         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:220.032         AlwaysPresent: 1
+T3A14 000:220.040     Device entry created:  MM32F0133C7P
+T3A14 000:220.045       ChipInfo:
+T3A14 000:220.049         Vendor:        MindMotion
+T3A14 000:220.056         Name:          MM32F0133C7P
+T3A14 000:220.063         WorkRAMAddr:   0x20000000
+T3A14 000:220.070         WorkRAMSize:   0x00004000
+T3A14 000:220.077         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:220.142         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:220.151       FlashBankInfo:
+T3A14 000:220.155         Name:          Main Flash
+T3A14 000:220.162         BaseAddr:      0x08000000
+T3A14 000:220.169         MaxSize:       0x00010000
+T3A14 000:220.288         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0130\MM32F013xC_64.FLM
+T3A14 000:220.298         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:220.305         AlwaysPresent: 1
+T3A14 000:220.340     Device entry created:  MM32W0133C4N
+T3A14 000:220.344       ChipInfo:
+T3A14 000:220.349         Vendor:        MindMotion
+T3A14 000:220.356         Name:          MM32W0133C4N
+T3A14 000:220.363         WorkRAMAddr:   0x20000000
+T3A14 000:220.370         WorkRAMSize:   0x00004000
+T3A14 000:220.377         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:220.448         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:220.456       FlashBankInfo:
+T3A14 000:220.461         Name:          Main Flash
+T3A14 000:220.468         BaseAddr:      0x08000000
+T3A14 000:220.475         MaxSize:       0x00010000
+T3A14 000:220.600         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0130\MM32W013xC_64.FLM
+T3A14 000:220.609         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:220.616         AlwaysPresent: 1
+T3A14 000:220.625     Device entry created:  MM32W0133C6Q
+T3A14 000:220.630       ChipInfo:
+T3A14 000:220.634         Vendor:        MindMotion
+T3A14 000:220.641         Name:          MM32W0133C6Q
+T3A14 000:220.648         WorkRAMAddr:   0x20000000
+T3A14 000:220.655         WorkRAMSize:   0x00004000
+T3A14 000:220.662         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:220.727         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:220.735       FlashBankInfo:
+T3A14 000:220.740         Name:          Main Flash
+T3A14 000:220.747         BaseAddr:      0x08000000
+T3A14 000:220.754         MaxSize:       0x00010000
+T3A14 000:220.872         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0130\MM32W013xC_64.FLM
+T3A14 000:220.881         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:220.889         AlwaysPresent: 1
+T3A14 000:220.897     Device entry created:  MM32F003NW
+T3A14 000:220.902       ChipInfo:
+T3A14 000:220.906         Vendor:        MindMotion
+T3A14 000:220.913         Name:          MM32F003NW
+T3A14 000:220.920         WorkRAMAddr:   0x20000000
+T3A14 000:220.927         WorkRAMSize:   0x00000800
+T3A14 000:220.934         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:221.000         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:221.009       FlashBankInfo:
+T3A14 000:221.014         Name:          Main Flash
+T3A14 000:221.020         BaseAddr:      0x08000000
+T3A14 000:221.027         MaxSize:       0x00004000
+T3A14 000:221.149         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F003\MM32F003_16.FLM
+T3A14 000:221.158         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:221.165         AlwaysPresent: 1
+T3A14 000:221.178     Device entry created:  MM32F003TW
+T3A14 000:221.183       ChipInfo:
+T3A14 000:221.187         Vendor:        MindMotion
+T3A14 000:221.194         Name:          MM32F003TW
+T3A14 000:221.201         WorkRAMAddr:   0x20000000
+T3A14 000:221.208         WorkRAMSize:   0x00000800
+T3A14 000:221.215         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:221.280         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:221.289       FlashBankInfo:
+T3A14 000:221.293         Name:          Main Flash
+T3A14 000:221.300         BaseAddr:      0x08000000
+T3A14 000:221.307         MaxSize:       0x00004000
+T3A14 000:221.426         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F003\MM32F003_16.FLM
+T3A14 000:221.435         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:221.442         AlwaysPresent: 1
+T3A14 000:221.451     Device entry created:  MM32F103xC
+T3A14 000:221.455       ChipInfo:
+T3A14 000:221.460         Vendor:        MindMotion
+T3A14 000:221.467         Name:          MM32F103xC
+T3A14 000:221.474         WorkRAMAddr:   0x20000000
+T3A14 000:221.481         WorkRAMSize:   0x00010000
+T3A14 000:221.488         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:221.555         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:221.567       FlashBankInfo:
+T3A14 000:221.572         Name:          Main Flash
+T3A14 000:221.579         BaseAddr:      0x08000000
+T3A14 000:221.586         MaxSize:       0x00040000
+T3A14 000:221.718         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103xC_256.FLM
+T3A14 000:221.727         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:221.734         AlwaysPresent: 1
+T3A14 000:221.743     Device entry created:  MM32F103xE
+T3A14 000:221.748       ChipInfo:
+T3A14 000:221.752         Vendor:        MindMotion
+T3A14 000:221.759         Name:          MM32F103xE
+T3A14 000:221.766         WorkRAMAddr:   0x20000000
+T3A14 000:221.773         WorkRAMSize:   0x00020000
+T3A14 000:221.780         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:221.845         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:221.854       FlashBankInfo:
+T3A14 000:221.859         Name:          Main Flash
+T3A14 000:221.866         BaseAddr:      0x08000000
+T3A14 000:221.873         MaxSize:       0x00080000
+T3A14 000:221.991         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103xE_512.FLM
+T3A14 000:222.000         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:222.007         AlwaysPresent: 1
+T3A14 000:222.016     Device entry created:  MM32L362NT
+T3A14 000:222.020       ChipInfo:
+T3A14 000:222.025         Vendor:        MindMotion
+T3A14 000:222.032         Name:          MM32L362NT
+T3A14 000:222.039         WorkRAMAddr:   0x20000000
+T3A14 000:222.046         WorkRAMSize:   0x00005000
+T3A14 000:222.053         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:222.117         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:222.125       FlashBankInfo:
+T3A14 000:222.130         Name:          Main Flash
+T3A14 000:222.137         BaseAddr:      0x08000000
+T3A14 000:222.144         MaxSize:       0x00010000
+T3A14 000:222.268         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L36x_64.FLM
+T3A14 000:222.277         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:222.289         AlwaysPresent: 1
+T3A14 000:222.297     Device entry created:  MM32L362PT
+T3A14 000:222.302       ChipInfo:
+T3A14 000:222.307         Vendor:        MindMotion
+T3A14 000:222.313         Name:          MM32L362PT
+T3A14 000:222.320         WorkRAMAddr:   0x20000000
+T3A14 000:222.327         WorkRAMSize:   0x00005000
+T3A14 000:222.334         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:222.401         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:222.409       FlashBankInfo:
+T3A14 000:222.414         Name:          Main Flash
+T3A14 000:222.421         BaseAddr:      0x08000000
+T3A14 000:222.428         MaxSize:       0x00010000
+T3A14 000:222.547         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L36x_64.FLM
+T3A14 000:222.556         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:222.564         AlwaysPresent: 1
+T3A14 000:222.572     Device entry created:  MM32L362PF
+T3A14 000:222.577       ChipInfo:
+T3A14 000:222.582         Vendor:        MindMotion
+T3A14 000:222.589         Name:          MM32L362PF
+T3A14 000:222.596         WorkRAMAddr:   0x20000000
+T3A14 000:222.602         WorkRAMSize:   0x00005000
+T3A14 000:222.609         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:222.674         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:222.682       FlashBankInfo:
+T3A14 000:222.687         Name:          Main Flash
+T3A14 000:222.694         BaseAddr:      0x08000000
+T3A14 000:222.701         MaxSize:       0x00010000
+T3A14 000:222.820         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L36x_64.FLM
+T3A14 000:222.829         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:222.836         AlwaysPresent: 1
+T3A14 000:222.852     Device entry created:  MM32L362PS
+T3A14 000:222.856       ChipInfo:
+T3A14 000:222.861         Vendor:        MindMotion
+T3A14 000:222.868         Name:          MM32L362PS
+T3A14 000:222.875         WorkRAMAddr:   0x20000000
+T3A14 000:222.882         WorkRAMSize:   0x00005000
+T3A14 000:222.889         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:222.956         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:222.964       FlashBankInfo:
+T3A14 000:222.969         Name:          Main Flash
+T3A14 000:222.976         BaseAddr:      0x08000000
+T3A14 000:222.983         MaxSize:       0x00010000
+T3A14 000:223.101         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L36x_64.FLM
+T3A14 000:223.110         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:223.117         AlwaysPresent: 1
+T3A14 000:223.126     Device entry created:  MM32L373NT
+T3A14 000:223.130       ChipInfo:
+T3A14 000:223.135         Vendor:        MindMotion
+T3A14 000:223.142         Name:          MM32L373NT
+T3A14 000:223.149         WorkRAMAddr:   0x20000000
+T3A14 000:223.156         WorkRAMSize:   0x00005000
+T3A14 000:223.163         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:223.227         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:223.236       FlashBankInfo:
+T3A14 000:223.241         Name:          Main Flash
+T3A14 000:223.248         BaseAddr:      0x08000000
+T3A14 000:223.254         MaxSize:       0x00020000
+T3A14 000:223.374         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L37x_128.FLM
+T3A14 000:223.383         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:223.390         AlwaysPresent: 1
+T3A14 000:223.399     Device entry created:  MM32L373PT
+T3A14 000:223.404       ChipInfo:
+T3A14 000:223.408         Vendor:        MindMotion
+T3A14 000:223.415         Name:          MM32L373PT
+T3A14 000:223.422         WorkRAMAddr:   0x20000000
+T3A14 000:223.429         WorkRAMSize:   0x00005000
+T3A14 000:223.436         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:223.501         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:223.510       FlashBankInfo:
+T3A14 000:223.514         Name:          Main Flash
+T3A14 000:223.521         BaseAddr:      0x08000000
+T3A14 000:223.529         MaxSize:       0x00020000
+T3A14 000:223.651         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L37x_128.FLM
+T3A14 000:223.660         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:223.667         AlwaysPresent: 1
+T3A14 000:223.675     Device entry created:  MM32L373PF
+T3A14 000:223.680       ChipInfo:
+T3A14 000:223.685         Vendor:        MindMotion
+T3A14 000:223.691         Name:          MM32L373PF
+T3A14 000:223.698         WorkRAMAddr:   0x20000000
+T3A14 000:223.705         WorkRAMSize:   0x00005000
+T3A14 000:223.712         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:223.777         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:223.785       FlashBankInfo:
+T3A14 000:223.790         Name:          Main Flash
+T3A14 000:223.797         BaseAddr:      0x08000000
+T3A14 000:223.804         MaxSize:       0x00020000
+T3A14 000:223.922         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L37x_128.FLM
+T3A14 000:223.931         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:223.939         AlwaysPresent: 1
+T3A14 000:223.951     Device entry created:  MM32L373PS
+T3A14 000:223.956       ChipInfo:
+T3A14 000:223.960         Vendor:        MindMotion
+T3A14 000:223.967         Name:          MM32L373PS
+T3A14 000:223.974         WorkRAMAddr:   0x20000000
+T3A14 000:223.981         WorkRAMSize:   0x00005000
+T3A14 000:223.988         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:224.054         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:224.066       FlashBankInfo:
+T3A14 000:224.071         Name:          Main Flash
+T3A14 000:224.077         BaseAddr:      0x08000000
+T3A14 000:224.084         MaxSize:       0x00020000
+T3A14 000:224.205         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L37x_128.FLM
+T3A14 000:224.214         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:224.222         AlwaysPresent: 1
+T3A14 000:224.230     Device entry created:  MM32L38xx
+T3A14 000:224.235       ChipInfo:
+T3A14 000:224.240         Vendor:        MindMotion
+T3A14 000:224.247         Name:          MM32L38xx
+T3A14 000:224.254         WorkRAMAddr:   0x20000000
+T3A14 000:224.261         WorkRAMSize:   0x00010000
+T3A14 000:224.268         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:224.332         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:224.341       FlashBankInfo:
+T3A14 000:224.346         Name:          Main Flash
+T3A14 000:224.353         BaseAddr:      0x08000000
+T3A14 000:224.360         MaxSize:       0x00040000
+T3A14 000:224.479         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L38x_256.FLM
+T3A14 000:224.488         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:224.495         AlwaysPresent: 1
+T3A14 000:224.504     Device entry created:  MM32L39xx
+T3A14 000:224.508       ChipInfo:
+T3A14 000:224.513         Vendor:        MindMotion
+T3A14 000:224.520         Name:          MM32L39xx
+T3A14 000:224.528         WorkRAMAddr:   0x20000000
+T3A14 000:224.535         WorkRAMSize:   0x00020000
+T3A14 000:224.542         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:224.608         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:224.616       FlashBankInfo:
+T3A14 000:224.621         Name:          Main Flash
+T3A14 000:224.628         BaseAddr:      0x08000000
+T3A14 000:224.635         MaxSize:       0x00080000
+T3A14 000:224.760         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L3\MM32L39x_512.FLM
+T3A14 000:224.770         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:224.777         AlwaysPresent: 1
+T3A14 000:224.785     Device entry created:  MM32F3273E6P
+T3A14 000:224.790       ChipInfo:
+T3A14 000:224.795         Vendor:        MindMotion
+T3A14 000:224.802         Name:          MM32F3273E6P
+T3A14 000:224.809         WorkRAMAddr:   0x20000000
+T3A14 000:224.815         WorkRAMSize:   0x00018000
+T3A14 000:224.822         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:224.887         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:224.895       FlashBankInfo:
+T3A14 000:224.900         Name:          Main Flash
+T3A14 000:224.909         BaseAddr:      0x08000000
+T3A14 000:224.916         MaxSize:       0x00040000
+T3A14 000:225.043         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_256.FLM
+T3A14 000:225.053         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:225.060         AlwaysPresent: 1
+T3A14 000:225.073     Device entry created:  MM32F3273E7P
+T3A14 000:225.078       ChipInfo:
+T3A14 000:225.082         Vendor:        MindMotion
+T3A14 000:225.089         Name:          MM32F3273E7P
+T3A14 000:225.096         WorkRAMAddr:   0x20000000
+T3A14 000:225.103         WorkRAMSize:   0x00018000
+T3A14 000:225.110         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:225.178         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:225.186       FlashBankInfo:
+T3A14 000:225.191         Name:          Main Flash
+T3A14 000:225.198         BaseAddr:      0x08000000
+T3A14 000:225.205         MaxSize:       0x00040000
+T3A14 000:225.324         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_256.FLM
+T3A14 000:225.333         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:225.367         AlwaysPresent: 1
+T3A14 000:225.375     Device entry created:  MM32F3273E8P
+T3A14 000:225.380       ChipInfo:
+T3A14 000:225.385         Vendor:        MindMotion
+T3A14 000:225.392         Name:          MM32F3273E8P
+T3A14 000:225.399         WorkRAMAddr:   0x20000000
+T3A14 000:225.406         WorkRAMSize:   0x00018000
+T3A14 000:225.413         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:225.482         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:225.491       FlashBankInfo:
+T3A14 000:225.496         Name:          Main Flash
+T3A14 000:225.502         BaseAddr:      0x08000000
+T3A14 000:225.509         MaxSize:       0x00040000
+T3A14 000:225.631         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_256.FLM
+T3A14 000:225.640         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:225.647         AlwaysPresent: 1
+T3A14 000:225.656     Device entry created:  MM32F3273E9P
+T3A14 000:225.661       ChipInfo:
+T3A14 000:225.665         Vendor:        MindMotion
+T3A14 000:225.672         Name:          MM32F3273E9P
+T3A14 000:225.679         WorkRAMAddr:   0x20000000
+T3A14 000:225.686         WorkRAMSize:   0x00018000
+T3A14 000:225.693         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:225.758         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:225.766       FlashBankInfo:
+T3A14 000:225.771         Name:          Main Flash
+T3A14 000:225.778         BaseAddr:      0x08000000
+T3A14 000:225.785         MaxSize:       0x00040000
+T3A14 000:225.902         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_256.FLM
+T3A14 000:225.912         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:225.919         AlwaysPresent: 1
+T3A14 000:225.928     Device entry created:  MM32F3273G6P
+T3A14 000:225.932       ChipInfo:
+T3A14 000:225.937         Vendor:        MindMotion
+T3A14 000:225.944         Name:          MM32F3273G6P
+T3A14 000:225.951         WorkRAMAddr:   0x20000000
+T3A14 000:225.958         WorkRAMSize:   0x00020000
+T3A14 000:225.964         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:226.029         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:226.037       FlashBankInfo:
+T3A14 000:226.042         Name:          Main Flash
+T3A14 000:226.049         BaseAddr:      0x08000000
+T3A14 000:226.056         MaxSize:       0x00080000
+T3A14 000:226.174         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:226.183         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:226.190         AlwaysPresent: 1
+T3A14 000:226.199     Device entry created:  MM32F3273G7P
+T3A14 000:226.204       ChipInfo:
+T3A14 000:226.209         Vendor:        MindMotion
+T3A14 000:226.216         Name:          MM32F3273G7P
+T3A14 000:226.223         WorkRAMAddr:   0x20000000
+T3A14 000:226.230         WorkRAMSize:   0x00020000
+T3A14 000:226.237         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:226.301         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:226.309       FlashBankInfo:
+T3A14 000:226.314         Name:          Main Flash
+T3A14 000:226.321         BaseAddr:      0x08000000
+T3A14 000:226.328         MaxSize:       0x00080000
+T3A14 000:226.446         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:226.455         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:226.462         AlwaysPresent: 1
+T3A14 000:226.471     Device entry created:  MM32F3273G8P
+T3A14 000:226.475       ChipInfo:
+T3A14 000:226.480         Vendor:        MindMotion
+T3A14 000:226.487         Name:          MM32F3273G8P
+T3A14 000:226.494         WorkRAMAddr:   0x20000000
+T3A14 000:226.501         WorkRAMSize:   0x00020000
+T3A14 000:226.508         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:226.573         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:226.585       FlashBankInfo:
+T3A14 000:226.590         Name:          Main Flash
+T3A14 000:226.597         BaseAddr:      0x08000000
+T3A14 000:226.604         MaxSize:       0x00080000
+T3A14 000:226.723         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:226.732         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:226.739         AlwaysPresent: 1
+T3A14 000:226.747     Device entry created:  MM32F3273G9P
+T3A14 000:226.752       ChipInfo:
+T3A14 000:226.757         Vendor:        MindMotion
+T3A14 000:226.763         Name:          MM32F3273G9P
+T3A14 000:226.770         WorkRAMAddr:   0x20000000
+T3A14 000:226.777         WorkRAMSize:   0x00020000
+T3A14 000:226.784         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:226.848         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:226.857       FlashBankInfo:
+T3A14 000:226.862         Name:          Main Flash
+T3A14 000:226.869         BaseAddr:      0x08000000
+T3A14 000:226.876         MaxSize:       0x00080000
+T3A14 000:226.994         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:227.003         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:227.010         AlwaysPresent: 1
+T3A14 000:227.018     Device entry created:  MM32F3273GAQ
+T3A14 000:227.023       ChipInfo:
+T3A14 000:227.028         Vendor:        MindMotion
+T3A14 000:227.035         Name:          MM32F3273GAQ
+T3A14 000:227.041         WorkRAMAddr:   0x20000000
+T3A14 000:227.048         WorkRAMSize:   0x00020000
+T3A14 000:227.055         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:227.120         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:227.128       FlashBankInfo:
+T3A14 000:227.133         Name:          Main Flash
+T3A14 000:227.140         BaseAddr:      0x08000000
+T3A14 000:227.147         MaxSize:       0x00080000
+T3A14 000:227.267         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:227.276         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:227.283         AlwaysPresent: 1
+T3A14 000:227.292     Device entry created:  MM32F3277E7P
+T3A14 000:227.296       ChipInfo:
+T3A14 000:227.301         Vendor:        MindMotion
+T3A14 000:227.308         Name:          MM32F3277E7P
+T3A14 000:227.315         WorkRAMAddr:   0x20000000
+T3A14 000:227.322         WorkRAMSize:   0x00020000
+T3A14 000:227.329         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:227.394         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:227.402       FlashBankInfo:
+T3A14 000:227.407         Name:          Main Flash
+T3A14 000:227.414         BaseAddr:      0x08000000
+T3A14 000:227.421         MaxSize:       0x00040000
+T3A14 000:227.541         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_256.FLM
+T3A14 000:227.550         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:227.557         AlwaysPresent: 1
+T3A14 000:227.566     Device entry created:  MM32F3277E8P
+T3A14 000:227.570       ChipInfo:
+T3A14 000:227.575         Vendor:        MindMotion
+T3A14 000:227.582         Name:          MM32F3277E8P
+T3A14 000:227.589         WorkRAMAddr:   0x20000000
+T3A14 000:227.596         WorkRAMSize:   0x00020000
+T3A14 000:227.603         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:227.667         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:227.676       FlashBankInfo:
+T3A14 000:227.681         Name:          Main Flash
+T3A14 000:227.688         BaseAddr:      0x08000000
+T3A14 000:227.695         MaxSize:       0x00040000
+T3A14 000:227.818         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_256.FLM
+T3A14 000:227.831         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:227.838         AlwaysPresent: 1
+T3A14 000:227.847     Device entry created:  MM32F3277E9P
+T3A14 000:227.853       ChipInfo:
+T3A14 000:227.858         Vendor:        MindMotion
+T3A14 000:227.865         Name:          MM32F3277E9P
+T3A14 000:227.872         WorkRAMAddr:   0x20000000
+T3A14 000:227.879         WorkRAMSize:   0x00020000
+T3A14 000:227.886         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:227.954         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:227.962       FlashBankInfo:
+T3A14 000:227.967         Name:          Main Flash
+T3A14 000:227.974         BaseAddr:      0x08000000
+T3A14 000:227.981         MaxSize:       0x00040000
+T3A14 000:228.099         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_256.FLM
+T3A14 000:228.108         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:228.115         AlwaysPresent: 1
+T3A14 000:228.124     Device entry created:  MM32F3277G7P
+T3A14 000:228.129       ChipInfo:
+T3A14 000:228.134         Vendor:        MindMotion
+T3A14 000:228.140         Name:          MM32F3277G7P
+T3A14 000:228.147         WorkRAMAddr:   0x20000000
+T3A14 000:228.154         WorkRAMSize:   0x00020000
+T3A14 000:228.161         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:228.226         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:228.234       FlashBankInfo:
+T3A14 000:228.239         Name:          Main Flash
+T3A14 000:228.246         BaseAddr:      0x08000000
+T3A14 000:228.253         MaxSize:       0x00080000
+T3A14 000:228.370         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:228.380         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:228.387         AlwaysPresent: 1
+T3A14 000:228.395     Device entry created:  MM32F3277G8P
+T3A14 000:228.400       ChipInfo:
+T3A14 000:228.404         Vendor:        MindMotion
+T3A14 000:228.411         Name:          MM32F3277G8P
+T3A14 000:228.418         WorkRAMAddr:   0x20000000
+T3A14 000:228.425         WorkRAMSize:   0x00020000
+T3A14 000:228.432         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:228.498         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:228.507       FlashBankInfo:
+T3A14 000:228.511         Name:          Main Flash
+T3A14 000:228.518         BaseAddr:      0x08000000
+T3A14 000:228.525         MaxSize:       0x00080000
+T3A14 000:228.645         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:228.654         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:228.661         AlwaysPresent: 1
+T3A14 000:228.669     Device entry created:  MM32F3277G9P
+T3A14 000:228.674       ChipInfo:
+T3A14 000:228.679         Vendor:        MindMotion
+T3A14 000:228.685         Name:          MM32F3277G9P
+T3A14 000:228.692         WorkRAMAddr:   0x20000000
+T3A14 000:228.699         WorkRAMSize:   0x00020000
+T3A14 000:228.706         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:228.771         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:228.779       FlashBankInfo:
+T3A14 000:228.784         Name:          Main Flash
+T3A14 000:228.791         BaseAddr:      0x08000000
+T3A14 000:228.798         MaxSize:       0x00080000
+T3A14 000:228.916         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F3270\MM32F327x_512.FLM
+T3A14 000:228.926         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:228.933         AlwaysPresent: 1
+T3A14 000:228.942     Device entry created:  MM32SPIN3270E7P
+T3A14 000:228.947       ChipInfo:
+T3A14 000:228.951         Vendor:        MindMotion
+T3A14 000:228.958         Name:          MM32SPIN3270E7P
+T3A14 000:228.965         WorkRAMAddr:   0x20000000
+T3A14 000:228.972         WorkRAMSize:   0x00018000
+T3A14 000:228.982         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:229.048         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:229.057       FlashBankInfo:
+T3A14 000:229.062         Name:          Main Flash
+T3A14 000:229.069         BaseAddr:      0x08000000
+T3A14 000:229.076         MaxSize:       0x00040000
+T3A14 000:229.200         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN3270\MM32SPIN3270_256.FLM
+T3A14 000:229.209         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:229.216         AlwaysPresent: 1
+T3A14 000:229.225     Device entry created:  MM32SPIN3270E8P
+T3A14 000:229.230       ChipInfo:
+T3A14 000:229.234         Vendor:        MindMotion
+T3A14 000:229.241         Name:          MM32SPIN3270E8P
+T3A14 000:229.248         WorkRAMAddr:   0x20000000
+T3A14 000:229.255         WorkRAMSize:   0x00018000
+T3A14 000:229.262         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:229.327         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:229.335       FlashBankInfo:
+T3A14 000:229.340         Name:          Main Flash
+T3A14 000:229.347         BaseAddr:      0x08000000
+T3A14 000:229.354         MaxSize:       0x00040000
+T3A14 000:229.472         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN3270\MM32SPIN3270_256.FLM
+T3A14 000:229.481         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:229.489         AlwaysPresent: 1
+T3A14 000:229.497     Device entry created:  MM32SPIN3270E9P
+T3A14 000:229.502       ChipInfo:
+T3A14 000:229.506         Vendor:        MindMotion
+T3A14 000:229.513         Name:          MM32SPIN3270E9P
+T3A14 000:229.521         WorkRAMAddr:   0x20000000
+T3A14 000:229.527         WorkRAMSize:   0x00018000
+T3A14 000:229.535         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:229.601         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:229.610       FlashBankInfo:
+T3A14 000:229.614         Name:          Main Flash
+T3A14 000:229.621         BaseAddr:      0x08000000
+T3A14 000:229.628         MaxSize:       0x00040000
+T3A14 000:229.747         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN3270\MM32SPIN3270_256.FLM
+T3A14 000:229.756         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:229.764         AlwaysPresent: 1
+T3A14 000:229.772     Device entry created:  MM32SPIN3270G7P
+T3A14 000:229.777       ChipInfo:
+T3A14 000:229.782         Vendor:        MindMotion
+T3A14 000:229.789         Name:          MM32SPIN3270G7P
+T3A14 000:229.795         WorkRAMAddr:   0x20000000
+T3A14 000:229.802         WorkRAMSize:   0x00020000
+T3A14 000:229.809         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:229.874         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:229.883       FlashBankInfo:
+T3A14 000:229.888         Name:          Main Flash
+T3A14 000:229.895         BaseAddr:      0x08000000
+T3A14 000:229.902         MaxSize:       0x00080000
+T3A14 000:230.023         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN3270\MM32SPIN3270_512.FLM
+T3A14 000:230.032         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:230.039         AlwaysPresent: 1
+T3A14 000:230.048     Device entry created:  MM32SPIN3270G8P
+T3A14 000:230.053       ChipInfo:
+T3A14 000:230.057         Vendor:        MindMotion
+T3A14 000:230.064         Name:          MM32SPIN3270G8P
+T3A14 000:230.071         WorkRAMAddr:   0x20000000
+T3A14 000:230.078         WorkRAMSize:   0x00020000
+T3A14 000:230.085         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:230.150         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:230.158       FlashBankInfo:
+T3A14 000:230.163         Name:          Main Flash
+T3A14 000:230.170         BaseAddr:      0x08000000
+T3A14 000:230.177         MaxSize:       0x00080000
+T3A14 000:230.300         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN3270\MM32SPIN3270_512.FLM
+T3A14 000:230.309         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:230.317         AlwaysPresent: 1
+T3A14 000:230.325     Device entry created:  MM32SPIN3270G9P
+T3A14 000:230.330       ChipInfo:
+T3A14 000:230.335         Vendor:        MindMotion
+T3A14 000:230.342         Name:          MM32SPIN3270G9P
+T3A14 000:230.349         WorkRAMAddr:   0x20000000
+T3A14 000:230.355         WorkRAMSize:   0x00020000
+T3A14 000:230.362         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:230.427         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:230.436       FlashBankInfo:
+T3A14 000:230.441         Name:          Main Flash
+T3A14 000:230.448         BaseAddr:      0x08000000
+T3A14 000:230.454         MaxSize:       0x00080000
+T3A14 000:230.574         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN3270\MM32SPIN3270_512.FLM
+T3A14 000:230.583         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:230.590         AlwaysPresent: 1
+T3A14 000:230.599     Device entry created:  MM32F5277E7PV
+T3A14 000:230.604       ChipInfo:
+T3A14 000:230.608         Vendor:        MindMotion
+T3A14 000:230.615         Name:          MM32F5277E7PV
+T3A14 000:230.622         WorkRAMAddr:   0x30000000
+T3A14 000:230.629         WorkRAMSize:   0x0001C000
+T3A14 000:230.637         Core:          JLINK_CORE_STAR
+T3A14 000:230.705         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:230.714       FlashBankInfo:
+T3A14 000:230.718         Name:          Main Flash
+T3A14 000:230.725         BaseAddr:      0x08000000
+T3A14 000:230.732         MaxSize:       0x00040000
+T3A14 000:230.861         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5270\MM32F5270_256.FLM
+T3A14 000:230.870         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:230.877         AlwaysPresent: 1
+T3A14 000:230.890     Device entry created:  MM32F5277E8PV
+T3A14 000:230.895       ChipInfo:
+T3A14 000:230.900         Vendor:        MindMotion
+T3A14 000:230.906         Name:          MM32F5277E8PV
+T3A14 000:230.913         WorkRAMAddr:   0x30000000
+T3A14 000:230.920         WorkRAMSize:   0x0001C000
+T3A14 000:230.928         Core:          JLINK_CORE_STAR
+T3A14 000:230.994         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:231.003       FlashBankInfo:
+T3A14 000:231.008         Name:          Main Flash
+T3A14 000:231.015         BaseAddr:      0x08000000
+T3A14 000:231.022         MaxSize:       0x00040000
+T3A14 000:231.140         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5270\MM32F5270_256.FLM
+T3A14 000:231.149         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:231.156         AlwaysPresent: 1
+T3A14 000:231.165     Device entry created:  MM32F5277E9PV
+T3A14 000:231.169       ChipInfo:
+T3A14 000:231.174         Vendor:        MindMotion
+T3A14 000:231.181         Name:          MM32F5277E9PV
+T3A14 000:231.188         WorkRAMAddr:   0x30000000
+T3A14 000:231.195         WorkRAMSize:   0x0001C000
+T3A14 000:231.202         Core:          JLINK_CORE_STAR
+T3A14 000:231.267         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:231.276       FlashBankInfo:
+T3A14 000:231.281         Name:          Main Flash
+T3A14 000:231.288         BaseAddr:      0x08000000
+T3A14 000:231.295         MaxSize:       0x00040000
+T3A14 000:231.413         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5270\MM32F5270_256.FLM
+T3A14 000:231.422         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:231.430         AlwaysPresent: 1
+T3A14 000:231.438     Device entry created:  MM32F5287K7PV
+T3A14 000:231.443       ChipInfo:
+T3A14 000:231.448         Vendor:        MindMotion
+T3A14 000:231.455         Name:          MM32F5287K7PV
+T3A14 000:231.465         WorkRAMAddr:   0x30000000
+T3A14 000:231.472         WorkRAMSize:   0x0001C000
+T3A14 000:231.479         Core:          JLINK_CORE_STAR
+T3A14 000:231.547         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:231.556       FlashBankInfo:
+T3A14 000:231.560         Name:          Flash bank 1
+T3A14 000:231.567         BaseAddr:      0x08000000
+T3A14 000:231.574         MaxSize:       0x00040000
+T3A14 000:231.698         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_256.FLM
+T3A14 000:231.708         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:231.715         AlwaysPresent: 1
+T3A14 000:231.722       FlashBankInfo:
+T3A14 000:231.726         Name:          Flash bank 2
+T3A14 000:231.733         BaseAddr:      0x90000000
+T3A14 000:231.740         MaxSize:       0x00100000
+T3A14 000:231.863         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_1M.FLM
+T3A14 000:231.872         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:231.879         AlwaysPresent: 1
+T3A14 000:231.888     Device entry created:  MM32F5287K8PV
+T3A14 000:231.893       ChipInfo:
+T3A14 000:231.898         Vendor:        MindMotion
+T3A14 000:231.905         Name:          MM32F5287K8PV
+T3A14 000:231.912         WorkRAMAddr:   0x30000000
+T3A14 000:231.919         WorkRAMSize:   0x0001C000
+T3A14 000:231.926         Core:          JLINK_CORE_STAR
+T3A14 000:231.992         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:232.001       FlashBankInfo:
+T3A14 000:232.005         Name:          Flash bank 1
+T3A14 000:232.012         BaseAddr:      0x08000000
+T3A14 000:232.019         MaxSize:       0x00040000
+T3A14 000:232.140         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_256.FLM
+T3A14 000:232.150         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:232.157         AlwaysPresent: 1
+T3A14 000:232.164       FlashBankInfo:
+T3A14 000:232.169         Name:          Flash bank 2
+T3A14 000:232.176         BaseAddr:      0x90000000
+T3A14 000:232.183         MaxSize:       0x00100000
+T3A14 000:232.303         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_1M.FLM
+T3A14 000:232.312         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:232.319         AlwaysPresent: 1
+T3A14 000:232.328     Device entry created:  MM32F5287K9PV
+T3A14 000:232.333       ChipInfo:
+T3A14 000:232.337         Vendor:        MindMotion
+T3A14 000:232.344         Name:          MM32F5287K9PV
+T3A14 000:232.351         WorkRAMAddr:   0x30000000
+T3A14 000:232.358         WorkRAMSize:   0x0001C000
+T3A14 000:232.366         Core:          JLINK_CORE_STAR
+T3A14 000:232.431         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:232.440       FlashBankInfo:
+T3A14 000:232.444         Name:          Flash bank 1
+T3A14 000:232.451         BaseAddr:      0x08000000
+T3A14 000:232.458         MaxSize:       0x00040000
+T3A14 000:232.593         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_256.FLM
+T3A14 000:232.602         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:232.673         AlwaysPresent: 1
+T3A14 000:232.724       FlashBankInfo:
+T3A14 000:232.729         Name:          Flash bank 2
+T3A14 000:232.736         BaseAddr:      0x90000000
+T3A14 000:232.743         MaxSize:       0x00100000
+T3A14 000:232.958         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_1M.FLM
+T3A14 000:232.967         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:232.974         AlwaysPresent: 1
+T3A14 000:232.983     Device entry created:  MM32F5287L7PV
+T3A14 000:232.988       ChipInfo:
+T3A14 000:232.992         Vendor:        MindMotion
+T3A14 000:232.999         Name:          MM32F5287L7PV
+T3A14 000:233.006         WorkRAMAddr:   0x30000000
+T3A14 000:233.016         WorkRAMSize:   0x0001C000
+T3A14 000:233.024         Core:          JLINK_CORE_STAR
+T3A14 000:233.091         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:233.099       FlashBankInfo:
+T3A14 000:233.104         Name:          Flash bank 1
+T3A14 000:233.111         BaseAddr:      0x08000000
+T3A14 000:233.118         MaxSize:       0x00040000
+T3A14 000:233.241         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_256.FLM
+T3A14 000:233.250         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:233.258         AlwaysPresent: 1
+T3A14 000:233.265       FlashBankInfo:
+T3A14 000:233.269         Name:          Flash bank 2
+T3A14 000:233.276         BaseAddr:      0x90000000
+T3A14 000:233.283         MaxSize:       0x00200000
+T3A14 000:233.407         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_2M.FLM
+T3A14 000:233.416         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:233.423         AlwaysPresent: 1
+T3A14 000:233.432     Device entry created:  MM32F5287L8PV
+T3A14 000:233.437       ChipInfo:
+T3A14 000:233.441         Vendor:        MindMotion
+T3A14 000:233.448         Name:          MM32F5287L8PV
+T3A14 000:233.455         WorkRAMAddr:   0x30000000
+T3A14 000:233.462         WorkRAMSize:   0x0001C000
+T3A14 000:233.470         Core:          JLINK_CORE_STAR
+T3A14 000:233.536         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:233.545       FlashBankInfo:
+T3A14 000:233.550         Name:          Flash bank 1
+T3A14 000:233.556         BaseAddr:      0x08000000
+T3A14 000:233.564         MaxSize:       0x00040000
+T3A14 000:233.685         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_256.FLM
+T3A14 000:233.694         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:233.701         AlwaysPresent: 1
+T3A14 000:233.708       FlashBankInfo:
+T3A14 000:233.713         Name:          Flash bank 2
+T3A14 000:233.720         BaseAddr:      0x90000000
+T3A14 000:233.727         MaxSize:       0x00200000
+T3A14 000:233.847         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_2M.FLM
+T3A14 000:233.856         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:233.864         AlwaysPresent: 1
+T3A14 000:233.872     Device entry created:  MM32F5287L9PV
+T3A14 000:233.877       ChipInfo:
+T3A14 000:233.881         Vendor:        MindMotion
+T3A14 000:233.889         Name:          MM32F5287L9PV
+T3A14 000:233.895         WorkRAMAddr:   0x30000000
+T3A14 000:233.902         WorkRAMSize:   0x0001C000
+T3A14 000:233.910         Core:          JLINK_CORE_STAR
+T3A14 000:233.975         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_STAR.JLinkScript
+T3A14 000:233.984       FlashBankInfo:
+T3A14 000:233.988         Name:          Flash bank 1
+T3A14 000:233.995         BaseAddr:      0x08000000
+T3A14 000:234.003         MaxSize:       0x00040000
+T3A14 000:234.127         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_256.FLM
+T3A14 000:234.136         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:234.143         AlwaysPresent: 1
+T3A14 000:234.150       FlashBankInfo:
+T3A14 000:234.155         Name:          Flash bank 2
+T3A14 000:234.162         BaseAddr:      0x90000000
+T3A14 000:234.169         MaxSize:       0x00200000
+T3A14 000:234.289         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F5280\MM32F5280_2M.FLM
+T3A14 000:234.298         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:234.305         AlwaysPresent: 1
+T3A14 000:234.314     Device entry created:  MM32SPIN05NT
+T3A14 000:234.319       ChipInfo:
+T3A14 000:234.323         Vendor:        MindMotion
+T3A14 000:234.330         Name:          MM32SPIN05NT
+T3A14 000:234.337         WorkRAMAddr:   0x20000000
+T3A14 000:234.344         WorkRAMSize:   0x00001000
+T3A14 000:234.354         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:234.420         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:234.429       FlashBankInfo:
+T3A14 000:234.434         Name:          Main Flash
+T3A14 000:234.441         BaseAddr:      0x08000000
+T3A14 000:234.448         MaxSize:       0x00008000
+T3A14 000:234.572         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN05\MM32SPIN05_32.FLM
+T3A14 000:234.581         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:234.588         AlwaysPresent: 1
+T3A14 000:234.597     Device entry created:  MM32SPIN05NW
+T3A14 000:234.602       ChipInfo:
+T3A14 000:234.607         Vendor:        MindMotion
+T3A14 000:234.613         Name:          MM32SPIN05NW
+T3A14 000:234.620         WorkRAMAddr:   0x20000000
+T3A14 000:234.627         WorkRAMSize:   0x00001000
+T3A14 000:234.634         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:234.699         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:234.708       FlashBankInfo:
+T3A14 000:234.713         Name:          Main Flash
+T3A14 000:234.720         BaseAddr:      0x08000000
+T3A14 000:234.727         MaxSize:       0x00008000
+T3A14 000:234.845         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN05\MM32SPIN05_32.FLM
+T3A14 000:234.855         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:234.862         AlwaysPresent: 1
+T3A14 000:234.870     Device entry created:  MM32SPIN05PF
+T3A14 000:234.875       ChipInfo:
+T3A14 000:234.880         Vendor:        MindMotion
+T3A14 000:234.886         Name:          MM32SPIN05PF
+T3A14 000:234.893         WorkRAMAddr:   0x20000000
+T3A14 000:234.900         WorkRAMSize:   0x00001000
+T3A14 000:234.907         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:234.972         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:234.981       FlashBankInfo:
+T3A14 000:234.985         Name:          Main Flash
+T3A14 000:234.992         BaseAddr:      0x08000000
+T3A14 000:234.999         MaxSize:       0x00008000
+T3A14 000:235.118         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN05\MM32SPIN05_32.FLM
+T3A14 000:235.127         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:235.134         AlwaysPresent: 1
+T3A14 000:235.143     Device entry created:  MM32SPIN05PT
+T3A14 000:235.147       ChipInfo:
+T3A14 000:235.152         Vendor:        MindMotion
+T3A14 000:235.159         Name:          MM32SPIN05PT
+T3A14 000:235.166         WorkRAMAddr:   0x20000000
+T3A14 000:235.173         WorkRAMSize:   0x00001000
+T3A14 000:235.180         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:235.244         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:235.253       FlashBankInfo:
+T3A14 000:235.258         Name:          Main Flash
+T3A14 000:235.265         BaseAddr:      0x08000000
+T3A14 000:235.272         MaxSize:       0x00008000
+T3A14 000:235.390         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN05\MM32SPIN05_32.FLM
+T3A14 000:235.399         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:235.406         AlwaysPresent: 1
+T3A14 000:235.415     Device entry created:  MM32SPIN05TW
+T3A14 000:235.420       ChipInfo:
+T3A14 000:235.424         Vendor:        MindMotion
+T3A14 000:235.431         Name:          MM32SPIN05TW
+T3A14 000:235.438         WorkRAMAddr:   0x20000000
+T3A14 000:235.445         WorkRAMSize:   0x00001000
+T3A14 000:235.452         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:235.516         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:235.525       FlashBankInfo:
+T3A14 000:235.530         Name:          Main Flash
+T3A14 000:235.538         BaseAddr:      0x08000000
+T3A14 000:235.545         MaxSize:       0x00008000
+T3A14 000:235.700         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN05\MM32SPIN05_32.FLM
+T3A14 000:235.710         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:235.717         AlwaysPresent: 1
+T3A14 000:235.725     Device entry created:  MM32SPIN06NT
+T3A14 000:235.730       ChipInfo:
+T3A14 000:235.735         Vendor:        MindMotion
+T3A14 000:235.741         Name:          MM32SPIN06NT
+T3A14 000:235.749         WorkRAMAddr:   0x20000000
+T3A14 000:235.755         WorkRAMSize:   0x00002000
+T3A14 000:235.762         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:235.828         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:235.836       FlashBankInfo:
+T3A14 000:235.841         Name:          Main Flash
+T3A14 000:235.848         BaseAddr:      0x08000000
+T3A14 000:235.855         MaxSize:       0x00010000
+T3A14 000:235.978         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN06\MM32SPIN06_64.FLM
+T3A14 000:235.987         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:235.994         AlwaysPresent: 1
+T3A14 000:236.003     Device entry created:  MM32SPIN06PF
+T3A14 000:236.008       ChipInfo:
+T3A14 000:236.012         Vendor:        MindMotion
+T3A14 000:236.019         Name:          MM32SPIN06PF
+T3A14 000:236.026         WorkRAMAddr:   0x20000000
+T3A14 000:236.033         WorkRAMSize:   0x00002000
+T3A14 000:236.040         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:236.105         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:236.114       FlashBankInfo:
+T3A14 000:236.119         Name:          Main Flash
+T3A14 000:236.126         BaseAddr:      0x08000000
+T3A14 000:236.133         MaxSize:       0x00010000
+T3A14 000:236.252         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN06\MM32SPIN06_64.FLM
+T3A14 000:236.262         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:236.269         AlwaysPresent: 1
+T3A14 000:236.277     Device entry created:  MM32SPIN06PS
+T3A14 000:236.282       ChipInfo:
+T3A14 000:236.287         Vendor:        MindMotion
+T3A14 000:236.293         Name:          MM32SPIN06PS
+T3A14 000:236.300         WorkRAMAddr:   0x20000000
+T3A14 000:236.307         WorkRAMSize:   0x00002000
+T3A14 000:236.314         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:236.379         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:236.388       FlashBankInfo:
+T3A14 000:236.393         Name:          Main Flash
+T3A14 000:236.400         BaseAddr:      0x08000000
+T3A14 000:236.407         MaxSize:       0x00010000
+T3A14 000:236.525         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN06\MM32SPIN06_64.FLM
+T3A14 000:236.535         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:236.543         AlwaysPresent: 1
+T3A14 000:236.552     Device entry created:  MM32SPIN25NF
+T3A14 000:236.556       ChipInfo:
+T3A14 000:236.561         Vendor:        MindMotion
+T3A14 000:236.568         Name:          MM32SPIN25NF
+T3A14 000:236.575         WorkRAMAddr:   0x20000000
+T3A14 000:236.582         WorkRAMSize:   0x00002000
+T3A14 000:236.589         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:236.655         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:236.663       FlashBankInfo:
+T3A14 000:236.668         Name:          Main Flash
+T3A14 000:236.675         BaseAddr:      0x08000000
+T3A14 000:236.682         MaxSize:       0x00008000
+T3A14 000:236.804         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN25\MM32SPIN25_32.FLM
+T3A14 000:236.813         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:236.821         AlwaysPresent: 1
+T3A14 000:236.829     Device entry created:  MM32SPIN25PF
+T3A14 000:236.834       ChipInfo:
+T3A14 000:236.839         Vendor:        MindMotion
+T3A14 000:236.845         Name:          MM32SPIN25PF
+T3A14 000:236.855         WorkRAMAddr:   0x20000000
+T3A14 000:236.862         WorkRAMSize:   0x00002000
+T3A14 000:236.869         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:236.938         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:236.946       FlashBankInfo:
+T3A14 000:236.951         Name:          Main Flash
+T3A14 000:236.958         BaseAddr:      0x08000000
+T3A14 000:236.965         MaxSize:       0x00008000
+T3A14 000:237.088         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN25\MM32SPIN25_32.FLM
+T3A14 000:237.098         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:237.105         AlwaysPresent: 1
+T3A14 000:237.113     Device entry created:  MM32SPIN25PT
+T3A14 000:237.118       ChipInfo:
+T3A14 000:237.123         Vendor:        MindMotion
+T3A14 000:237.129         Name:          MM32SPIN25PT
+T3A14 000:237.136         WorkRAMAddr:   0x20000000
+T3A14 000:237.144         WorkRAMSize:   0x00002000
+T3A14 000:237.151         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:237.215         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:237.224       FlashBankInfo:
+T3A14 000:237.228         Name:          Main Flash
+T3A14 000:237.235         BaseAddr:      0x08000000
+T3A14 000:237.242         MaxSize:       0x00008000
+T3A14 000:237.361         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN25\MM32SPIN25_32.FLM
+T3A14 000:237.371         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:237.378         AlwaysPresent: 1
+T3A14 000:237.386     Device entry created:  MM32SPIN25TW
+T3A14 000:237.391       ChipInfo:
+T3A14 000:237.395         Vendor:        MindMotion
+T3A14 000:237.402         Name:          MM32SPIN25TW
+T3A14 000:237.409         WorkRAMAddr:   0x20000000
+T3A14 000:237.416         WorkRAMSize:   0x00002000
+T3A14 000:237.423         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:237.487         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:237.496       FlashBankInfo:
+T3A14 000:237.501         Name:          Main Flash
+T3A14 000:237.508         BaseAddr:      0x08000000
+T3A14 000:237.515         MaxSize:       0x00008000
+T3A14 000:237.636         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN25\MM32SPIN25_32.FLM
+T3A14 000:237.645         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:237.652         AlwaysPresent: 1
+T3A14 000:237.661     Device entry created:  MM32SPIN26NF
+T3A14 000:237.665       ChipInfo:
+T3A14 000:237.670         Vendor:        MindMotion
+T3A14 000:237.677         Name:          MM32SPIN26NF
+T3A14 000:237.684         WorkRAMAddr:   0x20000000
+T3A14 000:237.691         WorkRAMSize:   0x00003000
+T3A14 000:237.698         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:237.764         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:237.772       FlashBankInfo:
+T3A14 000:237.777         Name:          Main Flash
+T3A14 000:237.784         BaseAddr:      0x08000000
+T3A14 000:237.791         MaxSize:       0x00010000
+T3A14 000:237.914         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN26\MM32SPIN26_64.FLM
+T3A14 000:237.924         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:237.931         AlwaysPresent: 1
+T3A14 000:237.940     Device entry created:  MM32SPIN26PF
+T3A14 000:237.945       ChipInfo:
+T3A14 000:237.949         Vendor:        MindMotion
+T3A14 000:237.956         Name:          MM32SPIN26PF
+T3A14 000:237.963         WorkRAMAddr:   0x20000000
+T3A14 000:237.970         WorkRAMSize:   0x00003000
+T3A14 000:237.977         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:238.041         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:238.050       FlashBankInfo:
+T3A14 000:238.055         Name:          Main Flash
+T3A14 000:238.062         BaseAddr:      0x08000000
+T3A14 000:238.072         MaxSize:       0x00010000
+T3A14 000:238.193         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN26\MM32SPIN26_64.FLM
+T3A14 000:238.202         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:238.209         AlwaysPresent: 1
+T3A14 000:238.218     Device entry created:  MM32SPIN26PT
+T3A14 000:238.223       ChipInfo:
+T3A14 000:238.227         Vendor:        MindMotion
+T3A14 000:238.234         Name:          MM32SPIN26PT
+T3A14 000:238.241         WorkRAMAddr:   0x20000000
+T3A14 000:238.248         WorkRAMSize:   0x00003000
+T3A14 000:238.255         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:238.320         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:238.329       FlashBankInfo:
+T3A14 000:238.334         Name:          Main Flash
+T3A14 000:238.341         BaseAddr:      0x08000000
+T3A14 000:238.347         MaxSize:       0x00010000
+T3A14 000:238.466         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN26\MM32SPIN26_64.FLM
+T3A14 000:238.475         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:238.483         AlwaysPresent: 1
+T3A14 000:238.491     Device entry created:  MM32SPIN27NF
+T3A14 000:238.496       ChipInfo:
+T3A14 000:238.500         Vendor:        MindMotion
+T3A14 000:238.507         Name:          MM32SPIN27NF
+T3A14 000:238.514         WorkRAMAddr:   0x20000000
+T3A14 000:238.521         WorkRAMSize:   0x00003000
+T3A14 000:238.529         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:238.595         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:238.603       FlashBankInfo:
+T3A14 000:238.608         Name:          Main Flash
+T3A14 000:238.615         BaseAddr:      0x08000000
+T3A14 000:238.622         MaxSize:       0x00020000
+T3A14 000:238.744         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN27\MM32SPIN27_128.FLM
+T3A14 000:238.753         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:238.761         AlwaysPresent: 1
+T3A14 000:238.769     Device entry created:  MM32SPIN27PF
+T3A14 000:238.774       ChipInfo:
+T3A14 000:238.779         Vendor:        MindMotion
+T3A14 000:238.786         Name:          MM32SPIN27PF
+T3A14 000:238.793         WorkRAMAddr:   0x20000000
+T3A14 000:238.799         WorkRAMSize:   0x00003000
+T3A14 000:238.806         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:238.872         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:238.881       FlashBankInfo:
+T3A14 000:238.885         Name:          Main Flash
+T3A14 000:238.892         BaseAddr:      0x08000000
+T3A14 000:238.900         MaxSize:       0x00020000
+T3A14 000:239.018         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN27\MM32SPIN27_128.FLM
+T3A14 000:239.027         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:239.034         AlwaysPresent: 1
+T3A14 000:239.043     Device entry created:  MM32SPIN27PS
+T3A14 000:239.048       ChipInfo:
+T3A14 000:239.052         Vendor:        MindMotion
+T3A14 000:239.059         Name:          MM32SPIN27PS
+T3A14 000:239.066         WorkRAMAddr:   0x20000000
+T3A14 000:239.073         WorkRAMSize:   0x00003000
+T3A14 000:239.080         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:239.145         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:239.154       FlashBankInfo:
+T3A14 000:239.159         Name:          Main Flash
+T3A14 000:239.166         BaseAddr:      0x08000000
+T3A14 000:239.173         MaxSize:       0x00020000
+T3A14 000:239.291         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN27\MM32SPIN27_128.FLM
+T3A14 000:239.300         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:239.307         AlwaysPresent: 1
+T3A14 000:239.316     Device entry created:  MM32SPIN27PT
+T3A14 000:239.321       ChipInfo:
+T3A14 000:239.325         Vendor:        MindMotion
+T3A14 000:239.335         Name:          MM32SPIN27PT
+T3A14 000:239.342         WorkRAMAddr:   0x20000000
+T3A14 000:239.349         WorkRAMSize:   0x00003000
+T3A14 000:239.356         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:239.423         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:239.432       FlashBankInfo:
+T3A14 000:239.437         Name:          Main Flash
+T3A14 000:239.444         BaseAddr:      0x08000000
+T3A14 000:239.451         MaxSize:       0x00020000
+T3A14 000:239.572         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN27\MM32SPIN27_128.FLM
+T3A14 000:239.581         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:239.588         AlwaysPresent: 1
+T3A14 000:239.597     Device entry created:  MM32L050xxq
+T3A14 000:239.602       ChipInfo:
+T3A14 000:239.607         Vendor:        MindMotion
+T3A14 000:239.613         Name:          MM32L050xxq
+T3A14 000:239.620         WorkRAMAddr:   0x20000000
+T3A14 000:239.627         WorkRAMSize:   0x00001000
+T3A14 000:239.634         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:239.699         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:239.708       FlashBankInfo:
+T3A14 000:239.713         Name:          Main Flash
+T3A14 000:239.720         BaseAddr:      0x08000000
+T3A14 000:239.727         MaxSize:       0x00008000
+T3A14 000:239.849         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_32.FLM
+T3A14 000:239.858         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:239.866         AlwaysPresent: 1
+T3A14 000:239.879     Device entry created:  MM32L051xxq
+T3A14 000:239.884       ChipInfo:
+T3A14 000:239.889         Vendor:        MindMotion
+T3A14 000:239.896         Name:          MM32L051xxq
+T3A14 000:239.902         WorkRAMAddr:   0x20000000
+T3A14 000:239.909         WorkRAMSize:   0x00001000
+T3A14 000:239.916         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:239.981         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:239.990       FlashBankInfo:
+T3A14 000:239.995         Name:          Main Flash
+T3A14 000:240.002         BaseAddr:      0x08000000
+T3A14 000:240.009         MaxSize:       0x00008000
+T3A14 000:240.132         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_32.FLM
+T3A14 000:240.141         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:240.149         AlwaysPresent: 1
+T3A14 000:240.158     Device entry created:  MM32L052xxs
+T3A14 000:240.163       ChipInfo:
+T3A14 000:240.167         Vendor:        MindMotion
+T3A14 000:240.174         Name:          MM32L052xxs
+T3A14 000:240.181         WorkRAMAddr:   0x20000000
+T3A14 000:240.188         WorkRAMSize:   0x00001000
+T3A14 000:240.195         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:240.261         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:240.270       FlashBankInfo:
+T3A14 000:240.274         Name:          Main Flash
+T3A14 000:240.281         BaseAddr:      0x08000000
+T3A14 000:240.289         MaxSize:       0x00008000
+T3A14 000:240.408         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_32.FLM
+T3A14 000:240.417         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:240.424         AlwaysPresent: 1
+T3A14 000:240.433     Device entry created:  MM32L051TW
+T3A14 000:240.438       ChipInfo:
+T3A14 000:240.442         Vendor:        MindMotion
+T3A14 000:240.449         Name:          MM32L051TW
+T3A14 000:240.456         WorkRAMAddr:   0x20000000
+T3A14 000:240.463         WorkRAMSize:   0x00001000
+T3A14 000:240.470         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:240.535         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:240.545       FlashBankInfo:
+T3A14 000:240.549         Name:          Main Flash
+T3A14 000:240.559         BaseAddr:      0x08000000
+T3A14 000:240.566         MaxSize:       0x00008000
+T3A14 000:240.686         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_32.FLM
+T3A14 000:240.696         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:240.703         AlwaysPresent: 1
+T3A14 000:240.716     Device entry created:  MM32L051NT
+T3A14 000:240.721       ChipInfo:
+T3A14 000:240.726         Vendor:        MindMotion
+T3A14 000:240.733         Name:          MM32L051NT
+T3A14 000:240.739         WorkRAMAddr:   0x20000000
+T3A14 000:240.746         WorkRAMSize:   0x00001000
+T3A14 000:240.753         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:240.818         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:240.827       FlashBankInfo:
+T3A14 000:240.832         Name:          Main Flash
+T3A14 000:240.839         BaseAddr:      0x08000000
+T3A14 000:240.846         MaxSize:       0x00008000
+T3A14 000:240.964         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_32.FLM
+T3A14 000:240.973         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:240.980         AlwaysPresent: 1
+T3A14 000:240.993     Device entry created:  MM32L051PT
+T3A14 000:240.998       ChipInfo:
+T3A14 000:241.003         Vendor:        MindMotion
+T3A14 000:241.010         Name:          MM32L051PT
+T3A14 000:241.017         WorkRAMAddr:   0x20000000
+T3A14 000:241.024         WorkRAMSize:   0x00001000
+T3A14 000:241.031         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:241.096         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:241.105       FlashBankInfo:
+T3A14 000:241.109         Name:          Main Flash
+T3A14 000:241.116         BaseAddr:      0x08000000
+T3A14 000:241.123         MaxSize:       0x00008000
+T3A14 000:241.242         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_32.FLM
+T3A14 000:241.251         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:241.259         AlwaysPresent: 1
+T3A14 000:241.267     Device entry created:  MM32L051PF
+T3A14 000:241.272       ChipInfo:
+T3A14 000:241.276         Vendor:        MindMotion
+T3A14 000:241.283         Name:          MM32L051PF
+T3A14 000:241.290         WorkRAMAddr:   0x20000000
+T3A14 000:241.297         WorkRAMSize:   0x00001000
+T3A14 000:241.304         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:241.369         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:241.377       FlashBankInfo:
+T3A14 000:241.382         Name:          Main Flash
+T3A14 000:241.389         BaseAddr:      0x08000000
+T3A14 000:241.396         MaxSize:       0x00008000
+T3A14 000:241.515         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_32.FLM
+T3A14 000:241.524         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:241.532         AlwaysPresent: 1
+T3A14 000:241.546     Device entry created:  MM32L061xxs
+T3A14 000:241.551       ChipInfo:
+T3A14 000:241.556         Vendor:        MindMotion
+T3A14 000:241.563         Name:          MM32L061xxs
+T3A14 000:241.570         WorkRAMAddr:   0x20000000
+T3A14 000:241.577         WorkRAMSize:   0x00002000
+T3A14 000:241.584         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:241.649         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:241.658       FlashBankInfo:
+T3A14 000:241.662         Name:          Main Flash
+T3A14 000:241.669         BaseAddr:      0x08000000
+T3A14 000:241.676         MaxSize:       0x00010000
+T3A14 000:241.796         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_64.FLM
+T3A14 000:241.805         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:241.812         AlwaysPresent: 1
+T3A14 000:241.821     Device entry created:  MM32L062xxs
+T3A14 000:241.826       ChipInfo:
+T3A14 000:241.832         Vendor:        MindMotion
+T3A14 000:241.840         Name:          MM32L062xxs
+T3A14 000:241.847         WorkRAMAddr:   0x20000000
+T3A14 000:241.854         WorkRAMSize:   0x00002000
+T3A14 000:241.861         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:241.928         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:241.936       FlashBankInfo:
+T3A14 000:241.941         Name:          Main Flash
+T3A14 000:241.948         BaseAddr:      0x08000000
+T3A14 000:241.955         MaxSize:       0x00010000
+T3A14 000:242.081         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_64.FLM
+T3A14 000:242.091         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:242.098         AlwaysPresent: 1
+T3A14 000:242.107     Device entry created:  MM32L072xxn
+T3A14 000:242.111       ChipInfo:
+T3A14 000:242.116         Vendor:        MindMotion
+T3A14 000:242.123         Name:          MM32L072xxn
+T3A14 000:242.130         WorkRAMAddr:   0x20000000
+T3A14 000:242.137         WorkRAMSize:   0x00002000
+T3A14 000:242.144         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:242.208         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:242.217       FlashBankInfo:
+T3A14 000:242.221         Name:          Main Flash
+T3A14 000:242.229         BaseAddr:      0x08000000
+T3A14 000:242.235         MaxSize:       0x00020000
+T3A14 000:242.357         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_128.FLM
+T3A14 000:242.366         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:242.373         AlwaysPresent: 1
+T3A14 000:242.382     Device entry created:  MM32L073xxn
+T3A14 000:242.387       ChipInfo:
+T3A14 000:242.392         Vendor:        MindMotion
+T3A14 000:242.398         Name:          MM32L073xxn
+T3A14 000:242.405         WorkRAMAddr:   0x20000000
+T3A14 000:242.412         WorkRAMSize:   0x00002000
+T3A14 000:242.419         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:242.484         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:242.493       FlashBankInfo:
+T3A14 000:242.498         Name:          Main Flash
+T3A14 000:242.505         BaseAddr:      0x08000000
+T3A14 000:242.512         MaxSize:       0x00020000
+T3A14 000:242.633         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_128.FLM
+T3A14 000:242.642         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:242.649         AlwaysPresent: 1
+T3A14 000:242.658     Device entry created:  MM32L073NT
+T3A14 000:242.663       ChipInfo:
+T3A14 000:242.667         Vendor:        MindMotion
+T3A14 000:242.674         Name:          MM32L073NT
+T3A14 000:242.681         WorkRAMAddr:   0x20000000
+T3A14 000:242.688         WorkRAMSize:   0x00002000
+T3A14 000:242.695         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:242.760         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:242.768       FlashBankInfo:
+T3A14 000:242.773         Name:          Main Flash
+T3A14 000:242.780         BaseAddr:      0x08000000
+T3A14 000:242.787         MaxSize:       0x00020000
+T3A14 000:242.906         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_128.FLM
+T3A14 000:242.915         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:242.922         AlwaysPresent: 1
+T3A14 000:242.936     Device entry created:  MM32L073PF
+T3A14 000:242.941       ChipInfo:
+T3A14 000:242.946         Vendor:        MindMotion
+T3A14 000:242.952         Name:          MM32L073PF
+T3A14 000:242.959         WorkRAMAddr:   0x20000000
+T3A14 000:242.966         WorkRAMSize:   0x00002000
+T3A14 000:242.973         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:243.038         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:243.047       FlashBankInfo:
+T3A14 000:243.052         Name:          Main Flash
+T3A14 000:243.062         BaseAddr:      0x08000000
+T3A14 000:243.069         MaxSize:       0x00020000
+T3A14 000:243.193         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_128.FLM
+T3A14 000:243.203         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:243.210         AlwaysPresent: 1
+T3A14 000:243.218     Device entry created:  MM32L073PT
+T3A14 000:243.223       ChipInfo:
+T3A14 000:243.228         Vendor:        MindMotion
+T3A14 000:243.235         Name:          MM32L073PT
+T3A14 000:243.242         WorkRAMAddr:   0x20000000
+T3A14 000:243.248         WorkRAMSize:   0x00002000
+T3A14 000:243.255         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:243.321         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:243.329       FlashBankInfo:
+T3A14 000:243.334         Name:          Main Flash
+T3A14 000:243.341         BaseAddr:      0x08000000
+T3A14 000:243.348         MaxSize:       0x00020000
+T3A14 000:243.465         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_128.FLM
+T3A14 000:243.474         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:243.481         AlwaysPresent: 1
+T3A14 000:243.490     Device entry created:  MM32L073TW
+T3A14 000:243.495       ChipInfo:
+T3A14 000:243.499         Vendor:        MindMotion
+T3A14 000:243.506         Name:          MM32L073TW
+T3A14 000:243.513         WorkRAMAddr:   0x20000000
+T3A14 000:243.520         WorkRAMSize:   0x00002000
+T3A14 000:243.527         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:243.593         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:243.601       FlashBankInfo:
+T3A14 000:243.606         Name:          Main Flash
+T3A14 000:243.613         BaseAddr:      0x08000000
+T3A14 000:243.620         MaxSize:       0x00020000
+T3A14 000:243.737         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0\MM32L0xx_128.FLM
+T3A14 000:243.746         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:243.754         AlwaysPresent: 1
+T3A14 000:243.763     Device entry created:  MM32F031x4
+T3A14 000:243.767       ChipInfo:
+T3A14 000:243.772         Vendor:        MindMotion
+T3A14 000:243.779         Name:          MM32F031x4
+T3A14 000:243.786         WorkRAMAddr:   0x20000000
+T3A14 000:243.793         WorkRAMSize:   0x00001000
+T3A14 000:243.800         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:243.865         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:243.873       FlashBankInfo:
+T3A14 000:243.878         Name:          Main Flash
+T3A14 000:243.885         BaseAddr:      0x08000000
+T3A14 000:243.892         MaxSize:       0x00004000
+T3A14 000:244.026         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_16.FLM
+T3A14 000:244.035         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:244.042         AlwaysPresent: 1
+T3A14 000:244.055     Device entry created:  MM32F031C4T6
+T3A14 000:244.060       ChipInfo:
+T3A14 000:244.065         Vendor:        MindMotion
+T3A14 000:244.072         Name:          MM32F031C4T6
+T3A14 000:244.079         WorkRAMAddr:   0x20000000
+T3A14 000:244.086         WorkRAMSize:   0x00001000
+T3A14 000:244.093         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:244.159         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:244.168       FlashBankInfo:
+T3A14 000:244.173         Name:          Main Flash
+T3A14 000:244.180         BaseAddr:      0x08000000
+T3A14 000:244.187         MaxSize:       0x00004000
+T3A14 000:244.306         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_16.FLM
+T3A14 000:244.316         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:244.323         AlwaysPresent: 1
+T3A14 000:244.336     Device entry created:  MM32F031F4P6
+T3A14 000:244.341       ChipInfo:
+T3A14 000:244.348         Vendor:        MindMotion
+T3A14 000:244.355         Name:          MM32F031F4P6
+T3A14 000:244.362         WorkRAMAddr:   0x20000000
+T3A14 000:244.369         WorkRAMSize:   0x00001000
+T3A14 000:244.376         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:244.442         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:244.451       FlashBankInfo:
+T3A14 000:244.455         Name:          Main Flash
+T3A14 000:244.462         BaseAddr:      0x08000000
+T3A14 000:244.469         MaxSize:       0x00004000
+T3A14 000:244.591         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_16.FLM
+T3A14 000:244.600         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:244.607         AlwaysPresent: 1
+T3A14 000:244.616     Device entry created:  MM32F031F4U6
+T3A14 000:244.621       ChipInfo:
+T3A14 000:244.626         Vendor:        MindMotion
+T3A14 000:244.632         Name:          MM32F031F4U6
+T3A14 000:244.639         WorkRAMAddr:   0x20000000
+T3A14 000:244.646         WorkRAMSize:   0x00001000
+T3A14 000:244.653         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:244.718         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:244.727       FlashBankInfo:
+T3A14 000:244.731         Name:          Main Flash
+T3A14 000:244.738         BaseAddr:      0x08000000
+T3A14 000:244.745         MaxSize:       0x00004000
+T3A14 000:244.866         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_16.FLM
+T3A14 000:244.875         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:244.882         AlwaysPresent: 1
+T3A14 000:244.891     Device entry created:  MM32F031K4T6
+T3A14 000:244.895       ChipInfo:
+T3A14 000:244.900         Vendor:        MindMotion
+T3A14 000:244.907         Name:          MM32F031K4T6
+T3A14 000:244.914         WorkRAMAddr:   0x20000000
+T3A14 000:244.921         WorkRAMSize:   0x00001000
+T3A14 000:244.928         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:244.993         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:245.002       FlashBankInfo:
+T3A14 000:245.006         Name:          Main Flash
+T3A14 000:245.013         BaseAddr:      0x08000000
+T3A14 000:245.020         MaxSize:       0x00004000
+T3A14 000:245.140         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_16.FLM
+T3A14 000:245.149         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:245.156         AlwaysPresent: 1
+T3A14 000:245.165     Device entry created:  MM32F031K4U6
+T3A14 000:245.170       ChipInfo:
+T3A14 000:245.175         Vendor:        MindMotion
+T3A14 000:245.181         Name:          MM32F031K4U6
+T3A14 000:245.188         WorkRAMAddr:   0x20000000
+T3A14 000:245.195         WorkRAMSize:   0x00001000
+T3A14 000:245.202         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:245.267         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:245.276       FlashBankInfo:
+T3A14 000:245.280         Name:          Main Flash
+T3A14 000:245.287         BaseAddr:      0x08000000
+T3A14 000:245.295         MaxSize:       0x00004000
+T3A14 000:245.415         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_16.FLM
+T3A14 000:245.424         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:245.431         AlwaysPresent: 1
+T3A14 000:245.439     Device entry modified: MM32F031F4U6
+T3A14 000:245.502       FlashBankInfo:
+T3A14 000:245.509         Name:          Main Flash
+T3A14 000:245.516         BaseAddr:      0x08000000
+T3A14 000:245.523         MaxSize:       0x00004000
+T3A14 000:245.644         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_16.FLM
+T3A14 000:245.653         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:245.660         AlwaysPresent: 1
+T3A14 000:245.669     Device entry created:  MM32F031x6
+T3A14 000:245.675       ChipInfo:
+T3A14 000:245.681         Vendor:        MindMotion
+T3A14 000:245.688         Name:          MM32F031x6
+T3A14 000:245.695         WorkRAMAddr:   0x20000000
+T3A14 000:245.702         WorkRAMSize:   0x00001000
+T3A14 000:245.709         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:245.775         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:245.784       FlashBankInfo:
+T3A14 000:245.789         Name:          Main Flash
+T3A14 000:245.795         BaseAddr:      0x08000000
+T3A14 000:245.802         MaxSize:       0x00008000
+T3A14 000:245.924         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:245.933         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:245.940         AlwaysPresent: 1
+T3A14 000:245.949     Device entry created:  MM32F031C6T6
+T3A14 000:245.954       ChipInfo:
+T3A14 000:245.959         Vendor:        MindMotion
+T3A14 000:245.965         Name:          MM32F031C6T6
+T3A14 000:245.972         WorkRAMAddr:   0x20000000
+T3A14 000:245.979         WorkRAMSize:   0x00001000
+T3A14 000:245.986         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:246.051         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:246.060       FlashBankInfo:
+T3A14 000:246.064         Name:          Main Flash
+T3A14 000:246.071         BaseAddr:      0x08000000
+T3A14 000:246.078         MaxSize:       0x00008000
+T3A14 000:246.202         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:246.212         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:246.219         AlwaysPresent: 1
+T3A14 000:246.232     Device entry created:  MM32F031F6P6
+T3A14 000:246.237       ChipInfo:
+T3A14 000:246.241         Vendor:        MindMotion
+T3A14 000:246.248         Name:          MM32F031F6P6
+T3A14 000:246.255         WorkRAMAddr:   0x20000000
+T3A14 000:246.262         WorkRAMSize:   0x00001000
+T3A14 000:246.269         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:246.334         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:246.343       FlashBankInfo:
+T3A14 000:246.347         Name:          Main Flash
+T3A14 000:246.354         BaseAddr:      0x08000000
+T3A14 000:246.361         MaxSize:       0x00008000
+T3A14 000:246.480         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:246.490         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:246.497         AlwaysPresent: 1
+T3A14 000:246.506     Device entry created:  MM32F031F6U6
+T3A14 000:246.510       ChipInfo:
+T3A14 000:246.515         Vendor:        MindMotion
+T3A14 000:246.522         Name:          MM32F031F6U6
+T3A14 000:246.529         WorkRAMAddr:   0x20000000
+T3A14 000:246.536         WorkRAMSize:   0x00001000
+T3A14 000:246.543         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:246.609         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:246.617       FlashBankInfo:
+T3A14 000:246.622         Name:          Main Flash
+T3A14 000:246.629         BaseAddr:      0x08000000
+T3A14 000:246.636         MaxSize:       0x00008000
+T3A14 000:246.754         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:246.763         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:246.770         AlwaysPresent: 1
+T3A14 000:246.779     Device entry created:  MM32F031K6T6
+T3A14 000:246.784       ChipInfo:
+T3A14 000:246.788         Vendor:        MindMotion
+T3A14 000:246.795         Name:          MM32F031K6T6
+T3A14 000:246.802         WorkRAMAddr:   0x20000000
+T3A14 000:246.809         WorkRAMSize:   0x00001000
+T3A14 000:246.816         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:246.882         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:246.893       FlashBankInfo:
+T3A14 000:246.898         Name:          Main Flash
+T3A14 000:246.905         BaseAddr:      0x08000000
+T3A14 000:246.912         MaxSize:       0x00008000
+T3A14 000:247.032         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:247.041         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:247.049         AlwaysPresent: 1
+T3A14 000:247.057     Device entry created:  MM32F031K6U6
+T3A14 000:247.062       ChipInfo:
+T3A14 000:247.066         Vendor:        MindMotion
+T3A14 000:247.073         Name:          MM32F031K6U6
+T3A14 000:247.080         WorkRAMAddr:   0x20000000
+T3A14 000:247.087         WorkRAMSize:   0x00001000
+T3A14 000:247.094         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:247.160         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:247.169       FlashBankInfo:
+T3A14 000:247.173         Name:          Main Flash
+T3A14 000:247.180         BaseAddr:      0x08000000
+T3A14 000:247.187         MaxSize:       0x00008000
+T3A14 000:247.307         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:247.316         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:247.323         AlwaysPresent: 1
+T3A14 000:247.332     Device entry created:  MM32F031G6U6
+T3A14 000:247.336       ChipInfo:
+T3A14 000:247.341         Vendor:        MindMotion
+T3A14 000:247.350         Name:          MM32F031G6U6
+T3A14 000:247.357         WorkRAMAddr:   0x20000000
+T3A14 000:247.364         WorkRAMSize:   0x00001000
+T3A14 000:247.371         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:247.437         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:247.446       FlashBankInfo:
+T3A14 000:247.451         Name:          Main Flash
+T3A14 000:247.458         BaseAddr:      0x08000000
+T3A14 000:247.465         MaxSize:       0x00008000
+T3A14 000:247.595         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:247.605         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:247.616         AlwaysPresent: 1
+T3A14 000:247.629     Device entry created:  MM32F031Y6Y6
+T3A14 000:247.634       ChipInfo:
+T3A14 000:247.639         Vendor:        MindMotion
+T3A14 000:247.646         Name:          MM32F031Y6Y6
+T3A14 000:247.653         WorkRAMAddr:   0x20000000
+T3A14 000:247.660         WorkRAMSize:   0x00001000
+T3A14 000:247.667         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:247.733         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:247.742       FlashBankInfo:
+T3A14 000:247.746         Name:          Main Flash
+T3A14 000:247.753         BaseAddr:      0x08000000
+T3A14 000:247.760         MaxSize:       0x00008000
+T3A14 000:247.880         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_32.FLM
+T3A14 000:247.890         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:247.897         AlwaysPresent: 1
+T3A14 000:247.906     Device entry created:  MM32F031x8
+T3A14 000:247.910       ChipInfo:
+T3A14 000:247.915         Vendor:        MindMotion
+T3A14 000:247.922         Name:          MM32F031x8
+T3A14 000:247.929         WorkRAMAddr:   0x20000000
+T3A14 000:247.936         WorkRAMSize:   0x00002000
+T3A14 000:247.943         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:248.008         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:248.017       FlashBankInfo:
+T3A14 000:248.022         Name:          Main Flash
+T3A14 000:248.029         BaseAddr:      0x08000000
+T3A14 000:248.036         MaxSize:       0x00010000
+T3A14 000:248.157         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_64.FLM
+T3A14 000:248.166         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:248.173         AlwaysPresent: 1
+T3A14 000:248.189     Device entry created:  MM32F031C8T6
+T3A14 000:248.194       ChipInfo:
+T3A14 000:248.199         Vendor:        MindMotion
+T3A14 000:248.206         Name:          MM32F031C8T6
+T3A14 000:248.213         WorkRAMAddr:   0x20000000
+T3A14 000:248.220         WorkRAMSize:   0x00002000
+T3A14 000:248.227         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:248.294         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:248.302       FlashBankInfo:
+T3A14 000:248.307         Name:          Main Flash
+T3A14 000:248.314         BaseAddr:      0x08000000
+T3A14 000:248.321         MaxSize:       0x00010000
+T3A14 000:248.441         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_64.FLM
+T3A14 000:248.450         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:248.458         AlwaysPresent: 1
+T3A14 000:248.470     Device entry modified: MM32F031C8T6
+T3A14 000:248.534       FlashBankInfo:
+T3A14 000:248.541         Name:          Main Flash
+T3A14 000:248.549         BaseAddr:      0x08000000
+T3A14 000:248.557         MaxSize:       0x00010000
+T3A14 000:248.678         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_64.FLM
+T3A14 000:248.687         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:248.694         AlwaysPresent: 1
+T3A14 000:248.702     Device entry created:  MM32F031K8T6
+T3A14 000:248.707       ChipInfo:
+T3A14 000:248.711         Vendor:        MindMotion
+T3A14 000:248.718         Name:          MM32F031K8T6
+T3A14 000:248.725         WorkRAMAddr:   0x20000000
+T3A14 000:248.732         WorkRAMSize:   0x00002000
+T3A14 000:248.739         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:248.804         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:248.813       FlashBankInfo:
+T3A14 000:248.817         Name:          Main Flash
+T3A14 000:248.824         BaseAddr:      0x08000000
+T3A14 000:248.831         MaxSize:       0x00010000
+T3A14 000:248.950         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_64.FLM
+T3A14 000:248.960         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:248.967         AlwaysPresent: 1
+T3A14 000:248.976     Device entry created:  MM32F031K8U6
+T3A14 000:248.980       ChipInfo:
+T3A14 000:248.985         Vendor:        MindMotion
+T3A14 000:248.992         Name:          MM32F031K8U6
+T3A14 000:248.999         WorkRAMAddr:   0x20000000
+T3A14 000:249.006         WorkRAMSize:   0x00002000
+T3A14 000:249.013         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:249.078         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:249.086       FlashBankInfo:
+T3A14 000:249.091         Name:          Main Flash
+T3A14 000:249.098         BaseAddr:      0x08000000
+T3A14 000:249.105         MaxSize:       0x00010000
+T3A14 000:249.228         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_64.FLM
+T3A14 000:249.238         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:249.245         AlwaysPresent: 1
+T3A14 000:249.253     Device entry created:  MM32F031xB
+T3A14 000:249.259       ChipInfo:
+T3A14 000:249.263         Vendor:        MindMotion
+T3A14 000:249.270         Name:          MM32F031xB
+T3A14 000:249.277         WorkRAMAddr:   0x20000000
+T3A14 000:249.284         WorkRAMSize:   0x00002000
+T3A14 000:249.291         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:249.356         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:249.365       FlashBankInfo:
+T3A14 000:249.369         Name:          Main Flash
+T3A14 000:249.376         BaseAddr:      0x08000000
+T3A14 000:249.383         MaxSize:       0x00020000
+T3A14 000:249.504         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_128.FLM
+T3A14 000:249.513         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:249.523         AlwaysPresent: 1
+T3A14 000:249.532     Device entry created:  MM32F031CBT6
+T3A14 000:249.536       ChipInfo:
+T3A14 000:249.541         Vendor:        MindMotion
+T3A14 000:249.548         Name:          MM32F031CBT6
+T3A14 000:249.556         WorkRAMAddr:   0x20000000
+T3A14 000:249.563         WorkRAMSize:   0x00002000
+T3A14 000:249.570         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:249.636         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:249.645       FlashBankInfo:
+T3A14 000:249.650         Name:          Main Flash
+T3A14 000:249.657         BaseAddr:      0x08000000
+T3A14 000:249.664         MaxSize:       0x00020000
+T3A14 000:249.794         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_128.FLM
+T3A14 000:249.803         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:249.810         AlwaysPresent: 1
+T3A14 000:249.823     Device entry created:  MM32F031KBT6
+T3A14 000:249.828       ChipInfo:
+T3A14 000:249.832         Vendor:        MindMotion
+T3A14 000:249.839         Name:          MM32F031KBT6
+T3A14 000:249.846         WorkRAMAddr:   0x20000000
+T3A14 000:249.853         WorkRAMSize:   0x00002000
+T3A14 000:249.860         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:249.926         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:249.935       FlashBankInfo:
+T3A14 000:249.939         Name:          Main Flash
+T3A14 000:249.946         BaseAddr:      0x08000000
+T3A14 000:249.953         MaxSize:       0x00020000
+T3A14 000:250.072         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F031\MM32F031x_128.FLM
+T3A14 000:250.081         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:250.088         AlwaysPresent: 1
+T3A14 000:250.097     Device entry created:  MM32F103x8
+T3A14 000:250.102       ChipInfo:
+T3A14 000:250.107         Vendor:        MindMotion
+T3A14 000:250.113         Name:          MM32F103x8
+T3A14 000:250.120         WorkRAMAddr:   0x20000000
+T3A14 000:250.127         WorkRAMSize:   0x00005000
+T3A14 000:250.134         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:250.199         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:250.207       FlashBankInfo:
+T3A14 000:250.212         Name:          Main Flash
+T3A14 000:250.219         BaseAddr:      0x08000000
+T3A14 000:250.226         MaxSize:       0x00010000
+T3A14 000:250.345         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103x8_64.FLM
+T3A14 000:250.355         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:250.362         AlwaysPresent: 1
+T3A14 000:250.371     Device entry created:  MM32F103C8T6
+T3A14 000:250.375       ChipInfo:
+T3A14 000:250.380         Vendor:        MindMotion
+T3A14 000:250.387         Name:          MM32F103C8T6
+T3A14 000:250.394         WorkRAMAddr:   0x20000000
+T3A14 000:250.401         WorkRAMSize:   0x00005000
+T3A14 000:250.408         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:250.472         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:250.481       FlashBankInfo:
+T3A14 000:250.486         Name:          Main Flash
+T3A14 000:250.493         BaseAddr:      0x08000000
+T3A14 000:250.500         MaxSize:       0x00010000
+T3A14 000:250.621         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103x8_64.FLM
+T3A14 000:250.630         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:250.638         AlwaysPresent: 1
+T3A14 000:250.651     Device entry created:  MM32F103K8T6
+T3A14 000:250.656       ChipInfo:
+T3A14 000:250.660         Vendor:        MindMotion
+T3A14 000:250.667         Name:          MM32F103K8T6
+T3A14 000:250.674         WorkRAMAddr:   0x20000000
+T3A14 000:250.681         WorkRAMSize:   0x00005000
+T3A14 000:250.688         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:250.757         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:250.766       FlashBankInfo:
+T3A14 000:250.771         Name:          Main Flash
+T3A14 000:250.778         BaseAddr:      0x08000000
+T3A14 000:250.784         MaxSize:       0x00010000
+T3A14 000:250.904         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103x8_64.FLM
+T3A14 000:250.913         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:250.920         AlwaysPresent: 1
+T3A14 000:250.929     Device entry created:  MM32F103K8U6
+T3A14 000:250.934       ChipInfo:
+T3A14 000:250.938         Vendor:        MindMotion
+T3A14 000:250.945         Name:          MM32F103K8U6
+T3A14 000:250.952         WorkRAMAddr:   0x20000000
+T3A14 000:250.959         WorkRAMSize:   0x00005000
+T3A14 000:250.966         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:251.031         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:251.040       FlashBankInfo:
+T3A14 000:251.044         Name:          Main Flash
+T3A14 000:251.051         BaseAddr:      0x08000000
+T3A14 000:251.058         MaxSize:       0x00010000
+T3A14 000:251.177         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103x8_64.FLM
+T3A14 000:251.187         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:251.194         AlwaysPresent: 1
+T3A14 000:251.203     Device entry created:  MM32F103R8T6
+T3A14 000:251.207       ChipInfo:
+T3A14 000:251.212         Vendor:        MindMotion
+T3A14 000:251.219         Name:          MM32F103R8T6
+T3A14 000:251.226         WorkRAMAddr:   0x20000000
+T3A14 000:251.233         WorkRAMSize:   0x00005000
+T3A14 000:251.240         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:251.305         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:251.313       FlashBankInfo:
+T3A14 000:251.318         Name:          Main Flash
+T3A14 000:251.325         BaseAddr:      0x08000000
+T3A14 000:251.332         MaxSize:       0x00010000
+T3A14 000:251.452         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103x8_64.FLM
+T3A14 000:251.461         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:251.468         AlwaysPresent: 1
+T3A14 000:251.477     Device entry created:  MM32F103xB
+T3A14 000:251.482       ChipInfo:
+T3A14 000:251.486         Vendor:        MindMotion
+T3A14 000:251.493         Name:          MM32F103xB
+T3A14 000:251.500         WorkRAMAddr:   0x20000000
+T3A14 000:251.507         WorkRAMSize:   0x00005000
+T3A14 000:251.514         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:251.580         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:251.589       FlashBankInfo:
+T3A14 000:251.594         Name:          Main Flash
+T3A14 000:251.601         BaseAddr:      0x08000000
+T3A14 000:251.608         MaxSize:       0x00020000
+T3A14 000:251.731         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103xB_128.FLM
+T3A14 000:251.740         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:251.747         AlwaysPresent: 1
+T3A14 000:251.755     Device entry created:  MM32F103CBT6
+T3A14 000:251.760       ChipInfo:
+T3A14 000:251.765         Vendor:        MindMotion
+T3A14 000:251.772         Name:          MM32F103CBT6
+T3A14 000:251.779         WorkRAMAddr:   0x20000000
+T3A14 000:251.785         WorkRAMSize:   0x00005000
+T3A14 000:251.793         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:251.860         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:251.868       FlashBankInfo:
+T3A14 000:251.873         Name:          Main Flash
+T3A14 000:251.880         BaseAddr:      0x08000000
+T3A14 000:251.887         MaxSize:       0x00020000
+T3A14 000:252.009         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103xB_128.FLM
+T3A14 000:252.021         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:252.029         AlwaysPresent: 1
+T3A14 000:252.042     Device entry created:  MM32F103KBT6
+T3A14 000:252.047       ChipInfo:
+T3A14 000:252.051         Vendor:        MindMotion
+T3A14 000:252.058         Name:          MM32F103KBT6
+T3A14 000:252.065         WorkRAMAddr:   0x20000000
+T3A14 000:252.072         WorkRAMSize:   0x00005000
+T3A14 000:252.079         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:252.146         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:252.155       FlashBankInfo:
+T3A14 000:252.160         Name:          Main Flash
+T3A14 000:252.167         BaseAddr:      0x08000000
+T3A14 000:252.174         MaxSize:       0x00020000
+T3A14 000:252.298         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103xB_128.FLM
+T3A14 000:252.307         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:252.314         AlwaysPresent: 1
+T3A14 000:252.323     Device entry created:  MM32F103KBU6
+T3A14 000:252.328       ChipInfo:
+T3A14 000:252.332         Vendor:        MindMotion
+T3A14 000:252.339         Name:          MM32F103KBU6
+T3A14 000:252.346         WorkRAMAddr:   0x20000000
+T3A14 000:252.353         WorkRAMSize:   0x00005000
+T3A14 000:252.360         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:252.425         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:252.434       FlashBankInfo:
+T3A14 000:252.438         Name:          Main Flash
+T3A14 000:252.445         BaseAddr:      0x08000000
+T3A14 000:252.452         MaxSize:       0x00020000
+T3A14 000:252.573         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103xB_128.FLM
+T3A14 000:252.582         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:252.590         AlwaysPresent: 1
+T3A14 000:252.598     Device entry created:  MM32F103RBT6
+T3A14 000:252.603       ChipInfo:
+T3A14 000:252.607         Vendor:        MindMotion
+T3A14 000:252.614         Name:          MM32F103RBT6
+T3A14 000:252.621         WorkRAMAddr:   0x20000000
+T3A14 000:252.628         WorkRAMSize:   0x00005000
+T3A14 000:252.635         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:252.699         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:252.708       FlashBankInfo:
+T3A14 000:252.713         Name:          Main Flash
+T3A14 000:252.720         BaseAddr:      0x08000000
+T3A14 000:252.727         MaxSize:       0x00020000
+T3A14 000:252.844         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F103\MM32F103xB_128.FLM
+T3A14 000:252.854         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:252.861         AlwaysPresent: 1
+T3A14 000:252.869     Device entry created:  MM32W051NTB
+T3A14 000:252.874       ChipInfo:
+T3A14 000:252.879         Vendor:        MindMotion
+T3A14 000:252.886         Name:          MM32W051NTB
+T3A14 000:252.893         WorkRAMAddr:   0x20000000
+T3A14 000:252.899         WorkRAMSize:   0x00001000
+T3A14 000:252.906         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:252.971         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:252.979       FlashBankInfo:
+T3A14 000:252.984         Name:          Main Flash
+T3A14 000:252.991         BaseAddr:      0x08000000
+T3A14 000:252.998         MaxSize:       0x00008000
+T3A14 000:253.122         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0\MM32W05xB_32.FLM
+T3A14 000:253.131         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:253.138         AlwaysPresent: 1
+T3A14 000:253.148     Device entry created:  MM32W051PFB
+T3A14 000:253.153       ChipInfo:
+T3A14 000:253.158         Vendor:        MindMotion
+T3A14 000:253.165         Name:          MM32W051PFB
+T3A14 000:253.172         WorkRAMAddr:   0x20000000
+T3A14 000:253.179         WorkRAMSize:   0x00001000
+T3A14 000:253.188         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:253.256         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:253.264       FlashBankInfo:
+T3A14 000:253.269         Name:          Main Flash
+T3A14 000:253.276         BaseAddr:      0x08000000
+T3A14 000:253.283         MaxSize:       0x00008000
+T3A14 000:253.403         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0\MM32W05xB_32.FLM
+T3A14 000:253.412         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:253.419         AlwaysPresent: 1
+T3A14 000:253.428     Device entry created:  MM32W062NTB
+T3A14 000:253.432       ChipInfo:
+T3A14 000:253.437         Vendor:        MindMotion
+T3A14 000:253.444         Name:          MM32W062NTB
+T3A14 000:253.451         WorkRAMAddr:   0x20000000
+T3A14 000:253.458         WorkRAMSize:   0x00002000
+T3A14 000:253.465         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:253.530         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:253.538       FlashBankInfo:
+T3A14 000:253.543         Name:          Main Flash
+T3A14 000:253.550         BaseAddr:      0x08000000
+T3A14 000:253.558         MaxSize:       0x00010000
+T3A14 000:253.678         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0\MM32W06xB_64.FLM
+T3A14 000:253.688         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:253.695         AlwaysPresent: 1
+T3A14 000:253.703     Device entry created:  MM32W062PFB
+T3A14 000:253.708       ChipInfo:
+T3A14 000:253.713         Vendor:        MindMotion
+T3A14 000:253.720         Name:          MM32W062PFB
+T3A14 000:253.727         WorkRAMAddr:   0x20000000
+T3A14 000:253.733         WorkRAMSize:   0x00002000
+T3A14 000:253.741         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:253.805         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:253.814       FlashBankInfo:
+T3A14 000:253.818         Name:          Main Flash
+T3A14 000:253.825         BaseAddr:      0x08000000
+T3A14 000:253.832         MaxSize:       0x00010000
+T3A14 000:253.951         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0\MM32W06xB_64.FLM
+T3A14 000:253.960         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:253.967         AlwaysPresent: 1
+T3A14 000:253.976     Device entry created:  MM32W073NTB
+T3A14 000:253.984       ChipInfo:
+T3A14 000:253.989         Vendor:        MindMotion
+T3A14 000:253.996         Name:          MM32W073NTB
+T3A14 000:254.003         WorkRAMAddr:   0x20000000
+T3A14 000:254.010         WorkRAMSize:   0x00002000
+T3A14 000:254.017         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:254.083         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:254.091       FlashBankInfo:
+T3A14 000:254.096         Name:          Main Flash
+T3A14 000:254.103         BaseAddr:      0x08000000
+T3A14 000:254.110         MaxSize:       0x00020000
+T3A14 000:254.230         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0\MM32W07xB_128.FLM
+T3A14 000:254.240         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:254.247         AlwaysPresent: 1
+T3A14 000:254.255     Device entry created:  MM32W073PFB
+T3A14 000:254.260       ChipInfo:
+T3A14 000:254.265         Vendor:        MindMotion
+T3A14 000:254.272         Name:          MM32W073PFB
+T3A14 000:254.278         WorkRAMAddr:   0x20000000
+T3A14 000:254.286         WorkRAMSize:   0x00002000
+T3A14 000:254.293         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:254.357         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:254.366       FlashBankInfo:
+T3A14 000:254.371         Name:          Main Flash
+T3A14 000:254.378         BaseAddr:      0x08000000
+T3A14 000:254.385         MaxSize:       0x00020000
+T3A14 000:254.505         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W0\MM32W07xB_128.FLM
+T3A14 000:254.517         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:254.524         AlwaysPresent: 1
+T3A14 000:254.533     Device entry created:  MM32W362PFB
+T3A14 000:254.538       ChipInfo:
+T3A14 000:254.542         Vendor:        MindMotion
+T3A14 000:254.549         Name:          MM32W362PFB
+T3A14 000:254.557         WorkRAMAddr:   0x20000000
+T3A14 000:254.564         WorkRAMSize:   0x00005000
+T3A14 000:254.571         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:254.638         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:254.647       FlashBankInfo:
+T3A14 000:254.652         Name:          Main Flash
+T3A14 000:254.659         BaseAddr:      0x08000000
+T3A14 000:254.666         MaxSize:       0x00010000
+T3A14 000:254.797         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W3\MM32W36xB_64.FLM
+T3A14 000:254.806         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:254.813         AlwaysPresent: 1
+T3A14 000:254.822     Device entry created:  MM32W362PSB
+T3A14 000:254.826       ChipInfo:
+T3A14 000:254.831         Vendor:        MindMotion
+T3A14 000:254.838         Name:          MM32W362PSB
+T3A14 000:254.845         WorkRAMAddr:   0x20000000
+T3A14 000:254.852         WorkRAMSize:   0x00005000
+T3A14 000:254.859         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:254.924         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:254.932       FlashBankInfo:
+T3A14 000:254.937         Name:          Main Flash
+T3A14 000:254.944         BaseAddr:      0x08000000
+T3A14 000:254.951         MaxSize:       0x00010000
+T3A14 000:255.069         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W3\MM32W36xB_64.FLM
+T3A14 000:255.078         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:255.086         AlwaysPresent: 1
+T3A14 000:255.094     Device entry created:  MM32W373PFB
+T3A14 000:255.099       ChipInfo:
+T3A14 000:255.104         Vendor:        MindMotion
+T3A14 000:255.110         Name:          MM32W373PFB
+T3A14 000:255.117         WorkRAMAddr:   0x20000000
+T3A14 000:255.124         WorkRAMSize:   0x00005000
+T3A14 000:255.131         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:255.196         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:255.204       FlashBankInfo:
+T3A14 000:255.209         Name:          Main Flash
+T3A14 000:255.216         BaseAddr:      0x08000000
+T3A14 000:255.223         MaxSize:       0x00020000
+T3A14 000:255.347         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W3\MM32W37xB_128.FLM
+T3A14 000:255.356         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:255.363         AlwaysPresent: 1
+T3A14 000:255.372     Device entry created:  MM32W373PSB
+T3A14 000:255.377       ChipInfo:
+T3A14 000:255.381         Vendor:        MindMotion
+T3A14 000:255.388         Name:          MM32W373PSB
+T3A14 000:255.395         WorkRAMAddr:   0x20000000
+T3A14 000:255.402         WorkRAMSize:   0x00005000
+T3A14 000:255.409         Core:          JLINK_CORE_CORTEX_M3
+T3A14 000:255.474         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M3.JLinkScript
+T3A14 000:255.482       FlashBankInfo:
+T3A14 000:255.487         Name:          Main Flash
+T3A14 000:255.494         BaseAddr:      0x08000000
+T3A14 000:255.501         MaxSize:       0x00020000
+T3A14 000:255.620         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32W3\MM32W37xB_128.FLM
+T3A14 000:255.629         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:255.636         AlwaysPresent: 1
+T3A14 000:255.645     Device entry created:  MM32SPIN0280D4P
+T3A14 000:255.650       ChipInfo:
+T3A14 000:255.655         Vendor:        MindMotion
+T3A14 000:255.661         Name:          MM32SPIN0280D4P
+T3A14 000:255.668         WorkRAMAddr:   0x20000000
+T3A14 000:255.675         WorkRAMSize:   0x00002000
+T3A14 000:255.710         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:255.780         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:255.802       FlashBankInfo:
+T3A14 000:255.807         Name:          Main Flash
+T3A14 000:255.814         BaseAddr:      0x08000000
+T3A14 000:255.821         MaxSize:       0x00020000
+T3A14 000:255.945         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN0280\MM32SPIN0280_128.FLM
+T3A14 000:255.954         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:255.961         AlwaysPresent: 1
+T3A14 000:255.976     Device entry created:  MM32SPIN0280DAP
+T3A14 000:255.981       ChipInfo:
+T3A14 000:255.985         Vendor:        MindMotion
+T3A14 000:255.992         Name:          MM32SPIN0280DAP
+T3A14 000:255.999         WorkRAMAddr:   0x20000000
+T3A14 000:256.006         WorkRAMSize:   0x00002000
+T3A14 000:256.013         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:256.080         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:256.089       FlashBankInfo:
+T3A14 000:256.093         Name:          Main Flash
+T3A14 000:256.100         BaseAddr:      0x08000000
+T3A14 000:256.107         MaxSize:       0x00020000
+T3A14 000:256.227         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN0280\MM32SPIN0280_128.FLM
+T3A14 000:256.236         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:256.243         AlwaysPresent: 1
+T3A14 000:256.252     Device entry created:  MM32SPIN0280D6P
+T3A14 000:256.256       ChipInfo:
+T3A14 000:256.261         Vendor:        MindMotion
+T3A14 000:256.268         Name:          MM32SPIN0280D6P
+T3A14 000:256.275         WorkRAMAddr:   0x20000000
+T3A14 000:256.282         WorkRAMSize:   0x00002000
+T3A14 000:256.289         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:256.353         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:256.362       FlashBankInfo:
+T3A14 000:256.366         Name:          Main Flash
+T3A14 000:256.373         BaseAddr:      0x08000000
+T3A14 000:256.380         MaxSize:       0x00020000
+T3A14 000:256.498         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN0280\MM32SPIN0280_128.FLM
+T3A14 000:256.507         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:256.514         AlwaysPresent: 1
+T3A14 000:256.528     Device entry created:  MM32SPIN0280D6Q
+T3A14 000:256.533       ChipInfo:
+T3A14 000:256.538         Vendor:        MindMotion
+T3A14 000:256.545         Name:          MM32SPIN0280D6Q
+T3A14 000:256.552         WorkRAMAddr:   0x20000000
+T3A14 000:256.560         WorkRAMSize:   0x00002000
+T3A14 000:256.567         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:256.632         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:256.641       FlashBankInfo:
+T3A14 000:256.646         Name:          Main Flash
+T3A14 000:256.653         BaseAddr:      0x08000000
+T3A14 000:256.660         MaxSize:       0x00020000
+T3A14 000:256.777         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN0280\MM32SPIN0280_128.FLM
+T3A14 000:256.786         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:256.793         AlwaysPresent: 1
+T3A14 000:256.802     Device entry created:  MM32SPIN0280D7P
+T3A14 000:256.807       ChipInfo:
+T3A14 000:256.811         Vendor:        MindMotion
+T3A14 000:256.818         Name:          MM32SPIN0280D7P
+T3A14 000:256.825         WorkRAMAddr:   0x20000000
+T3A14 000:256.832         WorkRAMSize:   0x00002000
+T3A14 000:256.839         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:256.903         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:256.912       FlashBankInfo:
+T3A14 000:256.917         Name:          Main Flash
+T3A14 000:256.924         BaseAddr:      0x08000000
+T3A14 000:256.930         MaxSize:       0x00020000
+T3A14 000:257.052         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN0280\MM32SPIN0280_128.FLM
+T3A14 000:257.061         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:257.069         AlwaysPresent: 1
+T3A14 000:257.077     Device entry created:  MM32SPINEBK
+T3A14 000:257.082       ChipInfo:
+T3A14 000:257.087         Vendor:        MindMotion
+T3A14 000:257.094         Name:          MM32SPINEBK
+T3A14 000:257.101         WorkRAMAddr:   0x20000000
+T3A14 000:257.107         WorkRAMSize:   0x00002000
+T3A14 000:257.114         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:257.179         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:257.188       FlashBankInfo:
+T3A14 000:257.192         Name:          Main Flash
+T3A14 000:257.199         BaseAddr:      0x08000000
+T3A14 000:257.206         MaxSize:       0x00020000
+T3A14 000:257.323         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32SPIN0280\MM32SPIN0280_128.FLM
+T3A14 000:257.332         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:257.340         AlwaysPresent: 1
+T3A14 000:257.349     Device entry created:  MM32F0271D6P
+T3A14 000:257.354       ChipInfo:
+T3A14 000:257.358         Vendor:        MindMotion
+T3A14 000:257.365         Name:          MM32F0271D6P
+T3A14 000:257.372         WorkRAMAddr:   0x20000000
+T3A14 000:257.379         WorkRAMSize:   0x00004000
+T3A14 000:257.388         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:257.455         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:257.464       FlashBankInfo:
+T3A14 000:257.469         Name:          Main Flash
+T3A14 000:257.476         BaseAddr:      0x08000000
+T3A14 000:257.483         MaxSize:       0x00020000
+T3A14 000:257.610         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:257.619         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:257.627         AlwaysPresent: 1
+T3A14 000:257.640     Device entry created:  MM32F0271D7P
+T3A14 000:257.645       ChipInfo:
+T3A14 000:257.649         Vendor:        MindMotion
+T3A14 000:257.656         Name:          MM32F0271D7P
+T3A14 000:257.663         WorkRAMAddr:   0x20000000
+T3A14 000:257.670         WorkRAMSize:   0x00004000
+T3A14 000:257.677         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:257.743         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:257.752       FlashBankInfo:
+T3A14 000:257.756         Name:          Main Flash
+T3A14 000:257.763         BaseAddr:      0x08000000
+T3A14 000:257.772         MaxSize:       0x00020000
+T3A14 000:257.890         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:257.899         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:257.906         AlwaysPresent: 1
+T3A14 000:257.915     Device entry created:  MM32F0271D8P
+T3A14 000:257.920       ChipInfo:
+T3A14 000:257.924         Vendor:        MindMotion
+T3A14 000:257.931         Name:          MM32F0271D8P
+T3A14 000:257.938         WorkRAMAddr:   0x20000000
+T3A14 000:257.945         WorkRAMSize:   0x00004000
+T3A14 000:257.952         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:258.017         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:258.027       FlashBankInfo:
+T3A14 000:258.032         Name:          Main Flash
+T3A14 000:258.039         BaseAddr:      0x08000000
+T3A14 000:258.046         MaxSize:       0x00020000
+T3A14 000:258.165         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:258.175         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:258.182         AlwaysPresent: 1
+T3A14 000:258.190     Device entry created:  MM32F0272D6P
+T3A14 000:258.195       ChipInfo:
+T3A14 000:258.200         Vendor:        MindMotion
+T3A14 000:258.207         Name:          MM32F0272D6P
+T3A14 000:258.216         WorkRAMAddr:   0x20000000
+T3A14 000:258.223         WorkRAMSize:   0x00004000
+T3A14 000:258.230         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:258.297         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:258.305       FlashBankInfo:
+T3A14 000:258.310         Name:          Main Flash
+T3A14 000:258.317         BaseAddr:      0x08000000
+T3A14 000:258.324         MaxSize:       0x00020000
+T3A14 000:258.447         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:258.456         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:258.463         AlwaysPresent: 1
+T3A14 000:258.471     Device entry created:  MM32F0272D7P
+T3A14 000:258.476       ChipInfo:
+T3A14 000:258.481         Vendor:        MindMotion
+T3A14 000:258.487         Name:          MM32F0272D7P
+T3A14 000:258.494         WorkRAMAddr:   0x20000000
+T3A14 000:258.501         WorkRAMSize:   0x00004000
+T3A14 000:258.508         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:258.574         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:258.583       FlashBankInfo:
+T3A14 000:258.588         Name:          Main Flash
+T3A14 000:258.594         BaseAddr:      0x08000000
+T3A14 000:258.601         MaxSize:       0x00020000
+T3A14 000:258.719         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:258.728         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:258.735         AlwaysPresent: 1
+T3A14 000:258.743     Device entry created:  MM32F0272D8P
+T3A14 000:258.748       ChipInfo:
+T3A14 000:258.753         Vendor:        MindMotion
+T3A14 000:258.760         Name:          MM32F0272D8P
+T3A14 000:258.766         WorkRAMAddr:   0x20000000
+T3A14 000:258.773         WorkRAMSize:   0x00004000
+T3A14 000:258.780         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:258.844         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:258.853       FlashBankInfo:
+T3A14 000:258.857         Name:          Main Flash
+T3A14 000:258.864         BaseAddr:      0x08000000
+T3A14 000:258.871         MaxSize:       0x00020000
+T3A14 000:258.988         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:258.997         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:259.004         AlwaysPresent: 1
+T3A14 000:259.013     Device entry created:  MM32F0273D6P
+T3A14 000:259.018       ChipInfo:
+T3A14 000:259.022         Vendor:        MindMotion
+T3A14 000:259.029         Name:          MM32F0273D6P
+T3A14 000:259.036         WorkRAMAddr:   0x20000000
+T3A14 000:259.043         WorkRAMSize:   0x00004000
+T3A14 000:259.050         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:259.114         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:259.123       FlashBankInfo:
+T3A14 000:259.127         Name:          Main Flash
+T3A14 000:259.134         BaseAddr:      0x08000000
+T3A14 000:259.141         MaxSize:       0x00020000
+T3A14 000:259.259         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:259.268         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:259.275         AlwaysPresent: 1
+T3A14 000:259.284     Device entry created:  MM32F0273D7P
+T3A14 000:259.289       ChipInfo:
+T3A14 000:259.294         Vendor:        MindMotion
+T3A14 000:259.301         Name:          MM32F0273D7P
+T3A14 000:259.308         WorkRAMAddr:   0x20000000
+T3A14 000:259.314         WorkRAMSize:   0x00004000
+T3A14 000:259.321         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:259.386         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:259.394       FlashBankInfo:
+T3A14 000:259.399         Name:          Main Flash
+T3A14 000:259.409         BaseAddr:      0x08000000
+T3A14 000:259.416         MaxSize:       0x00020000
+T3A14 000:259.536         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:259.545         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:259.552         AlwaysPresent: 1
+T3A14 000:259.562     Device entry created:  MM32F0273D8P
+T3A14 000:259.567       ChipInfo:
+T3A14 000:259.571         Vendor:        MindMotion
+T3A14 000:259.578         Name:          MM32F0273D8P
+T3A14 000:259.585         WorkRAMAddr:   0x20000000
+T3A14 000:259.592         WorkRAMSize:   0x00004000
+T3A14 000:259.599         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:259.664         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:259.673       FlashBankInfo:
+T3A14 000:259.677         Name:          Main Flash
+T3A14 000:259.684         BaseAddr:      0x08000000
+T3A14 000:259.691         MaxSize:       0x00020000
+T3A14 000:259.810         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0270\MM32F0270_128.FLM
+T3A14 000:259.819         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:259.826         AlwaysPresent: 1
+T3A14 000:259.835     Device entry created:  MM32F0141B4P
+T3A14 000:259.839       ChipInfo:
+T3A14 000:259.844         Vendor:        MindMotion
+T3A14 000:259.853         Name:          MM32F0141B4P
+T3A14 000:259.860         WorkRAMAddr:   0x20000000
+T3A14 000:259.867         WorkRAMSize:   0x00002000
+T3A14 000:259.874         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:259.941         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:259.949       FlashBankInfo:
+T3A14 000:259.954         Name:          Main Flash
+T3A14 000:259.961         BaseAddr:      0x08000000
+T3A14 000:259.970         MaxSize:       0x00008000
+T3A14 000:260.093         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0140\MM32F0140_32.FLM
+T3A14 000:260.103         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:260.110         AlwaysPresent: 1
+T3A14 000:260.122     Device entry created:  MM32F0141B4Q
+T3A14 000:260.127       ChipInfo:
+T3A14 000:260.132         Vendor:        MindMotion
+T3A14 000:260.139         Name:          MM32F0141B4Q
+T3A14 000:260.146         WorkRAMAddr:   0x20000000
+T3A14 000:260.153         WorkRAMSize:   0x00002000
+T3A14 000:260.160         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:260.225         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:260.234       FlashBankInfo:
+T3A14 000:260.238         Name:          Main Flash
+T3A14 000:260.246         BaseAddr:      0x08000000
+T3A14 000:260.252         MaxSize:       0x00008000
+T3A14 000:260.371         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0140\MM32F0140_32.FLM
+T3A14 000:260.381         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:260.388         AlwaysPresent: 1
+T3A14 000:260.397     Device entry created:  MM32F0141B6P
+T3A14 000:260.401       ChipInfo:
+T3A14 000:260.406         Vendor:        MindMotion
+T3A14 000:260.413         Name:          MM32F0141B6P
+T3A14 000:260.420         WorkRAMAddr:   0x20000000
+T3A14 000:260.427         WorkRAMSize:   0x00002000
+T3A14 000:260.434         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:260.499         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:260.507       FlashBankInfo:
+T3A14 000:260.512         Name:          Main Flash
+T3A14 000:260.519         BaseAddr:      0x08000000
+T3A14 000:260.526         MaxSize:       0x00008000
+T3A14 000:260.647         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0140\MM32F0140_32.FLM
+T3A14 000:260.657         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:260.664         AlwaysPresent: 1
+T3A14 000:260.672     Device entry created:  MM32F0144C4P
+T3A14 000:260.677       ChipInfo:
+T3A14 000:260.684         Vendor:        MindMotion
+T3A14 000:260.692         Name:          MM32F0144C4P
+T3A14 000:260.699         WorkRAMAddr:   0x20000000
+T3A14 000:260.705         WorkRAMSize:   0x00002000
+T3A14 000:260.713         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:260.783         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:260.792       FlashBankInfo:
+T3A14 000:260.797         Name:          Main Flash
+T3A14 000:260.804         BaseAddr:      0x08000000
+T3A14 000:260.811         MaxSize:       0x00010000
+T3A14 000:260.931         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0140\MM32F0140_64.FLM
+T3A14 000:260.941         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:260.948         AlwaysPresent: 1
+T3A14 000:260.956     Device entry created:  MM32F0144C4Q
+T3A14 000:260.961       ChipInfo:
+T3A14 000:260.966         Vendor:        MindMotion
+T3A14 000:260.973         Name:          MM32F0144C4Q
+T3A14 000:260.980         WorkRAMAddr:   0x20000000
+T3A14 000:260.987         WorkRAMSize:   0x00002000
+T3A14 000:260.994         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:261.059         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:261.067       FlashBankInfo:
+T3A14 000:261.072         Name:          Main Flash
+T3A14 000:261.079         BaseAddr:      0x08000000
+T3A14 000:261.086         MaxSize:       0x00010000
+T3A14 000:261.204         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0140\MM32F0140_64.FLM
+T3A14 000:261.213         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:261.220         AlwaysPresent: 1
+T3A14 000:261.229     Device entry created:  MM32F0144C6P
+T3A14 000:261.233       ChipInfo:
+T3A14 000:261.238         Vendor:        MindMotion
+T3A14 000:261.245         Name:          MM32F0144C6P
+T3A14 000:261.252         WorkRAMAddr:   0x20000000
+T3A14 000:261.258         WorkRAMSize:   0x00002000
+T3A14 000:261.266         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:261.330         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:261.339       FlashBankInfo:
+T3A14 000:261.344         Name:          Main Flash
+T3A14 000:261.351         BaseAddr:      0x08000000
+T3A14 000:261.358         MaxSize:       0x00010000
+T3A14 000:261.482         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0140\MM32F0140_64.FLM
+T3A14 000:261.491         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:261.498         AlwaysPresent: 1
+T3A14 000:261.507     Device entry created:  MM32F0040B1T
+T3A14 000:261.511       ChipInfo:
+T3A14 000:261.516         Vendor:        MindMotion
+T3A14 000:261.523         Name:          MM32F0040B1T
+T3A14 000:261.530         WorkRAMAddr:   0x20000000
+T3A14 000:261.537         WorkRAMSize:   0x00001000
+T3A14 000:261.544         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:261.610         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:261.619       FlashBankInfo:
+T3A14 000:261.624         Name:          Main Flash
+T3A14 000:261.632         BaseAddr:      0x08000000
+T3A14 000:261.639         MaxSize:       0x00008000
+T3A14 000:261.760         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0040\MM32F0040_32.FLM
+T3A14 000:261.769         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:261.777         AlwaysPresent: 1
+T3A14 000:261.789     Device entry created:  MM32F0040B1N
+T3A14 000:261.794       ChipInfo:
+T3A14 000:261.798         Vendor:        MindMotion
+T3A14 000:261.805         Name:          MM32F0040B1N
+T3A14 000:261.812         WorkRAMAddr:   0x20000000
+T3A14 000:261.819         WorkRAMSize:   0x00001000
+T3A14 000:261.826         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:261.890         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:261.899       FlashBankInfo:
+T3A14 000:261.906         Name:          Main Flash
+T3A14 000:261.914         BaseAddr:      0x08000000
+T3A14 000:261.921         MaxSize:       0x00008000
+T3A14 000:262.042         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0040\MM32F0040_32.FLM
+T3A14 000:262.051         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:262.059         AlwaysPresent: 1
+T3A14 000:262.071     Device entry created:  MM32F0020B1T
+T3A14 000:262.076       ChipInfo:
+T3A14 000:262.080         Vendor:        MindMotion
+T3A14 000:262.087         Name:          MM32F0020B1T
+T3A14 000:262.094         WorkRAMAddr:   0x20000000
+T3A14 000:262.101         WorkRAMSize:   0x00000800
+T3A14 000:262.108         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:262.173         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:262.182       FlashBankInfo:
+T3A14 000:262.187         Name:          Main Flash
+T3A14 000:262.194         BaseAddr:      0x08000000
+T3A14 000:262.201         MaxSize:       0x00008000
+T3A14 000:262.321         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0020\MM32F0020_32.FLM
+T3A14 000:262.330         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:262.337         AlwaysPresent: 1
+T3A14 000:262.349     Device entry created:  MM32F0020B1N
+T3A14 000:262.354       ChipInfo:
+T3A14 000:262.359         Vendor:        MindMotion
+T3A14 000:262.366         Name:          MM32F0020B1N
+T3A14 000:262.372         WorkRAMAddr:   0x20000000
+T3A14 000:262.379         WorkRAMSize:   0x00000800
+T3A14 000:262.386         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:262.451         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:262.460       FlashBankInfo:
+T3A14 000:262.464         Name:          Main Flash
+T3A14 000:262.471         BaseAddr:      0x08000000
+T3A14 000:262.478         MaxSize:       0x00008000
+T3A14 000:262.607         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0020\MM32F0020_32.FLM
+T3A14 000:262.617         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:262.624         AlwaysPresent: 1
+T3A14 000:262.636     Device entry created:  MM32L0131B6P
+T3A14 000:262.641       ChipInfo:
+T3A14 000:262.646         Vendor:        MindMotion
+T3A14 000:262.653         Name:          MM32L0131B6P
+T3A14 000:262.660         WorkRAMAddr:   0x20000000
+T3A14 000:262.667         WorkRAMSize:   0x00001000
+T3A14 000:262.674         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:262.740         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:262.748       FlashBankInfo:
+T3A14 000:262.753         Name:          Main Flash
+T3A14 000:262.760         BaseAddr:      0x08000000
+T3A14 000:262.767         MaxSize:       0x00008000
+T3A14 000:262.890         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xB_32.FLM
+T3A14 000:262.899         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:262.906         AlwaysPresent: 1
+T3A14 000:262.917     Device entry created:  MM32L0131B7P
+T3A14 000:262.921       ChipInfo:
+T3A14 000:262.926         Vendor:        MindMotion
+T3A14 000:262.933         Name:          MM32L0131B7P
+T3A14 000:262.940         WorkRAMAddr:   0x20000000
+T3A14 000:262.947         WorkRAMSize:   0x00001000
+T3A14 000:262.954         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:263.019         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:263.028       FlashBankInfo:
+T3A14 000:263.033         Name:          Main Flash
+T3A14 000:263.040         BaseAddr:      0x08000000
+T3A14 000:263.047         MaxSize:       0x00008000
+T3A14 000:263.165         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xB_32.FLM
+T3A14 000:263.174         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:263.181         AlwaysPresent: 1
+T3A14 000:263.190     Device entry created:  MM32L0131C6P
+T3A14 000:263.197       ChipInfo:
+T3A14 000:263.202         Vendor:        MindMotion
+T3A14 000:263.209         Name:          MM32L0131C6P
+T3A14 000:263.216         WorkRAMAddr:   0x20000000
+T3A14 000:263.223         WorkRAMSize:   0x00002000
+T3A14 000:263.230         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:263.296         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:263.305       FlashBankInfo:
+T3A14 000:263.310         Name:          Main Flash
+T3A14 000:263.317         BaseAddr:      0x08000000
+T3A14 000:263.324         MaxSize:       0x00010000
+T3A14 000:263.443         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xC_64.FLM
+T3A14 000:263.452         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:263.459         AlwaysPresent: 1
+T3A14 000:263.468     Device entry created:  MM32L0131C7P
+T3A14 000:263.473       ChipInfo:
+T3A14 000:263.477         Vendor:        MindMotion
+T3A14 000:263.484         Name:          MM32L0131C7P
+T3A14 000:263.491         WorkRAMAddr:   0x20000000
+T3A14 000:263.498         WorkRAMSize:   0x00002000
+T3A14 000:263.505         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:263.571         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:263.580       FlashBankInfo:
+T3A14 000:263.584         Name:          Main Flash
+T3A14 000:263.591         BaseAddr:      0x08000000
+T3A14 000:263.598         MaxSize:       0x00010000
+T3A14 000:263.721         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xC_64.FLM
+T3A14 000:263.731         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:263.738         AlwaysPresent: 1
+T3A14 000:263.747     Device entry created:  MM32L0136B6P
+T3A14 000:263.751       ChipInfo:
+T3A14 000:263.756         Vendor:        MindMotion
+T3A14 000:263.763         Name:          MM32L0136B6P
+T3A14 000:263.770         WorkRAMAddr:   0x20000000
+T3A14 000:263.777         WorkRAMSize:   0x00001000
+T3A14 000:263.784         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:263.850         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:263.858       FlashBankInfo:
+T3A14 000:263.863         Name:          Main Flash
+T3A14 000:263.870         BaseAddr:      0x08000000
+T3A14 000:263.877         MaxSize:       0x00008000
+T3A14 000:263.996         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xB_32.FLM
+T3A14 000:264.005         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:264.016         AlwaysPresent: 1
+T3A14 000:264.025     Device entry created:  MM32L0136B7P
+T3A14 000:264.029       ChipInfo:
+T3A14 000:264.034         Vendor:        MindMotion
+T3A14 000:264.041         Name:          MM32L0136B7P
+T3A14 000:264.048         WorkRAMAddr:   0x20000000
+T3A14 000:264.055         WorkRAMSize:   0x00001000
+T3A14 000:264.062         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:264.130         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:264.139       FlashBankInfo:
+T3A14 000:264.143         Name:          Main Flash
+T3A14 000:264.150         BaseAddr:      0x08000000
+T3A14 000:264.157         MaxSize:       0x00008000
+T3A14 000:264.277         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xB_32.FLM
+T3A14 000:264.286         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:264.293         AlwaysPresent: 1
+T3A14 000:264.301     Device entry created:  MM32L0136C6P
+T3A14 000:264.307       ChipInfo:
+T3A14 000:264.312         Vendor:        MindMotion
+T3A14 000:264.319         Name:          MM32L0136C6P
+T3A14 000:264.326         WorkRAMAddr:   0x20000000
+T3A14 000:264.333         WorkRAMSize:   0x00002000
+T3A14 000:264.340         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:264.405         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:264.417       FlashBankInfo:
+T3A14 000:264.422         Name:          Main Flash
+T3A14 000:264.429         BaseAddr:      0x08000000
+T3A14 000:264.436         MaxSize:       0x00010000
+T3A14 000:264.560         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xC_64.FLM
+T3A14 000:264.577         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:264.590         AlwaysPresent: 1
+T3A14 000:264.599     Device entry created:  MM32L0136C7P
+T3A14 000:264.603       ChipInfo:
+T3A14 000:264.608         Vendor:        MindMotion
+T3A14 000:264.615         Name:          MM32L0136C7P
+T3A14 000:264.622         WorkRAMAddr:   0x20000000
+T3A14 000:264.629         WorkRAMSize:   0x00002000
+T3A14 000:264.636         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:264.707         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:264.716       FlashBankInfo:
+T3A14 000:264.721         Name:          Main Flash
+T3A14 000:264.728         BaseAddr:      0x08000000
+T3A14 000:264.735         MaxSize:       0x00010000
+T3A14 000:264.854         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32L0130\MM32L013xC_64.FLM
+T3A14 000:264.864         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:264.871         AlwaysPresent: 1
+T3A14 000:264.880     Device entry created:  MM32G0141B1TV
+T3A14 000:264.884       ChipInfo:
+T3A14 000:264.889         Vendor:        MindMotion
+T3A14 000:264.896         Name:          MM32G0141B1TV
+T3A14 000:264.903         WorkRAMAddr:   0x20000000
+T3A14 000:264.910         WorkRAMSize:   0x00002000
+T3A14 000:264.917         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:264.981         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:264.990       FlashBankInfo:
+T3A14 000:264.995         Name:          Main Flash
+T3A14 000:265.002         BaseAddr:      0x08000000
+T3A14 000:265.009         MaxSize:       0x00008000
+T3A14 000:265.131         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32G0140\MM32G0140_32.FLM
+T3A14 000:265.140         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:265.147         AlwaysPresent: 1
+T3A14 000:265.162     Device entry created:  MM32G0141B4PV
+T3A14 000:265.167       ChipInfo:
+T3A14 000:265.171         Vendor:        MindMotion
+T3A14 000:265.178         Name:          MM32G0141B4PV
+T3A14 000:265.185         WorkRAMAddr:   0x20000000
+T3A14 000:265.192         WorkRAMSize:   0x00002000
+T3A14 000:265.199         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:265.264         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:265.273       FlashBankInfo:
+T3A14 000:265.278         Name:          Main Flash
+T3A14 000:265.285         BaseAddr:      0x08000000
+T3A14 000:265.292         MaxSize:       0x00008000
+T3A14 000:265.409         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32G0140\MM32G0140_32.FLM
+T3A14 000:265.418         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:265.426         AlwaysPresent: 1
+T3A14 000:265.435     Device entry created:  MM32G0141C1TV
+T3A14 000:265.439       ChipInfo:
+T3A14 000:265.444         Vendor:        MindMotion
+T3A14 000:265.451         Name:          MM32G0141C1TV
+T3A14 000:265.458         WorkRAMAddr:   0x20000000
+T3A14 000:265.465         WorkRAMSize:   0x00002000
+T3A14 000:265.472         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:265.536         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:265.545       FlashBankInfo:
+T3A14 000:265.549         Name:          Main Flash
+T3A14 000:265.556         BaseAddr:      0x08000000
+T3A14 000:265.563         MaxSize:       0x00010000
+T3A14 000:265.683         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32G0140\MM32G0140_64.FLM
+T3A14 000:265.692         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:265.702         AlwaysPresent: 1
+T3A14 000:265.711     Device entry created:  MM32G0141C4PV
+T3A14 000:265.716       ChipInfo:
+T3A14 000:265.720         Vendor:        MindMotion
+T3A14 000:265.727         Name:          MM32G0141C4PV
+T3A14 000:265.749         WorkRAMAddr:   0x20000000
+T3A14 000:265.756         WorkRAMSize:   0x00002000
+T3A14 000:265.763         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:265.829         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:265.838       FlashBankInfo:
+T3A14 000:265.843         Name:          Main Flash
+T3A14 000:265.850         BaseAddr:      0x08000000
+T3A14 000:265.857         MaxSize:       0x00010000
+T3A14 000:265.976         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32G0140\MM32G0140_64.FLM
+T3A14 000:265.985         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:265.992         AlwaysPresent: 1
+T3A14 000:266.001     Device entry created:  MM32F0162D3NV
+T3A14 000:266.007       ChipInfo:
+T3A14 000:266.012         Vendor:        MindMotion
+T3A14 000:266.019         Name:          MM32F0162D3NV
+T3A14 000:266.026         WorkRAMAddr:   0x20000000
+T3A14 000:266.033         WorkRAMSize:   0x00004000
+T3A14 000:266.040         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:266.107         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:266.116       FlashBankInfo:
+T3A14 000:266.120         Name:          Main Flash
+T3A14 000:266.127         BaseAddr:      0x08000000
+T3A14 000:266.134         MaxSize:       0x00020000
+T3A14 000:266.256         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:266.265         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:266.272         AlwaysPresent: 1
+T3A14 000:266.285     Device entry created:  MM32F0162D4QV
+T3A14 000:266.290       ChipInfo:
+T3A14 000:266.295         Vendor:        MindMotion
+T3A14 000:266.302         Name:          MM32F0162D4QV
+T3A14 000:266.309         WorkRAMAddr:   0x20000000
+T3A14 000:266.316         WorkRAMSize:   0x00004000
+T3A14 000:266.323         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:266.389         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:266.397       FlashBankInfo:
+T3A14 000:266.402         Name:          Main Flash
+T3A14 000:266.409         BaseAddr:      0x08000000
+T3A14 000:266.416         MaxSize:       0x00020000
+T3A14 000:266.535         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:266.544         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:266.551         AlwaysPresent: 1
+T3A14 000:266.560     Device entry created:  MM32F0162D6PV
+T3A14 000:266.565       ChipInfo:
+T3A14 000:266.569         Vendor:        MindMotion
+T3A14 000:266.576         Name:          MM32F0162D6PV
+T3A14 000:266.583         WorkRAMAddr:   0x20000000
+T3A14 000:266.590         WorkRAMSize:   0x00004000
+T3A14 000:266.597         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:266.662         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:266.671       FlashBankInfo:
+T3A14 000:266.675         Name:          Main Flash
+T3A14 000:266.682         BaseAddr:      0x08000000
+T3A14 000:266.689         MaxSize:       0x00020000
+T3A14 000:266.809         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:266.818         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:266.825         AlwaysPresent: 1
+T3A14 000:266.834     Device entry created:  MM32F0162D7PV
+T3A14 000:266.839       ChipInfo:
+T3A14 000:266.843         Vendor:        MindMotion
+T3A14 000:266.850         Name:          MM32F0162D7PV
+T3A14 000:266.857         WorkRAMAddr:   0x20000000
+T3A14 000:266.864         WorkRAMSize:   0x00004000
+T3A14 000:266.871         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:266.941         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:266.950       FlashBankInfo:
+T3A14 000:266.954         Name:          Main Flash
+T3A14 000:266.961         BaseAddr:      0x08000000
+T3A14 000:266.968         MaxSize:       0x00020000
+T3A14 000:267.089         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:267.098         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:267.105         AlwaysPresent: 1
+T3A14 000:267.115     Device entry created:  MM32F0163D3NV
+T3A14 000:267.120       ChipInfo:
+T3A14 000:267.125         Vendor:        MindMotion
+T3A14 000:267.132         Name:          MM32F0163D3NV
+T3A14 000:267.140         WorkRAMAddr:   0x20000000
+T3A14 000:267.148         WorkRAMSize:   0x00004000
+T3A14 000:267.156         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:267.235         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:267.248       FlashBankInfo:
+T3A14 000:267.253         Name:          Main Flash
+T3A14 000:267.261         BaseAddr:      0x08000000
+T3A14 000:267.269         MaxSize:       0x00020000
+T3A14 000:267.406         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:267.416         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:267.424         AlwaysPresent: 1
+T3A14 000:267.433     Device entry created:  MM32F0163D4QV
+T3A14 000:267.438       ChipInfo:
+T3A14 000:267.443         Vendor:        MindMotion
+T3A14 000:267.451         Name:          MM32F0163D4QV
+T3A14 000:267.458         WorkRAMAddr:   0x20000000
+T3A14 000:267.466         WorkRAMSize:   0x00004000
+T3A14 000:267.473         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:267.545         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:267.554       FlashBankInfo:
+T3A14 000:267.559         Name:          Main Flash
+T3A14 000:267.567         BaseAddr:      0x08000000
+T3A14 000:267.575         MaxSize:       0x00020000
+T3A14 000:267.712         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:267.722         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:267.730         AlwaysPresent: 1
+T3A14 000:267.739     Device entry created:  MM32F0163D6PV
+T3A14 000:267.745       ChipInfo:
+T3A14 000:267.750         Vendor:        MindMotion
+T3A14 000:267.757         Name:          MM32F0163D6PV
+T3A14 000:267.765         WorkRAMAddr:   0x20000000
+T3A14 000:267.773         WorkRAMSize:   0x00004000
+T3A14 000:267.781         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:267.854         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:267.863       FlashBankInfo:
+T3A14 000:267.868         Name:          Main Flash
+T3A14 000:267.876         BaseAddr:      0x08000000
+T3A14 000:267.884         MaxSize:       0x00020000
+T3A14 000:268.016         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:268.026         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:268.035         AlwaysPresent: 1
+T3A14 000:268.044     Device entry created:  MM32F0163D7PV
+T3A14 000:268.049       ChipInfo:
+T3A14 000:268.054         Vendor:        MindMotion
+T3A14 000:268.062         Name:          MM32F0163D7PV
+T3A14 000:268.070         WorkRAMAddr:   0x20000000
+T3A14 000:268.077         WorkRAMSize:   0x00004000
+T3A14 000:268.085         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:268.161         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:268.171       FlashBankInfo:
+T3A14 000:268.176         Name:          Main Flash
+T3A14 000:268.184         BaseAddr:      0x08000000
+T3A14 000:268.191         MaxSize:       0x00020000
+T3A14 000:268.323         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32F0160\MM32F0160_128.FLM
+T3A14 000:268.338         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:268.346         AlwaysPresent: 1
+T3A14 000:268.356     Device entry created:  MM32A0144C1TM
+T3A14 000:268.361       ChipInfo:
+T3A14 000:268.366         Vendor:        MindMotion
+T3A14 000:268.374         Name:          MM32A0144C1TM
+T3A14 000:268.382         WorkRAMAddr:   0x20000000
+T3A14 000:268.389         WorkRAMSize:   0x00002000
+T3A14 000:268.397         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:268.472         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:268.482       FlashBankInfo:
+T3A14 000:268.487         Name:          Main Flash
+T3A14 000:268.495         BaseAddr:      0x08000000
+T3A14 000:268.503         MaxSize:       0x00010000
+T3A14 000:268.637         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32A0140\MM32A0140_64.FLM
+T3A14 000:268.647         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:268.654         AlwaysPresent: 1
+T3A14 000:268.666     Device entry created:  MM32A0144C4QM
+T3A14 000:268.671       ChipInfo:
+T3A14 000:268.676         Vendor:        MindMotion
+T3A14 000:268.683         Name:          MM32A0144C4QM
+T3A14 000:268.690         WorkRAMAddr:   0x20000000
+T3A14 000:268.697         WorkRAMSize:   0x00002000
+T3A14 000:268.704         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:268.769         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:268.778       FlashBankInfo:
+T3A14 000:268.782         Name:          Main Flash
+T3A14 000:268.789         BaseAddr:      0x08000000
+T3A14 000:268.796         MaxSize:       0x00010000
+T3A14 000:268.914         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32A0140\MM32A0140_64.FLM
+T3A14 000:268.924         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:268.931         AlwaysPresent: 1
+T3A14 000:268.940     Device entry created:  MM32A0144C4PM
+T3A14 000:268.944       ChipInfo:
+T3A14 000:268.949         Vendor:        MindMotion
+T3A14 000:268.956         Name:          MM32A0144C4PM
+T3A14 000:268.963         WorkRAMAddr:   0x20000000
+T3A14 000:268.970         WorkRAMSize:   0x00002000
+T3A14 000:268.977         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:269.042         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:269.050       FlashBankInfo:
+T3A14 000:269.055         Name:          Main Flash
+T3A14 000:269.062         BaseAddr:      0x08000000
+T3A14 000:269.069         MaxSize:       0x00010000
+T3A14 000:269.189         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32A0140\MM32A0140_64.FLM
+T3A14 000:269.198         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:269.205         AlwaysPresent: 1
+T3A14 000:269.218     Device entry created:  MM32A0144C6PM
+T3A14 000:269.223       ChipInfo:
+T3A14 000:269.227         Vendor:        MindMotion
+T3A14 000:269.234         Name:          MM32A0144C6PM
+T3A14 000:269.241         WorkRAMAddr:   0x20000000
+T3A14 000:269.248         WorkRAMSize:   0x00002000
+T3A14 000:269.255         Core:          JLINK_CORE_CORTEX_M0
+T3A14 000:269.322         Script:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32xx_M0.JLinkScript
+T3A14 000:269.331       FlashBankInfo:
+T3A14 000:269.336         Name:          Main Flash
+T3A14 000:269.343         BaseAddr:      0x08000000
+T3A14 000:269.350         MaxSize:       0x00010000
+T3A14 000:269.472         Loader:        C:\Program Files (x86)\SEGGER\JLink\Devices\MindMotion\MM32A0140\MM32A0140_64.FLM
+T3A14 000:269.481         LoaderType:    FLASH_ALGO_TYPE_OPEN
+T3A14 000:269.489         AlwaysPresent: 1
+T3A14 000:269.616 - 61.133ms returns 0x00
+T3A14 000:269.634 JLINK_ExecCommand("Device = ARMCM0", ...). 
+T3A14 000:269.653   Device "CORTEX-M0" selected.
+T3A14 000:269.897 - 0.260ms returns 0x00
+T3A14 000:269.906 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T3A14 000:269.913 - 0.004ms returns 0x01
+T3A14 000:269.922 JLINK_GetHardwareVersion()
+T3A14 000:269.927 - 0.007ms returns 94000
+T3A14 000:269.935 JLINK_GetDLLVersion()
+T3A14 000:269.940 - 0.006ms returns 76400
+T3A14 000:269.945 JLINK_GetOEMString(...)
+T3A14 000:269.951 JLINK_GetFirmwareString(...)
+T3A14 000:269.956 - 0.007ms
+T3A14 000:269.963 JLINK_GetDLLVersion()
+T3A14 000:269.968 - 0.007ms returns 76400
+T3A14 000:269.976 JLINK_GetCompileDateTime()
+T3A14 000:269.983 - 0.008ms
+T3A14 000:269.991 JLINK_GetFirmwareString(...)
+T3A14 000:269.995 - 0.007ms
+T3A14 000:270.001 JLINK_GetHardwareVersion()
+T3A14 000:270.008 - 0.008ms returns 94000
+T3A14 000:270.014 JLINK_GetSN()
+T3A14 000:270.019 - 0.007ms returns 69406889
+T3A14 000:270.025 JLINK_GetOEMString(...)
+T3A14 000:270.032 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T3A14 000:271.788 - 1.764ms returns 0x00
+T3A14 000:271.820 JLINK_HasError()
+T3A14 000:271.831 JLINK_SetSpeed(5000)
+T3A14 000:272.233 - 0.406ms
+T3A14 000:272.564 JLINK_HasError()
+T3A14 000:272.576 JLINK_SetResetType(JLINKARM_RESET_TYPE_NORMAL)
+T3A14 000:272.582 - 0.008ms returns JLINKARM_RESET_TYPE_NORMAL
+T3A14 000:272.589 JLINK_Reset()
+T3A14 000:274.654   ConfigTargetSettings() start
+T3A14 000:274.665    J-Link Script File: Executing ConfigTargetSettings()
+T3A14 000:274.677   ConfigTargetSettings() end
+T3A14 000:971.544   ConfigTargetSettings() start
+T3A14 000:971.562    J-Link Script File: Executing ConfigTargetSettings()
+T3A14 000:971.576   ConfigTargetSettings() end
+T3A14 001:078.837 - 806.259ms
+T3A14 001:078.876 JLINK_GetId()
+T3A14 001:079.357   ConfigTargetSettings() start
+T3A14 001:079.371    J-Link Script File: Executing ConfigTargetSettings()
+T3A14 001:079.383   ConfigTargetSettings() end
+T3A14 001:247.344   ConfigTargetSettings() start
+T3A14 001:247.361    J-Link Script File: Executing ConfigTargetSettings()
+T3A14 001:247.373   ConfigTargetSettings() end
+T3A14 001:354.080 - 275.213ms returns 0x00000000
+T3A14 001:354.115 JLINK_GetId()
+T3A14 001:355.169   ConfigTargetSettings() start
+T3A14 001:355.183    J-Link Script File: Executing ConfigTargetSettings()
+T3A14 001:355.194   ConfigTargetSettings() end
+T3A14 001:523.183   ConfigTargetSettings() start
+T3A14 001:523.198    J-Link Script File: Executing ConfigTargetSettings()
+T3A14 001:523.209   ConfigTargetSettings() end
+T3A14 001:630.243 - 276.137ms returns 0x00000000
+T3A14 001:635.772 JLINK_GetFirmwareString(...)
+T3A14 001:635.782 - 0.012ms
+T3A14 002:812.261 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 002:812.846 - 0.592ms returns 0x00
+T3A14 002:812.868 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 002:813.355 - 0.491ms returns 0x00
+T3A14 002:813.726 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 002:814.372 - 0.652ms returns 0x00
+T3A14 003:445.547 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 003:446.106 - 0.567ms returns 0x00
+T3A14 003:446.128 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 003:446.619 - 0.495ms returns 0x00
+T3A14 003:446.635 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 003:447.118 - 0.487ms returns 0x00
+T3A14 005:189.550 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 005:190.103 - 0.557ms returns 0x00
+T3A14 005:190.120 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 005:190.590 - 0.473ms returns 0x00
+T3A14 005:190.603 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 005:191.088 - 0.488ms returns 0x00
+T3A14 008:421.812 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 008:422.382 - 0.574ms returns 0x00
+T3A14 008:422.396 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 008:422.917 - 0.523ms returns 0x00
+T3A14 008:422.929 JLINK_SWO_Control(JLINKARM_SWO_CMD_GET_SPEED_INFO, ...)
+T3A14 008:423.472 - 0.547ms returns 0x00
+T3A14 119:486.805 JLINK_Close()
+T3A14 119:503.541 - 16.747ms
+T3A14 119:503.556   
+T3A14 119:503.562   Closed

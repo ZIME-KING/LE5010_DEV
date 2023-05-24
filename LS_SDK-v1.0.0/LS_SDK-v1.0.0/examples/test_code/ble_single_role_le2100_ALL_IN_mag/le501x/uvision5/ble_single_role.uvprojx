@@ -1705,14 +1705,14 @@
               <FilePath>..\..\user_bsp\aes-128.c</FilePath>
             </File>
             <File>
-              <FileName>Moto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\user_bsp\Moto.c</FilePath>
-            </File>
-            <File>
               <FileName>Buzzer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\user_bsp\Buzzer.c</FilePath>
+            </File>
+            <File>
+              <FileName>Moto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\Moto.c</FilePath>
             </File>
             <File>
               <FileName>scan_sw.c</FileName>

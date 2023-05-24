@@ -28,7 +28,12 @@
 #include "LPM2100_N.h"
 
 
-//#define USER_TEST 
+//#define USER_TEST
+
+//#define DEF                   //Ä¬ÈÏËÜÁÏËø
+#define MAG                   //¸Ö°åËø
+//#define METAL_PADLOCK         //½ğÊô¹ÒËø
+ 
 
 #ifdef USER_TEST 
  extern uint8_t open_count;

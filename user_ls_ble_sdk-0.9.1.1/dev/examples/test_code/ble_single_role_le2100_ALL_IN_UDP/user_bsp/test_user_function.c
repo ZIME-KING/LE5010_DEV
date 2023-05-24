@@ -3,8 +3,9 @@
 #include "test_user_function.h"
 #include <string.h>
 
-#define TUSB_CHECK   PA03
-//#define	TUSB_CHECK_B PB06
+//#define TUSB_CHECK   PA03            //03_17 版本
+#define TUSB_CHECK   PA07
+#define	TUSB_CHECK_B PA03
 
 void TEST_LED_TASK(){
 	static uint8_t flag;
@@ -50,10 +51,10 @@ void TEST_LED_TASK(){
 				else{
 					
 					io_cfg_input(TUSB_CHECK);   //PB09 config output
-//				io_cfg_input(TUSB_CHECK_B);   //PB09 config output										
+  				io_cfg_input(TUSB_CHECK_B);   //PB09 config output										
 //				LOG_I("usb_in1%d",io_read_pin(TUSB_CHECK));
 //				LOG_I("usb_in2%d",io_read_pin(TUSB_CHECK_B));		
-					if(io_read_pin(TUSB_CHECK)==1 ){
+					if(io_read_pin(TUSB_CHECK)==1 || io_read_pin(TUSB_CHECK_B)==1 ){
 						
 //						io_cfg_output(TUSB_CHECK);   //PB09 config output
 //						io_cfg_output(TUSB_CHECK_B);   //PB09 config output
@@ -119,7 +120,7 @@ uint16_t TEST_AT_GET_DB_TASK(){
 }
 
 
-//获取模块是否存在
+//获取模块是否存在    //改发ATE1 同时设置开启回显模式
 uint16_t TEST_AT_GET_MODE_TASK(){
 		static uint8_t count=0;
     static uint16_t temp;
@@ -127,7 +128,7 @@ uint16_t TEST_AT_GET_MODE_TASK(){
 //    static uint8_t tmp[10];
 //		uint16_t length = 10; 
    if(Get_Task_State(GET_MODE_VAL)) {
-   		      if(Get_Uart_Data_Processing_Result()==CSQ_OK) {
+   		      if(Get_Uart_Data_Processing_Result()==OK_AT) {
 								globle_Result=0xFF;
                 Set_Task_State(GET_MODE_VAL,STOP);
 								Set_Task_State(GET_EMIC_VAL,START);
@@ -140,7 +141,7 @@ uint16_t TEST_AT_GET_MODE_TASK(){
 								temp=0;
                 if(i%20==1){  //重发间隔
 										count++;
-										AT_Command_Send(CSQ);
+										AT_Command_Send(ATE1);
 												buzzer_task_flag=1;
 										// if(count>=20){
 										//	Set_Task_State(GET_MODE_VAL,START);

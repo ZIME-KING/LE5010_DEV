@@ -36,7 +36,7 @@ void save_timer_config(){
 
 static void M_Basic_PWM_Output_Cfg(void)
 {
-		save_timer_config();
+		//save_timer_config();
 
     TIM_OC_InitTypeDef sConfig = {0};
 

@@ -13,7 +13,7 @@ TIME_OUT,	 //≥¨ ±Œ¥œ‡”¶
 CGSN_OK,	 //
 CSQ_OK,		 //
 CIMI_OK,
-	CIMI_ERROR,
+CIMI_ERROR,
 //CSQ_ERROR,		 //		
 }NB_RX_STATE;
 

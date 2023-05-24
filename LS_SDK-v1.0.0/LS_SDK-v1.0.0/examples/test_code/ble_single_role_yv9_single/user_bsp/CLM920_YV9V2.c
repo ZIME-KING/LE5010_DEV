@@ -6,14 +6,14 @@
 #define STOP  0x00
 
 
-#define VER_0  0xB0
+#define VER_0  0xB0          //硬件版本
 
 #ifdef DEF                   //默认塑料锁
 	 #define VER_1  0xB0
 #endif
 
 #ifdef MAG                   //钢板锁
-		#define VER_1  0xB1
+		#define VER_1  0xB3      //B1->B3
 #endif
 #ifdef METAL_PADLOCK         //金属挂锁
 		#define VER_1  0xB2
@@ -356,7 +356,7 @@ void Open_Lock_Data_Send() {
     DATA_BUF[10] = Get_dBm();
 
     DATA_BUF[11] = 0XA6;		//支持的从锁数量
-    DATA_BUF[12] = LOCK_NUM;
+    DATA_BUF[12] = 00;
 
     DATA_BUF[13] = 0XB0; 	//电量 0~100%;
     DATA_BUF[14] = VBat_value;	//50%

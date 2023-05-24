@@ -1219,8 +1219,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\user_bsp\aes-128.c</PathWithFileName>
-      <FilenameWithoutPath>aes-128.c</FilenameWithoutPath>
+      <PathWithFileName>..\user_bsp\Moto.c</PathWithFileName>
+      <FilenameWithoutPath>Moto.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1231,8 +1231,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\user_bsp\Moto.c</PathWithFileName>
-      <FilenameWithoutPath>Moto.c</FilenameWithoutPath>
+      <PathWithFileName>..\user_bsp\aes-128.c</PathWithFileName>
+      <FilenameWithoutPath>aes-128.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

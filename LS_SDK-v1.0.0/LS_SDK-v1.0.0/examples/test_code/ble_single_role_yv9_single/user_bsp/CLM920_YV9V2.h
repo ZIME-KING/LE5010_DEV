@@ -3,7 +3,7 @@
 
 #include "user_main.h"
 
-#define LOCK_NUM  1   //锁数量 0,1,2...127 
+#define LOCK_NUM  1   //从锁数量 0,1,2...127 
 #define START 0x01
 #define STOP  0x00
 
