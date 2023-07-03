@@ -18,6 +18,8 @@ void Enter_Power_Mode_NH(void);
 void Enter_Power_Mode_LL(void);
 void Enter_Power_Mode_LH(void);
 
+StateMachine machine;
+
 void ls_uart1_init(void);
 void ls_uart2_init(void);
 
@@ -170,8 +172,6 @@ void LED_Auto_close() {
         user_time_cont=0;
     }
 }
-
-
 //03命令自动升锁流程
 void auto_mode_function(uint8_t mode) {
 
@@ -385,43 +385,201 @@ void power_io_deinit() {
 
 
 void User_Print_Log() {
-    static uint8_t last_hw_lock_status;
-
+    static uint8_t last_hw_lock_status;    //红外检测位置状态
+		static uint8_t last_current_state;     //系统运行状态
+    static uint8_t last_lock_mode;         //锁状态？
+		
+		if(last_current_state!=machine.current_state) {
+				last_current_state=machine.current_state;			
+				LOG_I("current_state:%d",machine.current_state);		
+		}
     if(last_hw_lock_status!=hw_lock_status) {
         last_hw_lock_status=hw_lock_status;
         LOG_I("OTP1:%d",lock_sw.opt1);
         LOG_I("OTP2:%d",lock_sw.opt2);
         LOG_I("OTP3:%d",lock_sw.opt3);
-
         LOG_I("hw_lock_status:%x",hw_lock_status);
         LOG_I("tag_lock_status:%x",tag_lock_status);
     }
-
-    static uint8_t last_lock_mode;
-
     if(last_lock_mode!=lock_mode) {
         last_lock_mode=lock_mode;
         LOG_I("lock_mode:%d",lock_mode);
     }
-
-
-
     //LOG_I("vbat_val: %d vbat_val",vbat_val);
-    //LOG_I("lock_mode:%d",lock_mode);
+}
+//进入正常状态放倒模式
+void Enter_Power_Mode_NL(void) {
+		LOG_I("NL\n");
 
 
+    io_cfg_output(PB13);   //PB09 config output
+//    io_write_pin(PB13,1);
+//		io_pull_write(PB13,IO_PULL_UP);
+
+}
+//进入正常状态立起模式
+void Enter_Power_Mode_NH(void) {
+			LOG_I("NH\n");
+}
+void User_io_Init() {
+    LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;
+    LSGPIOA->OT = 0;
+    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOB->MODE &= 0x3c00;  //3C00
+    LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+    LSGPIOB->OT = 0;
+    // LSGPIOB->PUPD = 0x2800;
+    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
 }
 
 
+//低功耗立起
+void Enter_Power_Mode_LH(void) {
+		LOG_I("LH\n");
+
+    gptimerb1_status_set(0);
+    gptimerc1_status_set(0);
+    User_io_Init();
+
+    HAL_UART_DeInit(&UART1_Config);
+    HAL_UART_DeInit(&UART2_Config);
+    HAL_ADC_DeInit(&hadc);
+    uart1_io_deinit();
+    uart2_io_deinit();
+		
+		io_cfg_output(SW_EN_1);   	//
+    io_write_pin(SW_EN_1,1);
+
+    io_cfg_output(SW_EN_2);   		//
+    io_write_pin(SW_EN_2,1);
+		
+		io_cfg_input(SW_IN_1);   			//
+    io_cfg_input(SW_IN_2);		
+}
+//低功耗放倒
+void Enter_Power_Mode_LL(void) {
+		LOG_I("LL\n");
+    gptimerb1_status_set(0);
+    gptimerc1_status_set(0);
+    User_io_Init();
+
+    HAL_UART_DeInit(&UART1_Config);
+    HAL_UART_DeInit(&UART2_Config);
+		HAL_ADC_DeInit(&hadc);
+    uart1_io_deinit();
+    uart2_io_deinit();
+
+//    ls_uart2_init();
+//    ls_uart1_init();
+//    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+//    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
+}
+
+//立 低功耗
+void state_handler_A(void) {
+	static uint16_t count;
+	count++;         
+			if(count%100==1){
+					check_sw_wait();      //10s测试一次红外
+			}
+    //LOG_I("Processing state A\n");
+}
+
+//立 正常
+void state_handler_B(void) {
+		LED_Auto_close();
+		Moto_Task();              //电机任务
+		Test_Moto_Task();
+		Uart2_Data_Processing();  //超声波数据
+		Uart_Data_Processing();   //RS485数据处理
+		Buzzer_Task_100();
+		Check_DYP_distance();    //超声波发送
+		auto_mode_function(USER_RUN);
+		err_mode_function();
+		if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+		vbat_val=Get_ADC_value()*20/1000;
+    //LOG_I("Processing state B\n");
+}
+//倒 低功耗
+void state_handler_C(void) {
+		
+    LOG_I("Processing state C\n");
+}
+
+//倒 正常
+void state_handler_D(void) {
+		LED_Auto_close();
+		Moto_Task();              //电机任务
+		Test_Moto_Task();
+		Uart2_Data_Processing();  //超声波数据
+		Uart_Data_Processing();   //RS485数据处理
+		Buzzer_Task_100();
+		Check_DYP_distance();    //超声波发送
+		auto_mode_function(USER_RUN);
+		err_mode_function();
+		if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+		vbat_val=Get_ADC_value()*20/1000;
+    //LOG_I("Processing state C\n");
+}
+// 初始化状态机
+void init_state_machine(StateMachine *machine) {
+    machine->current_state = STATE_B;
+    machine->state_handler = state_handler_B;
+}
+
+void transition(StateMachine *machine) {
+		static uint8_t last_current_state=0;
+		if(last_current_state!=machine->current_state) {
+				last_current_state=machine->current_state;							
+				switch (machine->current_state) {
+        case STATE_A:
+            machine->current_state = STATE_A;
+            machine->state_handler = state_handler_A;
+						machine->state_once_handler=Enter_Power_Mode_LH;	   //立 低功耗
+            break;
+        case STATE_B:
+            machine->current_state = STATE_B;
+            machine->state_handler = state_handler_B;
+						machine->state_once_handler=Enter_Power_Mode_NH;   //立 正常
+            break;
+        case STATE_C:
+            machine->current_state = STATE_C;
+            machine->state_handler = state_handler_C;
+						machine->state_once_handler=Enter_Power_Mode_LL;		 //倒 低功耗				
+            break;
+        case STATE_D:
+            machine->current_state = STATE_D;
+            machine->state_handler = state_handler_D;
+						machine->state_once_handler=Enter_Power_Mode_NL;		//倒 正常				
+            break;						
+        default:
+            break;
+    }
+			 machine->state_once_handler();  //运行一次
+		}
+}
+
+void loop_task(){
+
+static uint8_t once_flag=0x00;
+
+	if(once_flag!=0xAA){
+		once_flag=0xAA;
+		init_state_machine(&machine);
+	}
+		machine.state_handler(); // 处理当前状态
+		transition(&machine);    // 进行状态转换
+		User_Print_Log();
+}
 
 
-// 0竖立低功耗模式，1竖立正常功耗模式，2放倒低功耗模式 ，3放倒正常功耗模式
-
-
-void loop_task() {
+void loop_task_() {
 	
 	static uint16_t count;
-	count++;
+	count++;                              
 
     User_Print_Log();
 		
@@ -486,7 +644,6 @@ void loop_task() {
 //    err_mode_function();
 //    if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
 //    vbat_val=Get_ADC_value()*20/1000;
-
 //		Enter_Low_Power_Mode();
 
 }
@@ -547,7 +704,6 @@ bool Check_Password(uint8_t *password)
 
 tinyfs_dir_t ID_dir_1;
 void Read_Last_Data() {
-
     uint8_t *p;
     uint8_t tmp[18];
     uint16_t length_0 = 1;
@@ -674,19 +830,7 @@ void Read_Last_Data() {
 
 
 
-void User_io_Init() {
-    LSGPIOA->MODE = 0;
-    LSGPIOA->IE = 0;
-    LSGPIOA->OE = 0;
-    LSGPIOA->OT = 0;
-    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
-    LSGPIOB->MODE &= 0x3c00;  //3C00
-    LSGPIOB->IE = 0;
-    LSGPIOB->OE = 0;
-    LSGPIOB->OT = 0;
-    // LSGPIOB->PUPD = 0x2800;
-    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
-}
+
 //蓝牙启动成功跑一次
 void User_BLE_Ready() {
 		
@@ -724,7 +868,7 @@ void User_BLE_Ready() {
     //		_NL
 }
 
-//extern UART_HandleTypeDef log_uart;
+extern UART_HandleTypeDef log_uart;
 
 
 reg_lsgpio_t  *GPIOA_Instance=LSGPIOA;
@@ -747,72 +891,4 @@ void update_adv_intv(uint32_t new_adv_intv)
 
 }
 
-//进入正常状态放倒模式
-void Enter_Power_Mode_NL(void) {
-
-    io_cfg_output(PB13);   //PB09 config output
-//    io_write_pin(PB13,1);
-//		io_pull_write(PB13,IO_PULL_UP);
-	
-
-
-}
-
-//进入正常状态立起模式
-void Enter_Power_Mode_NH(void) {
-
-
-
-
-}
-
-//低功耗立起
-void Enter_Power_Mode_LH(void) {
-
-    gptimerb1_status_set(0);
-    gptimerc1_status_set(0);
-    User_io_Init();
-
-    HAL_UART_DeInit(&UART1_Config);
-    HAL_UART_DeInit(&UART2_Config);
-    HAL_ADC_DeInit(&hadc);
-    uart1_io_deinit();
-    uart2_io_deinit();
-		
-				
-		io_cfg_output(SW_EN_1);   	//
-    io_write_pin(SW_EN_1,1);
-
-    io_cfg_output(SW_EN_2);   		//
-    io_write_pin(SW_EN_2,1);
-		
-		io_cfg_input(SW_IN_1);   			//
-    io_cfg_input(SW_IN_2);		
-}
-
-
-//低功耗放倒
-void Enter_Power_Mode_LL(void) {
-    gptimerb1_status_set(0);
-    gptimerc1_status_set(0);
-    User_io_Init();
-
-    HAL_UART_DeInit(&UART1_Config);
-    HAL_UART_DeInit(&UART2_Config);
-		HAL_ADC_DeInit(&hadc);
-    uart1_io_deinit();
-    uart2_io_deinit();
-
-		
-		
-
-
-//    ls_uart2_init();
-//    ls_uart1_init();
-//    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
-//    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
-
-
-
-}
 

@@ -32,8 +32,11 @@
 
 
 //#define DEF                   //Ä¬ÈÏËÜÁÏËø
-#define MAG                   //¸Ö°åËø
-//#define METAL_PADLOCK         //½ğÊô¹ÒËø
+//#define MAG                   //¸Ö°åËø
+#define METAL_PADLOCK         //½ğÊô¹ÒËø
+//#define WHITE         //°×Ëø
+
+
 
 #ifdef USER_TEST 
  extern uint8_t open_count;

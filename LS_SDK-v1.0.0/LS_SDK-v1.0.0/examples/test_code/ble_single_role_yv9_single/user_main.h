@@ -34,8 +34,9 @@
 //#define USER_TEST 
 
 //#define DEF                   //Ä¬ÈÏËÜÁÏËø
-#define MAG                   //¸Ö°åËø
+//#define MAG                   //¸Ö°åËø
 //#define METAL_PADLOCK         //½ğÊô¹ÒËø
+#define WHITE         //°×Ëø
 
 
 

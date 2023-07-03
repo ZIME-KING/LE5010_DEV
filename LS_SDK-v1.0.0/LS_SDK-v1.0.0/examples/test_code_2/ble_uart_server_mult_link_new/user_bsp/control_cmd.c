@@ -50,6 +50,8 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
 		
 		user_time_cont=0;
 		
+		
+		//0xAA 
 		if(*p==0xAA){	
 				if(length==6 && *(p+1)==0xAA &&	*(p+2)==0x11 && *(p+3)==0x22 && *(p+4)==0x33 && *(p+5)==0x44){
 						reset_flag=1;
@@ -57,10 +59,27 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             tinyfs_write_through();
 				}
 
-				else if(length==2 && *(p+1)==0x11){
-						test_moro_task_flag=1;
+//*
+				else if(length==2 && *(p+1)==0xAA){
+						machine.current_state=STATE_A;
+				}
+				else if(length==2 && *(p+1)==0xBB){
 
 				}
+				else if(length==2 && *(p+1)==0xCC){
+						machine.current_state=  STATE_C;
+
+				}
+				else if(length==2 && *(p+1)==0xDD){
+						machine.current_state=STATE_D   ;
+				}
+
+//*/
+
+				else if(length==2 && *(p+1)==0x11){
+						test_moro_task_flag=1;
+				}
+				
 				else if(length==2 && *(p+1)==0x22){
 						test_moro_task_flag=2;
 				}

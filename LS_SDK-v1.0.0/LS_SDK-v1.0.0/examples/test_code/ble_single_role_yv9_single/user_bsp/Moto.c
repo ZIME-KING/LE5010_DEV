@@ -596,3 +596,176 @@ uint8_t Moto_Task(){
 }
 #endif
 
+
+#ifdef WHITE
+uint8_t Moto_Task(){
+	uint8_t temp=0x03;
+	static unsigned int count=0;
+	static unsigned int step=0x10;
+	if(moro_task_flag==1){
+		count++;
+		sleep_time=0;
+		switch(step){ 
+			case 0x10:
+//					Moto_N();
+						Moto_P();
+			
+				#ifdef _DEBUG
+							sprintf((char*)&temp_[0],"A:%d\r\n",count);
+							HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
+							#endif
+					if(count>(600/5)){
+							count=0;
+							step=1;
+							//HAL_UART_Transmit(&UART_Config,(uint8_t*)"A",2,100);    
+					}
+				 	if(count>(50/5)&&Check_SW2()==0){//里面的开关断开 默认上拉 高电平 弹出
+					  	count=0;
+							step=1;
+					}
+			break;
+					
+			case 1:			
+					Moto_S();
+				#ifdef _DEBUG
+					sprintf((char*)&temp_[0],"B:%d\r\n",count);
+					HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);		
+					HAL_UART_Transmit(&UART_Config,(uint8_t*)"B",2,100);
+				#endif
+					if(count>(1000/5)){
+							count=0;
+							step=2;
+							
+							KEY_FLAG=0;  
+							KEY_ONCE=0;
+												
+							if(Check_SW2()==1 && Check_SW1()==0 ) {
+								lock_state[0]=1;
+							}
+							else {
+								temp=0;  		//00 打开成功  0x03 失败
+								lock_state[0]=0;
+							}
+							
+							Set_Task_State(OPEN_LOCK_DATA_SEND,START);
+							look_status_send_count++;
+							
+							TX_DATA_BUF[6]=temp;
+							user_ble_send_flag=1;	//蓝牙发送数据
+					}
+			break;
+			
+			case 2:			
+					#ifdef _DEBUG
+					sprintf((char*)&temp_[0],"C:%d\r\n",count);
+					HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
+					#endif
+//  			Moto_P();
+					Moto_N();
+					if(count>(170/5)){
+						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
+							count=0;
+							step=3;
+					}
+			break;
+			
+			case 3:			
+					#ifdef _DEBUG
+					sprintf((char*)&temp_[0],"D:%d\r\n",count);
+					AL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
+					#endif
+					Moto_S();
+					if(count>(1000/5)){
+						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"D",2,100);
+							count=0;
+							step=4;
+					}
+			break;
+			
+			case 4:	
+//				Moto_N();
+				Moto_P();
+				
+				#ifdef _DEBUG
+							sprintf((char*)&temp_[0],"A:%d\r\n",count);
+							HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
+							#endif
+					if(count>(600/5)){
+							count=0;
+							step=5;
+							//HAL_UART_Transmit(&UART_Config,(uint8_t*)"A",2,100);    
+					}
+				 	if(count>(50/5)&&Check_SW2()==0){//里面的开关断开 默认上拉 高电平 弹出
+					  	count=0;
+							step=5;
+					}
+			break;
+
+			case 5:			
+					#ifdef _DEBUG
+					sprintf((char*)&temp_[0],"C:%d\r\n",count);
+					HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
+					#endif
+					Moto_S();
+					if(count>(1000/5)){
+						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
+							count=0;
+							step=6;
+					}
+			break;
+
+
+
+			case 6:			
+					#ifdef _DEBUG
+					sprintf((char*)&temp_[0],"C:%d\r\n",count);
+					HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
+				#endif
+//					Moto_P();
+				
+					Moto_N();
+					if(count>(170/5)){
+						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
+							count=0;
+							step=7;
+					}
+			break;
+			
+			
+			
+			case 7:			
+					#ifdef _DEBUG
+				sprintf((char*)&temp_[0],"C:%d\r\n",count);
+				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);
+			#endif
+					Moto_S();
+					if(count>(100/5)){
+						//HAL_UART_Transmit(&UART_Config,(uint8_t*)"C",2,100);
+							count=0;
+							step=8;
+					}
+			break;
+			
+										
+			case 8:			
+			#ifdef _DEBUG
+				sprintf((char*)&temp_[0],"F:%d\r\n",count);
+				HAL_UART_Transmit(&UART_Config,(uint8_t*)temp_,10,100);			
+			#endif
+				//HAL_UART_Transmit(&UART_Config,(uint8_t*)"F",2,100);
+					Moto_NULL();
+					step=0x10;
+					count=0;
+					moro_task_flag=0;
+			
+			break;
+	}
+	}
+	else{
+		count=0;
+	}
+	return temp;
+}
+
+#endif
+

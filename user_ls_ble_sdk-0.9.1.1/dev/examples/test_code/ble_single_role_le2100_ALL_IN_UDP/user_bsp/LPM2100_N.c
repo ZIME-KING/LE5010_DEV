@@ -19,6 +19,11 @@
 		#define VER_1  0xA2
 #endif
 
+#ifdef WHITE         //°×Ëø
+			#define VER_1  0xA4
+#endif
+
+
 //#define VER_0  0xA0
 //#define VER_1  0xB0
 

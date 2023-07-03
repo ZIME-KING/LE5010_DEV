@@ -19,6 +19,10 @@
 		#define VER_1  0xB2
 #endif
 
+#ifdef WHITE         //白锁
+			#define VER_1  0xB4
+#endif
+
 
 uint8_t send_count;							    //发送计数
 uint8_t lock_state[LOCK_NUM];     //锁状态存储
