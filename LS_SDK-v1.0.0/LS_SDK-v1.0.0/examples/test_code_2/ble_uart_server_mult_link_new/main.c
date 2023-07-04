@@ -77,9 +77,21 @@ static uint8_t current_uart_tx_idx; // bit7 = 1 : client, bit7 = 0 : server
 static const uint8_t ls_uart_svc_uuid_128[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCA,0xFA,0x00,0x00};
 static const uint8_t ls_uart_rx_char_uuid_128[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCB,0xFA,0x00,0x00};
 static const uint8_t ls_uart_tx_char_uuid_128[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCC,0xFA,0x00,0x00};
+
+
+
+
+
+//static const uint8_t ls_uart_svc_uuid_128_test[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xFF,0xFF,0x00,0x00};
+//static const uint8_t ls_uart_rx_char_uuid_128_test[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xFF,0xAA,0x00,0x00};
+//static const uint8_t ls_uart_tx_char_uuid_128_test[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xFF,0xBB,0x00,0x00};
+
+
+
+
+
+
 //static const uint8_t CD_uuid_16[] = {0xfb,0x34,0x9b,0x5f,0x80,0x00,0x00,0x80,0x00,0x10,0x00,0x00,0xCD,0xFA,0x00,0x00};
-
-
 //static const uint8_t ls_uart_svc_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,0x40,0x6e};
 //static const uint8_t ls_uart_rx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,0x40,0x6e};
 //static const uint8_t ls_uart_tx_char_uuid_128[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
@@ -95,6 +107,13 @@ enum uart_svc_att_db_handles
     UART_SVC_IDX_TX_CHAR,
     UART_SVC_IDX_TX_VAL,
     UART_SVC_IDX_TX_NTF_CFG,
+		
+		UART_SVC_IDX_RX_CHAR_TEST,
+    UART_SVC_IDX_RX_VAL_TEST,
+    UART_SVC_IDX_TX_CHAR_TEST,
+    UART_SVC_IDX_TX_VAL_TEST,
+    UART_SVC_IDX_TX_NTF_CFG_TEST,
+		
     UART_SVC_ATT_NUM
 };
 static const struct att_decl ls_uart_server_att_decl[UART_SVC_ATT_NUM] =
@@ -136,6 +155,7 @@ static const struct att_decl ls_uart_server_att_decl[UART_SVC_ATT_NUM] =
         .char_prop.rd_en = 1,
         .char_prop.wr_req = 1,
     },
+
 };
 
 static const struct svc_decl ls_uart_server_svc =
@@ -216,40 +236,56 @@ static void start_scan(void);
 
  void ls_user_event_timer_cb_0(void *param);
  void ls_user_event_timer_cb_1(void *param);
+ void ls_user_event_timer_cb_2(void *param);
+
 
  struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
  struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
+ struct builtin_timer_2 *user_event_timer_inst_2 = NULL;
 
-//#define USER_EVENT_PERIOD_0 1		 	 //1ms
-//#define USER_EVENT_PERIOD_1 500     // 100ms
 
-static void ls_app_timer_init(void)
+//	builtin_timer_0  1ms			正常模式运行
+//	builtin_timer_1  20ms     正常模式运行
+//	builtin_timer_2  500ms    低功耗模式
+//	开启低功耗模式后按定时器周期唤醒
+void ls_app_timer_init(void)
 {
     user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 
     user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+		
+    user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
+    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_2, NULL);
 }
 
 //1ms
 static void ls_user_event_timer_cb_0(void *param) {
-		
-		check_sw();
-    
+		check_sw();  
 		LED_Functon();
 		Uart_2_Time_Even();
 		Uart_Time_Even();
+		
 		time_count++;
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 
-//100ms
+//20ms
 static void ls_user_event_timer_cb_1(void *param) {
 
-    loop_task();
+    //loop_task();
+		
 		ls_uart_server_send_notification();   
 		builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+}
+
+//500ms
+static void ls_user_event_timer_cb_2(void *param) {
+
+    //loop_task();
+		ls_uart_server_send_notification();   
+		builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
 }
 
 static void ls_uart_server_client_uart_tx(void);

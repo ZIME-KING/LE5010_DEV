@@ -27,6 +27,10 @@
 #define USER_SET 0
 #define USER_RUN 1
 
+//#define DYPA06     //³¬Éù²¨
+#define URA196     //ºÁÃ×²¨
+
+
 
 #include "tinyfs.h"
 #include "ls_ble.h"
@@ -65,14 +69,23 @@
 #include "lsiwdg.h"
 
 
-#define USER_EVENT_PERIOD_0 1		 	 //1ms
-#define USER_EVENT_PERIOD_1 100     // 100ms
+#define USER_EVENT_PERIOD_0 1		 	 	// 1ms
+#define USER_EVENT_PERIOD_1 20     	// 20ms
+#define USER_EVENT_PERIOD_2 500     // 500ms
+
+
+void ls_app_timer_init(void);
 
 void ls_user_event_timer_cb_0(void *param);
 void ls_user_event_timer_cb_1(void *param);
+void ls_user_event_timer_cb_2(void *param);
 
 extern struct builtin_timer_0 *user_event_timer_inst_0 ;
 extern struct builtin_timer_1 *user_event_timer_inst_1 ;
+extern struct builtin_timer_2 *user_event_timer_inst_2 ;
+
+
+
 
 
 void start_adv(void);

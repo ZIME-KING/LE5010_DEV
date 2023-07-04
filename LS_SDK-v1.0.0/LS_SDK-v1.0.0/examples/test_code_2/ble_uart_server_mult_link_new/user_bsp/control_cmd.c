@@ -159,10 +159,10 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             if(length==2 ) {
                 //check_sw_();
                 //check_sw_();     //一定要2次
-                DYP_distance=DYP_distance/10;
-                if(DYP_distance>=250) DYP_distance=250;
-            } else {
-                err_val=0x05;
+//                DYP_distance=DYP_distance/10;
+//                if(DYP_distance>=250) DYP_distance=250;
+//            } else {
+//                err_val=0x05;
             }
 
             send_buf[1]= 0x17;
@@ -173,7 +173,10 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             send_buf[6]= vbat_val=0xff;;    //报警电量
             send_buf[7]= car_val;     			//是否有车
 						
-						send_buf[8]= DYP_distance;      //超声波距离
+						//send_buf[8]= DYP_distance;      //超声波距离
+						send_buf[8]= 0xEE;      					//标记使用毫米波雷达
+						
+						
 						send_buf[9]= lock_mode;         //锁状态
 						
 						send_buf[10]= LED_status;    		// LED

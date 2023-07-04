@@ -60,7 +60,82 @@ void Uart_Data_Processing() {
 }
 
 
+#ifdef URA196      //毫米波
 
+void Check_URA196() {
+    static uint16_t count;
+    count++;
+    count=count%10;
+
+    if(count==0) {
+        HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRSTATUS\r\n",strlen("AT+MRSTATUS\r\n"),10);
+    }
+//    if(count==1) {
+//        check_DYP_time_out++;
+//        //LOG_I("check_DYP_time_out:%d",check_DYP_time_out);
+//        if(check_DYP_time_out>2) {
+//            car_val=0x02;   //模块没有找到
+//            //LOG_I("car_val:%d",car_val);
+//        }
+//    }
+}
+
+int Uart2_Data_Processing_URA196(char* input,uint16_t len) {
+   // char* input = argv[1];
+    char temp[128];
+    char* header = "+MRSTATUS:";
+    char* footer = "\r\n";
+    char* start;
+    char* end;
+    char* token;
+    char* delim = ",";
+    int count = 0;
+    short int data[12]; // 声明一个int16类型的数组存储数据
+		
+		memcpy(temp, input, len);
+    // 查找包头的位置
+    start = strstr(temp, header);
+    if (start == NULL) {
+        LOG_I("无效的包头\n");
+        return 1;
+    }
+    // 定位到包头之后的位置
+    start += strlen(header);
+    // 查找包尾的位置
+    end = strstr(temp, footer);
+    if (end == NULL) {
+        LOG_I("无效的包尾\n");
+        return 1;
+    }
+    // 通过循环遍历并解析数据
+    token = strtok(start, delim);
+    while (token != NULL && token < end && count < 12) {
+        data[count] = (short int)strtol(token, NULL, 10);
+        token = strtok(NULL, delim);
+        count++;
+    }
+
+    // 打印转换后的数据
+    for (int i = 0; i < count; i++) {
+        LOG_I("data[%d]: %d", i, data[i]);
+    }
+    return 0;
+}
+void Uart2_Data_Processing() {
+
+    if(frame_2[uart_2_frame_id].status!=0) {   			//接收到数据后status=1;
+        frame_2[uart_frame_id].buffer[frame_2[uart_frame_id].length]='\0';
+        LOG_I("%s",(uint8_t*)frame_2[uart_frame_id].buffer);
+
+				Uart2_Data_Processing_URA196((char*)frame_2[uart_frame_id].buffer,frame_2[uart_frame_id].length);
+
+        frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
+    }
+}
+
+#endif
+
+#ifdef DYPA06
 uint16_t DYP_distance;
 
 //每接收成功一包处理一次数据  超声波测距
@@ -69,9 +144,9 @@ void Uart2_Data_Processing() {
         //HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
         if(frame_2[uart_2_frame_id].buffer[0] != 0xff) {
 
-        }else{
-						 check_DYP_time_out=0;
-				}
+        } else {
+            check_DYP_time_out=0;
+        }
 
         //LOG_HEX((uint8_t*)frame_2[uart_frame_id].buffer,frame_2[uart_frame_id].length);
         DYP_distance= (frame_2[uart_2_frame_id].buffer[1]<<8) +  (frame_2[uart_2_frame_id].buffer[2]);
@@ -113,53 +188,53 @@ void Check_DYP_distance_wait() {
 //    io_cfg_output(PA05);   //  超声波
 //    io_write_pin(PA05,1);
 //		io_pull_write(PA05,IO_PULL_DISABLE);
-		ls_uart2_init();
+    ls_uart2_init();
 
-		
-		HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断	
-    HAL_UART_Transmit(&UART2_Config,(uint8_t*)"123456789",10,10);   
-		
-		
-		
-		//1ms 循环周期
-		for(int i=0;i<200;i++){
-			Uart_2_Time_Even();				//串口2扫描
-			DELAY_US(1000);
-			if(frame_2[uart_2_frame_id].status!=0) {   			//接收到数据后status=1;
-        //HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
-        if(frame_2[uart_2_frame_id].buffer[0] != 0xff) {
-            car_val=0xFE;   //模块没有找到
-						LOG_I("DYP_NOT_error");
+
+    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+    HAL_UART_Transmit(&UART2_Config,(uint8_t*)"123456789",10,10);
+
+
+
+    //1ms 循环周期
+    for(int i=0; i<200; i++) {
+        Uart_2_Time_Even();				//串口2扫描
+        DELAY_US(1000);
+        if(frame_2[uart_2_frame_id].status!=0) {   			//接收到数据后status=1;
+            //HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
+            if(frame_2[uart_2_frame_id].buffer[0] != 0xff) {
+                car_val=0xFE;   //模块没有找到
+                LOG_I("DYP_NOT_error");
+            }
+            else {
+                DYP_distance= (frame_2[uart_2_frame_id].buffer[1]<<8) +  (frame_2[uart_2_frame_id].buffer[2]);
+                LOG_I("DYP_distance:%d",DYP_distance);
+                if(DYP_distance<=500) {
+                    car_val=0x01;
+                }
+                else {
+                    car_val=0xff;
+                }
+            }
+            frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
+            break;
         }
-				else{
-						DYP_distance= (frame_2[uart_2_frame_id].buffer[1]<<8) +  (frame_2[uart_2_frame_id].buffer[2]);
-						LOG_I("DYP_distance:%d",DYP_distance);
-						if(DYP_distance<=500) {
-								car_val=0x01;
-						}
-						else {
-								car_val=0xff;
-						}
-				}				
-        frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
-				break;
-			}
-			car_val=0x02;        //没有读到模块不存在
-		}
-		
+        car_val=0x02;        //没有读到模块不存在
+    }
+
 //	io_write_pin(PA05,0);
-//	io_cfg_disable(PA05);		
+//	io_cfg_disable(PA05);
 //	io_pull_write(PA05,IO_PULL_DOWN);
-				
-		HAL_UART_DeInit(&UART2_Config);
+
+    HAL_UART_DeInit(&UART2_Config);
     uart2_io_deinit();
-		io_cfg_disable(PA15);   
-		io_cfg_disable(PA14);
-		io_pull_write(PA15,IO_PULL_DOWN);
-		io_pull_write(PA14,IO_PULL_DOWN);
+    io_cfg_disable(PA15);
+    io_cfg_disable(PA14);
+    io_pull_write(PA15,IO_PULL_DOWN);
+    io_pull_write(PA14,IO_PULL_DOWN);
 }
 
-
+#endif
 
 
 void LED_Auto_close() {
@@ -240,7 +315,6 @@ void err_mode_function() {
         if(count>=65535) {
             count=51;
         }
-
         //电机未动作
         if(moro_task_flag==0) {
             if(hw_lock_status!=tag_lock_status ) {
@@ -252,9 +326,7 @@ void err_mode_function() {
             }
         }
     }
-
     if(lock_mode==0x02) {
-
         //	LOG_I("time_out:%d",time_out);
         if(hw_lock_status==tag_lock_status) {
             if(time_out>=hw_err_out_time*10  && count>=100) {
@@ -347,14 +419,14 @@ void err_mode_function() {
 
 void power_io_init() {
     io_cfg_output(PA05);   //  超声波
-    io_write_pin(PA05,0);
+    io_write_pin(PA05,1);
 
     io_cfg_output(SW_EN_1);   	//
     io_write_pin(SW_EN_1,0);
 
     io_cfg_output(SW_EN_2);   	//
     io_write_pin(SW_EN_2,0);
-							 
+
     io_cfg_input(SW_IN_1);   			//
     io_cfg_input(SW_IN_2);
     io_cfg_input(PA07);
@@ -382,17 +454,30 @@ void power_io_deinit() {
     io_cfg_disable(PB15);
     io_cfg_disable(PA07);
 }
+void User_io_Init() {
+    LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;
+    LSGPIOA->OT = 0;
+    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOB->MODE &= 0x3c00;  //3C00
+    LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+    LSGPIOB->OT = 0;
+    // LSGPIOB->PUPD = 0x2800;
+    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
+}
 
 
 void User_Print_Log() {
     static uint8_t last_hw_lock_status;    //红外检测位置状态
-		static uint8_t last_current_state;     //系统运行状态
+    static uint8_t last_current_state;     //系统运行状态
     static uint8_t last_lock_mode;         //锁状态？
-		
-		if(last_current_state!=machine.current_state) {
-				last_current_state=machine.current_state;			
-				LOG_I("current_state:%d",machine.current_state);		
-		}
+
+    if(last_current_state!=machine.current_state) {
+        last_current_state=machine.current_state;
+        LOG_I("current_state:%d",machine.current_state);
+    }
     if(last_hw_lock_status!=hw_lock_status) {
         last_hw_lock_status=hw_lock_status;
         LOG_I("OTP1:%d",lock_sw.opt1);
@@ -409,68 +494,83 @@ void User_Print_Log() {
 }
 //进入正常状态放倒模式
 void Enter_Power_Mode_NL(void) {
+    
+		ls_app_timer_init();
+		//builtin_timer_stop(user_event_timer_inst_0);   //开启定时器0
+		//builtin_timer_stop(user_event_timer_inst_1);   //开启定时器1
+		builtin_timer_stop(user_event_timer_inst_2);	   //关闭定时器2
+		
+		power_io_init();
+    tag_lock_status=POS_0;    //目标位置
 		LOG_I("NL\n");
 
-
-    io_cfg_output(PB13);   //PB09 config output
+//    io_cfg_output(PB13);   //PB09 config output
 //    io_write_pin(PB13,1);
 //		io_pull_write(PB13,IO_PULL_UP);
 
 }
 //进入正常状态立起模式
 void Enter_Power_Mode_NH(void) {
-			LOG_I("NH\n");
+		
+		ls_app_timer_init();
+		//builtin_timer_stop(user_event_timer_inst_0);   //开启定时器0
+		//builtin_timer_stop(user_event_timer_inst_1);   //开启定时器1
+		builtin_timer_stop(user_event_timer_inst_2);	   //关闭定时器2
+		
+    power_io_init();
+    tag_lock_status=POS_90;   //目标位置
+		LOG_I("NH\n");
 }
-void User_io_Init() {
-    LSGPIOA->MODE = 0;
-    LSGPIOA->IE = 0;
-    LSGPIOA->OE = 0;
-    LSGPIOA->OT = 0;
-    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
-    LSGPIOB->MODE &= 0x3c00;  //3C00
-    LSGPIOB->IE = 0;
-    LSGPIOB->OE = 0;
-    LSGPIOB->OT = 0;
-    // LSGPIOB->PUPD = 0x2800;
-    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
-}
-
-
-//低功耗立起
+//进入低功耗立起模式
 void Enter_Power_Mode_LH(void) {
+
+		ls_app_timer_init();
+		builtin_timer_stop(user_event_timer_inst_0);         //关闭定时器0
+		builtin_timer_stop(user_event_timer_inst_1);         //关闭定时器1
+		//builtin_timer_stop(user_event_timer_inst_2);	     //开启定时器2
+
+
+	  tag_lock_status=POS_90;   //目标位置
 		LOG_I("LH\n");
+//    gptimerb1_status_set(0);
+//    gptimerc1_status_set(0);
+//    User_io_Init();
 
-    gptimerb1_status_set(0);
-    gptimerc1_status_set(0);
-    User_io_Init();
+//    HAL_UART_DeInit(&UART1_Config);
+//    HAL_UART_DeInit(&UART2_Config);
+//    HAL_ADC_DeInit(&hadc);
+//    uart1_io_deinit();
+//    uart2_io_deinit();
+//
+//		io_cfg_output(SW_EN_1);   	//
+//    io_write_pin(SW_EN_1,1);
 
-    HAL_UART_DeInit(&UART1_Config);
-    HAL_UART_DeInit(&UART2_Config);
-    HAL_ADC_DeInit(&hadc);
-    uart1_io_deinit();
-    uart2_io_deinit();
-		
-		io_cfg_output(SW_EN_1);   	//
-    io_write_pin(SW_EN_1,1);
-
-    io_cfg_output(SW_EN_2);   		//
-    io_write_pin(SW_EN_2,1);
-		
-		io_cfg_input(SW_IN_1);   			//
-    io_cfg_input(SW_IN_2);		
+//    io_cfg_output(SW_EN_2);   		//
+//    io_write_pin(SW_EN_2,1);
+//
+//		io_cfg_input(SW_IN_1);   			//
+//    io_cfg_input(SW_IN_2);
 }
-//低功耗放倒
+//进入低功耗放倒模式
 void Enter_Power_Mode_LL(void) {
-		LOG_I("LL\n");
-    gptimerb1_status_set(0);
-    gptimerc1_status_set(0);
-    User_io_Init();
 
-    HAL_UART_DeInit(&UART1_Config);
-    HAL_UART_DeInit(&UART2_Config);
-		HAL_ADC_DeInit(&hadc);
-    uart1_io_deinit();
-    uart2_io_deinit();
+		ls_app_timer_init();
+		builtin_timer_stop(user_event_timer_inst_0);         //关闭定时器0
+		builtin_timer_stop(user_event_timer_inst_1);         //关闭定时器1
+		//builtin_timer_stop(user_event_timer_inst_2);	     //开启定时器2
+
+		tag_lock_status=POS_0;   //目标位置
+		LOG_I("LL\n");
+		
+//    gptimerb1_status_set(0);
+//    gptimerc1_status_set(0);
+//    User_io_Init();
+
+//    HAL_UART_DeInit(&UART1_Config);
+//    HAL_UART_DeInit(&UART2_Config);
+//		HAL_ADC_DeInit(&hadc);
+//    uart1_io_deinit();
+//    uart2_io_deinit();
 
 //    ls_uart2_init();
 //    ls_uart1_init();
@@ -480,49 +580,48 @@ void Enter_Power_Mode_LL(void) {
 
 //立 低功耗
 void state_handler_A(void) {
-	static uint16_t count;
-	count++;         
-			if(count%100==1){
-					check_sw_wait();      //10s测试一次红外
-			}
+    static uint16_t count;
+    count++;
+    if(count%100==1) {
+        check_sw_wait();      //10s测试一次红外
+    }
     //LOG_I("Processing state A\n");
 }
 
 //立 正常
 void state_handler_B(void) {
-		LED_Auto_close();
-		Moto_Task();              //电机任务
-		Test_Moto_Task();
-		Uart2_Data_Processing();  //超声波数据
-		Uart_Data_Processing();   //RS485数据处理
-		Buzzer_Task_100();
-		Check_DYP_distance();    //超声波发送
+    LED_Auto_close();
+    Moto_Task();              //电机任务
+    Test_Moto_Task();
+    Uart2_Data_Processing();  //超声波数据
+    Uart_Data_Processing();   //RS485数据处理
+    Buzzer_Task_100();
+		
 		auto_mode_function(USER_RUN);
-		err_mode_function();
-		if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
-		vbat_val=Get_ADC_value()*20/1000;
-    //LOG_I("Processing state B\n");
+    err_mode_function();
+    if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+    vbat_val=Get_ADC_value()*20/1000;
 }
 //倒 低功耗
 void state_handler_C(void) {
-		
     LOG_I("Processing state C\n");
 }
 
 //倒 正常
 void state_handler_D(void) {
-		LED_Auto_close();
-		Moto_Task();              //电机任务
-		Test_Moto_Task();
-		Uart2_Data_Processing();  //超声波数据
-		Uart_Data_Processing();   //RS485数据处理
-		Buzzer_Task_100();
-		Check_DYP_distance();    //超声波发送
-		auto_mode_function(USER_RUN);
-		err_mode_function();
-		if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
-		vbat_val=Get_ADC_value()*20/1000;
-    //LOG_I("Processing state C\n");
+    LED_Auto_close();
+    Moto_Task();              //电机任务
+    Test_Moto_Task();
+    Uart2_Data_Processing();  //超声波数据
+    Uart_Data_Processing();   //RS485数据处理
+    Buzzer_Task_100();
+		
+		Check_URA196();						//放倒状态下需要测量车俩状态
+
+    auto_mode_function(USER_RUN);
+    err_mode_function();
+    if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+    vbat_val=Get_ADC_value()*20/1000;
 }
 // 初始化状态机
 void init_state_machine(StateMachine *machine) {
@@ -530,107 +629,122 @@ void init_state_machine(StateMachine *machine) {
     machine->state_handler = state_handler_B;
 }
 
+//500ms 1ms 20ms 全在
 void transition(StateMachine *machine) {
-		static uint8_t last_current_state=0;
-		if(last_current_state!=machine->current_state) {
-				last_current_state=machine->current_state;							
-				switch (machine->current_state) {
+    static uint8_t last_current_state=0;
+    if(last_current_state!=machine->current_state) {
+        last_current_state=machine->current_state;
+        switch (machine->current_state) {
         case STATE_A:
             machine->current_state = STATE_A;
             machine->state_handler = state_handler_A;
-						machine->state_once_handler=Enter_Power_Mode_LH;	   //立 低功耗
+            machine->state_once_handler=Enter_Power_Mode_LH;	   //立 低功耗
             break;
         case STATE_B:
             machine->current_state = STATE_B;
             machine->state_handler = state_handler_B;
-						machine->state_once_handler=Enter_Power_Mode_NH;   //立 正常
+            machine->state_once_handler=Enter_Power_Mode_NH;   //立 正常
             break;
         case STATE_C:
             machine->current_state = STATE_C;
             machine->state_handler = state_handler_C;
-						machine->state_once_handler=Enter_Power_Mode_LL;		 //倒 低功耗				
+            machine->state_once_handler=Enter_Power_Mode_LL;		 //倒 低功耗
             break;
         case STATE_D:
             machine->current_state = STATE_D;
             machine->state_handler = state_handler_D;
-						machine->state_once_handler=Enter_Power_Mode_NL;		//倒 正常				
-            break;						
+            machine->state_once_handler=Enter_Power_Mode_NL;		//倒 正常
+            break;
         default:
             break;
+        }
+        machine->state_once_handler();  //运行一次
     }
-			 machine->state_once_handler();  //运行一次
-		}
 }
 
-void loop_task(){
+//ls_user_event_timer_cb_0		
+//ls_user_event_timer_cb_1
+//ls_user_event_timer_cb_2
+//0,1同时开，2不能和0，1同时开
 
-static uint8_t once_flag=0x00;
+void loop_task_normal_power() {
+    static uint8_t once_flag=0x00;
+    if(once_flag!=0xAA) {
+        once_flag=0xAA;
+        init_state_machine(&machine);
+    }
+    machine.state_handler(); // 处理当前状态
+    transition(&machine);    // 进行状态转换
+    User_Print_Log();
+}
 
-	if(once_flag!=0xAA){
-		once_flag=0xAA;
-		init_state_machine(&machine);
-	}
+void loop_task_lower_power() { 
+
+    transition(&machine);    // 进行状态转换
 		machine.state_handler(); // 处理当前状态
-		transition(&machine);    // 进行状态转换
 		User_Print_Log();
 }
 
 
+//所有的状态切换直接改machine->current_state = STATE_D;
+
+
+
 void loop_task_() {
-	
-	static uint16_t count;
-	count++;                              
+
+    static uint16_t count;
+    count++;
 
     User_Print_Log();
-		
+
     switch(user_status) {
-    
-		//立 低功耗
-		case 0 :
-			if(count%100==1){
-					check_sw_wait();      //10s测试一次红外
-			}
+
+    //立 低功耗
+    case 0 :
+        if(count%100==1) {
+            check_sw_wait();      //10s测试一次红外
+        }
         break;
 
-		//立 正常
+    //立 正常
     case 1 :
-			LED_Auto_close();
-			Moto_Task();              //电机任务
-			Test_Moto_Task();
-			Uart2_Data_Processing();  //超声波数据
-			Uart_Data_Processing();   //RS485数据处理
-			Buzzer_Task_100();
-			Check_DYP_distance();    //超声波发送
-			auto_mode_function(USER_RUN);
-			err_mode_function();
-			if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
-			vbat_val=Get_ADC_value()*20/1000;
-		
-        break;
-				
-		//倒 低功耗
-    case 2 :
-			if(count%100==1){
-					Check_DYP_distance_wait();   //10s测试一次超声波
-			}
+        LED_Auto_close();
+        Moto_Task();              //电机任务
+        Test_Moto_Task();
+        Uart2_Data_Processing();  //超声波数据
+        Uart_Data_Processing();   //RS485数据处理
+        Buzzer_Task_100();
+//			Check_DYP_distance();    //超声波发送
+        auto_mode_function(USER_RUN);
+        err_mode_function();
+        if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+        vbat_val=Get_ADC_value()*20/1000;
+
         break;
 
-		//倒 正常
-		case 3 :
-				LED_Auto_close();
-				Moto_Task();              //电机任务
-				Test_Moto_Task();
-				Uart2_Data_Processing();  //超声波数据
-				Uart_Data_Processing();   //RS485数据处理
-				Buzzer_Task_100();
-				Check_DYP_distance();    //超声波发送
-				auto_mode_function(USER_RUN);
-				err_mode_function();
-				if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
-				vbat_val=Get_ADC_value()*20/1000;
+    //倒 低功耗
+    case 2 :
+        if(count%100==1) {
+//					Check_DYP_distance_wait();   //10s测试一次超声波
+        }
+        break;
+
+    //倒 正常
+    case 3 :
+        LED_Auto_close();
+        Moto_Task();              //电机任务
+        Test_Moto_Task();
+        Uart2_Data_Processing();  //超声波数据
+        Uart_Data_Processing();   //RS485数据处理
+        Buzzer_Task_100();
+//				Check_DYP_distance();    //超声波发送
+        auto_mode_function(USER_RUN);
+        err_mode_function();
+        if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+        vbat_val=Get_ADC_value()*20/1000;
         break;
     }
-		
+
 
 //    User_Print_Log();
 //    LED_Auto_close();
@@ -648,11 +762,11 @@ void loop_task_() {
 
 }
 
- void ls_uart2_init(void)
+void ls_uart2_init(void)
 {
     uart2_io_init(PA15, PA14);
     io_pull_write(PA14, IO_PULL_UP);
-		
+
     io_pull_write(PA15, IO_PULL_DISABLE);
 
     UART2_Config.UARTX = UART2;
@@ -665,12 +779,12 @@ void loop_task_() {
 }
 
 
- void ls_uart1_init(void)
+void ls_uart1_init(void)
 {
     uart1_io_init(PA12, PA13);
     io_pull_write(PA13, IO_PULL_UP);
-		
-		io_pull_write(PA12, IO_PULL_DISABLE);
+
+    io_pull_write(PA12, IO_PULL_DISABLE);
 
 
     UART1_Config.UARTX = UART1;
@@ -833,8 +947,8 @@ void Read_Last_Data() {
 
 //蓝牙启动成功跑一次
 void User_BLE_Ready() {
-		
-		User_io_Init();
+
+    User_io_Init();
     Read_Last_Data();
     Buzzer_IO_Init();
     power_io_init();
@@ -862,8 +976,8 @@ void User_BLE_Ready() {
 
 ////////////////////////////////
 
-			user_status=0x01;
-		  builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+    user_status=0x01;
+    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 
     //		_NL
 }
