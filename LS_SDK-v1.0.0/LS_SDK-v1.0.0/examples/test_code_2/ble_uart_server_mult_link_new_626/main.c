@@ -253,10 +253,10 @@ static void start_scan(void);
 //	开启低功耗模式后按定时器周期唤醒
 void ls_app_timer_init(void)
 {
-    user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+    //user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     //builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 
-    user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+    //user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
     //builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 		
     user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
@@ -285,6 +285,7 @@ static void ls_user_event_timer_cb_0(void *param) {
 //20ms
 static void ls_user_event_timer_cb_1(void *param) {
 		builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+		
 		loop_task_normal_power();	
 		ls_uart_server_send_notification();   
 }
@@ -434,8 +435,8 @@ static void user_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
-        .adv_intv_min = 800,
-        .adv_intv_max = 800,
+        .adv_intv_min = 1600,
+        .adv_intv_max = 1600,
         .own_addr_type = PUBLIC_OR_RANDOM_STATIC_ADDR,
         .filter_policy = 0,
         .ch_map = 0x7,

@@ -309,10 +309,52 @@ __attribute((weak)) void check_and_sleep()
     {
         deep_sleep();
     }
-}
+}   
+	
+#include "log.h"
+
+extern struct peri_stat_env
+{
+    bool uart1;
+    bool uart2;
+    bool uart3;
+    bool spi1;
+    bool spi2;
+    bool i2c1;
+    bool i2c2;
+    bool adtimer1;
+    bool bstimer1;
+    bool gptimera1;
+    bool gptimerb1;
+    bool gptimerc1;
+    bool pdm;
+    bool dma;
+    bool crypt;
+    bool adc12b;
+    bool trng;
+    bool ecc;
+} peri_stat;
 
 void sleep_process()
-{
+{	
+//		LOG_I("uart1;%d",peri_stat.uart1);
+//		LOG_I("uart2;%d",peri_stat.uart2);
+//		LOG_I("uart3;%d",peri_stat.uart3);
+//		LOG_I("spi1;%d",peri_stat.spi1);
+//		LOG_I("spi2;%d",peri_stat.spi2);
+//		LOG_I("i2c1;%d",peri_stat.i2c1);
+//		LOG_I("i2c2;%d",peri_stat.i2c2);
+//		LOG_I("adtimer1;%d",peri_stat.adtimer1);
+//		LOG_I("bstimer1;%d",peri_stat.bstimer1);
+//		LOG_I("gptimera1;%d",peri_stat.gptimera1);
+//		LOG_I("gptimerb1;%d",peri_stat.gptimerb1);
+//		LOG_I("gptimerc1;%d",peri_stat.gptimerc1);
+//		LOG_I("pdm;%d",peri_stat.pdm);
+//		LOG_I("crypt;%d",peri_stat.crypt);
+//		LOG_I("adc12b;%d",peri_stat.adc12b);
+//		LOG_I("trng;%d",peri_stat.trng);
+//		LOG_I("ecc;%d",peri_stat.ecc);
+
     uint32_t cpu_stat = enter_critical();
     uart_log_pause();
     if((peri_status_busy() || app_event_status_busy())==false)

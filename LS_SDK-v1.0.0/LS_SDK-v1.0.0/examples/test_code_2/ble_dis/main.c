@@ -5,6 +5,9 @@
 #include "log.h"
 #include "ls_dbg.h"
 #include <string.h>
+#include "builtin_timer.h"
+#include "io_config.h"
+
 
 #define APP_DIS_DEV_NAME                ("LS Dis Server")
 #define APP_DIS_DEV_NAME_LEN            (sizeof(APP_DIS_DEV_NAME))
@@ -47,6 +50,70 @@
 /// PNP ID Value
 #define APP_DIS_PNP_ID                  ("\x02\x5E\x04\x40\x00\x00\x03")
 #define APP_DIS_PNP_ID_LEN              (7)
+
+
+
+
+
+ void ls_user_event_timer_cb_0(void *param);
+ void ls_user_event_timer_cb_0(void *param);
+
+struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
+struct builtin_timer_0 *user_event_timer_inst_1 = NULL;
+
+#define USER_EVENT_PERIOD_0 2000
+#define USER_EVENT_PERIOD_1 100
+
+
+void ls_app_timer_init(void)
+{
+    user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+		
+		user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_0);
+    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+}
+
+//loop_task_normal_power
+//loop_task_lower_power
+
+//100ms
+static void ls_user_event_timer_cb_0(void *param) {
+	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+	static int count;
+	count++;
+
+	 //30s关闭
+	if(count==300){
+			 	builtin_timer_stop(user_event_timer_inst_1);       //关闭定时器0
+	}
+	if(count==600){
+			builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+	}
+}
+static void ls_user_event_timer_cb_1(void *param) {
+	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+	static int count;
+	count++;
+	
+	if(count%2==0){
+		io_cfg_output(PA01);				//  
+		io_write_pin(PA01,1);
+	}
+	else if(count%2==1){
+		io_cfg_output(PA01);				//  
+		io_write_pin(PA01,0);	
+	}
+}
+
+
+
+
+
+
+
+
+
 
 static uint8_t adv_obj_hdl;
 static uint8_t advertising_data[28] = {11,0x08,'L','i','n','k','e','d','s','e','m','i'};;
@@ -236,6 +303,9 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         LOG_I("type:%d,addr:",type);
         LOG_HEX(addr,sizeof(addr));
         dev_manager_prf_dis_server_add(NO_SEC,0xffff);
+				
+				ls_app_timer_init();
+				
     }break;
     case SERVICE_ADDED:
 

@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>ble_dis</TargetName>
+      <TargetName>ble_uart_server_mult_link</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
@@ -49,7 +49,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\UVBuild\</OutputDirectory>
-          <OutputName>ble_dis</OutputName>
+          <OutputName>ble_uart_server_mult_link</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>LE501X</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..; ..\..\..\..\..; ..\..\..\..\..\peripheral\inc; ..\..\..\..\..\peripheral\api; ..\..\..\..\..\module\common; ..\..\..\..\..\module\calendar; ..\..\..\..\..\module\crc; ..\..\..\..\..\module\debug; ..\..\..\..\..\module\debug\RTT; ..\..\..\..\..\module\static_buffer; ..\..\..\..\..\module\tinyfs; ..\..\..\..\..\module\tinycrypt\lib\include; ..\..\..\..\..\module\micro-ecc; ..\..\..\..\..\module\adpcm; ..\..\..\..\..\module\ble; ..\..\..\..\..\module\ble\prf; ..\..\..\..\..\soc; ..\..\..\..\..\soc\arm_cm; ..\..\..\..\..\soc\arm_cm\cmsis; ..\..\..\..\..\soc\arm_cm\le501x; ..\..\..\..\..\soc\arm_cm\le501x\integration</IncludePath>
+              <IncludePath>..\..;..\..\..\..\..;..\..\..\..\..\peripheral\inc;..\..\..\..\..\peripheral\api;..\..\..\..\..\module\common;..\..\..\..\..\module\calendar;..\..\..\..\..\module\crc;..\..\..\..\..\module\debug;..\..\..\..\..\module\debug\RTT;..\..\..\..\..\module\static_buffer;..\..\..\..\..\module\tinyfs;..\..\..\..\..\module\tinycrypt\lib\include;..\..\..\..\..\module\micro-ecc;..\..\..\..\..\module\adpcm;..\..\..\..\..\module\ble;..\..\..\..\..\module\ble\prf;..\..\..\..\..\soc;..\..\..\..\..\soc\arm_cm;..\..\..\..\..\soc\arm_cm\cmsis;..\..\..\..\..\soc\arm_cm\le501x;..\..\..\..\..\soc\arm_cm\le501x\integration;..\..\user_bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1681,6 +1681,61 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>bsp</GroupName>
+          <Files>
+            <File>
+              <FileName>Buzzer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\Buzzer.c</FilePath>
+            </File>
+            <File>
+              <FileName>LED_RGB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\LED_RGB.c</FilePath>
+            </File>
+            <File>
+              <FileName>Moto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\Moto.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_function.c</FilePath>
+            </File>
+            <File>
+              <FileName>control_cmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\control_cmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_sw_check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_sw_check.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\user_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>md5..c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\user_bsp\md5..c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_uart_server_mult_link.map</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UVBuild\ble_uart_server_mult_link.map</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
@@ -1694,7 +1749,7 @@
   <LayerInfo>
     <Layers>
       <Layer>
-        <LayName>ble_dis</LayName>
+        <LayName>ble_uart_server_mult_link</LayName>
         <LayPrjMark>1</LayPrjMark>
       </Layer>
     </Layers>

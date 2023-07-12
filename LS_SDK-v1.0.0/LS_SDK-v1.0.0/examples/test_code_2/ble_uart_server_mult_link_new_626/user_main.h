@@ -69,9 +69,9 @@
 #include "lsiwdg.h"
 
 
-#define USER_EVENT_PERIOD_0 1		 	 	// 1ms
-#define USER_EVENT_PERIOD_1 100     	// 20ms
-#define USER_EVENT_PERIOD_2 500     // 500ms
+#define USER_EVENT_PERIOD_0 501		 	 	// 1ms
+#define USER_EVENT_PERIOD_1 502     	// 20ms
+#define USER_EVENT_PERIOD_2 100     // 500ms
 
 
 void ls_app_timer_init(void);
