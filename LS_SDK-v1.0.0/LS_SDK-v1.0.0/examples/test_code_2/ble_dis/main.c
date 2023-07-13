@@ -7,6 +7,7 @@
 #include <string.h>
 #include "builtin_timer.h"
 #include "io_config.h"
+#include "reg_lsgpio.h"
 
 
 #define APP_DIS_DEV_NAME                ("LS Dis Server")
@@ -56,10 +57,10 @@
 
 
  void ls_user_event_timer_cb_0(void *param);
- void ls_user_event_timer_cb_0(void *param);
+ void ls_user_event_timer_cb_1(void *param);
 
-struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
-struct builtin_timer_0 *user_event_timer_inst_1 = NULL;
+struct builtin_timer *user_event_timer_inst_0 = NULL;
+struct builtin_timer *user_event_timer_inst_1 = NULL;
 
 #define USER_EVENT_PERIOD_0 2000
 #define USER_EVENT_PERIOD_1 100
@@ -70,40 +71,50 @@ void ls_app_timer_init(void)
     user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 		
-		user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_0);
+		user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 }
 
 //loop_task_normal_power
 //loop_task_lower_power
 
-//100ms
+//2000ms
 static void ls_user_event_timer_cb_0(void *param) {
 	builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
-	static int count;
+	static int count=0;
 	count++;
+	
+	
+	DELAY_US(100*1000);
 
+
+
+LOG_I("count=%d",count);
 	 //30s关闭
-	if(count==300){
-			 	builtin_timer_stop(user_event_timer_inst_1);       //关闭定时器0
+	if(count==5){
+			 //	builtin_timer_stop(user_event_timer_inst_1);       //关闭定时器0
+				builtin_timer_delete(user_event_timer_inst_1);
 	}
-	if(count==600){
-			builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+	if(count==10){
+				user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 	}
+	
+	
 }
 static void ls_user_event_timer_cb_1(void *param) {
 	builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 	static int count;
 	count++;
 	
-	if(count%2==0){
-		io_cfg_output(PA01);				//  
-		io_write_pin(PA01,1);
-	}
-	else if(count%2==1){
-		io_cfg_output(PA01);				//  
-		io_write_pin(PA01,0);	
-	}
+//	if(count%2==0){
+//		io_cfg_output(PA01);				//  
+//		io_write_pin(PA01,1);
+//	}
+//	else if(count%2==1){
+//		io_cfg_output(PA01);				//  
+//		io_write_pin(PA01,0);	
+//	}
 }
 
 
@@ -282,6 +293,58 @@ static void prf_added_handler(struct profile_added_evt *evt)
     }
 }
 
+
+void User_io_Init() {
+    LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;
+    LSGPIOA->OT = 0;
+    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOB->MODE &= 0x3c00;  //3C00
+    LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+    LSGPIOB->OT = 0;
+    // LSGPIOB->PUPD = 0x2800;
+    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
+		
+		
+//		LSGPIOA->MODE = 0;
+//    LSGPIOA->IE = 0;
+//    LSGPIOA->OE = 0;
+//		
+//		//LSGPIOA->OT = 0X20;
+//    
+//		LSGPIOA->PUPD = 0;
+//    LSGPIOB->MODE &= 0x3c00;  //3C00
+//    LSGPIOB->IE = 0;
+//    LSGPIOB->OE = 0;
+//    LSGPIOB->PUPD = 0x2800;
+//		
+		
+   //io_set_pin(PC01);
+//    io_pull_write(PC01,IO_PULL_DISABLE);
+//    io_cfg_input(PC01);
+}
+
+
+//void io_init(void)
+//{
+//    RCC->AHBEN |= RCC_GPIOA_MASK | RCC_GPIOB_MASK | RCC_GPIOC_MASK;
+//    LSGPIOA->MODE = 0;
+//    LSGPIOA->IE = 0;
+//    LSGPIOA->OE = 0;
+//		
+//		//LSGPIOA->OT = 0X20;
+//    
+//		LSGPIOA->PUPD = 0;
+//    LSGPIOB->MODE &= 0x3c00;  //3C00
+//    LSGPIOB->IE = 0;
+//    LSGPIOB->OE = 0;
+//    LSGPIOB->PUPD = 0x2800;
+//    arm_cm_set_int_isr(EXTI_IRQn,EXTI_Handler);
+//    __NVIC_EnableIRQ(EXTI_IRQn);
+//}
+
 static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 {
     switch(type)
@@ -305,6 +368,11 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         dev_manager_prf_dis_server_add(NO_SEC,0xffff);
 				
 				ls_app_timer_init();
+				
+				User_io_Init();
+				
+				
+				
 				
     }break;
     case SERVICE_ADDED:
