@@ -157,9 +157,9 @@ void Check_URA196() {
 void Check_URA196_wait() {
     static uint16_t count;
 
-//    io_cfg_output(PA05);   //
-//    io_write_pin(PA05,1);
-//		io_pull_write(PA05,IO_PULL_DISABLE);
+    io_cfg_output(PA05);   //
+    io_write_pin(PA05,1);
+		io_pull_write(PA05,IO_PULL_DISABLE);
     ls_uart2_init();
     Uart_2_Time_Even();				//串口2扫描
 
@@ -394,7 +394,7 @@ void auto_mode_function(uint8_t mode) {
     }
 }
 
-//外力按压时的情况                                                                     4
+//外力按压时的情况
 void err_mode_function() {
 
     static uint16_t count;
@@ -622,12 +622,18 @@ void LL_io_init() {
     io_pull_write(SW_EN_2,IO_PULL_DOWN);  //电流检测 off
 		
 		LED_DeInit();		
-//		uart1_io_deinit();
-//		uart2_io_deinit();
+		uart1_io_deinit();
+		uart2_io_deinit();
 		HAL_UART_DeInit(&UART1_Config);
-//		HAL_UART_DeInit(&UART2_Config);
+		HAL_UART_DeInit(&UART2_Config);
 		Moto_IO_DeInit();
 		HAL_ADC_DeInit(&hadc);
+		
+		io_pull_write(PC01,IO_PULL_DISABLE);
+    io_cfg_input(PC01);
+
+		
+		
 //		uart3_io_deinit();		
 }
 
@@ -648,6 +654,10 @@ void User_io_Init() {
     LSGPIOB->OT = 0;
     // LSGPIOB->PUPD = 0x2800;
     LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
+		
+		
+		io_pull_write(PC01,IO_PULL_DISABLE);
+    io_cfg_input(PC01);
 }
 
 
@@ -678,62 +688,100 @@ void User_Print_Log() {
 //进入正常状态放倒模式
 void Enter_Power_Mode_NL(void) {
 		user_time_cont=0;
-		
-//    builtin_timer_stop(user_event_timer_inst_0);         //关闭定时器1
-//    builtin_timer_stop(user_event_timer_inst_1);	     //开启定时器2
-//    builtin_timer_stop(user_event_timer_inst_2);	     //开启定时器2
-//    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
-//    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 
+		//使用builtin_timer_stop暂停定时器不能进入低功耗模式 需使用builtin_timer_delete
+	
+		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
+
+		user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);  //开启定时器0
+		
+		user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);  //开启定时器1
 
     tag_lock_status=POS_0;    //目标位置
     LOG_I("NL\n");
 		
-		NL_io_init();
+		
+		LED_Init();
+    Moto_IO_Init();
+		ls_uart1_init();
+    ls_uart2_init();
+    User_ADC_Init();
+
+    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断	
 }
 //进入正常状态立起模式
 void Enter_Power_Mode_NH(void) {
     user_time_cont=0;
 
-//		builtin_timer_stop(user_event_timer_inst_0);       //关闭定时器0
-//    builtin_timer_stop(user_event_timer_inst_1);	     //开启定时器1
-//    builtin_timer_stop(user_event_timer_inst_2);	     //开启定时器2
+		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
 
-//    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
-//    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+		user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+    builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);  //开启定时器0
+		
+		user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+    builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);  //开启定时器1
 
     tag_lock_status=POS_90;   //目标位置
     LOG_I("NH\n");
 		LOG_I("tag_lock_status%d\n",tag_lock_status);
 		
-	  NH_io_init();
+		LED_Init();
+    Moto_IO_Init();
+		ls_uart1_init();
+    ls_uart2_init();
+    User_ADC_Init();
+
+    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
 }
 //进入低功耗立起模式
 void Enter_Power_Mode_LH(void) {
-//    builtin_timer_stop(user_event_timer_inst_0);       //关闭定时器0
-//    builtin_timer_stop(user_event_timer_inst_1);	     //开启定时器1
-//    builtin_timer_stop(user_event_timer_inst_2);	     //开启定时器2
-//    builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
+		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
 
+		user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
+    builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);  //开启定时器2
+		
     tag_lock_status=POS_90;   //目标位置
     LOG_I("LH\n");
     gap_manager_disconnect(user_conid, 0x13);    //蓝牙主动断连
 		
-		LH_io_init();
+		LED_DeInit();		
+		Moto_IO_DeInit();
+		HAL_UART_DeInit(&UART1_Config);
+		HAL_UART_DeInit(&UART2_Config);
+		HAL_ADC_DeInit(&hadc);
 }
 //进入低功耗放倒模式
 void Enter_Power_Mode_LL(void) {
-//    builtin_timer_stop(user_event_timer_inst_0);       //关闭定时器0
-//    builtin_timer_stop(user_event_timer_inst_1);	     //开启定时器1
-//    builtin_timer_stop(user_event_timer_inst_2);	     //开启定时器2
-    builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
+
+		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
+
+		user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
+    builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);  //开启定时器2
 
     tag_lock_status=POS_0;   //目标位置
     LOG_I("LL\n");
 
 		gap_manager_disconnect(user_conid, 0x13);    	//蓝牙主动断连
 
-		LL_io_init();
+
+
+		LED_DeInit();		
+		Moto_IO_DeInit();
+		HAL_UART_DeInit(&UART1_Config);
+		HAL_UART_DeInit(&UART2_Config);
+		HAL_ADC_DeInit(&hadc);
 }
 
 
@@ -1041,19 +1089,18 @@ void Read_Last_Data() {
 
 
 
+
 //蓝牙启动成功跑一次
 void User_BLE_Ready() {
 
-//    User_io_Init();
     Read_Last_Data();
     Buzzer_IO_Init();
-//    power_io_init();
+		
+		LED_Init();
     Moto_IO_Init();
-    LED_Init();
-
-    User_ADC_Init();
+		ls_uart1_init();
     ls_uart2_init();
-    ls_uart1_init();
+    User_ADC_Init();
 
     HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
     HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断

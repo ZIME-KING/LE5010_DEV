@@ -69,9 +69,9 @@
 #include "lsiwdg.h"
 
 
-#define USER_EVENT_PERIOD_0 501		 	 	// 1ms
-#define USER_EVENT_PERIOD_1 502     	// 20ms
-#define USER_EVENT_PERIOD_2 100     // 500ms
+#define USER_EVENT_PERIOD_0 1		 	 	// 1ms
+#define USER_EVENT_PERIOD_1 20     	// 20ms
+#define USER_EVENT_PERIOD_2 500     // 500ms
 
 
 void ls_app_timer_init(void);
@@ -80,9 +80,14 @@ void ls_user_event_timer_cb_0(void *param);
 void ls_user_event_timer_cb_1(void *param);
 void ls_user_event_timer_cb_2(void *param);
 
-extern struct builtin_timer_0 *user_event_timer_inst_0 ;
-extern struct builtin_timer_1 *user_event_timer_inst_1 ;
-extern struct builtin_timer_2 *user_event_timer_inst_2 ;
+extern struct builtin_timer *user_event_timer_inst_0 ;
+extern struct builtin_timer *user_event_timer_inst_1 ;
+extern struct builtin_timer *user_event_timer_inst_2 ;
+
+void ls_user_event_timer_cb_0(void *param);   //1ms
+void ls_user_event_timer_cb_1(void *param);   //20ms
+void ls_user_event_timer_cb_2(void *param);   //500ms
+
 
 extern uint8_t user_conid;
 

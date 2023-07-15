@@ -242,9 +242,9 @@ static void start_scan(void);
  void ls_user_event_timer_cb_2(void *param);
 
 
- struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
- struct builtin_timer_1 *user_event_timer_inst_1 = NULL;
- struct builtin_timer_2 *user_event_timer_inst_2 = NULL;
+ struct builtin_timer *user_event_timer_inst_0 = NULL;
+ struct builtin_timer *user_event_timer_inst_1 = NULL;
+ struct builtin_timer *user_event_timer_inst_2 = NULL;
 
 
 //	builtin_timer_0  1ms			正常模式运行
@@ -253,21 +253,18 @@ static void start_scan(void);
 //	开启低功耗模式后按定时器周期唤醒
 void ls_app_timer_init(void)
 {
-    //user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
+    user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     //builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 
-    //user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+    user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
     //builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 		
     user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
-   // builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
+    //builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
 }
 
-//loop_task_normal_power
-//loop_task_lower_power
-
 //1ms
-static void ls_user_event_timer_cb_0(void *param) {
+void ls_user_event_timer_cb_0(void *param) {
 		check_sw();  
 		LED_Functon();
 		Uart_2_Time_Even();
@@ -283,7 +280,7 @@ static void ls_user_event_timer_cb_0(void *param) {
 }
 
 //20ms
-static void ls_user_event_timer_cb_1(void *param) {
+void ls_user_event_timer_cb_1(void *param) {
 		builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 		
 		loop_task_normal_power();	
@@ -291,7 +288,7 @@ static void ls_user_event_timer_cb_1(void *param) {
 }
 
 //500ms
-static void ls_user_event_timer_cb_2(void *param) {
+void ls_user_event_timer_cb_2(void *param) {
 
 		builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
 		

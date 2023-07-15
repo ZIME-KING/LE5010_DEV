@@ -34,9 +34,12 @@ void save_timer_config(){
 	memcpy(&temp_time_val,LSGPTIMC, sizeof(temp_time_val));
 }
 
+void reset_timer_config(){
+	memcpy(&temp_time_val,LSGPTIMC, sizeof(temp_time_val));
+}
 static void M_Basic_PWM_Output_Cfg(void)
 {
-		//save_timer_config();
+		save_timer_config();
 
     TIM_OC_InitTypeDef sConfig = {0};
 
@@ -100,12 +103,11 @@ void Moto_IO_Init()
     M_TimHandle.Instance->CCR2=0;
 }
 
-//主要是关闭定时器
+//关闭定时器外设 同时恢复定时器默认值，不然开关定时器会卡死
 void Moto_IO_DeInit()
 {
+		reset_timer_config();
     HAL_TIM_DeInit(&M_TimHandle);
-
-	//memcpy(LSGPTIMC,&temp_time_val, sizeof(temp_time_val));   
 }
 
 

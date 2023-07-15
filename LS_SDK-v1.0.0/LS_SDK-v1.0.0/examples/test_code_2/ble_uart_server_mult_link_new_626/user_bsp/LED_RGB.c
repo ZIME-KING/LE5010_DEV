@@ -20,11 +20,16 @@ reg_timer_t temp_time_val_B;
 
 void save_timer_config_B(){
 	memcpy(&temp_time_val_B,LSGPTIMB, sizeof(temp_time_val_B));
-}
+}                
+void reset_timer_config_B(){
+	memcpy(LSGPTIMB,&temp_time_val_B, sizeof(temp_time_val_B));
+}                
+
+
 
 static void Basic_PWM_Output_Cfg(void)
 {
-		////save_timer_config_B();
+		save_timer_config_B();
 		TIM_OC_InitTypeDef sConfig = {0};
     gptimb1_ch1_io_init(PA10, true, 0);
     gptimb1_ch2_io_init(PA11, true, 0);
@@ -67,7 +72,7 @@ static void Basic_PWM_Output_Cfg(void)
     HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_3);
 
 
-   // HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_4);
+   //HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_4);
 }
 
 void LED_Init(void)
@@ -94,7 +99,8 @@ void LED_DeInit(void)
   io_cfg_disable (PB13);
   io_pull_write(PB13,IO_PULL_DOWN);
 
-	HAL_TIM_DeInit(&TimHandle);
+	reset_timer_config_B();
+	HAL_TIM_DeInit(&TimHandle);      //关闭定时器外设 同时恢复定时器默认值，不然开关定时器会卡死
 }
 
 

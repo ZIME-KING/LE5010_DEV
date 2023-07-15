@@ -321,9 +321,9 @@ void User_io_Init() {
 //    LSGPIOB->PUPD = 0x2800;
 //		
 		
-   //io_set_pin(PC01);
-//    io_pull_write(PC01,IO_PULL_DISABLE);
-//    io_cfg_input(PC01);
+		//io_set_pin(PC01);
+    io_pull_write(PC01,IO_PULL_DISABLE);
+    io_cfg_input(PC01);
 }
 
 
