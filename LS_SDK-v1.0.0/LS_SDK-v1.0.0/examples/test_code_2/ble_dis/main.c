@@ -96,8 +96,12 @@ LOG_I("count=%d",count);
 				builtin_timer_delete(user_event_timer_inst_1);
 	}
 	if(count==10){
-				user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
+		user_event_timer_inst_1 =builtin_timer_create(ls_user_event_timer_cb_1);
     builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
+	}
+	
+	if(count==15){
+		    builtin_timer_delete(user_event_timer_inst_0);
 	}
 	
 	

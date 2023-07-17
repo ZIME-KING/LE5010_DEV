@@ -22,7 +22,7 @@ uint8_t lock_success_flag=1;   //锁鉴权成功标记
 uint16_t first_rise_time=600;  //单位s
 uint16_t second_rise_time=30;  //单位s 
 uint8_t low_vbat_val=90;     	 //低电压报警值4.5V    
-uint8_t led_sleep_time=30;     //单位s
+uint8_t led_sleep_time=10;     //单位s
 
 uint32_t user_time_cont;       //无操作时间计数
 

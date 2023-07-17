@@ -111,11 +111,11 @@ enum uart_svc_att_db_handles
     UART_SVC_IDX_TX_VAL,
     UART_SVC_IDX_TX_NTF_CFG,
 		
-		UART_SVC_IDX_RX_CHAR_TEST,
-    UART_SVC_IDX_RX_VAL_TEST,
-    UART_SVC_IDX_TX_CHAR_TEST,
-    UART_SVC_IDX_TX_VAL_TEST,
-    UART_SVC_IDX_TX_NTF_CFG_TEST,
+//		UART_SVC_IDX_RX_CHAR_TEST,
+//    UART_SVC_IDX_RX_VAL_TEST,
+//    UART_SVC_IDX_TX_CHAR_TEST,
+//    UART_SVC_IDX_TX_VAL_TEST,
+//    UART_SVC_IDX_TX_NTF_CFG_TEST,
 		
     UART_SVC_ATT_NUM
 };
@@ -260,12 +260,15 @@ void ls_app_timer_init(void)
     //builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 		
     user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
-    //builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
+    builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
 }
 
 //1ms
 void ls_user_event_timer_cb_0(void *param) {
-		check_sw();  
+			
+		builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
+	
+	  check_sw();  
 		LED_Functon();
 		Uart_2_Time_Even();
 		Uart_Time_Even();
@@ -275,8 +278,6 @@ void ls_user_event_timer_cb_0(void *param) {
 		if(time_count%5000==0){
 					LOG_I("1ms");
 		}
-		
-		builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);
 }
 
 //20ms

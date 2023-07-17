@@ -159,17 +159,15 @@ void Check_URA196_wait() {
 
     io_cfg_output(PA05);   //
     io_write_pin(PA05,1);
-		io_pull_write(PA05,IO_PULL_DISABLE);
     ls_uart2_init();
-    Uart_2_Time_Even();				//串口2扫描
+    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+		Uart_2_Time_Even();				//串口2扫描
+	  DELAY_US(1000);
+		HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRSTATUS\r\n",strlen("AT+MRSTATUS\r\n"),10);
 
-//    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
-    HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRSTATUS\r\n",strlen("AT+MRSTATUS\r\n"),10);
-
-
-
+	//串口2扫描
     //1ms 循环周期
-    for(int i=0; i<500; i++) {
+    for(int i=0; i<100; i++) {
         Uart_2_Time_Even();				//串口2扫描
         DELAY_US(1000);
         if(frame_2[uart_2_frame_id].status!=0) {   			//接收到数据后status=1;
@@ -196,20 +194,12 @@ void Check_URA196_wait() {
             frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
             break;
         }
-				if(i==499)LOG_I("URA196_NO_FIND");
+				if(i==99)LOG_I("URA196_NO_FIND");
         car_val=0x02;        //没有读到模块不存在
     }
 
-//	io_write_pin(PA05,0);
-//	io_cfg_disable(PA05);
-//	io_pull_write(PA05,IO_PULL_DOWN);
-
     HAL_UART_DeInit(&UART2_Config);
     uart2_io_deinit();
-    io_cfg_disable(PA15);
-    io_cfg_disable(PA14);
-    io_pull_write(PA15,IO_PULL_DOWN);
-    io_pull_write(PA14,IO_PULL_DOWN);
 }
 
 #endif
@@ -319,7 +309,8 @@ void Check_DYP_distance_wait() {
 void Auto_close_sleep() {
     //if(LED_status==0x01) {
         user_time_cont++;
-        if(user_time_cont>=led_sleep_time*10) {
+				//LOG_I("user_time_cont %d",user_time_cont);
+        if(user_time_cont>=led_sleep_time*50) {    //led_sleep_time 单位s user_time_cont 20ms++
             LOG_I("Enter_LOW_Power_Mode");
             LED_status=0x02;
             if(tag_lock_status==POS_0) {
@@ -511,159 +502,10 @@ void err_mode_function() {
 
 
 
-//正常放倒
-void NL_io_init() {
-    io_cfg_output(PA05);				//  车辆测距
-    io_write_pin(PA05,1);
-
-    io_cfg_output(SW_EN_1);			//
-    io_write_pin(SW_EN_1,0);
-
-    io_cfg_output(SW_EN_2);   	//
-    io_write_pin(SW_EN_2,0);
-
-    io_cfg_input(SW_IN_1);			//
-    io_cfg_input(SW_IN_2);
-		
-		io_cfg_disable (PB02);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);   //rs485 off
-		
-		io_cfg_disable (PA08);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);  //电流检测 off
-		
-		
-		LED_Init();
-}
-void NH_io_init() {
-
-
-//		io_cfg_output(PA05);				//  车辆测距
-//    io_write_pin(PA05,1);
-
-
-    io_cfg_disable (PA05);
-    io_pull_write(PA05,IO_PULL_DOWN);
-
-    io_cfg_output(SW_EN_1);   	//
-    io_write_pin(SW_EN_1,0);
-
-    io_cfg_output(SW_EN_2);   	//
-    io_write_pin(SW_EN_2,0);
-
-    io_cfg_input(SW_IN_1);			//
-    io_cfg_input(SW_IN_2);
-		
-		
-				io_cfg_disable (PB02);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);   //rs485 off
-		
-		io_cfg_disable (PA08);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);  //电流检测 off
-		
-		LED_Init();
-}
-
-void LH_io_init() {
-
-    io_cfg_disable (PA05);
-    io_pull_write(PA05,IO_PULL_DOWN);
-		
-		
-//		io_cfg_output(PA05);				//  车辆测距
-//    io_write_pin(PA05,1);
-
-    io_cfg_output(SW_EN_1);   	//
-    io_write_pin(SW_EN_1,0);
-
-    io_cfg_output(SW_EN_2);   	//
-    io_write_pin(SW_EN_2,0);
-
-    io_cfg_input(SW_IN_1);			//
-    io_cfg_input(SW_IN_2);
-		
-		
-		
-		io_cfg_disable (PB02);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);   //rs485 off
-		
-		io_cfg_disable (PA08);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);  //电流检测 off
-				
-		LED_DeInit();
-}
-
-void LL_io_init() {
-
-//    io_cfg_disable (PA05);
-//    io_pull_write(PA05,IO_PULL_DOWN);
-
-//User_io_Init();
-
-
-    io_cfg_output(PA05);				//  车辆测距
-    io_write_pin(PA05,1);
-
-
-    io_cfg_disable (SW_EN_1);
-    io_pull_write(SW_EN_1,IO_PULL_DOWN);
-
-    io_cfg_disable (SW_EN_2);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);
-
-    io_cfg_disable(SW_IN_1);   			//
-    io_cfg_disable(SW_IN_2);
-		
-		
-		
-		io_cfg_disable (PB02);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);   //rs485 off
-		
-		io_cfg_disable (PA08);
-    io_pull_write(SW_EN_2,IO_PULL_DOWN);  //电流检测 off
-		
-		LED_DeInit();		
-		uart1_io_deinit();
-		uart2_io_deinit();
-		HAL_UART_DeInit(&UART1_Config);
-		HAL_UART_DeInit(&UART2_Config);
-		Moto_IO_DeInit();
-		HAL_ADC_DeInit(&hadc);
-		
-		io_pull_write(PC01,IO_PULL_DISABLE);
-    io_cfg_input(PC01);
-
-		
-		
-//		uart3_io_deinit();		
-}
-
-
-
-
-
-
-void User_io_Init() {
-    LSGPIOA->MODE = 0;
-    LSGPIOA->IE = 0;
-    LSGPIOA->OE = 0;
-    LSGPIOA->OT = 0;
-    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
-    LSGPIOB->MODE &= 0x3c00;  //3C00
-    LSGPIOB->IE = 0;
-    LSGPIOB->OE = 0;
-    LSGPIOB->OT = 0;
-    // LSGPIOB->PUPD = 0x2800;
-    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
-		
-		
-		io_pull_write(PC01,IO_PULL_DISABLE);
-    io_cfg_input(PC01);
-}
-
 
 void User_Print_Log() {
     static uint8_t last_hw_lock_status;    //红外检测位置状态
-    static uint8_t last_current_state;     //系统运行状态
+//    static uint8_t last_current_state;     //系统运行状态
     static uint8_t last_lock_mode;         //锁状态？
 
 //    if(last_current_state!=machine.current_state) {
@@ -690,10 +532,19 @@ void Enter_Power_Mode_NL(void) {
 		user_time_cont=0;
 
 		//使用builtin_timer_stop暂停定时器不能进入低功耗模式 需使用builtin_timer_delete
-	
-		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
-		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
-		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
+
+		if(user_event_timer_inst_0!=NULL){
+					builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+					//user_event_timer_inst_0 = NULL;
+		}
+		if(user_event_timer_inst_1!=NULL){
+					builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+					//user_event_timer_inst_1 = NULL;
+		}
+		if(user_event_timer_inst_2!=NULL){
+					builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
+					//user_event_timer_inst_2 = NULL;
+		}
 
 		user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);  //开启定时器0
@@ -705,23 +556,37 @@ void Enter_Power_Mode_NL(void) {
     LOG_I("NL\n");
 		
 		
+	    Buzzer_IO_Init();
 		LED_Init();
     Moto_IO_Init();
 		ls_uart1_init();
     ls_uart2_init();
     User_ADC_Init();
+		SW_IO_Init();
 
     HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
-    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断	
+    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
+		
+		io_cfg_output(PA05);				//  车辆测距
+    io_write_pin(PA05,1);
 }
 //进入正常状态立起模式
 void Enter_Power_Mode_NH(void) {
     user_time_cont=0;
 
-		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
-		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
-		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
-
+		if(user_event_timer_inst_0!=NULL){
+					builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+					user_event_timer_inst_0 = NULL;
+		}
+		if(user_event_timer_inst_1!=NULL){
+					builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+					user_event_timer_inst_1 = NULL;
+		}
+		if(user_event_timer_inst_2!=NULL){
+					builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
+					user_event_timer_inst_2 = NULL;
+		}
+		
 		user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     builtin_timer_start(user_event_timer_inst_0, USER_EVENT_PERIOD_0, NULL);  //开启定时器0
 		
@@ -743,45 +608,75 @@ void Enter_Power_Mode_NH(void) {
 }
 //进入低功耗立起模式
 void Enter_Power_Mode_LH(void) {
-		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
-		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
-		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
-
+//			ls_app_timer_init();	
+	
+		if(user_event_timer_inst_0!=NULL){
+					builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+					user_event_timer_inst_0 = NULL;
+		}
+		if(user_event_timer_inst_1!=NULL){
+					builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+					user_event_timer_inst_1 = NULL;
+		}
+		if(user_event_timer_inst_2!=NULL){
+					builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
+					user_event_timer_inst_2 = NULL;
+		}
+		
+		
 		user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
     builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);  //开启定时器2
-		
+	
     tag_lock_status=POS_90;   //目标位置
     LOG_I("LH\n");
-    gap_manager_disconnect(user_conid, 0x13);    //蓝牙主动断连
 		
+    gap_manager_disconnect(user_conid, 0x13);    //蓝牙主动断连		
 		LED_DeInit();		
 		Moto_IO_DeInit();
 		HAL_UART_DeInit(&UART1_Config);
 		HAL_UART_DeInit(&UART2_Config);
+		uart1_io_deinit();
+		uart2_io_deinit();
+
 		HAL_ADC_DeInit(&hadc);
+		//SW_IO_Deinit();           //低功耗立起模式红外以阻塞方式操作io可以不用初始化
 }
 //进入低功耗放倒模式
 void Enter_Power_Mode_LL(void) {
-
-		builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
-		builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
-		builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
-
-		user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
+	
+//	ls_app_timer_init();
+	
+	
+		if(user_event_timer_inst_0!=NULL){
+					builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
+					//user_event_timer_inst_0 = NULL;
+		}
+		if(user_event_timer_inst_1!=NULL){
+					builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
+					//user_event_timer_inst_1 = NULL;
+		}
+		if(user_event_timer_inst_2!=NULL){
+					builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
+					//user_event_timer_inst_2 = NULL;
+		}
+	//	user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
     builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);  //开启定时器2
 
     tag_lock_status=POS_0;   //目标位置
     LOG_I("LL\n");
 
 		gap_manager_disconnect(user_conid, 0x13);    	//蓝牙主动断连
-
-
-
 		LED_DeInit();		
 		Moto_IO_DeInit();
 		HAL_UART_DeInit(&UART1_Config);
 		HAL_UART_DeInit(&UART2_Config);
+		uart1_io_deinit();
+		uart2_io_deinit();
 		HAL_ADC_DeInit(&hadc);
+		SW_IO_Deinit();
+	
+		io_cfg_output(PA05);				//  车辆测距
+    io_write_pin(PA05,1);
 }
 
 
@@ -844,6 +739,9 @@ void Init_UAR196(){
 			}
 		}
 }
+
+//1ms定时器任务在mian.c中定义
+//20ms
 void loop_task_normal_power() {
 
     static uint16_t time_count;
@@ -853,7 +751,6 @@ void loop_task_normal_power() {
     if(time_count%100==0) {
         LOG_I("20ms");
     }
-
     Auto_close_sleep();
     Moto_Task();              //电机任务
     Test_Moto_Task();
@@ -874,35 +771,31 @@ void loop_task_normal_power() {
     }
     if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
     vbat_val=Get_ADC_value()*20/1000;
-
     User_Print_Log();
-//		LOG_I("20ms");
-
 }
 
-//500ms
+//1000ms
 void loop_task_lower_power() {
     static uint16_t time_count;
-    time_count++;
-    if(time_count%10==0) {
-        LOG_I("500ms");
-    }
+    time_count++;       
+		LOG_I("1s");
+	
     if(tag_lock_status==POS_0) {
         Check_URA196_wait();			 	
-				for(uint8_t i=0;i<25;i++){         //25*20ms =500ms
+				for(uint8_t i=0;i<50;i++){         //25*20ms =1000ms
 					auto_mode_function(USER_RUN);    // 自动升起auto_mode_function 同步普通模式是20ms定时器 
 				}
 				if(tag_lock_status!=POS_0){
-//					 Enter_Power_Mode_NH();
+					 Enter_Power_Mode_NH();
 				}
     }
-//    else if(tag_lock_status==POS_90) {
-//        check_sw_wait();							//
-//        //立起的低功耗状态下,通过红外判断破坏的操作进入正常模式 立起转态
-//        if(hw_lock_status!=tag_lock_status) {
-//            Enter_Power_Mode_NH();
-//        }
-//    }
+    else if(tag_lock_status==POS_90) {
+        check_sw_wait();							//
+        //立起的低功耗状态下,通过红外判断破坏的操作进入正常模式 立起转态
+        if(hw_lock_status!=tag_lock_status) {
+            Enter_Power_Mode_NH();
+        }
+    }
     User_Print_Log();
 }
 
@@ -1092,20 +985,21 @@ void Read_Last_Data() {
 
 //蓝牙启动成功跑一次
 void User_BLE_Ready() {
-
     Read_Last_Data();
+	
+	
     Buzzer_IO_Init();
-		
 		LED_Init();
     Moto_IO_Init();
 		ls_uart1_init();
     ls_uart2_init();
     User_ADC_Init();
+		SW_IO_Init();
 
     HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
     HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
 
-    //HAL_IWDG_Init(32756*1);  	 //5s看门狗
+    //HAL_IWDG_Init(32756*1);  	5s看门狗
 
     tag_lock_status=POS_90;
     hw_lock_status= POS_90;
@@ -1120,7 +1014,9 @@ void User_BLE_Ready() {
 
 ////////////////////////////////
 		
-		Enter_Power_Mode_LL();
+	//	Enter_Power_Mode_LL();
+		Enter_Power_Mode_NL();
+	//  Enter_Power_Mode_LH();
 
 
 

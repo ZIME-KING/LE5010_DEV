@@ -77,14 +77,14 @@ static uint8_t count;
 void	check_sw_wait(){ 
 //static uint8_t count;
 //			count++;
-//		io_cfg_output(SW_EN_1);   	//
-//    io_write_pin(SW_EN_1,1);
+		io_cfg_output(SW_EN_1);   	//
+    io_write_pin(SW_EN_1,1);
 
-//    io_cfg_output(SW_EN_2);   	//
-//    io_write_pin(SW_EN_2,1);
-//		
-//		io_cfg_input(SW_IN_1);   			//
-//    io_cfg_input(SW_IN_2);
+    io_cfg_output(SW_EN_2);   	//
+    io_write_pin(SW_EN_2,1);
+		
+		io_cfg_input(SW_IN_1);   			//
+    io_cfg_input(SW_IN_2);
 		
 			
 			io_write_pin(SW_EN_1,1);  
@@ -99,7 +99,27 @@ void	check_sw_wait(){
 }
 
 
+void	SW_IO_Init(){
+		io_cfg_output(SW_EN_1);   	//
+    io_write_pin(SW_EN_1,1);
 
+    io_cfg_output(SW_EN_2);   	//
+    io_write_pin(SW_EN_2,1);
+		
+		io_cfg_input(SW_IN_1);   			//
+    io_cfg_input(SW_IN_2);		
+}
+
+void	SW_IO_Deinit(){
+		io_cfg_output(SW_EN_1);   	//
+    io_write_pin(SW_EN_1,0);
+
+    io_cfg_output(SW_EN_2);   	//
+    io_write_pin(SW_EN_2,0);
+//		
+		io_cfg_input(SW_IN_1);   			//
+    io_cfg_input(SW_IN_2);			
+}
 
 
 

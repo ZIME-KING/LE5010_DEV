@@ -97,8 +97,8 @@ void  User_ADC_Init(){
 }
 
 uint16_t Get_ADC_value(){
-		static uint16_t mV;
-		static uint16_t temp_V;
+		static uint16_t mV=0;
+		static uint16_t temp_V=0;
 		if(recv_flag >= 2) 
 		{
             recv_flag = 0;

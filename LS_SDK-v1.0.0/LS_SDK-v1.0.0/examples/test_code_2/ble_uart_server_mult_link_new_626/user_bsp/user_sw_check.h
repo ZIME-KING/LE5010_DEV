@@ -26,7 +26,9 @@ bool opt3;
 }SW_TypeDef;
 
 extern SW_TypeDef lock_sw;
-void	check_sw(void);
-void	check_sw_(void);
-void	check_sw_wait(void) ;
+void check_sw(void);
+void check_sw_(void);
+void check_sw_wait(void) ;
+void SW_IO_Init(void);
+void SW_IO_Deinit(void);
 #endif

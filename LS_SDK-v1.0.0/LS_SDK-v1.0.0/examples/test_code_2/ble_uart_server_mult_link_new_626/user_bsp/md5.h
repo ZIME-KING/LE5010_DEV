@@ -57,3 +57,4 @@ void cavan_md5_init_context(struct cavan_sha_context *context);
 void cavan_sha1_context_init(struct cavan_sha_context *context);
 
 #endif
+

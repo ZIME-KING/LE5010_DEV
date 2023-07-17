@@ -71,7 +71,7 @@
 
 #define USER_EVENT_PERIOD_0 1		 	 	// 1ms
 #define USER_EVENT_PERIOD_1 20     	// 20ms
-#define USER_EVENT_PERIOD_2 500     // 500ms
+#define USER_EVENT_PERIOD_2 1000    // 1s
 
 
 void ls_app_timer_init(void);
@@ -86,7 +86,9 @@ extern struct builtin_timer *user_event_timer_inst_2 ;
 
 void ls_user_event_timer_cb_0(void *param);   //1ms
 void ls_user_event_timer_cb_1(void *param);   //20ms
-void ls_user_event_timer_cb_2(void *param);   //500ms
+void ls_user_event_timer_cb_2(void *param);   //1000ms
+
+void ls_app_timer_init(void);
 
 
 extern uint8_t user_conid;
