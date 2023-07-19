@@ -33,6 +33,9 @@ extern uint8_t hw_err_buzzer_off_time;      //音效
 extern uint8_t  led_sleep_time;     					//单位s
 extern uint32_t user_time_cont;       			  //无操作时间计数
 
+extern uint8_t  send_buf[64];
+
 uint8_t* CMD_Processing(uint8_t *p,uint16_t length);
+
 
 #endif

@@ -29,7 +29,11 @@ void reset_timer_config_B(){
 
 static void Basic_PWM_Output_Cfg(void)
 {
-		save_timer_config_B();
+		static uint8_t once_flag=0;
+		if(once_flag!=0xAA){
+					 once_flag=0xAA;
+					save_timer_config_B();					//保存定时器初始值
+		}
 		TIM_OC_InitTypeDef sConfig = {0};
     gptimb1_ch1_io_init(PA10, true, 0);
     gptimb1_ch2_io_init(PA11, true, 0);
@@ -77,20 +81,24 @@ static void Basic_PWM_Output_Cfg(void)
 
 void LED_Init(void)
 {
-    static uint8_t once_flag=0;
+//    static uint8_t once_flag=0;
 
     io_cfg_output(PB13);   //PB09 config output
     io_write_pin(PB13,1);
-		io_pull_write(PB13,IO_PULL_UP);
-  
+		io_pull_write(PB13,IO_PULL_DISABLE);		
+//		io_pull_write(PB13,IO_PULL_UP); 
     Basic_PWM_Output_Cfg();
+		
+		
+		
+		
 
-    if(once_flag!=0xAA) {
-        once_flag=0xAA;
-        TimHandle.Instance->CCR1=10;
-        TimHandle.Instance->CCR2=20;
-        TimHandle.Instance->CCR3=30;
-    }
+//    if(once_flag!=0xAA) {
+//        once_flag=0xAA;
+//        TimHandle.Instance->CCR1=10;
+//        TimHandle.Instance->CCR2=20;
+//        TimHandle.Instance->CCR3=30;
+//    }
 }
 
 void LED_DeInit(void)
@@ -126,6 +134,8 @@ uint8_t buf[3]= {0x00,0x00,0x00};
 
 uint8_t max_brightness=0xff;
 uint8_t min_brightness=0x00;
+uint8_t now_brightness=0x00;
+
 
 void Set_LED_Function_val(uint8_t status,
                           uint8_t r,uint8_t g,uint8_t b,
@@ -164,6 +174,16 @@ void LED_Functon() {
     static uint16_t temp=1;
     count++;
 
+		if(TimHandle.State!=HAL_TIM_STATE_READY){
+				LOG_I("LED_Tim_NO_Init");
+			return;
+		}
+		
+		
+	//	LOG_I("sr=%d,sg=%d,sb=%d,nr=%d,ng=%d,nb=%d,",set_r,set_g,set_b,now_r,now_g,now_b);
+		
+		
+
     if(LED_status==0x01) {
         TimHandle.Instance->CCR1=now_g;
         TimHandle.Instance->CCR2=now_r;
@@ -180,33 +200,25 @@ void LED_Functon() {
 
     switch(mode_flag) {
     case 0:
-        set_r= buf[0]*max_brightness/256;
-        set_g= buf[1]*max_brightness/256;
-        set_b= buf[2]*max_brightness/256;
+        set_r= buf[0];//*max_brightness/256;
+        set_g= buf[1];//*max_brightness/256;
+        set_b= buf[2];//*max_brightness/256;
         time=set_t0*100/(max_brightness-min_brightness);     //T0为协议输入值 单位100ms
         if(count%time==0) {
-            temp=0;
-            if(now_r<set_r) {
-                now_r++;
-                temp++;
-            }
-            if(now_g<set_g) {
-                now_g++;
-                temp++;
-            }
-            if(now_b<set_b) {
-                now_b++;
-                temp++;
-            }
-            if(temp==0) {
-                mode_flag=1;
-            }
+						 now_brightness++;					 
+						 now_r=  set_r*now_brightness/256;
+						 now_g=  set_g*now_brightness/256;
+						 now_b=  set_b*now_brightness/256;						 
+						 if(now_brightness>=max_brightness){
+								mode_flag=1;
+						 }
+          
         }
         break;
     case 1:
-        set_r= buf[0]*max_brightness/256;
-        set_g= buf[1]*max_brightness/256;
-        set_b= buf[2]*max_brightness/256;
+        set_r= buf[0];//*max_brightness/256;
+        set_g= buf[1];//*max_brightness/256;
+        set_b= buf[2];//*max_brightness/256;
         count_T1++;
         if(count_T1>=set_t1*100) {
             mode_flag=2;
@@ -214,29 +226,19 @@ void LED_Functon() {
         }
         break;
     case 2:
-        set_r= buf[0]*min_brightness/256;
-        set_g= buf[1]*min_brightness/256;
-        set_b= buf[2]*min_brightness/256;
+        set_r= buf[0];//*max_brightness/256;
+        set_g= buf[1];//*max_brightness/256;
+        set_b= buf[2];//*max_brightness/256;
         time=set_t2*100/(max_brightness-min_brightness);     //T0为协议输入值 单位100ms
-
-        if(count%time==0) {
-            temp=0;
-            if(now_r>set_r) {
-                now_r--;
-                temp++;
-            }
-            if(now_g>set_g) {
-                now_g--;
-                temp++;
-            }
-            if(now_b>set_b) {
-                now_b--;
-                temp++;
-            }
-            if(temp==0) {
-                mode_flag=3;
-            }
-        }
+					 if(count%time==0) {
+						 now_brightness--;					 
+						 now_r=  set_r*now_brightness/256;
+						 now_g=  set_g*now_brightness/256;
+						 now_b=  set_b*now_brightness/256;						 
+						 if(now_brightness<=min_brightness){
+								mode_flag=3;
+						 }						 
+						}
         break;
 
     case 3:

@@ -19,7 +19,7 @@ uint8_t test_moro_task_flag=0;
 ///////////////////////////////////////////
 
 
-#define TIM_PRESCALER     (SDK_HCLK_MHZ-1)
+#define TIM_PRESCALER     (SDK_HCLK_MHZ-1)*10
 #define TIM_PERIOD        (0xff - 1) /* Period Value  */
 #define TIM_PULSE1        100       /* Capture Compare 1 Value  */
 #define TIM_PULSE2        100       /* Capture Compare 2 Value  */
@@ -39,7 +39,11 @@ void reset_timer_config(){
 }
 static void M_Basic_PWM_Output_Cfg(void)
 {
-		save_timer_config();
+	 	static uint8_t once_flag=0;
+		if(once_flag!=0xAA){
+					once_flag=0xAA;
+					save_timer_config();					//保存定时器初始值
+		}
 
     TIM_OC_InitTypeDef sConfig = {0};
 
@@ -85,22 +89,20 @@ static void M_Basic_PWM_Output_Cfg(void)
 
 void Moto_IO_Init()
 {
-//    io_cfg_output(PB03);   //PB09 config output
-//    io_write_pin(PB03,0);
-//    io_cfg_output(PB04);   //PB10 config output
-//    io_write_pin(PB04,0);  //PB10 write low power
-
-//    io_cfg_output(PC01);   //
-//    io_write_pin(PC01,0);  // PC01 jw3651 NE使能 高有效
-//	
-//	
-//	    io_cfg_output(PB13);   //PB09 config output
-//    io_write_pin(PB13,1);
-
+    
+		io_pull_write(PB03,IO_PULL_DISABLE);
+		io_pull_write(PB04,IO_PULL_DISABLE);		
+		io_cfg_output(PB03);   // config output
+    io_write_pin(PB03,0);
+    io_cfg_output(PB04);   // config output
+    io_write_pin(PB04,0);  // write low power
+		
+		
     M_Basic_PWM_Output_Cfg();
-
-    M_TimHandle.Instance->CCR1=0;
+		
+		M_TimHandle.Instance->CCR1=0;
     M_TimHandle.Instance->CCR2=0;
+		
 }
 
 //关闭定时器外设 同时恢复定时器默认值，不然开关定时器会卡死
@@ -108,6 +110,14 @@ void Moto_IO_DeInit()
 {
 		reset_timer_config();
     HAL_TIM_DeInit(&M_TimHandle);
+		
+		
+		io_pull_write(PB03,IO_PULL_DOWN);
+		io_pull_write(PB04,IO_PULL_DOWN);		
+		io_cfg_output(PB03);   // config output
+    io_write_pin(PB03,0);
+    io_cfg_output(PB04);   // config output
+    io_write_pin(PB04,0);  // write low power
 }
 
 
@@ -115,7 +125,7 @@ void Moto_N() {
 
 //    io_write_pin(PB03,1);
 //    io_write_pin(PB04,0);	
-	  M_TimHandle.Instance->CCR1=254;
+	  M_TimHandle.Instance->CCR1=255;
     M_TimHandle.Instance->CCR2=0;
 
 #ifdef TEST_DEBUG
@@ -128,7 +138,7 @@ void Moto_P() {
 //    io_write_pin(PB03,0);
 //    io_write_pin(PB04,1);
 	  M_TimHandle.Instance->CCR1=0;
-    M_TimHandle.Instance->CCR2=254;
+    M_TimHandle.Instance->CCR2=255;
 
 
 #ifdef TEST_DEBUG
@@ -142,8 +152,8 @@ void Moto_S() {
 //    io_write_pin(PB03,1);
 //    io_write_pin(PB04,1);
 
-	    M_TimHandle.Instance->CCR1=254;
-      M_TimHandle.Instance->CCR2=254;
+	    M_TimHandle.Instance->CCR1=255;
+      M_TimHandle.Instance->CCR2=255;
 	
 
 #ifdef TEST_DEBUG
@@ -174,6 +184,11 @@ void Moto_Task() {
 
     static uint8_t offset_time=0;
 
+
+		if(M_TimHandle.State!=HAL_TIM_STATE_READY){
+				LOG_I("moto_Tim_NO_Init");
+			return;
+		}
 
     //check_sw();
     if(moro_task_flag==1) {
@@ -245,6 +260,13 @@ void Moto_Task() {
 void Test_Moto_Task() {
 
     static uint16_t count;
+
+		
+		if(M_TimHandle.State!=HAL_TIM_STATE_READY){
+				LOG_I("moto_Tim_NO_Init");
+			return;
+		}
+
 
     if(test_moro_task_flag!=0) {
         count++;

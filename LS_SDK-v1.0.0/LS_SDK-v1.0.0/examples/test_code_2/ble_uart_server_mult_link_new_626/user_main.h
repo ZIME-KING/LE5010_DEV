@@ -93,7 +93,7 @@ void ls_app_timer_init(void);
 
 extern uint8_t user_conid;
 
-
+extern uint8_t user_ble_send_flag;
 
 
 

@@ -17,7 +17,7 @@ uint8_t ble_close_atc_flag; //
 uint8_t err_val=0x00; //
 uint8_t vbat_val=0xff;
 uint8_t car_val;
-uint8_t lock_success_flag=1;   //锁鉴权成功标记
+uint8_t lock_success_flag=0;   //锁鉴权成功标记
 
 uint16_t first_rise_time=600;  //单位s
 uint16_t second_rise_time=30;  //单位s 
@@ -38,10 +38,12 @@ uint8_t hw_err_buzzer_off_time=0;      //音效
 
 //收到命令处理
 //传入接收到的命令数据buf
+
+uint8_t send_buf[64];
+
 uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
 //uint8_t len;
-
-    static uint8_t send_buf[64];
+//    static uint8_t send_buf[64];
     uint16_t temp;
     uint16_t *p1;
     uint8_t err_val=0x00;
@@ -192,6 +194,10 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
             send_buf[4]= hw_lock_status;    //检测开关状态
             send_buf[5]= vbat_val;          //电量
             send_buf[6]= vbat_val=0xff;;    //报警电量
+						
+						
+						if( tag_lock_status==POS_90) car_val=0x01;
+						
             send_buf[7]= car_val;     			//是否有车
 						
 						//send_buf[8]= DYP_distance;      //超声波距离
@@ -521,14 +527,14 @@ uint8_t* CMD_Processing(uint8_t *p,uint16_t length) {
 						
 						
 						
-						case 0x15:  //设置LED休眠时间
-            if(length==2 && lock_success_flag==1) {
-               // led_sleep_time=*(p+2);
-								
+						case 0x15:  //毫米波校准
+            if(length==2 && lock_success_flag==1) {								
 								global_set_UAR196_flag=1;
-//								tinyfs_write(ID_dir_1,RECORD_KEY13,&led_sleep_time,1);
-//				        tinyfs_write_through();
-								
+								err_val=0x0D;
+								tag_lock_status=POS_0;   					//放倒
+								lock_mode=0;											//自动升锁关闭
+								moro_task_flag=1;									//启动电机
+
             } else {
                 err_val=0x05;
                 if(lock_success_flag==0)  err_val=0x0B;

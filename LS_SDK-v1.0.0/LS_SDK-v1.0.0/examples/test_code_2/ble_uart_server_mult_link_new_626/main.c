@@ -260,7 +260,7 @@ void ls_app_timer_init(void)
     //builtin_timer_start(user_event_timer_inst_1, USER_EVENT_PERIOD_1, NULL);
 		
     user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
-    builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
+    //builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
 }
 
 //1ms
@@ -275,9 +275,9 @@ void ls_user_event_timer_cb_0(void *param) {
 		
 		time_count++;
 
-		if(time_count%5000==0){
-					LOG_I("1ms");
-		}
+//		if(time_count%5000==0){
+//					LOG_I("1ms");
+//		}
 }
 
 //20ms
@@ -294,31 +294,31 @@ void ls_user_event_timer_cb_2(void *param) {
 		builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);
 		
 		loop_task_lower_power();	
-		ls_uart_server_send_notification();   		
+//		ls_uart_server_send_notification();   		
 }
 
 static void ls_uart_server_client_uart_tx(void);
-static void ls_single_role_timer_cb(void *param);
-static struct builtin_timer *ble_app_timer_inst = NULL;
-//static void ls_app_timer_init(void)
+//static void ls_single_role_timer_cb(void *param);
+//static struct builtin_timer *ble_app_timer_inst = NULL;
+////static void ls_app_timer_init(void)
+////{
+////    ble_app_timer_inst = builtin_timer_create(ls_single_role_timer_cb);
+////    builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
+////}
+//static void ls_single_role_timer_cb(void *param)
 //{
-//    ble_app_timer_inst = builtin_timer_create(ls_single_role_timer_cb);
-//    builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL);
+//#if SLAVE_SERVER_ROLE == 1    
+//    ls_uart_server_send_notification();
+//#endif    
+//    ls_uart_server_client_uart_tx();
+//#if MASTER_CLIENT_ROLE == 1    
+//    ls_uart_client_send_write_req();
+//#endif    
+//    if(ble_app_timer_inst)
+//    {
+//        builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL); 
+//    }
 //}
-static void ls_single_role_timer_cb(void *param)
-{
-#if SLAVE_SERVER_ROLE == 1    
-    ls_uart_server_send_notification();
-#endif    
-    ls_uart_server_client_uart_tx();
-#if MASTER_CLIENT_ROLE == 1    
-    ls_uart_client_send_write_req();
-#endif    
-    if(ble_app_timer_inst)
-    {
-        builtin_timer_start(ble_app_timer_inst, UART_SERVER_TIMEOUT, NULL); 
-    }
-}
 static void ls_uart_init(void)
 {
     uart1_io_init(PB00, PB01);
@@ -376,7 +376,7 @@ static void ls_uart_server_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint1
 
 static void ls_uart_server_send_notification(void)
 {
-		uint8_t *p;
+	 	uint8_t *p;
 
     //for(uint8_t idx = 0; idx < UART_SERVER_MASTER_NUM; idx++)
     //{
@@ -396,12 +396,13 @@ static void ls_uart_server_send_notification(void)
 					//uart_server_recv_data_length_array[idx] -= tx_len;
 					//memcpy((void*)&uart_server_b	le_buf_array[idx][0], (void*)&uart_server_ble_buf_array[idx][tx_len], uart_server_recv_data_length_array[idx]);       
 
-						p=CMD_Processing(0x00,1);		
-						gatt_manager_server_send_notification(con_idx_server, handle, p+1, *p, NULL);
-						//LOG_I("con_idx:%d",con_idx);
+					//	p=CMD_Processing(0x00,1);				传出数据地址，在设备蓝牙断开再连接后出错，暂时用全局变量	
+						p=send_buf;
+						gatt_manager_server_send_notification(con_idx_server, handle,(uint8_t*)p+1, *p, NULL);
+					//LOG_I("con_idx:%d",con_idx);
 
 						LOG_I("发送的");
-						LOG_HEX(p+1,*p);		
+						LOG_HEX((uint8_t*)p+1,*p);		
 				}
         exit_critical(cpu_stat);
     //}
@@ -433,8 +434,8 @@ static void user_write_req_ind(uint8_t att_idx, uint8_t con_idx, uint16_t length
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
-        .adv_intv_min = 1600,
-        .adv_intv_max = 1600,
+        .adv_intv_min = 800,
+        .adv_intv_max = 800,
         .own_addr_type = PUBLIC_OR_RANDOM_STATIC_ADDR,
         .filter_policy = 0,
         .ch_map = 0x7,

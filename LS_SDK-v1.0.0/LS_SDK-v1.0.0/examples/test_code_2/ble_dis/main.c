@@ -299,17 +299,48 @@ static void prf_added_handler(struct profile_added_evt *evt)
 
 
 void User_io_Init() {
-    LSGPIOA->MODE = 0;
+	 io_init();
+	 
+	  LSGPIOA->MODE = 0;
     LSGPIOA->IE = 0;
     LSGPIOA->OE = 0;
     LSGPIOA->OT = 0;
-    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOA->PUPD = 0xAAAAAAAA;  //pa00,PA02不接上下拉，其余全部下拉
     LSGPIOB->MODE &= 0x3c00;  //3C00
     LSGPIOB->IE = 0;
     LSGPIOB->OE = 0;
     LSGPIOB->OT = 0;
     // LSGPIOB->PUPD = 0x2800;
-    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
+    LSGPIOB->PUPD =  0xAAA96AAA;	//	PB15 浮空	 AAA9 6AAA
+	 
+	 io_cfg_output(PA05);				//  车辆测距
+	 io_write_pin(PA05,0);
+	 
+ 	 io_cfg_output(PA08);				//  车辆测距
+	 io_write_pin(PA08,0);
+	 io_pull_write(PA08,IO_PULL_DISABLE);
+	 
+	 
+	 
+	 io_pull_write(PA03,IO_PULL_DISABLE);
+	 io_pull_write(PA06,IO_PULL_DISABLE);
+	 
+	 io_cfg_input(PA03);								//  
+	 io_cfg_input(PA06);								//  
+	 
+//    LSGPIOA->MODE = 0;
+//    LSGPIOA->IE = 0;
+//    LSGPIOA->OE = 0;
+//    LSGPIOA->OT = 0;
+//    LSGPIOA->PUPD = 0xAAAAAA88;  //pa00,PA02不接上下拉，其余全部下拉
+//    LSGPIOB->MODE &= 0x3c00;  //3C00
+//    LSGPIOB->IE = 0;
+//    LSGPIOB->OE = 0;
+//    LSGPIOB->OT = 0;
+//    // LSGPIOB->PUPD = 0x2800;
+//    LSGPIOB->PUPD =  0x2AA96AAA;	//	PB15 浮空	 AAA9 6AAA
+		
+		
 		
 		
 //		LSGPIOA->MODE = 0;
@@ -326,8 +357,8 @@ void User_io_Init() {
 //		
 		
 		//io_set_pin(PC01);
-    io_pull_write(PC01,IO_PULL_DISABLE);
-    io_cfg_input(PC01);
+//    io_pull_write(PC01,IO_PULL_DISABLE);
+//    io_cfg_input(PC01);
 }
 
 

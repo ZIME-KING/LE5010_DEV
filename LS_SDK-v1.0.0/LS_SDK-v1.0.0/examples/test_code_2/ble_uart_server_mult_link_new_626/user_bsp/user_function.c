@@ -138,15 +138,15 @@ void Uart2_Data_Processing() {
 void Check_URA196() {
     static uint16_t count;
     count++;
-    count=count%100;
+    count=count%50;
 
-    if(count==0) {
+    if(count==1) {
         HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRSTATUS\r\n",strlen("AT+MRSTATUS\r\n"),10);
     }
-    if(count==1) {
+    if(count==2) {
         check_car_mode_time_out++;
         //LOG_I("check_DYP_time_out:%d",check_DYP_time_out);
-        if(check_car_mode_time_out>20) {
+        if(check_car_mode_time_out>10) {
             car_val=0x02;   //模块没有找到
             LOG_I("car_val:%d",car_val);
         }
@@ -307,9 +307,10 @@ void Check_DYP_distance_wait() {
 
 
 void Auto_close_sleep() {
-    //if(LED_status==0x01) {
-        user_time_cont++;
-				//LOG_I("user_time_cont %d",user_time_cont);
+				
+				//在电机动作或设置毫米波的时候不进行休眠计数
+        if(global_set_UAR196_flag!=0 || moro_task_flag==1) return;
+				user_time_cont++;
         if(user_time_cont>=led_sleep_time*50) {    //led_sleep_time 单位s user_time_cont 20ms++
             LOG_I("Enter_LOW_Power_Mode");
             LED_status=0x02;
@@ -320,9 +321,6 @@ void Auto_close_sleep() {
                 Enter_Power_Mode_LH();
             }
         }
-//    } else {
-//        user_time_cont=0;
-//    }
 }
 
 //03命令自动升锁流程
@@ -413,7 +411,7 @@ void err_mode_function() {
     if(lock_mode==0x02) {
         //	LOG_I("time_out:%d",time_out);
         if(hw_lock_status==tag_lock_status) {
-            if(time_out>=hw_err_out_time*10  && count>=100) {
+            if(time_out>=hw_err_out_time*50  && count>=100) {
                 lock_mode=0x01;
             }
             else {
@@ -421,7 +419,7 @@ void err_mode_function() {
             }
             time_out=0;
         }
-        if(time_out>=(hw_err_out_time*10)+1  && count>=100) {
+        if(time_out>=(hw_err_out_time*50)+1  && count>=100) {
             tag_lock_status=POS_0;
         }
 
@@ -499,10 +497,6 @@ void err_mode_function() {
     }
 }
 
-
-
-
-
 void User_Print_Log() {
     static uint8_t last_hw_lock_status;    //红外检测位置状态
 //    static uint8_t last_current_state;     //系统运行状态
@@ -535,15 +529,15 @@ void Enter_Power_Mode_NL(void) {
 
 		if(user_event_timer_inst_0!=NULL){
 					builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
-					//user_event_timer_inst_0 = NULL;
+					user_event_timer_inst_0 = NULL;
 		}
 		if(user_event_timer_inst_1!=NULL){
 					builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
-					//user_event_timer_inst_1 = NULL;
+					user_event_timer_inst_1 = NULL;
 		}
 		if(user_event_timer_inst_2!=NULL){
 					builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
-					//user_event_timer_inst_2 = NULL;
+					user_event_timer_inst_2 = NULL;
 		}
 
 		user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
@@ -555,20 +549,19 @@ void Enter_Power_Mode_NL(void) {
     tag_lock_status=POS_0;    //目标位置
     LOG_I("NL\n");
 		
-		
-	    Buzzer_IO_Init();
-		LED_Init();
-    Moto_IO_Init();
-		ls_uart1_init();
+  	  Buzzer_IO_Init();
+			LED_Init();		     //使用TIM
+			Moto_IO_Init();  //使用TIM
+			ls_uart1_init();
     ls_uart2_init();
     User_ADC_Init();
-		SW_IO_Init();
-
-    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
-    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
-		
+ 		SW_IO_Init();
+//    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+//    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
+//		
 		io_cfg_output(PA05);				//  车辆测距
     io_write_pin(PA05,1);
+
 }
 //进入正常状态立起模式
 void Enter_Power_Mode_NH(void) {
@@ -597,6 +590,7 @@ void Enter_Power_Mode_NH(void) {
     LOG_I("NH\n");
 		LOG_I("tag_lock_status%d\n",tag_lock_status);
 		
+		Buzzer_IO_Init();
 		LED_Init();
     Moto_IO_Init();
 		ls_uart1_init();
@@ -605,6 +599,14 @@ void Enter_Power_Mode_NH(void) {
 
     HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
     HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
+		
+		
+		SW_IO_Init(); 
+		
+		
+		io_cfg_output(PA05);				//  车辆测距
+    io_write_pin(PA05,0);
+		
 }
 //进入低功耗立起模式
 void Enter_Power_Mode_LH(void) {
@@ -629,7 +631,7 @@ void Enter_Power_Mode_LH(void) {
 	
     tag_lock_status=POS_90;   //目标位置
     LOG_I("LH\n");
-		
+				
     gap_manager_disconnect(user_conid, 0x13);    //蓝牙主动断连		
 		LED_DeInit();		
 		Moto_IO_DeInit();
@@ -637,46 +639,51 @@ void Enter_Power_Mode_LH(void) {
 		HAL_UART_DeInit(&UART2_Config);
 		uart1_io_deinit();
 		uart2_io_deinit();
-
+		Buzzer_IO_DeInit();
 		HAL_ADC_DeInit(&hadc);
+		
+		
+		io_cfg_output(PA05);				//  车辆测距
+    io_write_pin(PA05,0);
+		
 		//SW_IO_Deinit();           //低功耗立起模式红外以阻塞方式操作io可以不用初始化
 }
 //进入低功耗放倒模式
 void Enter_Power_Mode_LL(void) {
-	
-//	ls_app_timer_init();
-	
-	
+
 		if(user_event_timer_inst_0!=NULL){
 					builtin_timer_delete(user_event_timer_inst_0);   //关闭定时器0
-					//user_event_timer_inst_0 = NULL;
+					user_event_timer_inst_0 = NULL;
 		}
 		if(user_event_timer_inst_1!=NULL){
 					builtin_timer_delete(user_event_timer_inst_1);   //关闭定时器1
-					//user_event_timer_inst_1 = NULL;
+					user_event_timer_inst_1 = NULL;
 		}
 		if(user_event_timer_inst_2!=NULL){
 					builtin_timer_delete(user_event_timer_inst_2);   //关闭定时器2
-					//user_event_timer_inst_2 = NULL;
+					user_event_timer_inst_2 = NULL;
 		}
-	//	user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
+		user_event_timer_inst_2 =builtin_timer_create(ls_user_event_timer_cb_2);
     builtin_timer_start(user_event_timer_inst_2, USER_EVENT_PERIOD_2, NULL);  //开启定时器2
 
     tag_lock_status=POS_0;   //目标位置
     LOG_I("LL\n");
 
 		gap_manager_disconnect(user_conid, 0x13);    	//蓝牙主动断连
-		LED_DeInit();		
-		Moto_IO_DeInit();
-		HAL_UART_DeInit(&UART1_Config);
-		HAL_UART_DeInit(&UART2_Config);
-		uart1_io_deinit();
-		uart2_io_deinit();
-		HAL_ADC_DeInit(&hadc);
+
+
+  		Buzzer_IO_DeInit();
+			LED_DeInit();				
+			Moto_IO_DeInit();
+			HAL_UART_DeInit(&UART1_Config);
+			HAL_UART_DeInit(&UART2_Config);
+			uart1_io_deinit();
+  		uart2_io_deinit();
+		User_ADC_DeInit();
+
 		SW_IO_Deinit();
-	
 		io_cfg_output(PA05);				//  车辆测距
-    io_write_pin(PA05,1);
+    io_write_pin(PA05,0);
 }
 
 
@@ -715,25 +722,38 @@ void Init_UAR196(){
                 if(count_out>5) {
                     count_out=0	;
                     step++;
-                }                            
-                HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRRB\r\n",strlen("AT+MRRB\r\n"),50);     //重启复位
+                }                
+								//超时之前只发送一次
+								if(count_out%5==1)	HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRRB\r\n",strlen("AT+MRRB\r\n"),50);     //重启复位
             }
             break;
 
 
         case 1:
             if(UAR196_Result==2) {
-                UAR196_Result=0xff;
+								UAR196_Result=0xff;
                 step++;
                 count_out=0;
+								
+								user_ble_send_flag=1;
+								send_buf[0]=0x03;					//校准超时蓝牙发送校准成功数据   
+								send_buf[1]=0x17;					
+								send_buf[2]=0x15;					
+								send_buf[3]=0x0E;
             }
             else {
                 count_out++;
-                if(count_out>20) {          //这里要20s以上
-                    count_out=0	;
+                if(count_out>30) {          //设定要30s超时，模块20s左右校准成功
+										count_out=0	;
                     step++;
+										user_ble_send_flag=1;
+										send_buf[0]=0x03;					//校准超时蓝牙发送校准成功数据   
+										send_buf[1]=0x17;					
+										send_buf[2]=0x15;					
+										send_buf[3]=0x0F;
                 }
-								if(count_out%5==1)HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRCALI\r\n",strlen("AT+MRCALI\r\n"),50);
+								//超时之前只发送一次
+								if(count_out%30==1)HAL_UART_Transmit(&UART2_Config,(uint8_t*)"AT+MRCALI\r\n",strlen("AT+MRCALI\r\n"),50);
             }
             break;
 			}
@@ -745,12 +765,13 @@ void Init_UAR196(){
 void loop_task_normal_power() {
 
     static uint16_t time_count;
-		static uint16_t temp_time_count;
+//		static uint16_t temp_time_count;
 		
     time_count++;
     if(time_count%100==0) {
         LOG_I("20ms");
-    }
+    }     
+		HAL_IWDG_Refresh();
     Auto_close_sleep();
     Moto_Task();              //电机任务
     Test_Moto_Task();
@@ -769,7 +790,7 @@ void loop_task_normal_power() {
     else if(tag_lock_status==POS_90) {
         err_mode_function();
     }
-    if(reset_flag==0)HAL_IWDG_Refresh();	 	 //喂狗
+    if(reset_flag!=0)	 	 platform_reset(0);//重启
     vbat_val=Get_ADC_value()*20/1000;
     User_Print_Log();
 }
@@ -985,22 +1006,42 @@ void Read_Last_Data() {
 
 //蓝牙启动成功跑一次
 void User_BLE_Ready() {
+
+	  LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;
+    LSGPIOA->OT = 0;
+    LSGPIOA->PUPD = 0xAAAAAAAA;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOB->MODE &= 0x3c00;  //3C00
+    LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+    LSGPIOB->OT = 0;
+    // LSGPIOB->PUPD = 0x2800;
+    LSGPIOB->PUPD =  0xAAA96AAA;	//	PB15 浮空	 AAA9 6AAA
+
     Read_Last_Data();
-	
-	
-    Buzzer_IO_Init();
-		LED_Init();
-    Moto_IO_Init();
-		ls_uart1_init();
-    ls_uart2_init();
-    User_ADC_Init();
-		SW_IO_Init();
+		
+//		io_cfg_output(PA05);				//  车辆测距
+//    io_write_pin(PA05,1);
+		
+//		io_cfg_input(PA05);				//  
+//    io_pull_write(PB02,IO_PULL_DISABLE);
+//				
+//		io_cfg_input(PB02);				//  
+//    io_pull_write(PB02,IO_PULL_DISABLE);
+//	
+//    Buzzer_IO_Init();
+//		LED_Init();
+//    Moto_IO_Init();
+//		ls_uart1_init();
+//    ls_uart2_init();
+//    User_ADC_Init();
+//		SW_IO_Init();
 
-    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
-    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
+//    HAL_UART_Receive_IT(&UART2_Config,uart_2_buffer,1);		// 重新使能串口2接收中断
+//    HAL_UART_Receive_IT(&UART1_Config,uart_buffer,1);		// 重新使能串口1接收中断
 
-    //HAL_IWDG_Init(32756*1);  	5s看门狗
-
+//	HAL_IWDG_Init(32756*5);  	//5s看门狗
     tag_lock_status=POS_90;
     hw_lock_status= POS_90;
 
@@ -1013,13 +1054,12 @@ void User_BLE_Ready() {
     memcpy(&lock_mac[0],&addr[0],6);
 
 ////////////////////////////////
-		
+
 	//	Enter_Power_Mode_LL();
 		Enter_Power_Mode_NL();
 	//  Enter_Power_Mode_LH();
-
-
-
+	//	Enter_Power_Mode_NH();
+	
 }
 
 extern UART_HandleTypeDef log_uart;

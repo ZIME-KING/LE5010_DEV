@@ -108,6 +108,13 @@ void	SW_IO_Init(){
 		
 		io_cfg_input(SW_IN_1);   			//
     io_cfg_input(SW_IN_2);		
+		
+		io_pull_write(SW_EN_1,IO_PULL_DISABLE);
+		io_pull_write(SW_EN_2,IO_PULL_DISABLE);
+		io_pull_write(SW_IN_1,IO_PULL_DISABLE);
+		io_pull_write(SW_IN_2,IO_PULL_DISABLE);
+		
+		
 }
 
 void	SW_IO_Deinit(){
@@ -119,6 +126,13 @@ void	SW_IO_Deinit(){
 //		
 		io_cfg_input(SW_IN_1);   			//
     io_cfg_input(SW_IN_2);			
+		
+		
+		io_pull_write(SW_EN_1,IO_PULL_DOWN);
+		io_pull_write(SW_EN_2,IO_PULL_DOWN);
+		io_pull_write(SW_IN_1,IO_PULL_DOWN);
+		io_pull_write(SW_IN_2,IO_PULL_DOWN);
+		
 }
 
 

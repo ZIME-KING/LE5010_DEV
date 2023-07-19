@@ -23,11 +23,40 @@ static void adc_io_init(void)
     adc12b_in6_io_init();
 }
 
+static void adc_io_deinit(void)
+{
+	io_cfg_input(PA03);				//  
+	io_cfg_input(PA06);				//  
+  
+	io_pull_write(PA03,IO_PULL_DOWN);
+	io_pull_write(PA06,IO_PULL_DOWN);
+}
+
+
+
+
+
+reg_adc_t temp_adc_val;
+
+void save_ADC_config(){
+	memcpy(&temp_adc_val,LSADC, sizeof(temp_adc_val));
+}                
+void reset_ADC_config(){
+	memcpy(LSADC,&temp_adc_val, sizeof(temp_adc_val));
+}   
 
 ////////////////////////////////////////// ADC ///////////////////////////////////////////
 static void lsadc_init(void)
 {  
-		adc_io_init();
+
+
+		static uint8_t once_flag=0;
+		if(once_flag!=0xAA){
+					once_flag=0xAA;
+					save_ADC_config();					//±£¥Ê≥ı º÷µ
+		}
+		
+		
 //		hadc.Instance = LSADC;
 //    hadc.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
 //    hadc.Init.ScanConvMode          = ADC_SCAN_DISABLE;              /* Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1) */
@@ -90,10 +119,17 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 
 
 void  User_ADC_Init(){
+		adc_io_init();
 		lsadc_init();
     HAL_ADC_Start_IT(&hadc);
     recv_flag = 0;
+}
 
+
+void  User_ADC_DeInit(){
+		HAL_ADC_DeInit(&hadc);
+		reset_ADC_config();
+		adc_io_deinit();
 }
 
 uint16_t Get_ADC_value(){

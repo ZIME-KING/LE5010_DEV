@@ -13,6 +13,9 @@ void Buzzer_IO_Init(){
 		
 		io_cfg_output(BUZZER_EN);   //
     io_write_pin(BUZZER_EN,0);  
+		
+		io_pull_write(BUZZER_PIN,IO_PULL_DISABLE);
+		io_pull_write(BUZZER_EN,IO_PULL_DISABLE);
 }
 
 void Buzzer_IO_DeInit(){
@@ -84,6 +87,9 @@ void Buzzer_Task_100(){
 
 	static uint16_t i;
 	static uint16_t count;	
+
+	static uint16_t temp=0;
+	
 	if(buzzer_task_flag==0) return;	
 	
 	if(i<=buzzer_open_val){
@@ -101,7 +107,8 @@ void Buzzer_Task_100(){
 		 }
 		 Buzzer_OFF();		 
 	}	
-	i++;
+	temp++;
+	if(temp%5==1) 	i++;
 }
 
 
