@@ -102,4 +102,10 @@ extern uint8_t test_mode_flag;
 
 extern uint8_t look_status_send_count;
 
+
+
+void ls_app_timer_deinit(void);
+void ls_app_timer_init(void);
+
+
 #endif

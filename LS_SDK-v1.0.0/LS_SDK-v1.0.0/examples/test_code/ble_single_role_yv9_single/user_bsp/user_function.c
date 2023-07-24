@@ -467,7 +467,8 @@ void Uart_Data_Processing() {
             TX_DATA_BUF[5]=0x08;    	//LEN
             TX_DATA_BUF[6]=0x01;			//主锁无    ，关闭模式
             TX_DATA_BUF[7]=0x06;      //在线情况 1，2全在线，具体见协议文档
-            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //
+//            TX_DATA_BUF[8]=((!lock_state[1])<<2)+((!lock_state[0])<<1);    //单锁为0
+            TX_DATA_BUF[8]=((!lock_state[0])<<2)+((!lock_state[0])<<1);    //
             TX_DATA_BUF[9]=0x02;
             TX_DATA_BUF[10]=RFID_DATA_2[0];
             TX_DATA_BUF[11]=RFID_DATA_2[1];

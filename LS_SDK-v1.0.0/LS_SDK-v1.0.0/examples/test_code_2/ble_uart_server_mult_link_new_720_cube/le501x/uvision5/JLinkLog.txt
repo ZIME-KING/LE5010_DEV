@@ -1,0 +1,131 @@
+T34D4 000:276.610   SEGGER J-Link V7.80c Log File
+T34D4 000:277.193   DLL Compiled: Sep 27 2022 16:01:16
+T34D4 000:277.199   Logging started @ 2023-07-06 10:51
+T34D4 000:277.204 - 277.206ms
+T34D4 000:277.347 JLINK_SetWarnOutHandler(...)
+T34D4 000:277.470 - 0.125ms
+T34D4 000:277.477 JLINK_OpenEx(...)
+T34D4 000:281.160   Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+T34D4 000:281.757   Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+T34D4 000:285.188   Hardware: V7.00
+T34D4 000:285.199   S/N: 20090929
+T34D4 000:285.207   OEM: SEGGER
+T34D4 000:285.213   Feature(s): RDI,FlashDL,FlashBP,JFlash,GDBFull
+T34D4 000:296.459   TELNET listener socket opened on port 19021
+T34D4 000:296.609   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T34D4 000:296.667   WEBSRV Failed to put socket into listener state (port 19080)
+T34D4 000:296.785   WEBSRV Webserver running on local port 19081
+T34D4 000:317.824 - 40.359ms returns "O.K."
+T34D4 000:318.226 JLINK_GetEmuCaps()
+T34D4 000:318.232 - 0.009ms returns 0x88EA5833
+T34D4 000:318.339 JLINK_TIF_GetAvailable(...)
+T34D4 000:320.166 - 1.834ms
+T34D4 000:320.179 JLINK_SetErrorOutHandler(...)
+T34D4 000:320.184 - 0.007ms
+T34D4 000:320.330 JLINK_ExecCommand("ProjectFile = "D:\Developmentfolder\LE5010_DEV\LS_SDK-v1.0.0\LS_SDK-v1.0.0\examples\test_code_2\ble_uart_server_mult_link_new\le501x\uvision5\JLinkSettings.ini"", ...). 
+T34D4 000:722.013   Ref file found at: C:\Keil_v5\ARM\Segger\JLinkDevices.ref
+T34D4 000:722.157   REF file references invalid XML file: C:\Program Files\SEGGER\JLink\JLinkDevices.xml
+T34D4 000:722.554 - 402.230ms returns 0x00
+T34D4 000:722.596 JLINK_ExecCommand("Device = ARMCM0", ...). 
+T34D4 000:722.909   Device "CORTEX-M0" selected.
+T34D4 000:723.192 - 0.592ms returns 0x00
+T34D4 000:723.201 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T34D4 000:723.209 - 0.004ms returns 0x01
+T34D4 000:723.215 JLINK_GetHardwareVersion()
+T34D4 000:723.220 - 0.007ms returns 70000
+T34D4 000:723.253 JLINK_GetDLLVersion()
+T34D4 000:723.261 - 0.011ms returns 78003
+T34D4 000:723.271 JLINK_GetOEMString(...)
+T34D4 000:723.278 JLINK_GetFirmwareString(...)
+T34D4 000:723.283 - 0.007ms
+T34D4 000:723.291 JLINK_GetDLLVersion()
+T34D4 000:723.295 - 0.006ms returns 78003
+T34D4 000:723.301 JLINK_GetCompileDateTime()
+T34D4 000:723.305 - 0.006ms
+T34D4 000:723.311 JLINK_GetFirmwareString(...)
+T34D4 000:723.316 - 0.006ms
+T34D4 000:723.322 JLINK_GetHardwareVersion()
+T34D4 000:723.326 - 0.006ms returns 70000
+T34D4 000:723.332 JLINK_GetSN()
+T34D4 000:723.337 - 0.006ms returns 20090929
+T34D4 000:723.342 JLINK_GetOEMString(...)
+T34D4 000:723.351 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T34D4 000:725.896 - 2.550ms returns 0x00
+T34D4 000:725.906 JLINK_HasError()
+T34D4 000:726.191 JLINK_SetSpeed(1000)
+T34D4 000:726.582 - 0.396ms
+T34D4 000:726.900 JLINK_HasError()
+T34D4 000:726.912 JLINK_SetResetType(JLINKARM_RESET_TYPE_NORMAL)
+T34D4 000:726.918 - 0.008ms returns JLINKARM_RESET_TYPE_NORMAL
+T34D4 000:726.924 JLINK_Reset()
+T34D4 000:732.462   ConfigTargetSettings() start
+T34D4 000:732.474    J-Link Script File: Executing ConfigTargetSettings()
+T34D4 000:732.650   ConfigTargetSettings() end
+T34D4 000:734.354   Found SW-DP with ID 0x0BC11477
+T34D4 000:743.776   Old FW that does not support reading DPIDR via DAP jobs
+T34D4 000:752.850   DPv0 detected
+T34D4 000:752.861   CoreSight SoC-400 or earlier
+T34D4 000:752.869   Scanning AP map to find all available APs
+T34D4 000:759.127   AP[1]: Stopped AP scan as end of AP map has been reached
+T34D4 000:759.302   AP[0]: AHB-AP (IDR: 0x04770031)
+T34D4 000:759.317   Iterating through AP map to find AHB-AP to use
+T34D4 000:769.504   AP[0]: Core found
+T34D4 000:769.518   AP[0]: AHB-AP ROM base: 0xE00FF000
+T34D4 000:774.675   CPUID register: 0x410CC601. Implementer code: 0x41 (ARM)
+T34D4 000:774.688   Found Cortex-M0 r0p1, Little endian.
+T34D4 000:876.222   -- Max. mem block: 0x00002C08
+T34D4 000:876.639   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T34D4 000:877.728   CPU_ReadMem(4 bytes @ 0xE0002000)
+T34D4 000:878.784   FPUnit: 4 code (BP) slots and 0 literal slots
+T34D4 000:878.843   CPU_ReadMem(4 bytes @ 0xE000EDFC)
+T34D4 000:879.879   CPU_ReadMem(4 bytes @ 0xE0001000)
+T34D4 000:880.935   CPU_WriteMem(4 bytes @ 0xE0001000)
+T34D4 000:882.029   CoreSight components:
+T34D4 000:882.041   ROMTbl[0] @ E00FF000
+T34D4 000:882.049   CPU_ReadMem(64 bytes @ 0xE00FF000)
+T34D4 000:884.603   CPU_ReadMem(32 bytes @ 0xE000EFE0)
+T34D4 000:886.332   [0][0]: E000E000 CID B105E00D PID 000BB008 SCS
+T34D4 000:886.343   CPU_ReadMem(32 bytes @ 0xE0001FE0)
+T34D4 000:888.102   [0][1]: E0001000 CID B105E00D PID 000BB00A DWT
+T34D4 000:888.114   CPU_ReadMem(32 bytes @ 0xE0002FE0)
+T34D4 000:889.874   [0][2]: E0002000 CID B105E00D PID 000BB00B FPB
+T34D4 000:889.911   CPU is running
+T34D4 000:889.921   CPU_WriteMem(4 bytes @ 0xE000EDF0)
+T34D4 000:891.064   CPU is running
+T34D4 000:891.074   CPU_WriteMem(4 bytes @ 0xE000EDFC)
+T34D4 000:892.205   Reset: Halt core after reset via DEMCR.VC_CORERESET.
+T34D4 000:893.248   Reset: Reset device via AIRCR.SYSRESETREQ.
+T34D4 000:893.258   CPU is running
+T34D4 000:893.267   CPU_WriteMem(4 bytes @ 0xE000ED0C)
+T34D4 000:947.456   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T34D4 000:948.597   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T34D4 000:949.678   CPU is running
+T34D4 000:949.692   CPU_WriteMem(4 bytes @ 0xE000EDF0)
+T34D4 000:950.827   CPU is running
+T34D4 000:950.835   CPU_WriteMem(4 bytes @ 0xE000EDFC)
+T34D4 000:957.447   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T34D4 000:966.645   AfterResetTarget() start
+T34D4 000:966.658    J-Link Script File: Executing AfterResetTarget()
+T34D4 000:966.676   CPU_WriteMem(4 bytes @ 0x40021004)
+T34D4 000:967.847   CPU_WriteMem(4 bytes @ 0x40021040)
+T34D4 000:968.998   AfterResetTarget() end
+T34D4 000:969.008   CPU_WriteMem(4 bytes @ 0xE0002000)
+T34D4 000:970.149   CPU_ReadMem(4 bytes @ 0xE000EDFC)
+T34D4 000:971.313   CPU_ReadMem(4 bytes @ 0xE0001000)
+T34D4 000:972.398   CPU_WriteMem(4 bytes @ 0xE0001000)
+T34D4 000:973.526 - 246.607ms
+T34D4 000:973.541 JLINK_GetId()
+T34D4 000:977.245 - 3.709ms returns 0x0BC11477
+T34D4 000:986.200 JLINK_GetFirmwareString(...)
+T34D4 000:986.210 - 0.012ms
+T5C10 010:132.147 Looking for J-Link GUI Server exe at: C:\Keil_v5\ARM\Segger\JLinkGUIServer.exe
+T5C10 010:132.280 Looking for J-Link GUI Server exe at: C:\Program Files\SEGGER\JLink\JLinkGUIServer.exe
+T5C10 010:132.320 Forking J-Link GUI Server: C:\Program Files\SEGGER\JLink\JLinkGUIServer.exe
+T5C10 010:137.459 J-Link GUI Server info: "J-Link GUI server V7.60h "
+T34D4 012:372.418 JLINK_Close()
+T34D4 012:372.969   CPU_ReadMem(4 bytes @ 0xE0001000)
+T34D4 012:374.011   CPU_WriteMem(4 bytes @ 0xE0001000)
+T34D4 012:375.137   CPU_WriteMem(4 bytes @ 0xE0001004)
+T34D4 012:396.065 - 23.658ms
+T34D4 012:396.080   
+T34D4 012:396.085   Closed

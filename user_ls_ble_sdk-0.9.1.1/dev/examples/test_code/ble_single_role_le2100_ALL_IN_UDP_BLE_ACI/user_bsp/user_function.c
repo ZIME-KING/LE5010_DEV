@@ -1646,7 +1646,8 @@ void Set_Sleep_Time(uint16_t time_s){
 //休眠任务
 void Sleep_Task(){
 	if(sleep_time*50>set_sleep_time*1000){
-			ls_sleep_enter_lp2();
+			ls_app_timer_deinit();
+			//ls_sleep_enter_lp2();
 	}
 }
 //extern uint8_t	psaaword_task_flag;  //改密码任务开始标记
