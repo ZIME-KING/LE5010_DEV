@@ -38,6 +38,10 @@
 
 
 
+#define POWER_L 0
+#define POWER_H 1
+
+
 #ifdef USER_TEST 
  extern uint8_t open_count;
 #endif
@@ -106,6 +110,15 @@ extern uint8_t look_status_send_count;
 
 void ls_app_timer_deinit(void);
 void ls_app_timer_init(void);
+
+void AT_uart_deinit(void);
+void AT_uart_init(void);
+
+
+extern uint32_t user_event_period;
+
+extern uint8_t power_mode;
+
 
 
 #endif

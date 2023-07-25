@@ -54,10 +54,6 @@ void Buzzer_Task(){
 	}
 }
 
-
-
-
-
 void Basic_PWM_Output_Cfg(void)
 {
     TIM_OC_InitTypeDef sConfig = {0};

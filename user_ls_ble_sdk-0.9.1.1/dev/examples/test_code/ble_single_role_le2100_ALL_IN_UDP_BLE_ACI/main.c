@@ -252,19 +252,20 @@ static struct builtin_timer *user_event_timer_inst_1 = NULL;
 static struct builtin_timer *ble_app_timer_inst 		 = NULL;
 
 
-uint32_t user_event_period=50;     //按键处理
+uint32_t user_event_period=5;     //按键处理
 
 
- void ls_app_timer_deinit(void){
+void ls_app_timer_deinit(void) {
 //		user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     builtin_timer_delete(user_event_timer_inst_0);
 }
- void ls_app_timer_init(void)
+void ls_app_timer_init(void)
 {
     user_event_timer_inst_0 =builtin_timer_create(ls_user_event_timer_cb_0);
     builtin_timer_start(user_event_timer_inst_0, user_event_period, NULL);
 }
 
+uint8_t power_mode=POWER_H;
 
 uint16_t sleep_time=0;
 uint8_t KEY_FLAG=0;   //收到开锁请求
@@ -275,66 +276,89 @@ uint8_t test_mode_flag;
 
 void ls_user_event_timer_cb_0(void *param)
 {
-    Uart_2_Time_Even(); 		 //串口接收数据
-    Uart_2_Data_Processing();
-    Scan_Key();					 		 //扫描按键
-    Moto_Task();				 		 //电机的任务
-    Get_Vbat_Task();		 		 //获取电池电量 0~100
+    ls_uart_server_send_notification();  //蓝牙数据发送
+    builtin_timer_start(user_event_timer_inst_0, user_event_period, NULL);
+
+    static uint8_t last_power_mode;
+    if(last_power_mode!=power_mode) {
+        last_power_mode=power_mode;
+        if(power_mode==POWER_L) {
+            LOG_I("ENTER_LOWPOWER_MODE");
+            io_init();
+            io_write_pin(PC00, 0);
+            io_write_pin(PC01, 0);
+            AT_uart_deinit();
+            user_event_period=5000;
+        }
+        else if(power_mode==POWER_H) {
+						LOG_I("ENTER_LOWPOWER_MODE");
+        }
+    }
+    if(power_mode==POWER_L) {
+						LOG_I("5000ms");
+        return;
+    }		
+		LOG_I("5ms");
+
+//    Uart_2_Time_Even(); 		 //串口接收数据
+//    Uart_2_Data_Processing();
+//    Scan_Key();					 		 //扫描按键
+//    Moto_Task();				 		 //电机的任务
+//    Get_Vbat_Task();		 		 //获取电池电量 0~100
     static uint16_t i;
     i++;
     if(i%10==1) {
+			
+		LOG_I("50ms");
+		
+		
         sleep_time++;			 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
-        if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
-        LED_TASK();													 //LED显示效果
-        Buzzer_Task();											 //蜂鸣器任务
+//        if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
+//        LED_TASK();													 //LED显示效果
+////        Buzzer_Task();											 //蜂鸣器任务
         Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
-#ifdef USER_TEST
-        AT_User_Set_Task();
-        AT_User_Reply_Task();
-        LOG_I("db_%x",db_flag);
-#endif
-        NB_WAKE_Task();
-        db_flag=AT_GET_DB_TASK();						 //获取信号强度
-        if(db_flag==0xff) {
-            if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
-                //名称有变化
-                if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,SHORT_NAME_LEN)!=0) {
-                    LOG_I("read_id");
-                    LOG_I("%s",SHORT_NAME);
-
-                    LOG_I("read_id N");
-                    LOG_I("%s",NEW_SHORT_NAME);
-
-                    tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
-                    tinyfs_write_through();
-
-                    uint8_t  tmp[10];
-                    uint16_t length = 10;
-                    tinyfs_read(ID_dir_2,1,tmp,&length);//读到tmp中
-                    LOG_I("read_id");
-                    LOG_I("%s",tmp);
-                    wd_FLAG=1;
-                }
-                AT_User_Set_Task();
-                AT_User_Reply_Task();
-                AT_Set_SKTCONNECT_Task();
-                Open_Lock_Data_Send_Moto_Task();
-                State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
-                Start_Lock_Send_Task();			 				 //启动信息上报
-                Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-                Open_Lock_Data_Send_Task();  				 //信息上报
-                Tick_Lock_Send_Task();							 //心跳包
-            }
-        }
-        //蓝牙连接下
-        if(BLE_connected_flag==1) {
-            Password_Task();//改开锁的密码
-            Key_Task();     //改aes128的密钥
-            sleep_time=0;   //不休眠
-        }
+//#ifdef USER_TEST
+//        AT_User_Set_Task();
+//        AT_User_Reply_Task();
+//        LOG_I("db_%x",db_flag);
+//#endif
+//        NB_WAKE_Task();
+//        db_flag=AT_GET_DB_TASK();						 //获取信号强度
+//        if(db_flag==0xff) {
+//            if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
+//                //名称有变化
+//                if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,SHORT_NAME_LEN)!=0) {
+//                    LOG_I("read_id");
+//                    LOG_I("%s",SHORT_NAME);
+//                    LOG_I("read_id N");
+//                    LOG_I("%s",NEW_SHORT_NAME);
+//                    tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
+//                    tinyfs_write_through();
+//                    uint8_t  tmp[10];
+//                    uint16_t length = 10;
+//                    tinyfs_read(ID_dir_2,1,tmp,&length);//读到tmp中
+//                    LOG_I("read_id");
+//                    LOG_I("%s",tmp);
+//                    wd_FLAG=1;
+//                }
+//                AT_User_Set_Task();
+//                AT_User_Reply_Task();
+//                AT_Set_SKTCONNECT_Task();
+//                Open_Lock_Data_Send_Moto_Task();
+//                State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
+//                Start_Lock_Send_Task();			 				 //启动信息上报
+//                Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
+//                Open_Lock_Data_Send_Task();  				 //信息上报
+//                Tick_Lock_Send_Task();							 //心跳包
+//            }
+//        }
+//        //蓝牙连接下
+//        if(BLE_connected_flag==1) {
+//            Password_Task();//改开锁的密码
+//            Key_Task();     //改aes128的密钥
+//            sleep_time=0;   //不休眠
+//        }
     }
-		ls_uart_server_send_notification();  //蓝牙数据发送
-    builtin_timer_start(user_event_timer_inst_1, user_event_period, NULL);
 }
 //uint16_t temp_count=0;
 
@@ -423,9 +447,8 @@ static void ls_uart_init(void)
     UART_Config.Init.WordLength = UART_BYTESIZE8;
     HAL_UART_Init(&UART_Config);
 }
-static void AT_uart_init(void)
+void AT_uart_init(void)
 {
-    //uart2_io_init(PA13, PA14);
     io_pull_write(PA11, IO_PULL_UP);  				//设置上拉
     io_pull_write(PA10, IO_PULL_UP);  				//设置上拉
     uart2_io_init(PA11, PA10);
@@ -436,6 +459,13 @@ static void AT_uart_init(void)
     UART_Config_AT.Init.StopBits 	= UART_STOPBITS1;
     UART_Config_AT.Init.WordLength = UART_BYTESIZE8;
     HAL_UART_Init(&UART_Config_AT);
+}
+
+
+void AT_uart_deinit(void)
+{
+    uart2_io_deinit();
+    HAL_UART_DeInit(&UART_Config_AT);
 }
 
 #if SLAVE_SERVER_ROLE == 1
@@ -661,13 +691,10 @@ static void ls_uart_server_send_notification(void)
         LOG_I("KEY4");
         LOG_HEX(tmp,8);
         memcpy (&key[0], &tmp[0],8);
-
         tinyfs_read(ID_dir_3,RECORD_KEY5,tmp,&length_8);//读到tmp中
         LOG_I("KEY5");
         LOG_HEX(tmp,8);
         memcpy (&key[8], &tmp[0],8);
-
-
     }
     //LOG_I("uart_server_ntf_done:%d,%d,",uart_server_ntf_done,user_ble_send_flag);
     uint32_t cpu_stat = enter_critical();
@@ -683,9 +710,6 @@ static void ls_uart_server_send_notification(void)
         LOG_I("发送的");
         LOG_HEX(&TX_DATA_BUF[0],16);
         LOG_HEX(&AF_TX_DATA_BUF[0],16);
-
-
-
         // memcpy((void*)&uart_server_ble_buf[0], (void*)&uart_server_ble_buf[tx_len], uart_server_recv_data_length);
     }
     exit_critical(cpu_stat);
@@ -693,13 +717,13 @@ static void ls_uart_server_send_notification(void)
 
 
 
-
+// const uint16_t adv_int_arr[6] = {80, 160, 320, 800, 1600, 3200};
 
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
-        .adv_intv_min = 0x80,
-        .adv_intv_max = 0x80,
+        .adv_intv_min = 320,
+        .adv_intv_max = 320,
         .own_addr_type = PUBLIC_OR_RANDOM_STATIC_ADDR,
         .filter_policy = 0,
         .ch_map = 0x7,
@@ -921,6 +945,7 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
         temp=rand()%0xffff;
         Set_TOKEN(temp>>12,temp>>8,temp>>4,temp);
         LOG_I("connected! new con_idx = %d", con_idx);
+				power_mode=POWER_H;
         break;
     case DISCONNECTED:
         BLE_connected_flag=0;
@@ -1091,7 +1116,6 @@ static void gatt_manager_callback(enum gatt_evt_type type,union gatt_evt_u *evt,
     }
 }
 
-uint8_t RTC_flag;
 static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
 {
     switch(type)
@@ -1128,105 +1152,7 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         }
 #endif
 
-        //ls_uart_init();
-
-        //RESET_NB();
-        Button_Gpio_Init();
-        uint8_t button_flag=io_read_pin(PB15);
-        DELAY_US(200*1000);
-        Read_Last_Data();
-        AT_uart_init();
-        ls_app_timer_init();
-        //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
-        HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
         User_Init();
-
-        if(Check_SW2()==1 && Check_SW1()==0 ) {
-            lock_state[0]=1;
-        }
-        else {
-            lock_state[0]=0;
-        }
-        last_lock_state=lock_state[0];  //获取初始锁状态
-
-        uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
-        LOG_I("wkup_source:%x",wkup_source) ;
-        Set_Sleep_Time(150);
-
-        //来自RTC的启动，发送心跳包
-        if ((RTC_WKUP & wkup_source) != 0) {
-            RTC_flag=1;
-            SYSCFG->BKD[7]++;
-            if(SYSCFG->BKD[7]<7) {
-                Set_Sleep_Time(1);
-                //RESET_NB();
-            }
-            else if(SYSCFG->BKD[7]==8) {
-                SYSCFG->BKD[7]=0;
-                Set_Sleep_Time(150);
-                RESET_NB();
-                Set_Task_State(TICK_LOCK_SEND,START);
-                AT_tset_flag=1;
-            }
-        }
-        //来自按键和锁开关唤醒
-        else if ((PB15_IO_WKUP & wkup_source) != 0) {
-            AT_tset_flag=2;
-            //Set_Task_State(OPEN_LOCK_SEND,START);
-            //KEY_ONCE=1;            //由启动按键唤醒
-            if(button_flag==0) {
-                //启动开锁请求发送
-                buzzer_task_flag=1;
-                Set_Task_State(OPEN_LOCK_SEND,START);
-                KEY_ONCE=1;
-            }
-            //由锁开关唤醒
-            else {
-                if(lock_state[0]==1) {
-                    buzzer_task_flag=1;
-                }
-                Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-                look_status_send_count+=2;
-                if(look_status_send_count>=3)  look_status_send_count=3;
-                //启动锁数据上报命令
-            }
-        }
-        //断电重启
-        else if (wkup_source == 0) {
-            AT_tset_flag=2;
-            reset_flag=1;
-            Set_Task_State(START_LOCK_SEND,START);
-        }
-        //HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"ATE1\r\n",sizeof("ATE1\r\n"),100);
-
-//				AT_Command_Send(SKTCREATE);
-//				DELAY_US(100*10);
-//
-//
-//
-//				AT_Command_Send(SKTCONNECT);
-
-
-        if(test_mode_flag!=0xAA) {
-            Set_Task_State(GET_MODE_VAL,START);
-            Set_Task_State(GET_EMIC_VAL,STOP);
-            Set_Task_State(START_LOCK_SEND,STOP);
-            Set_Task_State(OPEN_LOCK_SEND,STOP);
-            Set_Task_State(TICK_LOCK_SEND,STOP);
-            Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-            Set_Task_State(GET_DB_VAL,STOP);
-            //Set_Task_State(GET_DB_VAL,STOP);
-
-
-            //START_LOCK_SEND,     		//启动数据上报
-            //OPEN_LOCK_SEND,  				//开锁数据请求
-            //TICK_LOCK_SEND, 				//心跳包发送
-            //OPEN_LOCK_DATA_SEND,    // 20信息上报
-            //GET_DB_VAL,   				 	//获取信号强度
-            //OPEN_LOCK_DATA_SEND_MOTO,
-            //GET_MODE_VAL,  //获取模式（测试程序用任务）
-            //GET_EMIC_VAL,  //获取EMIC任务（测试程序用任务）
-        }
     }
     break;
 #if SLAVE_SERVER_ROLE == 1
