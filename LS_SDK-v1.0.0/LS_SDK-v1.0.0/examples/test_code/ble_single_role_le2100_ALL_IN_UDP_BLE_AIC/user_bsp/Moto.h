@@ -6,6 +6,7 @@
 extern uint8_t moro_task_flag;
 uint8_t Moto_Task(void);
 void moto_gpio_init(void);
+void moto_gpio_deinit(void);
 #endif 
 
 //void AES_main(void);

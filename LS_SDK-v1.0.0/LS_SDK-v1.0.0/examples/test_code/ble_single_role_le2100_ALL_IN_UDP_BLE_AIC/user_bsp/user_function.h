@@ -92,6 +92,9 @@ extern uint8_t user_count;
 
 void User_ADC_Init(void);
 void User_ADC_DeInit(void);
+void LED_IO_Init(void);
+void LED_IO_DeInit(void);
+void gpio_init_exti(void);
 
 
 #endif

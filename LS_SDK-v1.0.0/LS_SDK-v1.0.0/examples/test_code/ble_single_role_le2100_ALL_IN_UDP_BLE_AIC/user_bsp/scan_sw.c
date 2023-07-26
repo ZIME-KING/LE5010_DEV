@@ -8,6 +8,73 @@
 #define SW2 PA01
 #define KEY PB15
 
+
+
+
+
+//IO中断测试
+void Button_io_init_exti(void)
+{	
+		io_cfg_input(SW1);    //PB11 config input
+    io_pull_write(SW1, IO_PULL_UP);    //PB11 config pullup
+    io_exti_config(SW1,INT_EDGE_FALLING);    //PB11 interrupt falling edge
+    io_exti_enable(SW1,true);    //PB11 interrupt enable
+		
+		
+		io_cfg_input(SW2);    //PB11 config input
+    io_pull_write(SW2, IO_PULL_UP);    //PB11 config pullup
+    io_exti_config(SW2,INT_EDGE_FALLING);    //PB11 interrupt falling edge
+    io_exti_enable(SW2,true);    //PB11 interrupt enable
+		
+		io_cfg_input(KEY);    //PB11 config input
+    io_pull_write(KEY, IO_PULL_UP);    //PB11 config pullup
+    io_exti_config(KEY,INT_EDGE_FALLING);    //PB11 interrupt falling edge
+    io_exti_enable(KEY,true);    //PB11 interrupt enable
+}
+
+void io_exti_callback(uint8_t pin) 
+{
+		uint8_t i=0;
+    switch (pin)
+    {
+    case SW1:
+				LOG_I("SW1_tig %d",io_read_pin(SW1));
+				sleep_time=0;   //休眠时间清0
+				i++;
+        break;
+		
+		case SW2:
+				LOG_I("SW2_tig %d",io_read_pin(SW2));
+				sleep_time=0;   //休眠时间清0
+				i++;
+        break;	
+
+		case KEY:
+				LOG_I("KEY_tig %d",io_read_pin(KEY));
+				sleep_time=0;   //休眠时间清0
+				i++;
+        break;					
+				
+    default:
+        break;
+    }
+	
+		if(i!=0){
+				LOG_I("ENTER_POWER_H");
+				for(uint8_t i=0;i<100;i++){
+					LOG_I("SW1_tig %d",io_read_pin(SW1));
+					LOG_I("SW2_tig %d",io_read_pin(SW2));
+					LOG_I("KEY_tig %d",io_read_pin(KEY));
+				}
+        power_mode=POWER_H;
+		}
+		
+}
+
+
+
+
+
 //io下降沿唤醒函数
 static void exitpb15_iowkup_init(void)
 {
@@ -46,7 +113,7 @@ uint8_t wd_FLAG=0;
 uint8_t KEY_ONCE;      //按键按下一次标记
 //5ms 跑一次
 void Scan_Key(){
-	static uint16_t count;
+	static uint16_t count=0;
 //	static uint8_t edge_flag;
 //	static uint8_t edge_flag_1;
 	
@@ -80,6 +147,8 @@ void Scan_Key(){
 			}
 			if(count==100 && test_mode_flag!=0xAA){
 						uint8_t temp_val = 0xAA;
+						
+						LOG_I("reset_count%d",count);			
 						//uint16_t length_one = 1;
 						tinyfs_write(ID_dir_3,RECORD_KEY_T,(uint8_t*)&temp_val,1);	//给测试模式标记成0xBB（不开启）
 						tinyfs_write_through();

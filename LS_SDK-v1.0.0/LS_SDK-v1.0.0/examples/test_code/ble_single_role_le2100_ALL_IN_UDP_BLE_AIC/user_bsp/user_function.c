@@ -73,20 +73,31 @@ uint8_t Db_val;
 volatile uint8_t recv_flag = 0;
 static ADC_HandleTypeDef hadc;
 
-
 void Read_Last_Data(void);
 
 uint8_t RTC_flag;
 
+
 void User_Init() {
+		Read_Last_Data();
+		
 		User_ADC_Init();
     Buzzer_Init();
     Button_Gpio_Init();
     moto_gpio_init();
-    ls_app_timer_init();
+		LED_IO_Init();
+		ls_app_timer_init();
+    AT_uart_init();	
+		
+    HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
+		Set_Sleep_Time(5);      //150s		
+							
+								Button_io_init_exti();//开启IO中断用来唤醒
+
+							
 //   io_cfg_output(PA12);   //PB09 config output
 //   io_write_pin(PA12,1);
-//    //Read_Last_Data();
+//    //
 //    io_cfg_output(PC01);   //PB09 config output
 //    io_write_pin(PC01,0);
 //    io_cfg_output(PC00);   //PB10 config output
@@ -101,7 +112,7 @@ void User_Init() {
 //    uint8_t button_flag=io_read_pin(PB15);
 //    DELAY_US(200*1000);
 //    Read_Last_Data();
-//    AT_uart_init();
+
 //    ls_app_timer_init();
 //    //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
 //    HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
@@ -112,8 +123,17 @@ void User_Init() {
 //        lock_state[0]=0;
 //    }
 //    last_lock_state=lock_state[0];  //获取初始锁状态
-//    uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
-//    LOG_I("wkup_source:%x",wkup_source) ;
+    uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
+    LOG_I("wkup_source:%x",wkup_source);
+		if (wkup_source == 0) {
+		    LOG_I("power_trans");
+        AT_tset_flag=2;
+        reset_flag=1;
+        Set_Task_State(START_LOCK_SEND,START);
+    }
+		
+
+		
 //    Set_Sleep_Time(20);      //150s
 //    //来自RTC的启动，发送心跳包
 //    if ((RTC_WKUP & wkup_source) != 0) {
@@ -159,17 +179,33 @@ void User_Init() {
 //        reset_flag=1;
 //        Set_Task_State(START_LOCK_SEND,START);
 //    }
-//    if(test_mode_flag!=0xAA) {
-//        Set_Task_State(GET_MODE_VAL,START);
-//        Set_Task_State(GET_EMIC_VAL,STOP);
-//        Set_Task_State(START_LOCK_SEND,STOP);
-//        Set_Task_State(OPEN_LOCK_SEND,STOP);
-//        Set_Task_State(TICK_LOCK_SEND,STOP);
-//        Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
-//        Set_Task_State(GET_DB_VAL,STOP);
-//    }
+    if(test_mode_flag!=0xAA) {
+        Set_Task_State(GET_MODE_VAL,START);
+        Set_Task_State(GET_EMIC_VAL,STOP);
+        Set_Task_State(START_LOCK_SEND,STOP);
+        Set_Task_State(OPEN_LOCK_SEND,STOP);
+        Set_Task_State(TICK_LOCK_SEND,STOP);
+        Set_Task_State(OPEN_LOCK_DATA_SEND,STOP);
+        Set_Task_State(GET_DB_VAL,STOP);
+    }
 }
 
+void LED_IO_Init(){
+		io_pull_write(PC00, IO_PULL_DISABLE);
+		io_pull_write(PC01, IO_PULL_DISABLE);
+
+		io_cfg_output(PC00);
+		io_cfg_output(PC01);
+		io_write_pin(PC00, 0);
+		io_write_pin(PC01, 0);
+}
+
+void LED_IO_DeInit(){
+		io_cfg_input(PC00);
+		io_cfg_input(PC01);
+		io_pull_write(PC00, IO_PULL_DOWN);
+		io_pull_write(PC01, IO_PULL_DOWN);
+}
 
 void LED_TASK() {
     static uint8_t flag;
@@ -1731,6 +1767,7 @@ void Set_Sleep_Time(uint16_t time_s) {
 //休眠任务
 void Sleep_Task() {
     if(sleep_time*50>set_sleep_time*1000) {
+
 
         power_mode=POWER_L;
 

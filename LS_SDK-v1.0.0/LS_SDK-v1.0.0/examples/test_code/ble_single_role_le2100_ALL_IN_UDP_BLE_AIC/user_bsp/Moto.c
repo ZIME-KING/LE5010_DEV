@@ -3,11 +3,24 @@
 
 void moto_gpio_init(void)
 {
-    io_cfg_output(PB03);   //PB09 config output
+		io_pull_write(PB03,IO_PULL_DISABLE);
+		io_pull_write(PB04,IO_PULL_DISABLE);
+		
+    io_cfg_output(PB03);   //
     io_write_pin(PB03,0);  
-    io_cfg_output(PB04);   //PB10 config output
-    io_write_pin(PB04,0);  //PB10 write low power
+    io_cfg_output(PB04);   //
+    io_write_pin(PB04,0);  //
 }
+
+void moto_gpio_deinit(void){
+		io_cfg_input(PB03);   //
+    io_cfg_input(PB04);   //
+		io_pull_write(PB03,IO_PULL_DOWN);
+		io_pull_write(PB04,IO_PULL_DOWN);
+		
+}
+
+
 void Moto_N(){
 	io_write_pin(PB03,1);   
 	io_write_pin(PB04,0);   

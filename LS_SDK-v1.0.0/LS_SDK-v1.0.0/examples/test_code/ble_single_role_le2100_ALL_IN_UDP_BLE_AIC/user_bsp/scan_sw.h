@@ -10,6 +10,7 @@ uint8_t Check_SW3(void);
 extern uint8_t KEY_ONCE;
 void ls_sleep_enter_lp2(void);
 extern uint8_t wd_FLAG;
+void Button_io_init_exti(void);
 #endif 
 
 //void AES_main(void);
