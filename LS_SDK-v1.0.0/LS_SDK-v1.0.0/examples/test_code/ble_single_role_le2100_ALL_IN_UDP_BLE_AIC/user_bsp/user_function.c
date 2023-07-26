@@ -79,7 +79,7 @@ void Read_Last_Data(void);
 uint8_t RTC_flag;
 
 void User_Init() {
-//		User_ADC_Init();
+		User_ADC_Init();
     Buzzer_Init();
     Button_Gpio_Init();
     moto_gpio_init();

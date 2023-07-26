@@ -1,12 +1,6 @@
 #include "user_main.h"
 #include "Buzzer.h"
 
-#include "lstimer.h"
-#include <string.h>
-#include "io_config.h"
-#include "platform.h"
-#include "log.h"
-
 #define TIM_PRESCALER     (SDK_HCLK_MHZ-1)
 #define TIM_PERIOD        (500 - 1) /* Period Value  */
 #define TIM_PULSE1        	250       /* Capture Compare 1 Value  */

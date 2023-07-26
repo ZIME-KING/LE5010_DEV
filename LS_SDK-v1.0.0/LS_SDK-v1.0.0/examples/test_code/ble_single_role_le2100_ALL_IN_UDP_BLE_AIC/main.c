@@ -17,14 +17,15 @@
 #define SLAVE_SERVER_ROLE 1
 #define MASTER_CLIENT_ROLE 0
 
-#ifdef USER_TEST
-uint8_t open_count;
+#ifdef USER_TEST 
+ uint8_t open_count;
 #endif
 uint8_t MAC_ADDR[6];
 
 uint8_t CIMI_DATA[15]="460000000000000";
 
 uint8_t MICI_DATA[15]="860000000000000";
+
 uint8_t SHORT_NAME[10]="3141592654";
 uint8_t NEW_SHORT_NAME[10];
 uint8_t SHORT_NAME_LEN=10;
@@ -71,7 +72,7 @@ uint16_t send_time_delay=0; //说明nb模块收到数据后，发送过程中功率与信号强度相关
 #define DISCONNECTED_MSG_PATTERN_LEN 2
 
 
-uint8_t globle_Result=0xFF;  //接受数据处理结果
+uint8_t globle_Result;  //接受数据处理结果
 uint8_t user_ble_send_flag=0;
 
 uint8_t TX_DATA_BUF[16]; //BEL
@@ -244,13 +245,9 @@ static void start_scan(void);
 static void ls_uart_server_client_uart_tx(void);
 
 static void ls_user_event_timer_cb_0(void *param);
-static void ls_user_event_timer_cb_1(void *param);
-static void ls_single_role_timer_cb(void *param);
 
-static struct builtin_timer *user_event_timer_inst_0 = NULL;
-static struct builtin_timer *user_event_timer_inst_1 = NULL;
-static struct builtin_timer *ble_app_timer_inst 		 = NULL;
 
+static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
 
 uint32_t user_event_period=5;     //按键处理
 
@@ -285,12 +282,12 @@ void ls_user_event_timer_cb_0(void *param)
         if(power_mode==POWER_L) {
 						//RESET_NB();
 						LOG_I("ENTER_LOWPOWER_MODE");
-            sys_init_none();
+						io_init();
             io_write_pin(PC00, 0);
             io_write_pin(PC01, 0);
             AT_uart_deinit();
             user_event_period=5000;
-					//	User_ADC_DeInit();	
+						User_ADC_DeInit();	
 						Buzzer_DeInit();
 						
 						LOG_I("11111");
@@ -300,6 +297,8 @@ void ls_user_event_timer_cb_0(void *param)
 						LOG_I("ENTER_NORPOWER_MODE");
         }
     }
+		
+		
     if(power_mode==POWER_L) {
 						LOG_I("5000ms");
         return;
@@ -368,81 +367,6 @@ void ls_user_event_timer_cb_0(void *param)
 //        }
     }
 }
-//uint16_t temp_count=0;
-
-//50ms 任务
-static void ls_user_event_timer_cb_1(void *param)
-{
-    //第一次上电从flash读出默认值不为aa进入测试代码
-    if(test_mode_flag!=0xAA) {
-        if(wd_FLAG==0)HAL_IWDG_Refresh();	  //喂狗
-        TEST_LED_TASK();										//LED显示效果
-        Buzzer_Task();											//蜂鸣器任务
-        TEST_AT_GET_MODE_TASK();
-        TEST_AT_GET_CIMI_TASK();
-        TEST_AT_GET_DB_TASK();
-        State_Change_Task();
-
-        //LOG_I("tMODE:%X",test_mode_flag);
-        //if(){
-        //}
-    }
-    else {
-        //LOG_I("fMODE:%X",test_mode_flag);
-
-        sleep_time++;			 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
-        if(wd_FLAG==0)HAL_IWDG_Refresh();	 //喂狗
-        LED_TASK();													 //LED显示效果
-        Buzzer_Task();											 //蜂鸣器任务
-        Sleep_Task();	     								 	 //休眠,  Set_Sleep_Time（s）设置休眠时间
-#ifdef USER_TEST
-        AT_User_Set_Task();
-        AT_User_Reply_Task();
-        LOG_I("db_%x",db_flag);
-#endif
-        NB_WAKE_Task();
-        db_flag=AT_GET_DB_TASK();						 //获取信号强度
-        if(db_flag==0xff) {
-            if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
-                //名称有变化
-                if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,SHORT_NAME_LEN)!=0) {
-                    LOG_I("read_id");
-                    LOG_I("%s",SHORT_NAME);
-
-                    LOG_I("read_id N");
-                    LOG_I("%s",NEW_SHORT_NAME);
-
-                    tinyfs_write(ID_dir_2,1,NEW_SHORT_NAME,sizeof(NEW_SHORT_NAME));
-                    tinyfs_write_through();
-
-                    uint8_t  tmp[10];
-                    uint16_t length = 10;
-                    tinyfs_read(ID_dir_2,1,tmp,&length);//读到tmp中
-                    LOG_I("read_id");
-                    LOG_I("%s",tmp);
-                    wd_FLAG=1;
-                }
-                AT_User_Set_Task();
-                AT_User_Reply_Task();
-                AT_Set_SKTCONNECT_Task();
-                Open_Lock_Data_Send_Moto_Task();
-                State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
-                Start_Lock_Send_Task();			 				 //启动信息上报
-                Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
-                Open_Lock_Data_Send_Task();  				 //信息上报
-                Tick_Lock_Send_Task();							 //心跳包
-            }
-        }
-        //蓝牙连接下
-        if(BLE_connected_flag==1) {
-            Password_Task();//改开锁的密码
-            Key_Task();     //改aes128的密钥
-            sleep_time=0;   //不休眠
-        }
-    }
-    ls_uart_server_send_notification();  //蓝牙数据发送
-    builtin_timer_start(user_event_timer_inst_1, user_event_period, NULL);
-}
 
 static void ls_uart_init(void)
 {
@@ -475,6 +399,9 @@ void AT_uart_deinit(void)
     uart2_io_deinit();
     HAL_UART_DeInit(&UART_Config_AT);
 }
+
+
+
 
 #if SLAVE_SERVER_ROLE == 1
 static void ls_uart_server_init(void)
@@ -562,7 +489,7 @@ static void User_BLE_Data_Handle() {
             TX_DATA_BUF[3]=TOKEN[2];
             TX_DATA_BUF[4]=TOKEN[3];  //TOKEN[4]
             TX_DATA_BUF[5]=0x01;    	//LEN
-
+					
             if(strncmp((char*)PASSWORD,(char*)&DATA_BUF[6],6)==0) {
                 moro_task_flag=1;                    ////密码正确 开启电机动作
                 //TX_DATA_BUF[6]=Close_Lock_Moto();    //RET 00为开锁成功，01为密码错误  FF为开锁失败
@@ -601,52 +528,52 @@ static void User_BLE_Data_Handle() {
             //for(uint8_t i=0;i<10;i++){
             //	SHORT_NAME[i]=0;
             //}
-
-
-            SHORT_NAME_LEN=DATA_BUF[5];
-            NEW_SHORT_NAME[0]=0x00;
-            NEW_SHORT_NAME[1]=0x00;
-            NEW_SHORT_NAME[2]=0x00;
-            NEW_SHORT_NAME[3]=0x00;
-            NEW_SHORT_NAME[4]=0x00;
-            NEW_SHORT_NAME[5]=0x00;
-            NEW_SHORT_NAME[6]=0x00;
-            NEW_SHORT_NAME[7]=0x00;
-            NEW_SHORT_NAME[8]=0x00;
-            NEW_SHORT_NAME[9]=0x00;
-
+						
+						
+						SHORT_NAME_LEN=DATA_BUF[5];
+						NEW_SHORT_NAME[0]=0x00;
+						NEW_SHORT_NAME[1]=0x00;
+						NEW_SHORT_NAME[2]=0x00;
+						NEW_SHORT_NAME[3]=0x00;
+						NEW_SHORT_NAME[4]=0x00;
+						NEW_SHORT_NAME[5]=0x00;
+						NEW_SHORT_NAME[6]=0x00;
+						NEW_SHORT_NAME[7]=0x00;
+						NEW_SHORT_NAME[8]=0x00;
+						NEW_SHORT_NAME[9]=0x00;
+						
             memcpy (&NEW_SHORT_NAME[0], &DATA_BUF[6], SHORT_NAME_LEN);
-            buzzer_task_flag=1;
+						buzzer_task_flag=1;
             //wd_FLAG=1;
         }
 
         break;
     //修改密码
     case 0xA1:
-        memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
-        psaaword_task_flag=0xA1;
+				memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
+				psaaword_task_flag=0xA1;
         break;
-
+		
     case 0xA2:
-        memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
-        if(psaaword_task_flag==0xA1) {
-            psaaword_task_flag=0xA2;
-        }
+				memcpy (&NEW_PASSWORD_BUF[0], &DATA_BUF[6], 6);
+				if(psaaword_task_flag==0xA1){
+						psaaword_task_flag=0xA2;
+				}
         break;
 
     //修改秘钥
     case 0xA5:
-        memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
-        key_task_flag=0xA5;
+				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
+				key_task_flag=0xA5;
         break;
-
+    
     case 0xA6:
-        memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
-        if(key_task_flag==0xA5) {
-            key_task_flag=0xA6;
-        }
+				memcpy (&NEW_KEY_BUF[0], &DATA_BUF[6], 8);
+				if(key_task_flag==0xA5){
+						key_task_flag=0xA6;
+				}
         break;
-    }
+			}
 }
 
 //蓝牙数据写入，数据处理
@@ -658,14 +585,14 @@ static void user_write_req_ind(uint8_t att_idx, uint16_t length, uint8_t const *
         sleep_time=0;
         LS_ASSERT(length <= UART_TX_PAYLOAD_LEN_MAX);
         memcpy(&RX_DATA_BUF[0],value,16);
-
-#ifdef USER_TEST
-        if(RX_DATA_BUF[0]=='A' && RX_DATA_BUF[1]=='T') {
-            if(AT_tset_flag==0) AT_tset_flag=RX_DATA_BUF[2]-'0';
-        }
-#endif
-
-        User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
+				
+			#ifdef USER_TEST
+					if(RX_DATA_BUF[0]=='A' && RX_DATA_BUF[1]=='T'){
+						if(AT_tset_flag==0) AT_tset_flag=RX_DATA_BUF[2]-'0';
+					}
+			#endif
+				
+				User_Decoden(&RX_DATA_BUF[0],&DATA_BUF[0],16);
         LOG_I("接收到的");
         LOG_HEX(&RX_DATA_BUF[0],16);
         LOG_HEX(&DATA_BUF[0],16);
@@ -690,20 +617,23 @@ static void ls_uart_server_send_notification(void)
 {
     uint8_t AF_TX_DATA_BUF[16];
     User_Encryption(TX_DATA_BUF,AF_TX_DATA_BUF,16);
+	
+		if(key_task_flag==0xff){
+					key_task_flag=0;
+					static uint8_t tmp[10];
+					uint16_t length_8  = 8; 
+					tinyfs_read(ID_dir_3,RECORD_KEY4,tmp,&length_8);//读到tmp中
+					LOG_I("KEY4");
+					LOG_HEX(tmp,8);
+					memcpy (&key[0], &tmp[0],8);
 
-    if(key_task_flag==0xff) {
-        key_task_flag=0;
-        static uint8_t tmp[10];
-        uint16_t length_8  = 8;
-        tinyfs_read(ID_dir_3,RECORD_KEY4,tmp,&length_8);//读到tmp中
-        LOG_I("KEY4");
-        LOG_HEX(tmp,8);
-        memcpy (&key[0], &tmp[0],8);
-        tinyfs_read(ID_dir_3,RECORD_KEY5,tmp,&length_8);//读到tmp中
-        LOG_I("KEY5");
-        LOG_HEX(tmp,8);
-        memcpy (&key[8], &tmp[0],8);
-    }
+					tinyfs_read(ID_dir_3,RECORD_KEY5,tmp,&length_8);//读到tmp中
+					LOG_I("KEY5");
+					LOG_HEX(tmp,8);
+					memcpy (&key[8], &tmp[0],8);
+					
+					
+		}
     //LOG_I("uart_server_ntf_done:%d,%d,",uart_server_ntf_done,user_ble_send_flag);
     uint32_t cpu_stat = enter_critical();
     if(user_ble_send_flag==1 && BLE_connected_flag==1) {
@@ -718,6 +648,9 @@ static void ls_uart_server_send_notification(void)
         LOG_I("发送的");
         LOG_HEX(&TX_DATA_BUF[0],16);
         LOG_HEX(&AF_TX_DATA_BUF[0],16);
+			
+
+			
         // memcpy((void*)&uart_server_ble_buf[0], (void*)&uart_server_ble_buf[tx_len], uart_server_recv_data_length);
     }
     exit_critical(cpu_stat);
@@ -725,13 +658,13 @@ static void ls_uart_server_send_notification(void)
 
 
 
-// const uint16_t adv_int_arr[6] = {80, 160, 320, 800, 1600, 3200};
+
 
 static void create_adv_obj()
 {
     struct legacy_adv_obj_param adv_param = {
-        .adv_intv_min = 320,
-        .adv_intv_max = 320,
+        .adv_intv_min = 0x80,
+        .adv_intv_max = 0x80,
         .own_addr_type = PUBLIC_OR_RANDOM_STATIC_ADDR,
         .filter_policy = 0,
         .ch_map = 0x7,
@@ -747,16 +680,16 @@ static void create_adv_obj()
 }
 void start_adv(void)
 {
-    //  uint8_t FF_NAME[]= {0xff,0xFF};
-    uint8_t temp_len;
+  //  uint8_t FF_NAME[]= {0xff,0xFF};
+		uint8_t temp_len;
     temp_len=strlen((char*)&SHORT_NAME[0]);
-    if(temp_len>=10) {
-        temp_len=10;
-    }
+		if(temp_len>=10){
+			 temp_len=10;
+		}
     LS_ASSERT(adv_obj_hdl != 0xff);
     uint8_t adv_data_length = ADV_DATA_PACK(advertising_data, 2, GAP_ADV_TYPE_SHORTENED_NAME,     &SHORT_NAME[0], temp_len
                                             ,GAP_ADV_TYPE_COMPLETE_NAME,      &SHORT_NAME[0], temp_len
-                                            // ,GAP_ADV_TYPE_MANU_SPECIFIC_DATA, &FF_NAME[0], sizeof(FF_NAME)
+                                           // ,GAP_ADV_TYPE_MANU_SPECIFIC_DATA, &FF_NAME[0], sizeof(FF_NAME)
                                            );
     dev_manager_start_adv(adv_obj_hdl, advertising_data, adv_data_length, scan_response_data, 0);
 }
@@ -947,13 +880,12 @@ static void gap_manager_callback(enum gap_evt_type type,union gap_evt_u *evt,uin
             gatt_manager_client_mtu_exch_send(con_idx);
         }
 #endif
-        uint16_t temp;
+				uint16_t temp;
         BLE_connected_flag=1;
-        srand (sleep_time);
-        temp=rand()%0xffff;
-        Set_TOKEN(temp>>12,temp>>8,temp>>4,temp);
+				srand (sleep_time);
+				temp=rand()%0xffff;
+				Set_TOKEN(temp>>12,temp>>8,temp>>4,temp);
         LOG_I("connected! new con_idx = %d", con_idx);
-				power_mode=POWER_H;
         break;
     case DISCONNECTED:
         BLE_connected_flag=0;
@@ -1144,8 +1076,8 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
         dev_manager_get_identity_bdaddr(addr,&type);
         LOG_I("type:%d,addr:",type);
         LOG_HEX(addr,sizeof(addr));
-        memcpy(&MAC_ADDR[0],&addr[0],6);
-
+				memcpy(&MAC_ADDR[0],&addr[0],6);
+				
 #if SLAVE_SERVER_ROLE == 1
         dev_manager_add_service((struct svc_decl *)&ls_uart_server_svc);
         ls_uart_server_init();
@@ -1159,7 +1091,6 @@ static void dev_manager_callback(enum dev_evt_type type,union dev_evt_u *evt)
             create_scan_obj();
         }
 #endif
-
         User_Init();
     }
     break;
