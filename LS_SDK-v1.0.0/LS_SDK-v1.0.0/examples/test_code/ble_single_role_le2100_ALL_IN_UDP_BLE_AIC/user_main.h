@@ -16,6 +16,7 @@
 #include "lsiwdg.h"
 #include "lsrtc.h"
 #include "reg_syscfg.h"
+#include "builtin_timer.h"
 
 #include "user_function.h" 
 #include "test_user_function.h"
@@ -115,10 +116,12 @@ void AT_uart_deinit(void);
 void AT_uart_init(void);
 
 
+void ls_user_event_timer_cb_0(void *param);
+
+
 extern uint32_t user_event_period;
-
+extern struct builtin_timer *user_event_timer_inst_0;
 extern uint8_t power_mode;
-
 
 
 #endif

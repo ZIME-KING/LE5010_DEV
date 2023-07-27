@@ -244,11 +244,8 @@ static void start_scan(void);
 #endif
 static void ls_uart_server_client_uart_tx(void);
 
-static void ls_user_event_timer_cb_0(void *param);
-
-
-static struct builtin_timer_0 *user_event_timer_inst_0 = NULL;
-
+void ls_user_event_timer_cb_0(void *param);
+struct builtin_timer *user_event_timer_inst_0 = NULL;
 uint32_t user_event_period=5;     //按键处理
 
 
@@ -275,6 +272,14 @@ uint8_t test_mode_flag;
 
 extern void user_io_init(void);
 
+
+void user_log_print(){
+	LOG_I("sleep=%d",sleep_time);
+	LOG_I("power_mode=%d",power_mode);
+	LOG_I("user_event_period=%d",user_event_period);	
+
+
+}
 void ls_user_event_timer_cb_0(void *param)
 {
     static uint16_t i;
@@ -287,19 +292,20 @@ void ls_user_event_timer_cb_0(void *param)
     if(last_power_mode!=power_mode) {
         last_power_mode=power_mode;
         if(power_mode==POWER_L) {
-            //RESET_NB();
+            RESET_NB();
             LOG_I("ENTER_LOWPOWER_MODE");
-            user_io_init();
-            user_event_period=5000;
-
+						user_event_period=2000;
+						//io_init();
+//					user_io_init();
             User_ADC_DeInit();
             Buzzer_DeInit();
-						Button_Gpio_Init();
+//					Button_Gpio_Init();
 						Button_io_init_exti();//开启IO中断用来唤醒
 						LED_IO_DeInit();
 						AT_uart_deinit();
         }
 				else if(power_mode==POWER_H) {
+						LOG_I("ENTER_NORPOWER_MODE");
 						user_event_period=5;
             User_ADC_Init();
             Buzzer_Init();
@@ -308,29 +314,27 @@ void ls_user_event_timer_cb_0(void *param)
             LED_IO_Init();
             AT_uart_init();
             HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-            Set_Sleep_Time(5);      //150s
+            Set_Sleep_Time(30);      //150s
             LOG_I("ENTER_NORPOWER_MODE");
         }
     }
     if(power_mode==POWER_L) {
         LOG_I("5000ms");
+				user_log_print();
         return;
     }
 
     if(i%100==1) {
-//			LOG_I("5ms");
+			user_log_print();
     }
 
     Uart_2_Time_Even(); 		 //串口接收数据
     Uart_2_Data_Processing();
     Scan_Key();					 		 //扫描按键
     Moto_Task();				 		 //电机的任务
-    Get_Vbat_Task();		 		 //获取电池电量 0~100
+//    Get_Vbat_Task();		 		 //获取电池电量 0~100
 
     if(i%10==1) {
-
-
-
         //第一次上电从flash读出默认值不为aa进入测试代码
         if(test_mode_flag!=0xAA) {
             if(wd_FLAG==0)HAL_IWDG_Refresh();	  //喂狗
@@ -346,17 +350,13 @@ void ls_user_event_timer_cb_0(void *param)
             //}
         }
         else {
-
-//		LOG_I("50ms");
-
-
-            sleep_time++;			 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
-					LOG_I("sleep_time%d",sleep_time);
-			
+//				LOG_I("50ms");
+					sleep_time++;			 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
+//				LOG_I("sleep_time%d",sleep_time);
 //        if(wd_FLAG==0)HAL_IWDG_Refresh();		//喂狗
-            LED_TASK();													//LED显示效果
-            Buzzer_Task();										//蜂鸣器任务
-            Sleep_Task();															//休眠,  Set_Sleep_Time（s）设置休眠时间
+          LED_TASK();													//LED显示效果
+          Buzzer_Task();											//蜂鸣器任务
+          Sleep_Task();												//休眠,  Set_Sleep_Time（s）设置休眠时间
 //#ifdef USER_TEST
 //        AT_User_Set_Task();
 //        AT_User_Reply_Task();

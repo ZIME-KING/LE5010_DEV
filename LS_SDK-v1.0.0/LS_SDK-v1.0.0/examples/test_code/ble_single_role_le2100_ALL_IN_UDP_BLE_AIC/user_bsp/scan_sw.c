@@ -60,13 +60,16 @@ void io_exti_callback(uint8_t pin)
     }
 	
 		if(i!=0){
-				LOG_I("ENTER_POWER_H");
-				for(uint8_t i=0;i<100;i++){
-					LOG_I("SW1_tig %d",io_read_pin(SW1));
-					LOG_I("SW2_tig %d",io_read_pin(SW2));
-					LOG_I("KEY_tig %d",io_read_pin(KEY));
-				}
+//				LOG_I("ENTER_POWER_H");
+//				for(uint8_t i=0;i<100;i++){
+//					LOG_I("SW1_tig %d",io_read_pin(SW1));
+//					LOG_I("SW2_tig %d",io_read_pin(SW2));
+//					LOG_I("KEY_tig %d",io_read_pin(KEY));
+//				}
         power_mode=POWER_H;
+				user_event_period=5;
+				builtin_timer_start(user_event_timer_inst_0, user_event_period, NULL);
+				AT_User_Set(0xFF);   //重新设置socket启动标记
 		}
 		
 }
@@ -97,16 +100,41 @@ static void exitpa00_iowkup_init(void)
 //}
 
 void Button_Gpio_Init(){
-	io_cfg_input(KEY);               				//输入模式                     
-  io_pull_write(KEY, IO_PULL_UP);  				//设置上拉    
+	
+	
+		io_cfg_input(SW1);    //PB11 config input
+    io_pull_write(SW1, IO_PULL_UP);    //PB11 config pullup
+    io_exti_config(SW1,INT_EDGE_FALLING);    //PB11 interrupt falling edge
+    io_exti_enable(SW1,false);    //PB11 interrupt enable
+		
+		
+		io_cfg_input(SW2);    //PB11 config input
+    io_pull_write(SW2, IO_PULL_UP);    //PB11 config pullup
+    io_exti_config(SW2,INT_EDGE_FALLING);    //PB11 interrupt falling edge
+    io_exti_enable(SW2,false);    //PB11 interrupt enable
+		
+		io_cfg_input(KEY);    //PB11 config input
+    io_pull_write(KEY, IO_PULL_UP);    //PB11 config pullup
+    io_exti_config(KEY,INT_EDGE_FALLING);    //PB11 interrupt falling edge
+    io_exti_enable(KEY,false);    //PB11 interrupt enable
+	
+}
+
+void Button_Gpio_DeInit(){
+	 	io_cfg_input(KEY);               				//                     
+  io_pull_write(KEY, IO_PULL_UP);  				//    
 	
 	io_cfg_input(SW1);                       
   io_pull_write(SW1, IO_PULL_UP);     
 	
 	io_cfg_input(SW2);                       
   io_pull_write(SW2, IO_PULL_UP);
-//	SW2_init();
+
 }
+
+
+
+
 //#define RECORD_KEY1 1	 //蓝牙名称
 #define RECORD_KEY2 2  //完成模块初始化标记
 uint8_t wd_FLAG=0;

@@ -870,7 +870,7 @@ void io_init(void)
 
 void user_io_init(void)
 {
-    RCC->AHBEN |= RCC_GPIOA_MASK | RCC_GPIOB_MASK | RCC_GPIOC_MASK;
+//    RCC->AHBEN |= RCC_GPIOA_MASK | RCC_GPIOB_MASK | RCC_GPIOC_MASK;
     LSGPIOA->MODE = 0;
     LSGPIOA->IE = 0;
     LSGPIOA->OE = 0;
@@ -882,8 +882,8 @@ void user_io_init(void)
     LSGPIOB->IE = 0;
     LSGPIOB->OE = 0;
     LSGPIOB->PUPD = 0x2800;
-    arm_cm_set_int_isr(EXTI_IRQn,EXTI_Handler);
-    __NVIC_EnableIRQ(EXTI_IRQn);
+//    arm_cm_set_int_isr(EXTI_IRQn,EXTI_Handler);
+//    __NVIC_EnableIRQ(EXTI_IRQn);
 }
 
 void io_cfg_output(uint8_t pin)

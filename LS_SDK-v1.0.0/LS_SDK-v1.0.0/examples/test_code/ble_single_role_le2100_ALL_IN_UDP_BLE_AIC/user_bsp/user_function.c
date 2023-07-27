@@ -85,14 +85,14 @@ void User_Init() {
     Buzzer_Init();
     Button_Gpio_Init();
     moto_gpio_init();
-		LED_IO_Init();
+		LED_IO_Init();              
 		ls_app_timer_init();
     AT_uart_init();	
 		
     HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-		Set_Sleep_Time(5);      //150s		
+		Set_Sleep_Time(30);      //150s		
 							
-								Button_io_init_exti();//开启IO中断用来唤醒
+//		Button_io_init_exti();//开启IO中断用来唤醒
 
 							
 //   io_cfg_output(PA12);   //PB09 config output
