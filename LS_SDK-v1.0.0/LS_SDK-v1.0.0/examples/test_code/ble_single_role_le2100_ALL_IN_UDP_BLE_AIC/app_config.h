@@ -4,7 +4,7 @@
 #define SDK_DEEP_SLEEP_ENABLE 1
 #define DEBUG_MODE 0
 
-#define SDK_HCLK_MHZ (16)
+#define SDK_HCLK_MHZ (64)
 
 #define SDK_MAX_PROFILE_NUM 1
 

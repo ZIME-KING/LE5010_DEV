@@ -106,6 +106,7 @@ extern uint16_t send_time_delay;
 extern uint8_t test_mode_flag;
 
 extern uint8_t look_status_send_count;
+extern uint16_t s_VBat_value;
 
 
 

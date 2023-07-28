@@ -53,7 +53,7 @@ uint16_t Tick_Lock_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Task(void);
 uint16_t Open_Lock_Data_Send_Moto_Task(void);
 
-uint16_t AT_GET_DB_TASK(void);
+uint16_t AT_GET_DB_TASK(uint8_t set_val);
 
 uint16_t Get_Vbat_val(void);
 uint8_t  Get_dBm(void);

@@ -105,6 +105,11 @@ void AT_Command_Send(Typedef_AT AT_COM) {
         //HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=1\r\n",sizeof("AT+CPSMS=1\r\n"),50);
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=1,,,\"01000001\",\"00000101\"\r\n",sizeof("AT+CPSMS=1,,,\"10100011\",\"00000101\"\r\n"),100);
 				break;
+    case CPSMS_RESET:
+        //HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=1\r\n",sizeof("AT+CPSMS=1\r\n"),50);
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CPSMS=2\r\n",sizeof("AT+CPSMS=2\r\n"),100);
+				break;
+
     case ECPMUCFG:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPMUCFG=1,4\r\n",sizeof("AT+ECPMUCFG=1,4\r\n"),100);
         break;
@@ -116,6 +121,9 @@ void AT_Command_Send(Typedef_AT AT_COM) {
         break;
 		case AT_SLEEP:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECPCFG=\"slpWaitTime\",15000\r\n",sizeof("AT+ECPCFG=\"slpWaitTime\",15000\r\n"),100);
+        break;	
+		case AT_ENTER_SLEEP:
+        HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+ECSLEEP=0\r\n",sizeof("AT+ECSLEEP=0"),100);
         break;	
 		case CIMI:
         HAL_UART_Transmit(&UART_Config_AT,(unsigned char*)"AT+CIMI\r\n",sizeof("AT+CIMI\r\n"),100);

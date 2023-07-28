@@ -93,6 +93,8 @@ uint8_t	reset_flag=0;			 //掉电启动标记
 
 uint8_t BLE_connected_flag=0;
 uint8_t VBat_value=0;
+uint16_t s_VBat_value=0;
+
 
 //enum uart_rx_status
 //{
@@ -265,7 +267,9 @@ uint8_t power_mode=POWER_H;
 uint16_t sleep_time=0;
 uint8_t KEY_FLAG=0;   //收到开锁请求
 uint8_t once_flag=0;
-uint8_t db_flag=0;
+uint8_t db_flag=0;     	//信号正常标记
+uint8_t AT_init_flag=0;	//初始设置完成标记
+uint8_t sock_flag=0;  	//sock连接成功标记
 uint8_t test_mode_flag;
 
 
@@ -277,7 +281,7 @@ void user_log_print(){
 	LOG_I("sleep=%d",sleep_time);
 	LOG_I("power_mode=%d",power_mode);
 	LOG_I("user_event_period=%d",user_event_period);	
-
+	LOG_I("s_VBat_value=%d",s_VBat_value);	
 
 }
 void ls_user_event_timer_cb_0(void *param)
@@ -288,26 +292,27 @@ void ls_user_event_timer_cb_0(void *param)
     ls_uart_server_send_notification();  //蓝牙数据发送
     builtin_timer_start(user_event_timer_inst_0, user_event_period, NULL);
 
-    static uint8_t last_power_mode;
+    static uint8_t last_power_mode=POWER_H;
     if(last_power_mode!=power_mode) {
         last_power_mode=power_mode;
         if(power_mode==POWER_L) {
-            RESET_NB();
+						AT_Command_Send(AT_ENTER_SLEEP);      //NB休眠
+            //RESET_NB();
             LOG_I("ENTER_LOWPOWER_MODE");
 						user_event_period=2000;
-						//io_init();
-//					user_io_init();
             User_ADC_DeInit();
             Buzzer_DeInit();
-//					Button_Gpio_Init();
 						Button_io_init_exti();//开启IO中断用来唤醒
 						LED_IO_DeInit();
 						AT_uart_deinit();
         }
 				else if(power_mode==POWER_H) {
 						LOG_I("ENTER_NORPOWER_MODE");
+						RESET_NB();
+	//					AT_GET_DB_TASK(0xFF);
 						user_event_period=5;
             User_ADC_Init();
+
             Buzzer_Init();
             Button_Gpio_Init();
             moto_gpio_init();
@@ -315,7 +320,12 @@ void ls_user_event_timer_cb_0(void *param)
             AT_uart_init();
             HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
             Set_Sleep_Time(30);      //150s
-            LOG_I("ENTER_NORPOWER_MODE");
+						
+						AT_User_Set(0xFF);   //重新设置socket启动标记 
+						AT_GET_DB_TASK(0xFF);
+						Set_Task_State(GET_DB_VAL,START);
+						
+						reset_flag=0;
         }
     }
     if(power_mode==POWER_L) {
@@ -325,14 +335,14 @@ void ls_user_event_timer_cb_0(void *param)
     }
 
     if(i%100==1) {
-			user_log_print();
+			//user_log_print();
     }
 
     Uart_2_Time_Even(); 		 //串口接收数据
     Uart_2_Data_Processing();
     Scan_Key();					 		 //扫描按键
     Moto_Task();				 		 //电机的任务
-//    Get_Vbat_Task();		 		 //获取电池电量 0~100
+    Get_Vbat_Task();		 		 //获取电池电量 0~100
 
     if(i%10==1) {
         //第一次上电从flash读出默认值不为aa进入测试代码
@@ -344,13 +354,8 @@ void ls_user_event_timer_cb_0(void *param)
             TEST_AT_GET_CIMI_TASK();
             TEST_AT_GET_DB_TASK();
             State_Change_Task();
-
-            //LOG_I("tMODE:%X",test_mode_flag);
-            //if(){
-            //}
         }
         else {
-//				LOG_I("50ms");
 					sleep_time++;			 //记录休眠时间,在收到蓝牙数据，和开锁数据时重新计数
 //				LOG_I("sleep_time%d",sleep_time);
 //        if(wd_FLAG==0)HAL_IWDG_Refresh();		//喂狗
@@ -358,14 +363,17 @@ void ls_user_event_timer_cb_0(void *param)
           Buzzer_Task();											//蜂鸣器任务
           Sleep_Task();												//休眠,  Set_Sleep_Time（s）设置休眠时间
 //#ifdef USER_TEST
-//        AT_User_Set_Task();
-//        AT_User_Reply_Task();
-//        LOG_I("db_%x",db_flag);
+
 //#endif
             NB_WAKE_Task();
-            db_flag=AT_GET_DB_TASK();						 //获取信号强度
-            if(db_flag==0xff) {
-                if(AT_INIT()==0xff) {//向服务器注册消息，只在初始化后运行一次
+            db_flag=AT_GET_DB_TASK(0);		//获取信号强度	
+						if(db_flag==0xff)  {
+							AT_init_flag=AT_INIT();			//模块AT配置，只在初始化后运行一次	
+						}
+						if(db_flag==0xff && AT_init_flag==0xff){						
+							sock_flag=AT_User_Set(0);
+						}
+						if(db_flag==0xff && sock_flag==0x03 && AT_init_flag==0xFF) {						
                     //名称有变化
                     if(strncmp((char*)NEW_SHORT_NAME,(char*)SHORT_NAME,SHORT_NAME_LEN)!=0) {
                         LOG_I("read_id");
@@ -381,16 +389,12 @@ void ls_user_event_timer_cb_0(void *param)
                         LOG_I("%s",tmp);
                         wd_FLAG=1;
                     }
-                    AT_User_Set_Task();
-                    AT_User_Reply_Task();
-                    AT_Set_SKTCONNECT_Task();
                     Open_Lock_Data_Send_Moto_Task();
                     State_Change_Task();								 //状态改变蓝牙发送，和NB启动上报数据
                     Start_Lock_Send_Task();			 				 //启动信息上报
                     Open_Lock_Send_Task();			 				 //按键按下，向服务器查询
                     Open_Lock_Data_Send_Task();  				 //信息上报
                     Tick_Lock_Send_Task();							 //心跳包
-                }
             }
             //蓝牙连接下
             if(BLE_connected_flag==1) {

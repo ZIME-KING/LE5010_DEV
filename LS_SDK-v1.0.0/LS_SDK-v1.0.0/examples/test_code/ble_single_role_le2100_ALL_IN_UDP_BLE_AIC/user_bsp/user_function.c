@@ -79,22 +79,22 @@ uint8_t RTC_flag;
 
 
 void User_Init() {
-		Read_Last_Data();
-		
-		User_ADC_Init();
+    Read_Last_Data();
+
+    User_ADC_Init();
     Buzzer_Init();
     Button_Gpio_Init();
     moto_gpio_init();
-		LED_IO_Init();              
-		ls_app_timer_init();
-    AT_uart_init();	
-		
+    LED_IO_Init();
+    ls_app_timer_init();
+    AT_uart_init();
+
     HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-		Set_Sleep_Time(30);      //150s		
-							
+    Set_Sleep_Time(10);      //150s
+
 //		Button_io_init_exti();//开启IO中断用来唤醒
 
-							
+
 //   io_cfg_output(PA12);   //PB09 config output
 //   io_write_pin(PA12,1);
 //    //
@@ -125,15 +125,15 @@ void User_Init() {
 //    last_lock_state=lock_state[0];  //获取初始锁状态
     uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
     LOG_I("wkup_source:%x",wkup_source);
-		if (wkup_source == 0) {
-		    LOG_I("power_trans");
+    if (wkup_source == 0) {
+        LOG_I("power_trans");
         AT_tset_flag=2;
         reset_flag=1;
         Set_Task_State(START_LOCK_SEND,START);
     }
-		
 
-		
+
+
 //    Set_Sleep_Time(20);      //150s
 //    //来自RTC的启动，发送心跳包
 //    if ((RTC_WKUP & wkup_source) != 0) {
@@ -190,21 +190,21 @@ void User_Init() {
     }
 }
 
-void LED_IO_Init(){
-		io_pull_write(PC00, IO_PULL_DISABLE);
-		io_pull_write(PC01, IO_PULL_DISABLE);
+void LED_IO_Init() {
+    io_pull_write(PC00, IO_PULL_DISABLE);
+    io_pull_write(PC01, IO_PULL_DISABLE);
 
-		io_cfg_output(PC00);
-		io_cfg_output(PC01);
-		io_write_pin(PC00, 0);
-		io_write_pin(PC01, 0);
+    io_cfg_output(PC00);
+    io_cfg_output(PC01);
+    io_write_pin(PC00, 0);
+    io_write_pin(PC01, 0);
 }
 
-void LED_IO_DeInit(){
-		io_cfg_input(PC00);
-		io_cfg_input(PC01);
-		io_pull_write(PC00, IO_PULL_DOWN);
-		io_pull_write(PC01, IO_PULL_DOWN);
+void LED_IO_DeInit() {
+    io_cfg_input(PC00);
+    io_cfg_input(PC01);
+    io_pull_write(PC00, IO_PULL_DOWN);
+    io_pull_write(PC01, IO_PULL_DOWN);
 }
 
 void LED_TASK() {
@@ -332,6 +332,7 @@ void Get_Vbat_Task() {
                 true_VBat_value=(4*1400*true_ADC_value/4095);
                 if(true_VBat_value>4200)	true_VBat_value=global_vbat_max;
                 if(true_VBat_value<3000)	true_VBat_value=3000;
+                s_VBat_value= true_VBat_value;
                 //LOG_I("Vbat:%d %",true_VBat_value);
             }
             i++;
@@ -355,6 +356,9 @@ void Get_Vbat_Task() {
             last_ADC_count=ADC_Count;
             true_VBat_value=(true_VBat_value-3000)*100/(global_vbat_max-3000);
             true_VBat_value=(true_VBat_value)*100*0.01;
+
+           // LOG_I("Vbat:%d",true_VBat_value);
+
 #ifdef USER_TEST
             LOG_I("Vbat:%d",true_VBat_value);
             LOG_I("ADC_Count:%d",ADC_Count);
@@ -426,22 +430,26 @@ uint16_t Get_Vbat_val() {
 ////////////////////////////////////////// ADC ///////////////////////////////////////////
 
 
+void Error_Handler() {
+    while(1);
+}
+
 reg_adc_t temp_adc_val;
 
-void save_ADC_config(){
-	memcpy(&temp_adc_val,LSADC, sizeof(temp_adc_val));
-}                
-void reset_ADC_config(){
-	memcpy(LSADC,&temp_adc_val, sizeof(temp_adc_val));
-}   
+void save_ADC_config() {
+    memcpy(&temp_adc_val,LSADC, sizeof(temp_adc_val));
+}
+void reset_ADC_config() {
+    memcpy(LSADC,&temp_adc_val, sizeof(temp_adc_val));
+}
 
 void lsadc_init(void)
 {
-		static uint8_t once_flag=0;
-		if(once_flag!=0xAA){
-					once_flag=0xAA;
-					save_ADC_config();					//保存初始值
-		}
+    static uint8_t once_flag=0;
+    if(once_flag!=0xAA) {
+        once_flag=0xAA;
+        save_ADC_config();					//保存初始值
+    }
     adc12b_in6_io_init();
     hadc.Instance = LSADC;
     hadc.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
@@ -472,18 +480,19 @@ void lsadc_init(void)
     if (HAL_ADCEx_InjectedConfigChannel(&hadc, &sConfigInjected) != HAL_OK)
     {
         /* Channel Configuration Error */
-        //Error_Handler();
+        Error_Handler();
     }
 }
 
-void  User_ADC_Init(){
-   lsadc_init();
+void  User_ADC_Init() {
+    lsadc_init();
+    HAL_ADCEx_InjectedStart_IT(&hadc);
 }
 
-void  User_ADC_DeInit(){
-	reset_ADC_config();
-	adc12b_in6_io_deinit();
-	HAL_ADC_DeInit(&hadc);
+void  User_ADC_DeInit() {
+    reset_ADC_config();
+    adc12b_in6_io_deinit();
+    HAL_ADC_DeInit(&hadc);
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
@@ -612,7 +621,6 @@ void Read_Last_Data() {
 //在接收中断后面跑一次
 ******************/
 void Uart_Data_Processing() {
-
     if(frame[uart_frame_id].status!=0) {    			//接收到数据后status=1;
         HAL_UART_Transmit(&UART_Config_AT,(uint8_t*)frame[uart_frame_id].buffer,frame[uart_frame_id].length,100);
         //接收到的数据 到uart2  透传
@@ -787,6 +795,18 @@ void Uart_2_Data_Processing() {
             //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
             globle_Result=OK_AT;
         }
+        else if( strncmp("AT+CPSMS=2\r\nOK",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+CPSMS=2\r\nOK"))==0) {
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }
+        else if( strncmp("AT+SKTCREATE=1,2,17",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+SKTCREATE=1,2,17"))==0) {
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }			
+        else if( strncmp("AT+SKTDELETE=1",(char*)frame_2[uart_2_frame_id].buffer,strlen("AT+SKTDELETE=1"))==0) {
+            //HAL_UART_Transmit(&UART_Config,(uint8_t*)"error \r\n",sizeof("error \r\n"),10);
+            globle_Result=OK_AT;
+        }			
 
         frame_2[uart_2_frame_id].status=0;					//处理完数据后status 清0;
     }
@@ -906,7 +926,7 @@ uint16_t Open_Lock_Send_Task() {
     static uint8_t count=0;
     static uint16_t temp=0;
     static uint16_t i=0;
-    if(Get_Task_State(OPEN_LOCK_SEND) && AT_tset_flag==0) {
+    if(Get_Task_State(OPEN_LOCK_SEND)) {
         if( open_lock_reply_Result==1) {
             globle_Result=0xFF;
             open_lock_reply_Result=0;
@@ -1235,12 +1255,22 @@ uint16_t AT_Set_SKTCONNECT_Task() {
 }
 
 //获取信号值
-uint16_t AT_GET_DB_TASK() {
+uint16_t AT_GET_DB_TASK(uint8_t set_val) {
     static uint8_t count=0;
     static uint16_t temp;
     static uint16_t i;
     static uint8_t tmp[10];
     uint16_t length = 10;
+
+
+    if(set_val==0xFF) {
+         count=0;
+         temp=0;
+         i=0;
+        return temp;
+    }
+
+
     if(Get_Task_State(GET_DB_VAL)) {
         if(Get_Uart_Data_Processing_Result()==CSQ_OK && Db_val!=99   && Db_val!=0) {
             globle_Result=0xFF;
@@ -1316,7 +1346,7 @@ uint16_t AT_User_Reply() {
 }
 
 //重置模块设置
-uint16_t AT_User_Set(uint8_t reset) {
+uint16_t AT_User_Set_(uint8_t reset) {
     static uint8_t step=0;
     static uint8_t count=0;
 
@@ -1338,14 +1368,14 @@ uint16_t AT_User_Set(uint8_t reset) {
             temp=0xFF;
             break;
 
-        case 1:  //CTM2MSETPM
+        case 1:  //
             step++;
             AT_Command_Send(SKTCREATE);
             //buzzer_task_flag=1;
             temp=0xFF;
             break;
 
-        case 2:    ///AT
+        case 2:    ///
             step++;
             AT_Command_Send(SKTCONNECT);
             //buzzer_task_flag=1;
@@ -1356,9 +1386,97 @@ uint16_t AT_User_Set(uint8_t reset) {
     return temp;
 }
 
+uint16_t AT_User_Set(uint8_t reset) {
+    static int step=0;
+    static int count=0;
+    static int count_out=0;
+    static int set_flag=0;
+    count++;
+    if(reset==0xff) {
+         step=0;
+         count=0;
+         count_out=0;
+         set_flag=0;
+        return 0x00;
+    }
+    if(count%5==0) {
+        switch(step) {
+        case 0:
+            if(Get_Uart_Data_Processing_Result()==OK_AT) {
+                globle_Result=0xff;
+                LOG_I("SKTDELETE");
+                step++;
+                count_out=0;
+            }
+            else {
+                set_flag++;
+                count_out++;
+                if(count_out>5) {
+                    count_out=0	;
+                    step++;
+                }
+                AT_Command_Send(SKTDELETE);
+                //buzzer_task_flag=1;
+            }
+            break;
+
+
+        case 1:
+            //DELAY_US(200000); //50ms
+            if(Get_Uart_Data_Processing_Result()==OK_AT) {
+                globle_Result=0xff;
+                step++;
+                count_out=0;
+            }
+            else {
+                set_flag++;
+                count_out++;
+                if(count_out>5) {
+                    count_out=0	;
+                    step++;
+                }
+                AT_Command_Send(SKTCREATE);
+                //buzzer_task_flag=1;
+            }
+            break;
+
+        case 2:
+            if(Get_Uart_Data_Processing_Result()==OK_AT) {
+                globle_Result=0xff;
+                step++;
+                count_out=0;
+                LOG_I("set_flag:%d",set_flag);
+                if(set_flag>3) {
+//                    RESET_NB();//
+//                    DELAY_US(1000*1000*2);
+//                    platform_reset(0); 					//初始化成功，重启
+                }
+            }
+            else {
+                set_flag++;
+                count_out++;
+                if(count_out>10) {
+                    count_out=0	;
+                    step++;
+                }
+
+                AT_Command_Send(SKTCONNECT);
+                buzzer_task_flag=1;
+            }
+            break;
+        default : /* 可选的 */
+				
+				
+				
+            break;
+            //statement(s);
+        }
+    }
+    return step;
+}
+
 
 uint8_t AT_tset_flag=0;
-
 void AT_User_Reply_Task() {
     if(AT_tset_flag==1) {
         if(AT_User_Reply()==0xAA)
@@ -1369,6 +1487,7 @@ void AT_User_Reply_Task() {
 void AT_User_Set_Task() {
     if(AT_tset_flag==2) {
         if(AT_User_Set(0x00)==0xAA)			AT_tset_flag=0;
+
         if(reset_flag==1) {
             reset_flag=0;
             buzzer_task_flag_2=1;
@@ -1718,6 +1837,42 @@ uint16_t AT_INIT() {
             break;
 
         case 3:
+            if(Get_Uart_Data_Processing_Result()==OK_AT) {
+                globle_Result=0xff;
+                step++;
+                count_out=0;
+            }
+            else {
+                set_flag++;
+                count_out++;
+                if(count_out>5) {
+                    count_out=0	;
+                    step++;
+                }
+                AT_Command_Send(AT_SLEEP);       //设置无数据15s自动休眠
+                buzzer_task_flag=1;
+            }
+            break;
+
+        case 4:
+            if(Get_Uart_Data_Processing_Result()==OK_AT) {
+                globle_Result=0xff;
+                step++;
+                count_out=0;
+            }
+            else {
+                set_flag++;
+                count_out++;
+                if(count_out>5) {
+                    count_out=0	;
+                    step++;
+                }
+                AT_Command_Send(CPSMS_RESET);     //关闭PSM恢复默认值
+                buzzer_task_flag=1;
+            }
+            break;
+
+        case 5:
             //DELAY_US(200000); //50ms
             if(Get_Uart_Data_Processing_Result()==OK_AT) {
                 globle_Result=0xff;
@@ -1725,7 +1880,7 @@ uint16_t AT_INIT() {
                 count_out=0;
 
                 LOG_I("set_flag:%d",set_flag);
-                if(set_flag>4) {
+                if(set_flag>6) {
                     RESET_NB();//
                     DELAY_US(1000*1000*2);
                     platform_reset(0); 					//初始化成功，重启

@@ -17,15 +17,17 @@ CGATT,
 CTM2MSETPM,
 CTM2MREG,
 //ECPCFG,
-CPSMS,
+CPSMS,         //设置PSM
 ECPMUCFG,
 ATE1,    //开启回显
 CSQ,     //信号
 CGSN,		 //设备号
-AT_SLEEP,
+AT_SLEEP,           //设置延时休眠时间
+AT_ENTER_SLEEP,     //立刻进入休眠
 CIMI,
 CEREG_R,
-CPSMS_R,
+CPSMS_R,				//查询PSM
+CPSMS_RESET,    //复位PSM
 CEREG,
 //CPSMS_SET,
 //AECPMUCFG,
