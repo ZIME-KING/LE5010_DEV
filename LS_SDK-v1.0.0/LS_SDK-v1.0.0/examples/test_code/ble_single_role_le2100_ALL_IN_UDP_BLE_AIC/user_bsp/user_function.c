@@ -90,11 +90,8 @@ void User_Init() {
     AT_uart_init();
 
     HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-    Set_Sleep_Time(10);      //150s
-
+    Set_Sleep_Time(150);      //150s
 //		Button_io_init_exti();//开启IO中断用来唤醒
-
-
 //   io_cfg_output(PA12);   //PB09 config output
 //   io_write_pin(PA12,1);
 //    //

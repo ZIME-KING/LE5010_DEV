@@ -309,7 +309,6 @@ void ls_user_event_timer_cb_0(void *param)
 				else if(power_mode==POWER_H) {
 						LOG_I("ENTER_NORPOWER_MODE");
 						RESET_NB();
-	//					AT_GET_DB_TASK(0xFF);
 						user_event_period=5;
             User_ADC_Init();
 
@@ -319,7 +318,7 @@ void ls_user_event_timer_cb_0(void *param)
             LED_IO_Init();
             AT_uart_init();
             HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-            Set_Sleep_Time(30);      //150s
+            Set_Sleep_Time(150);      //150s
 						
 						AT_User_Set(0xFF);   //重新设置socket启动标记 
 						AT_GET_DB_TASK(0xFF);

@@ -9,7 +9,7 @@
 #define VER_0  0xA0          //硬件版本
 
 #ifdef DEF                   //默认塑料锁
-	 #define VER_1  0xA0
+	 #define VER_1  0xA5       //A0->A5
 #endif
 
 #ifdef MAG                   //钢板锁
