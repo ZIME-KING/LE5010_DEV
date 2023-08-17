@@ -196,10 +196,33 @@ void Check_URA196_wait() {
         }
 				if(i==99)LOG_I("URA196_NO_FIND");
         car_val=0x02;        //没有读到模块不存在
-    }
+   }
+	 
+		LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;
+    LSGPIOA->OT = 0;
+    LSGPIOA->PUPD = 0xAAAAAAAA;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOB->MODE &= 0x3c00;  //3C00
+    LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+    LSGPIOB->OT = 0;
+    // LSGPIOB->PUPD = 0x2800;
+    LSGPIOB->PUPD =  0xAAA96AAA;	//	PB15 浮空	 AAA9 6AAA
+		
+		
+//		Buzzer_IO_DeInit();
+//		LED_DeInit();				
+//		Moto_IO_DeInit();
+//		HAL_UART_DeInit(&UART1_Config);
+		HAL_UART_DeInit(&UART2_Config);
+//		uart1_io_deinit();
+		uart2_io_deinit();
+//		User_ADC_DeInit();
 
-    HAL_UART_DeInit(&UART2_Config);
-    uart2_io_deinit();
+//		SW_IO_Deinit();
+		io_cfg_output(PA05);				//  车辆测距
+    io_write_pin(PA05,0);				//	
 }
 
 #endif
@@ -672,6 +695,20 @@ void Enter_Power_Mode_LL(void) {
 		gap_manager_disconnect(user_conid, 0x13);    	//蓝牙主动断连
 
 
+		
+		LSGPIOA->MODE = 0;
+    LSGPIOA->IE = 0;
+    LSGPIOA->OE = 0;
+    LSGPIOA->OT = 0;
+    LSGPIOA->PUPD = 0xAAAAAAAA;  //pa00,PA02不接上下拉，其余全部下拉
+    LSGPIOB->MODE &= 0x3c00;  //3C00
+    LSGPIOB->IE = 0;
+    LSGPIOB->OE = 0;
+    LSGPIOB->OT = 0;
+    // LSGPIOB->PUPD = 0x2800;
+    LSGPIOB->PUPD =  0xAAA96AAA;	//	PB15 浮空	 AAA9 6AAA
+		
+		
 		Buzzer_IO_DeInit();
 		LED_DeInit();				
 		Moto_IO_DeInit();
@@ -683,7 +720,7 @@ void Enter_Power_Mode_LL(void) {
 
 		SW_IO_Deinit();
 		io_cfg_output(PA05);				//  车辆测距
-    io_write_pin(PA05,0);
+    io_write_pin(PA05,0);				//	
 }
 
 
@@ -1037,7 +1074,9 @@ void User_BLE_Ready() {
 	//	Enter_Power_Mode_LL();
 	//	Enter_Power_Mode_NL();
 	//  Enter_Power_Mode_LH();
-		Enter_Power_Mode_NH();
+	
+
+Enter_Power_Mode_NH();
 	
 }
 
