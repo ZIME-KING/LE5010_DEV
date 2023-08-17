@@ -42,6 +42,9 @@
 #define POWER_L 0
 #define POWER_H 1
 
+#define USER_SLEEP_TIME 150
+#define WAK_TIME   86400        //86400
+
 
 #ifdef USER_TEST 
  extern uint8_t open_count;

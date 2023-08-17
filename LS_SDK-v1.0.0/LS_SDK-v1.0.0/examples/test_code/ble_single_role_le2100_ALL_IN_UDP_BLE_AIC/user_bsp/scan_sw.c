@@ -39,19 +39,19 @@ void io_exti_callback(uint8_t pin)
     {
     case SW1:
 				LOG_I("SW1_tig %d",io_read_pin(SW1));
-				sleep_time=0;   //休眠时间清0
+				//sleep_time=0;   //休眠时间清0
 				i++;
         break;
 		
 		case SW2:
 				LOG_I("SW2_tig %d",io_read_pin(SW2));
-				sleep_time=0;   //休眠时间清0
+				//sleep_time=0;   //休眠时间清0
 				i++;
         break;	
 
 		case KEY:
 				LOG_I("KEY_tig %d",io_read_pin(KEY));
-				sleep_time=0;   //休眠时间清0
+				//sleep_time=0;   //休眠时间清0
 				i++;
         break;					
 				
@@ -66,11 +66,15 @@ void io_exti_callback(uint8_t pin)
 //					LOG_I("SW2_tig %d",io_read_pin(SW2));
 //					LOG_I("KEY_tig %d",io_read_pin(KEY));
 //				}
-        power_mode=POWER_H;
-				user_event_period=5;
-				builtin_timer_start(user_event_timer_inst_0, user_event_period, NULL);
-		}
-		
+				DELAY_US(100);
+				if(io_read_pin(KEY)+io_read_pin(SW1)+io_read_pin(SW2)){
+						power_mode=POWER_H;
+						user_event_period=5;
+						ls_app_timer_deinit();
+						ls_app_timer_init();
+				}
+//				builtin_timer_start(user_event_timer_inst_0, user_event_period, NULL);
+		}		
 }
 
 
@@ -137,6 +141,7 @@ void Button_Gpio_DeInit(){
 uint8_t wd_FLAG=0;
 uint8_t KEY_ONCE;      //按键按下一次标记
 //5ms 跑一次
+extern uint16_t global_vbat_max;
 void Scan_Key(){
 	static uint16_t count=0;
 //	static uint8_t edge_flag;
@@ -161,6 +166,9 @@ void Scan_Key(){
 						 moro_task_flag=1; 
 					}
 					LOG_I("Vbat:%d",VBat_value);				
+					LOG_I("vbat_max:%d %",global_vbat_max);
+					LOG_I("s_VBat_value:%d %",s_VBat_value);								
+	
 					//if(Get_Task_State(OPEN_LOCK_SEND)){
 					//		Open_Lock_Send();
 					//		buzzer_task_flag=1;

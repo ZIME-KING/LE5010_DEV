@@ -9,7 +9,7 @@
 #define VER_0  0xA0          //硬件版本
 
 #ifdef DEF                   //默认塑料锁
-	 #define VER_1  0xA5       //A0->A5
+	 #define VER_1  0xA6       //A0->A5->A6
 #endif
 
 #ifdef MAG                   //钢板锁
@@ -27,7 +27,7 @@
 //#define VER_0  0xA0
 //#define VER_1  0xB0
 
-uint8_t send_count;							 //发送计数
+uint8_t send_count=0;							 //发送计数
 uint8_t lock_state[LOCK_NUM+1];  //锁状态存储
 uint8_t C0_lock_state[LOCK_NUM+1];  //锁状态存储
 
@@ -292,7 +292,7 @@ void Tick_Lock_Send() {
     DATA_BUF[1] = Frame_header[1];//帧头
 
     DATA_BUF[2] = 0X25;		//长度
-    DATA_BUF[3] = send_count;   //事务ID  发送一次++ 0~255
+    DATA_BUF[3] = send_count++;   //事务ID  发送一次++ 0~255
     DATA_BUF[4] = 0X02;   //功能码  心跳
 
     DATA_BUF[5] = 0XA0;   //锁硬件版本号

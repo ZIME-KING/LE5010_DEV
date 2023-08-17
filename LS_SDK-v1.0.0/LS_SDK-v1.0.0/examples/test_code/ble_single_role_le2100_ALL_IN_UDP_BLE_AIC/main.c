@@ -94,7 +94,7 @@ uint8_t	reset_flag=0;			 //掉电启动标记
 uint8_t BLE_connected_flag=0;
 uint8_t VBat_value=0;
 uint16_t s_VBat_value=0;
-
+int32_t auto_wak_value=WAK_TIME;  //自动唤醒发送心跳包间隔，单位S
 
 //enum uart_rx_status
 //{
@@ -284,13 +284,19 @@ void user_log_print(){
 	LOG_I("s_VBat_value=%d",s_VBat_value);	
 
 }
+#include "cmsis_compiler.h"
+
 void ls_user_event_timer_cb_0(void *param)
 {
     static uint16_t i;
-    i++;
+    i++;	
 
-    ls_uart_server_send_notification();  //蓝牙数据发送
+		ls_uart_server_send_notification();  //蓝牙数据发送
     builtin_timer_start(user_event_timer_inst_0, user_event_period, NULL);
+
+//		LOG_I("PSP;%x",__get_PSP());
+//		LOG_I("PSP;%x",__get_MSP());
+
 
     static uint8_t last_power_mode=POWER_H;
     if(last_power_mode!=power_mode) {
@@ -305,9 +311,12 @@ void ls_user_event_timer_cb_0(void *param)
 						Button_io_init_exti();//开启IO中断用来唤醒
 						LED_IO_DeInit();
 						AT_uart_deinit();
+						send_count=0;
+						//HAL_IWDG_Init(32756*5);  	 //5s看门狗
         }
 				else if(power_mode==POWER_H) {
 						LOG_I("ENTER_NORPOWER_MODE");
+						send_count=0;
 						RESET_NB();
 						user_event_period=5;
             User_ADC_Init();
@@ -318,17 +327,28 @@ void ls_user_event_timer_cb_0(void *param)
             LED_IO_Init();
             AT_uart_init();
             HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-            Set_Sleep_Time(150);      //150s
-						
+            Set_Sleep_Time(USER_SLEEP_TIME);      //150s
+																															
 						AT_User_Set(0xFF);   //重新设置socket启动标记 
 						AT_GET_DB_TASK(0xFF);
 						Set_Task_State(GET_DB_VAL,START);
 						
 						reset_flag=0;
+						auto_wak_value=WAK_TIME;
+						sleep_time=0;
+						//HAL_IWDG_Init(32756*5);  	 //5s看门狗
         }
     }
+		HAL_IWDG_Refresh();
+
     if(power_mode==POWER_L) {
-        LOG_I("5000ms");
+        LOG_I("2000ms");
+				auto_wak_value-=2;
+				LOG_I("auto_wak_value=%d",auto_wak_value);
+				if(auto_wak_value<=0){
+						power_mode=POWER_H;
+					  Set_Task_State(TICK_LOCK_SEND,START);
+				}
 				user_log_print();
         return;
     }

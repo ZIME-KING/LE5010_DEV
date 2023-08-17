@@ -349,7 +349,7 @@ __STATIC_FORCEINLINE void __set_MSP(uint32_t topOfMainStack)
 }
 
 
-#if (defined (__ARM_FEATURE_CMSE ) && (__ARM_FEATURE_CMSE == 3))
+#if (defined (__ARM_FEATURE_CMSE==3 ) && (__ARM_FEATURE_CMSE == 3))
 /**
   \brief   Set Main Stack Pointer (non-secure)
   \details Assigns the given value to the non-secure Main Stack Pointer (MSP) when in secure state.

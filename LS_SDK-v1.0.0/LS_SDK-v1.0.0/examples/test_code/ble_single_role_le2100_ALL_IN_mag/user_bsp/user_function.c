@@ -230,7 +230,7 @@ void Get_Vbat_Task(){
 							true_VBat_value=(4*1400*true_ADC_value/4095);
 							if(true_VBat_value>4200)	true_VBat_value=global_vbat_max;
 							if(true_VBat_value<3000)	true_VBat_value=3000;
-							//LOG_I("Vbat:%d %",true_VBat_value);
+							LOG_I("Vbat=%d",true_VBat_value);
 						}
 						i++;
 			}

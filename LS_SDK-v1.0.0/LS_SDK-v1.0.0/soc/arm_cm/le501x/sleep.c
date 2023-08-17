@@ -117,7 +117,7 @@ XIP_BANNED void after_wfi()
     normal_sleep_set();
     if(wkup_stat & WDT_WKUP)
     {
-        while(1);
+      //  while(1);
     }
     dcdc_on();
     SYSCFG->ANACFG0 |= (SYSCFG_EN_DPLL_MASK | SYSCFG_EN_DPLL_16M_RF_MASK | SYSCFG_EN_DPLL_128M_RF_MASK | SYSCFG_EN_DPLL_128M_EXT_MASK | SYSCFG_EN_QCLK_MASK);

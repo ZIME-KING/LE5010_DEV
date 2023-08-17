@@ -23,6 +23,7 @@ uint8_t user_count =30;
 //#define	USER_COUNT 25
 
 
+
 //#define RECORD_KEY1  1	//蓝牙名称
 //#define RECORD_KEY2  2  //完成模块初始化标记
 //#define RECORD_KEY3  3  //蓝牙开锁密码
@@ -66,17 +67,18 @@ uint8_t open_lock_data_moto_reply_Result=0;
 uint8_t start_lock_reply_Result=0;
 uint8_t set_sktconnect_reply_Result=0;
 
-uint32_t adc_value = 0;						//
+volatile uint32_t adc_value = 0;						//
 uint8_t AT_RX_DATA_BUF[50];  			//保存接受到回复信息  +NNMI:2,A101 ->0xA1,0x01
 uint8_t Db_val;
 
 volatile uint8_t recv_flag = 0;
-static ADC_HandleTypeDef hadc;
+ADC_HandleTypeDef hadc;
 
 void Read_Last_Data(void);
 
-uint8_t RTC_flag;
+void lsadc_init(void);
 
+uint8_t RTC_flag;
 
 void User_Init() {
     Read_Last_Data();
@@ -88,94 +90,14 @@ void User_Init() {
     LED_IO_Init();
     ls_app_timer_init();
     AT_uart_init();
-
+		
     HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-    Set_Sleep_Time(150);      //150s
-//		Button_io_init_exti();//开启IO中断用来唤醒
-//   io_cfg_output(PA12);   //PB09 config output
-//   io_write_pin(PA12,1);
-//    //
-//    io_cfg_output(PC01);   //PB09 config output
-//    io_write_pin(PC01,0);
-//    io_cfg_output(PC00);   //PB10 config output
-//    io_write_pin(PC00,0);  //PB10 write low power
-////	HAL_IWDG_Init(32756);  //1s看门狗
-//    HAL_RTC_Init(2);    	 //RTC内部时钟源
-//    RTC_wkuptime_set(3*60*60);	 //唤醒时间48h  休眠函数在sw.c 中
-//    //RTC_wkuptime_set(60);	 //唤醒时间30s  休眠函数在sw.c 中
-//    WAKE_UP();
-//    Set_Task_State(GET_DB_VAL,START);
-//    Button_Gpio_Init();
-//    uint8_t button_flag=io_read_pin(PB15);
-//    DELAY_US(200*1000);
-//    Read_Last_Data();
-
-//    ls_app_timer_init();
-//    //HAL_UART_Receive_IT(&UART_Config,uart_buffer,1);
-//    HAL_UART_Receive_IT(&UART_Config_AT,uart_2_buffer,1);		// 使能串口2接收中断
-//    if(Check_SW2()==1 && Check_SW1()==0 ) {
-//        lock_state[0]=1;
-//    }
-//    else {
-//        lock_state[0]=0;
-//    }
-//    last_lock_state=lock_state[0];  //获取初始锁状态
-    uint8_t wkup_source = get_wakeup_source();   //获取唤醒源
-    LOG_I("wkup_source:%x",wkup_source);
-    if (wkup_source == 0) {
-        LOG_I("power_trans");
-        AT_tset_flag=2;
-        reset_flag=1;
-        Set_Task_State(START_LOCK_SEND,START);
-    }
-
-
-
-//    Set_Sleep_Time(20);      //150s
-//    //来自RTC的启动，发送心跳包
-//    if ((RTC_WKUP & wkup_source) != 0) {
-//        RTC_flag=1;
-//        SYSCFG->BKD[7]++;
-//        if(SYSCFG->BKD[7]<7) {
-//            Set_Sleep_Time(1);
-//            //RESET_NB();
-//        }
-//        else if(SYSCFG->BKD[7]==8) {
-//            SYSCFG->BKD[7]=0;
-//            Set_Sleep_Time(150);
-//            RESET_NB();
-//            Set_Task_State(TICK_LOCK_SEND,START);
-//            AT_tset_flag=1;
-//        }
-//    }
-//    //来自按键和锁开关唤醒
-//    else if ((PB15_IO_WKUP & wkup_source) != 0) {
-//        AT_tset_flag=2;
-//        //Set_Task_State(OPEN_LOCK_SEND,START);
-//        //KEY_ONCE=1;            //由启动按键唤醒
-//        if(button_flag==0) {
-//            //启动开锁请求发送
-//            buzzer_task_flag=1;
-//            Set_Task_State(OPEN_LOCK_SEND,START);
-//            KEY_ONCE=1;
-//        }
-//        //由锁开关唤醒
-//        else {
-//            if(lock_state[0]==1) {
-//                buzzer_task_flag=1;
-//            }
-//            Set_Task_State(OPEN_LOCK_DATA_SEND,START);
-//            look_status_send_count+=2;
-//            if(look_status_send_count>=3)  look_status_send_count=3;
-//            //启动锁数据上报命令
-//        }
-//    }
-//    //断电重启
-//    else if (wkup_source == 0) {
-//        AT_tset_flag=2;
-//        reset_flag=1;
-//        Set_Task_State(START_LOCK_SEND,START);
-//    }
+    Set_Sleep_Time(USER_SLEEP_TIME);      //150s		
+		HAL_IWDG_Init(32756*5);  	 //5s看门狗
+		LOG_I("ready_init_ok");
+		AT_tset_flag=2;
+		reset_flag=1;
+		Set_Task_State(START_LOCK_SEND,START);
     if(test_mode_flag!=0xAA) {
         Set_Task_State(GET_MODE_VAL,START);
         Set_Task_State(GET_EMIC_VAL,STOP);
@@ -291,10 +213,11 @@ void _f(uint16_t a[],char len) {
 //为了让电量显示准确，加入校准100%时的电池电压功能
 //在
 
-uint16_t global_vbat_max;
+uint16_t global_vbat_max;  
+static uint16_t temp_ADC_value[20];
 void Get_Vbat_Task() {
     uint32_t true_ADC_value=0;
-    static uint16_t temp_ADC_value[20];
+
     static uint16_t true_VBat_value=0;
 
     static uint16_t count=0;
@@ -330,7 +253,8 @@ void Get_Vbat_Task() {
                 if(true_VBat_value>4200)	true_VBat_value=global_vbat_max;
                 if(true_VBat_value<3000)	true_VBat_value=3000;
                 s_VBat_value= true_VBat_value;
-                //LOG_I("Vbat:%d %",true_VBat_value);
+//                LOG_I("Vbat=%d",true_VBat_value);
+//								LOG_I("adc_value=%d",adc_value);
             }
             i++;
         }
@@ -440,7 +364,7 @@ void reset_ADC_config() {
     memcpy(LSADC,&temp_adc_val, sizeof(temp_adc_val));
 }
 
-void lsadc_init(void)
+void lsadc_init()
 {
     static uint8_t once_flag=0;
     if(once_flag!=0xAA) {
@@ -457,7 +381,7 @@ void lsadc_init(void)
     hadc.Init.ContinuousConvMode    = DISABLE;                        /* Continuous mode to have maximum conversion speed (no delay between conversions) */
     hadc.Init.TrigType      = ADC_INJECTED_SOFTWARE_TRIGT;            /* The reference voltage uses an internal reference */
     hadc.Init.Vref          = ADC_VREF_INSIDE;//ADC_VREF_INSIDE ADC_VREF_VCC
-    hadc.Init.AdcCkDiv = ADC_CLOCK_DIV2;
+    hadc.Init.AdcCkDiv = ADC_CLOCK_DIV8;//ADC_CLOCK_DIV2;
 
     hadc.Init.AdcDriveType=EINBUF_DRIVE_ADC;
 
@@ -885,7 +809,7 @@ uint16_t Start_Lock_Send_Task() {
     static uint8_t count=0;
     static uint16_t temp=0;
     static uint16_t i=0;
-    if(Get_Task_State(START_LOCK_SEND)  && AT_tset_flag==0 ) {
+    if(Get_Task_State(START_LOCK_SEND)  /*&& AT_tset_flag==0 */) {
         if(start_lock_reply_Result==1) {
             globle_Result=0xFF;
             start_lock_reply_Result=0;
@@ -1287,9 +1211,9 @@ uint16_t AT_GET_DB_TASK(uint8_t set_val) {
                     if(strncmp("SET_OK",(char*)tmp,sizeof("SET_OK"))!=0) {
                         buzzer_task_flag=1;
                     }
-                    if(reset_flag==1) {
-                        buzzer_task_flag=1;
-                    }
+//                    if(reset_flag==1) {
+//                        buzzer_task_flag=1;
+//                    }
                 }
                 if(count>=20 && count<40) {
                     buzzer_task_flag=1;
@@ -1458,7 +1382,7 @@ uint16_t AT_User_Set(uint8_t reset) {
                 }
 
                 AT_Command_Send(SKTCONNECT);
-                buzzer_task_flag=1;
+                //buzzer_task_flag=1;
             }
             break;
         default : /* 可选的 */
